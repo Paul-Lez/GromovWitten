@@ -65,6 +65,10 @@ Implemented APIs include:
   decrease, finite contraction chains, and termination at a relatively minimal model;
 - finite connected dual multigraphs with loops, valence, arithmetic genus, unpointed
   stability, and relabelling invariance;
+- the geometric dual graph of a nodal curve over a field, constructed from the irreducible
+  components, the finite discrete set of points without a smooth étale chart, and the finite
+  set of points lying on two distinct components, with connectivity derived from connectedness
+  of the curve;
 - weighted numerical Picard groups, their comparison with the raw intersection cokernel,
   parity and signed-genus formulae, connectedness criteria, the rank-one theorem, and
   finite prime-torsion calculations, together with specialization of genuine relative
