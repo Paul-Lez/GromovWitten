@@ -24,4 +24,3 @@ jobs:
             exit 1
           fi
       - uses: leanprover/lean-action@v1
-      - uses: leanprover-community/docgen-action@v1
