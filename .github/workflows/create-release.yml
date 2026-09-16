@@ -7,6 +7,7 @@ on:
       - 'master'
     paths:
       - 'lean-toolchain'
+  workflow_dispatch:
 
 jobs:
   lean-release-tag:
@@ -16,7 +17,11 @@ jobs:
       contents: write
     steps:
     - name: lean-release-tag action
-      uses: leanprover-community/lean-release-tag@v1
+      # Includes upstream's fix for the all-zero `before` SHA on a repository's initial push.
+      uses: leanprover-community/lean-release-tag@ee8ee743e5a36ff0e75ff51035f6a95a9d1bdf59
       with:
+        # A manual run scans the complete history, which also bootstraps a newly created repo.
+        before: ${{ github.event_name == 'workflow_dispatch' && '0000000000000000000000000000000000000000' || github.event.before }}
+        after: ${{ github.sha }}
         do-release: true
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
