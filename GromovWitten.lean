@@ -17,6 +17,7 @@ import GromovWitten.AlgebraicGeometry.Stacks.Algebraic
 import GromovWitten.AlgebraicGeometry.Stacks.Scheme
 import GromovWitten.AlgebraicGeometry.Stacks.AlgebraicSpace
 import GromovWitten.AlgebraicGeometry.Stacks.Properties
+import GromovWitten.AlgebraicGeometry.Stacks.PropertiesDescent
 import GromovWitten.AlgebraicGeometry.Stacks.PresentationTransport
 import GromovWitten.AlgebraicGeometry.Stacks.EquivalencePresentation
 import GromovWitten.AlgebraicGeometry.Stacks.EquivalenceProperties
@@ -28,6 +29,8 @@ import GromovWitten.AlgebraicGeometry.Stacks.TwoPullbackBilimit
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientPresentation
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStack
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackPullback
+import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackMaps
+import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackClassifying
 import GromovWitten.AlgebraicGeometry.Stacks.Geometry
 import GromovWitten.AlgebraicGeometry.Spaces.Representable
 import GromovWitten.AlgebraicGeometry.Spaces.Basic
@@ -48,6 +51,7 @@ import GromovWitten.AlgebraicGeometry.CotangentComplex.Derived
 import GromovWitten.AlgebraicGeometry.CotangentComplex.Perfect
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.ChowGroup
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.Gysin
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.ChowGroupLocalization
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.StabilizerWeight
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.StackChow
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.StackGysin
@@ -103,6 +107,7 @@ import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeRegularity
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeNodal
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeCentralChart
+import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeResolution
 import GromovWitten.AlgebraicGeometry.RegularScheme
 import GromovWitten.AlgebraicGeometry.FittingIdeals
 import GromovWitten.AlgebraicGeometry.FittingIdealsSheaf

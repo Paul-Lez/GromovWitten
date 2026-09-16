@@ -54,6 +54,11 @@ Implemented APIs include:
   reductions; plus the graded Rees algebra and Proj blowup, its degree-one affine cover and
   universal principalization maps, and genuine scheme isomorphisms identifying all three node
   charts with Rees charts compatibly with the blowup projection;
+- a resolution of the standard node of every thickness over a discrete valuation ring: a
+  regular scheme with a proper morphism to the node which is an isomorphism away from the
+  closed origin, obtained by induction on the thickness through relative gluing of the
+  lower-thickness resolution into the parameter chart of the origin blowup, along the locally
+  directed cover of the blowup by that chart, the two side charts, and their overlap;
 - regular proper arithmetic surfaces whose numerical data is indexed by the actual irreducible
   components of the scheme-theoretic special fibre, with vertical-divisor intersection,
   resolutions, proper geometric contractions, open-complement isomorphisms, strict component
