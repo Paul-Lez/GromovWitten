@@ -76,6 +76,19 @@ Implemented APIs include:
   families and base-change-stable transport of supplied numerical stability data.  Finiteness of
   the geometric automorphism group scheme is absent, while stabilization, forgetting, and
   geometric nodal gluing remain conditional outputs of caller-supplied engines;
+- the Krull dimension of a nonzero standard-smooth algebra of relative dimension `n` over a
+  field is exactly `n`; hence a smooth family of geometric pure relative dimension one is smooth
+  of relative dimension one, the relative smooth locus of every locally finitely presented
+  family of geometric pure relative dimension one is smooth of relative dimension one, every
+  closed section of such a morphism is an effective Cartier divisor, and every marking of a
+  pointed prestable family gives an effective Cartier divisor with base-isomorphic subscheme,
+  together with the sum of finitely many marking divisors;
+- common refinements of finite DVR extensions exist unconditionally, so the former
+  common-refinement engine is gone; the normalization of an integral scheme locally of finite
+  type over a characteristic-zero field is finite, with nonzero conductor;
+- higher direct images of abelian sheaves are genuine right derived functors of pushforward,
+  with `R⁰ f_* = f_*` and the degree-zero base-change comparison identified with the canonical
+  Beck--Chevalley morphism;
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as

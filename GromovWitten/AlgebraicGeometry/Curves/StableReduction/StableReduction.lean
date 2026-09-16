@@ -114,14 +114,8 @@ theorem not_exists_of_genus_one (hgenus : curve.genus = 1) :
 
 end StableReductionResult
 
-/-- Construction of compatible common refinements for selected finite DVR extensions. -/
-structure DVRCommonRefinementEngine : Type (u + 1) where
-  commonRefinement : ∀ E F : FiniteDVRExtension R K,
-    FiniteDVRExtension.CommonRefinement E F
-
 /-- Construction interface for semistable and higher-genus stable reduction. -/
 structure StableReductionEngine : Type (u + 1) where
-  commonRefinements : DVRCommonRefinementEngine (R := R) (K := K)
   nodal : ∀ {C : Scheme.{u}} {toK : C ⟶ Spec (.of K)}
     (curve : SmoothProperCurve C toK), NodalReduction (R := R) (K := K) curve
   semistable : ∀ {C : Scheme.{u}} {toK : C ⟶ Spec (.of K)}

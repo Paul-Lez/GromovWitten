@@ -8,6 +8,7 @@ import GromovWitten.Basic
 import GromovWitten.Algebra.CompleteIntersection
 import GromovWitten.Algebra.QuasiRegular
 import GromovWitten.Algebra.RegularLocalHypersurface
+import GromovWitten.Algebra.StandardSmoothKrullDimension
 import GromovWitten.AlgebraicGeometry.Stacks.GroupoidValued
 import GromovWitten.AlgebraicGeometry.Stacks.Descent
 import GromovWitten.AlgebraicGeometry.Stacks.Discrete
@@ -69,12 +70,15 @@ import GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.Public
 import GromovWitten.AlgebraicGeometry.Morphisms.Syntomic
 import GromovWitten.AlgebraicGeometry.Morphisms.Unramified
 import GromovWitten.AlgebraicGeometry.Curves.RelativeDimension
+import GromovWitten.AlgebraicGeometry.Curves.SmoothLocusDimension
 import GromovWitten.AlgebraicGeometry.Curves.Sections
 import GromovWitten.AlgebraicGeometry.Curves.Nodal
 import GromovWitten.AlgebraicGeometry.Curves.Normalization
+import GromovWitten.AlgebraicGeometry.Curves.NormalizationFinite
 import GromovWitten.AlgebraicGeometry.Curves.Prestable
 import GromovWitten.AlgebraicGeometry.Curves.LineBundles
 import GromovWitten.AlgebraicGeometry.Curves.CartierDivisors
+import GromovWitten.AlgebraicGeometry.Curves.MarkingDivisors
 import GromovWitten.AlgebraicGeometry.Curves.RelativeLineBundles
 import GromovWitten.AlgebraicGeometry.Curves.CohomologyBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.DualGraph
