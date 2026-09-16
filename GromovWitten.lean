@@ -9,6 +9,7 @@ import GromovWitten.Algebra.CompleteIntersection
 import GromovWitten.Algebra.QuasiRegular
 import GromovWitten.Algebra.RegularLocalHypersurface
 import GromovWitten.Algebra.StandardSmoothKrullDimension
+import GromovWitten.Algebra.FiniteTypeKrullDimension
 import GromovWitten.AlgebraicGeometry.Stacks.GroupoidValued
 import GromovWitten.AlgebraicGeometry.Stacks.Descent
 import GromovWitten.AlgebraicGeometry.Stacks.Discrete
@@ -26,6 +27,7 @@ import GromovWitten.AlgebraicGeometry.Stacks.TwoPullback
 import GromovWitten.AlgebraicGeometry.Stacks.TwoPullbackBilimit
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientPresentation
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStack
+import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackPullback
 import GromovWitten.AlgebraicGeometry.Stacks.Geometry
 import GromovWitten.AlgebraicGeometry.Spaces.Representable
 import GromovWitten.AlgebraicGeometry.Spaces.Basic
@@ -71,6 +73,7 @@ import GromovWitten.AlgebraicGeometry.Morphisms.Syntomic
 import GromovWitten.AlgebraicGeometry.Morphisms.Unramified
 import GromovWitten.AlgebraicGeometry.Curves.RelativeDimension
 import GromovWitten.AlgebraicGeometry.Curves.SmoothLocusDimension
+import GromovWitten.AlgebraicGeometry.Curves.FibreDimension
 import GromovWitten.AlgebraicGeometry.Curves.Sections
 import GromovWitten.AlgebraicGeometry.Curves.Nodal
 import GromovWitten.AlgebraicGeometry.Curves.Normalization
@@ -94,6 +97,7 @@ import GromovWitten.AlgebraicGeometry.Curves.StableMaps.PrestableMap
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.Model
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ReesBlowup
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ReesLocalization
+import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ReesBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNode
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeRegularity
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeNodal
@@ -101,6 +105,7 @@ import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeCentralChart
 import GromovWitten.AlgebraicGeometry.RegularScheme
 import GromovWitten.AlgebraicGeometry.FittingIdeals
+import GromovWitten.AlgebraicGeometry.FittingIdealsSheaf
 import GromovWitten.AlgebraicGeometry.NormalizationConductor
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeCertificate
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.NumericalType
