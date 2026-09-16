@@ -13,6 +13,12 @@ A finite extension records a finite separable extension of the fraction field to
 chosen maximal ideal of the integral closure above the closed point.  The extended DVR is the
 localization at that ideal.  Its local, DVR, and fraction-field properties are consequences, not
 additional structure fields.
+
+The file ends with an unconditional construction of common refinements
+(`FiniteDVRExtension.nonempty_commonRefinement`): any two chosen finite DVR extensions of the same
+base embed compatibly into a third one.  The construction embeds both extension fields into a
+finite Galois extension of the fraction field, lifts both selected primes to the integral closure
+there, and moves one of the two lifts onto the other by an automorphism of the Galois extension.
 -/
 
 namespace GromovWitten.AlgebraicGeometry.Curves.StableReduction
@@ -349,8 +355,8 @@ def localRingToExtensionFieldNatTrans :
 
 /-- Data exhibiting two chosen extensions inside a common compatible refinement.
 
-This is deliberately only a structure: no unconditional existence statement is available from
-the current integral-closure/lying-over API. -/
+Such data always exist: see `FiniteDVRExtension.nonempty_commonRefinement` for the existence
+theorem and `FiniteDVRExtension.commonRefinement` for a chosen common refinement. -/
 structure CommonRefinement (E F : FiniteDVRExtension R K) where
   refinement : FiniteDVRExtension R K
   left : E ⟶ refinement
@@ -389,6 +395,214 @@ def postcompose {E F G : FiniteDVRExtension R K} (P : CommonRefinement E F)
   right := P.right ≫ f
 
 end CommonRefinement
+
+end FiniteDVRExtension
+
+/-! ### Existence of common refinements
+
+The namespace is reopened so that the auxiliary results below can be stated with exactly the
+section variables they need. -/
+
+namespace FiniteDVRExtension
+
+section IntegralClosureMap
+
+variable {R : Type u} [CommRing R]
+
+/-- The map induced on integral closures by a map of `R`-algebras. -/
+def integralClosureMap {L M : Type u} [CommRing L] [CommRing M] [Algebra R L] [Algebra R M]
+    (f : L →ₐ[R] M) : integralClosure R L →ₐ[R] integralClosure R M :=
+  (f.comp (integralClosure R L).val).codRestrict (integralClosure R M) fun x ↦ x.2.map f
+
+@[simp]
+lemma coe_integralClosureMap {L M : Type u} [CommRing L] [CommRing M] [Algebra R L] [Algebra R M]
+    (f : L →ₐ[R] M) (x : integralClosure R L) :
+    ((integralClosureMap f x : integralClosure R M) : M) = f (x : L) := rfl
+
+lemma integralClosureMap_injective {L M : Type u} [CommRing L] [CommRing M] [Algebra R L]
+    [Algebra R M] {f : L →ₐ[R] M} (hf : Function.Injective f) :
+    Function.Injective (integralClosureMap f) := by
+  intro x y h
+  apply Subtype.ext
+  apply hf
+  simpa using congrArg (fun z : integralClosure R M ↦ (z : M)) h
+
+lemma integralClosureMap_comp {L M P : Type u} [CommRing L] [CommRing M] [CommRing P]
+    [Algebra R L] [Algebra R M] [Algebra R P] (f : L →ₐ[R] M) (g : M →ₐ[R] P) :
+    integralClosureMap (g.comp f) = (integralClosureMap g).comp (integralClosureMap f) := rfl
+
+end IntegralClosureMap
+
+section Compositum
+
+variable {K : Type u} [Field K]
+
+/-- Any two finite separable extensions of `K` embed into a common finite Galois extension of `K`:
+take the normal closure of the compositum of two chosen copies inside a separable closure. -/
+theorem exists_galois_compositum (L M : Type u) [Field L] [Field M] [Algebra K L] [Algebra K M]
+    [FiniteDimensional K L] [FiniteDimensional K M] [Algebra.IsSeparable K L]
+    [Algebra.IsSeparable K M] :
+    ∃ (N : Type u) (_ : Field N) (_ : Algebra K N),
+      ∃ (_ : FiniteDimensional K N) (_ : IsGalois K N),
+        Nonempty (L →ₐ[K] N) ∧ Nonempty (M →ₐ[K] N) := by
+  let Ω : Type u := separableClosure K (AlgebraicClosure K)
+  let φ : L →ₐ[K] Ω := IsSepClosed.lift
+  let ψ : M →ₐ[K] Ω := IsSepClosed.lift
+  have hφ : FiniteDimensional K φ.fieldRange := φ.equivFieldRange.toLinearEquiv.finiteDimensional
+  have hψ : FiniteDimensional K ψ.fieldRange := ψ.equivFieldRange.toLinearEquiv.finiteDimensional
+  refine ⟨IntermediateField.normalClosure K ↥(φ.fieldRange ⊔ ψ.fieldRange) Ω, inferInstance,
+    inferInstance, inferInstance, inferInstance, ⟨?_⟩, ⟨?_⟩⟩
+  · exact (IntermediateField.inclusion
+      (le_trans le_sup_left (IntermediateField.le_normalClosure _))).comp
+      φ.equivFieldRange.toAlgHom
+  · exact (IntermediateField.inclusion
+      (le_trans le_sup_right (IntermediateField.le_normalClosure _))).comp
+      ψ.equivFieldRange.toAlgHom
+
+end Compositum
+
+section CommonRefinements
+
+variable {R K : Type u} [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
+variable [Field K] [Algebra R K] [IsFractionRing R K]
+
+/-- A finite DVR extension assembled from an explicit finite separable extension field of `K`
+together with a chosen maximal ideal of its integral closure above the closed point. -/
+def ofField (N : Type u) [Field N] [Algebra K N] [Algebra R N] [IsScalarTower R K N]
+    [FiniteDimensional K N] [Algebra.IsSeparable K N] (Q : Ideal (integralClosure R N))
+    (hmax : Q.IsMaximal) (hover : Q.LiesOver (IsLocalRing.maximalIdeal R)) :
+    FiniteDVRExtension R K where
+  extension := ⟨N, inferInstance⟩
+  prime := Q
+  prime_isMaximal := hmax
+  prime_liesOver := hover
+
+@[simp]
+lemma ofField_extensionField (N : Type u) [Field N] [Algebra K N] [Algebra R N]
+    [IsScalarTower R K N] [FiniteDimensional K N] [Algebra.IsSeparable K N]
+    (Q : Ideal (integralClosure R N)) (hmax : Q.IsMaximal)
+    (hover : Q.LiesOver (IsLocalRing.maximalIdeal R)) :
+    (ofField (R := R) (K := K) N Q hmax hover).extensionField = N := rfl
+
+/-- A compatible embedding of chosen finite DVR extensions built from an embedding of extension
+fields that pulls the selected prime of the target back to the selected prime of the source. -/
+def Hom.ofFieldHom {E G : FiniteDVRExtension R K} (f : E.extensionField →ₐ[K] G.extensionField)
+    (hf : E.prime = Ideal.comap (integralClosureMap (f.restrictScalars R)) G.prime) :
+    E ⟶ G where
+  fieldHom := f
+  localRingHom :=
+    Localization.localAlgHom E.prime G.prime (integralClosureMap (f.restrictScalars R)) hf
+  localRingHom_isLocal := Localization.isLocalHom_localRingHom _ _ _ hf
+  fraction_commutes x := by
+    have h : (algebraMap G.localRing G.extensionField).comp
+        (Localization.localAlgHom E.prime G.prime
+          (integralClosureMap (f.restrictScalars R)) hf).toRingHom =
+        f.toRingHom.comp (algebraMap E.localRing E.extensionField) := by
+      refine IsLocalization.ringHom_ext E.prime.primeCompl ?_
+      ext y
+      simp only [RingHom.coe_comp, Function.comp_apply, AlgHom.toRingHom_eq_coe,
+        RingHom.coe_coe, Localization.localAlgHom_apply, Localization.localRingHom_to_map,
+        algebraMap_integralClosure_localRing_extensionField]
+      change ((integralClosureMap (AlgHom.restrictScalars R f) y : integralClosure R _) :
+        G.extensionField) = f ((y : E.extensionField))
+      simp
+    exact RingHom.congr_fun h x
+
+/-- Every embedding of the extension field of a chosen finite DVR extension into a further
+extension field lifts the selected prime to a maximal ideal above the closed point of `R`. -/
+theorem exists_prime_over {N : Type u} [Field N] [Algebra K N] [Algebra R N] [IsScalarTower R K N]
+    (E : FiniteDVRExtension R K) (f : E.extensionField →ₐ[K] N) :
+    ∃ Q : Ideal (integralClosure R N), Q.IsMaximal ∧
+      Q.LiesOver (IsLocalRing.maximalIdeal R) ∧
+      E.prime = Ideal.comap (integralClosureMap (f.restrictScalars R)) Q := by
+  let _ : Algebra E.integralClosureRing (integralClosure R N) :=
+    (integralClosureMap (f.restrictScalars R)).toRingHom.toAlgebra
+  have _htower : IsScalarTower R E.integralClosureRing (integralClosure R N) :=
+    IsScalarTower.of_algebraMap_eq fun x ↦
+      ((integralClosureMap (f.restrictScalars R)).commutes x).symm
+  have _ : Algebra.IsIntegral E.integralClosureRing (integralClosure R N) :=
+    Algebra.IsIntegral.tower_top (R := R)
+  have hinj : Function.Injective
+      (algebraMap E.integralClosureRing (integralClosure R N)) :=
+    integralClosureMap_injective (f := f.restrictScalars R) f.toRingHom.injective
+  obtain ⟨Q, hQmax, hQ⟩ := Ideal.exists_ideal_over_maximal_of_isIntegral
+    (R := E.integralClosureRing) (S := integralClosure R N) E.prime
+    (by rw [(RingHom.injective_iff_ker_eq_bot _).mp hinj]; exact bot_le)
+  refine ⟨Q, hQmax, ⟨?_⟩, hQ.symm⟩
+  rw [Ideal.under_def, IsScalarTower.algebraMap_eq R E.integralClosureRing (integralClosure R N),
+    ← Ideal.comap_comap, hQ]
+  exact E.prime_liesOver.over
+
+open scoped Pointwise in
+/-- Two primes of the integral closure of `R` in a finite Galois extension of `K` above the closed
+point of `R` differ by an automorphism of the extension. -/
+theorem exists_algEquiv_comap_eq {N : Type u} [Field N] [Algebra K N] [Algebra R N]
+    [IsScalarTower R K N] [FiniteDimensional K N] [IsGalois K N]
+    (P Q : Ideal (integralClosure R N)) [P.IsPrime] [Q.IsPrime]
+    [P.LiesOver (IsLocalRing.maximalIdeal R)] [Q.LiesOver (IsLocalRing.maximalIdeal R)] :
+    ∃ σ : N ≃ₐ[K] N,
+      Ideal.comap (integralClosureMap (σ.toAlgHom.restrictScalars R)) Q = P := by
+  have _ : IsFractionRing (integralClosure R N) N :=
+    integralClosure.isFractionRing_of_finite_extension K N
+  have _ : IsIntegralClosure (integralClosure R N) R N := integralClosure.isIntegralClosure R N
+  let _ := IsIntegralClosure.MulSemiringAction R K N (integralClosure R N)
+  have _ : IsGaloisGroup (N ≃ₐ[K] N) R (integralClosure R N) :=
+    IsGaloisGroup.of_isFractionRing _ R (integralClosure R N) K N
+  have hact : ∀ (τ : N ≃ₐ[K] N) (z : integralClosure R N),
+      τ • z = integralClosureMap (τ.toAlgHom.restrictScalars R) z := by
+    intro τ z
+    apply Subtype.ext
+    exact algebraMap_galRestrict_apply R τ z
+  obtain ⟨σ, hσ⟩ :=
+    Ideal.exists_smul_eq_of_isGaloisGroup (IsLocalRing.maximalIdeal R) P Q (N ≃ₐ[K] N)
+  refine ⟨σ, Ideal.ext fun y ↦ ?_⟩
+  rw [Ideal.mem_comap, ← hσ, Ideal.mem_pointwise_smul_iff_inv_smul_mem, hact]
+  refine iff_of_eq (congrArg (· ∈ P) ?_)
+  apply Subtype.ext
+  simp
+
+/-- **Existence of common refinements.** Any two chosen finite DVR extensions of the same base
+DVR embed compatibly into a third one.
+
+Both extension fields are embedded into a finite Galois extension `N` of `K`, both selected primes
+are lifted to maximal ideals of the integral closure of `R` in `N` above the closed point of `R`,
+and an automorphism of `N/K` carries one lift onto the other. -/
+theorem nonempty_commonRefinement (E F : FiniteDVRExtension R K) :
+    Nonempty (CommonRefinement E F) := by
+  obtain ⟨N, _, _, _, _, ⟨i⟩, ⟨j⟩⟩ :=
+    exists_galois_compositum (K := K) E.extensionField F.extensionField
+  let _ : Algebra R N := ((algebraMap K N).comp (algebraMap R K)).toAlgebra
+  have _ : IsScalarTower R K N := IsScalarTower.of_algebraMap_eq' rfl
+  obtain ⟨QE, hQEmax, hQEover, hQE⟩ := E.exists_prime_over i
+  obtain ⟨QF, hQFmax, hQFover, hQF⟩ := F.exists_prime_over j
+  have _ : QE.IsMaximal := hQEmax
+  have _ : QF.IsMaximal := hQFmax
+  have _ : QE.LiesOver (IsLocalRing.maximalIdeal R) := hQEover
+  have _ : QF.LiesOver (IsLocalRing.maximalIdeal R) := hQFover
+  obtain ⟨σ, hσ⟩ := exists_algEquiv_comap_eq (R := R) (K := K) QF QE
+  refine ⟨{ refinement := ofField N QE hQEmax hQEover
+            left := Hom.ofFieldHom i hQE
+            right := Hom.ofFieldHom (σ.toAlgHom.comp j) ?_ }⟩
+  change F.prime =
+    Ideal.comap (integralClosureMap (AlgHom.restrictScalars R (σ.toAlgHom.comp j))) QE
+  have key : Ideal.comap (integralClosureMap (AlgHom.restrictScalars R (σ.toAlgHom.comp j))) QE =
+      Ideal.comap (integralClosureMap (j.restrictScalars R))
+        (Ideal.comap (integralClosureMap (σ.toAlgHom.restrictScalars R)) QE) :=
+    Ideal.ext fun _ ↦ Iff.rfl
+  rw [key, hσ]
+  exact hQF
+
+instance (E F : FiniteDVRExtension R K) : Nonempty (CommonRefinement E F) :=
+  nonempty_commonRefinement E F
+
+/-- A chosen common refinement of two finite DVR extensions.
+
+This replaces the previous engine hypothesis: no extra input is needed to compare two chosen
+extensions, hence to compare models after a finite extension of the base DVR. -/
+def commonRefinement (E F : FiniteDVRExtension R K) : CommonRefinement E F :=
+  (nonempty_commonRefinement E F).some
+
+end CommonRefinements
 
 end FiniteDVRExtension
 

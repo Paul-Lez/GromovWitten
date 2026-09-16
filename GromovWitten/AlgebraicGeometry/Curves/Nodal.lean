@@ -475,8 +475,9 @@ variable (f : X ⟶ S) [h : AtWorstNodal f]
 /-- A smooth family of geometric pure relative dimension one is at worst nodal.
 
 The dimension hypothesis is kept explicit: the proof uses only smooth base-change and the
-fact that a smooth curve over a field has smooth charts.  Thus this theorem does not hide the
-still-separate comparison between `SmoothOfRelativeDimension 1` and geometric fibre dimension.
+fact that a smooth curve over a field has smooth charts.  The comparison between
+`SmoothOfRelativeDimension 1` and geometric fibre dimension is proved separately in
+`SmoothLocusDimension.lean`.
 -/
 theorem of_smooth (f : X ⟶ S) (hsm : Smooth f)
     (hpure : GeometricPureRelativeDimension 1 f) : AtWorstNodal f := by

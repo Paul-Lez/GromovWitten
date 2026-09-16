@@ -16,8 +16,9 @@ Mathlib's relative-normalization construction to this morphism gives the actual 
 field.  This file exposes that specialization together with integrality, dominance, surjectivity,
 factorization, and uniqueness.
 
-Finiteness of this morphism needs an additional finiteness theorem for integral closures (for
-example for schemes of finite type over a field); it is deliberately not asserted here.
+Finiteness of this morphism needs an additional finiteness theorem for integral closures; it is
+proved in `GromovWitten/AlgebraicGeometry/Curves/NormalizationFinite.lean` for integral schemes
+that are locally of finite type over a field of characteristic zero.
 -/
 
 open CategoryTheory Limits
@@ -33,9 +34,10 @@ namespace Normalization
 
 variable (X : Scheme.{u}) [IsIntegral X]
 
-/-- The function-field point of an integral scheme. -/
-def genericPointMap : Spec (.of (X.residueField (genericPoint X))) ⟶ X :=
-  X.fromSpecResidueField (genericPoint X)
+/-- The function-field point of an integral scheme: the canonical morphism from the spectrum of
+the stalk at the generic point, i.e. of the function field. -/
+abbrev genericPointMap : Spec X.functionField ⟶ X :=
+  X.fromSpecStalk (genericPoint X)
 
 /-- The normalization of `X`, obtained by normalizing it in its function field. -/
 abbrev scheme : Scheme.{u} :=
@@ -46,7 +48,7 @@ abbrev toCurve : scheme X ⟶ X :=
   (genericPointMap X).fromNormalization
 
 /-- The lifted function-field point of the normalization. -/
-abbrev genericLift : Spec (.of (X.residueField (genericPoint X))) ⟶ scheme X :=
+abbrev genericLift : Spec X.functionField ⟶ scheme X :=
   (genericPointMap X).toNormalization
 
 instance toCurve_isIntegral : IsIntegralHom (toCurve X) := inferInstance
@@ -55,9 +57,13 @@ instance scheme_isIntegral : IsIntegral (scheme X) := inferInstance
 
 instance genericPointMap_isDominant : IsDominant (genericPointMap X) := by
   rw [isDominant_iff, denseRange_iff_closure_range]
-  change closure (Set.range (X.fromSpecResidueField (genericPoint X))) = _
-  rw [Scheme.range_fromSpecResidueField]
-  exact genericPoint_spec X
+  have hmem : genericPoint X ∈ Set.range (genericPointMap X).base := by
+    change genericPoint X ∈ Set.range (X.fromSpecStalk (genericPoint X)).base
+    rw [Scheme.range_fromSpecStalk]
+    exact specializes_rfl
+  refine Set.eq_univ_of_univ_subset ?_
+  have := closure_mono (Set.singleton_subset_iff.mpr hmem)
+  rwa [genericPoint_spec X] at this
 
 @[simp]
 theorem genericLift_toCurve : genericLift X ≫ toCurve X = genericPointMap X :=
@@ -77,7 +83,7 @@ instance toCurve_surjective : Surjective (toCurve X) :=
 
 variable {X}
 variable {T : Scheme.{u}}
-    (a : Spec (.of (X.residueField (genericPoint X))) ⟶ T)
+    (a : Spec X.functionField ⟶ T)
     (b : T ⟶ X) [IsIntegralHom b]
 
 /-- Every integral factorization of the function-field point receives a canonical morphism from
