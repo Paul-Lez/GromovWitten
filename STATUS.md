@@ -117,6 +117,20 @@ Implemented APIs include:
   model of the same curve, flat by torsion-freeness of the Rees charts and with the generic fibre
   untouched, and the projection is a proper modification of models; finite chains of such
   blowups compose to proper modifications and preserve properness;
+- `Proj` commutes with arbitrary base change: a graded map which is a base change in every
+  degree induces a cartesian square of `Proj`s over the spectra of the base rings, with the
+  affine chart comparisons proved bijective by clearing denominators;
+- relative `Proj` over an arbitrary scheme, glued from the affine `Proj`s of a quasi-coherent
+  graded algebra given on the affine opens, with cartesian affine pieces and properness under
+  affine-local finite-type hypotheses;
+- coherent cohomology `Hⁿ(X, M)` of `𝒪_X`-modules as Mathlib's `Ext`-theoretic sheaf
+  cohomology, with its `Γ(X, 𝒪_X)`- and `k`-module structure constructed from multiplication
+  by global functions and additivity of the cohomology functor; the arithmetic genus
+  `dim_k H¹(X, 𝒪_X)` of a curve over a field, with `H⁰ = Γ` as a linear isomorphism,
+  isomorphism-invariance, invariance under field extension from the base-change dimension
+  formula, the locally-free-rank characterization, and the normalization formula
+  `p_a(X) = p_a(X̃) + δ` agreeing with the dual-graph genus; finite-dimensionality, the
+  long exact sequence and flat base change remain hypotheses because Mathlib lacks them;
 - higher direct images of abelian sheaves are genuine right derived functors of pushforward,
   with `R⁰ f_* = f_*` and the degree-zero base-change comparison identified with the canonical
   Beck--Chevalley morphism;
