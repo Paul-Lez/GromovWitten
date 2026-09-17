@@ -44,11 +44,13 @@ import GromovWitten.AlgebraicGeometry.Sites.Stack
 import GromovWitten.AlgebraicGeometry.Modules.Stack
 import GromovWitten.AlgebraicGeometry.Modules.Derived
 import GromovWitten.AlgebraicGeometry.Cones.Affine
+import GromovWitten.AlgebraicGeometry.Cones.ConeTranslation
 import GromovWitten.AlgebraicGeometry.Cones.RegularSequence
 import GromovWitten.AlgebraicGeometry.Cones.DeformationSpace
 import GromovWitten.AlgebraicGeometry.Cones.DeformationSpaceGeometry
 import GromovWitten.AlgebraicGeometry.Cones.Graded
 import GromovWitten.AlgebraicGeometry.Cones.NormalConeGlobal
+import GromovWitten.AlgebraicGeometry.Cones.NormalSheafPicard
 import GromovWitten.AlgebraicGeometry.Cones.Quotient
 import GromovWitten.AlgebraicGeometry.Cones.Examples
 import GromovWitten.AlgebraicGeometry.Cones.Picard
@@ -74,11 +76,13 @@ import GromovWitten.AlgebraicGeometry.IntersectionTheory.StabilizerWeight
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.StackChow
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.StackGysin
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.ChernClasses
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.BundlePullbackDescent
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.StackChowVistoli
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.Operations
 import GromovWitten.AlgebraicGeometry.IntrinsicNormalCone.Basic
 import GromovWitten.AlgebraicGeometry.IntrinsicNormalCone.Relative
 import GromovWitten.AlgebraicGeometry.IntrinsicNormalCone.Properties
+import GromovWitten.AlgebraicGeometry.ObstructionTheory.AffineCriterion
 import GromovWitten.AlgebraicGeometry.ObstructionTheory.Basic
 import GromovWitten.AlgebraicGeometry.ObstructionTheory.Perfect
 import GromovWitten.AlgebraicGeometry.ObstructionTheory.Geometric
