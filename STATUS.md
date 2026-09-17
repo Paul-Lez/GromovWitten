@@ -123,6 +123,15 @@ Implemented APIs include:
 - relative `Proj` over an arbitrary scheme, glued from the affine `Proj`s of a quasi-coherent
   graded algebra given on the affine opens, with cartesian affine pieces and properness under
   affine-local finite-type hypotheses;
+- relative `Spec` over an arbitrary scheme, glued from the affine spectra of a quasi-coherent
+  algebra given on the affine opens, with cartesian affine pieces and an affine structure
+  morphism; morphisms of such algebras induce morphisms of relative spectra over the base which
+  are closed immersions when the algebra maps are surjective;
+- the normal cone `C_{Z/X} = Spec gr_I` and normal sheaf `N_{Z/X} = Spec Sym(I/I²)` of an
+  arbitrary quasi-coherent ideal sheaf on an arbitrary scheme, as relative spectra whose affine
+  pieces are the affine constructions, together with the closed immersion of the normal cone
+  into the normal sheaf over the base; the transition squares are proved from flat base change of
+  Rees algebras, of ideals, and of symmetric algebras;
 - coherent cohomology `Hⁿ(X, M)` of `𝒪_X`-modules as Mathlib's `Ext`-theoretic sheaf
   cohomology, with its `Γ(X, 𝒪_X)`- and `k`-module structure constructed from multiplication
   by global functions and additivity of the cohomology functor; the arithmetic genus
