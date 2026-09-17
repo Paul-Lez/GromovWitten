@@ -19,6 +19,7 @@ import GromovWitten.AlgebraicGeometry.Stacks.AlgebraicSpace
 import GromovWitten.AlgebraicGeometry.Stacks.Properties
 import GromovWitten.AlgebraicGeometry.Stacks.PropertiesDescent
 import GromovWitten.AlgebraicGeometry.Stacks.AtlasRefinement
+import GromovWitten.AlgebraicGeometry.Stacks.Dimension
 import GromovWitten.AlgebraicGeometry.Stacks.PresentationTransport
 import GromovWitten.AlgebraicGeometry.Stacks.EquivalencePresentation
 import GromovWitten.AlgebraicGeometry.Stacks.EquivalenceProperties
@@ -43,8 +44,10 @@ import GromovWitten.AlgebraicGeometry.Sites.Stack
 import GromovWitten.AlgebraicGeometry.Modules.Stack
 import GromovWitten.AlgebraicGeometry.Cones.Affine
 import GromovWitten.AlgebraicGeometry.Cones.RegularSequence
+import GromovWitten.AlgebraicGeometry.Cones.DeformationSpace
 import GromovWitten.AlgebraicGeometry.Cones.Examples
 import GromovWitten.AlgebraicGeometry.Cones.Picard
+import GromovWitten.AlgebraicGeometry.Cones.DerivedPicard
 import GromovWitten.AlgebraicGeometry.Cones.TwoTermQuotient
 import GromovWitten.AlgebraicGeometry.Cones.Stack
 import GromovWitten.AlgebraicGeometry.Cones.Geometry
@@ -58,6 +61,7 @@ import GromovWitten.AlgebraicGeometry.IntersectionTheory.ChowGroupLocalization
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.StabilizerWeight
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.StackChow
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.StackGysin
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.StackChowVistoli
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.Operations
 import GromovWitten.AlgebraicGeometry.IntrinsicNormalCone.Basic
 import GromovWitten.AlgebraicGeometry.IntrinsicNormalCone.Relative
