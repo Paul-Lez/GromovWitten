@@ -113,6 +113,10 @@ Implemented APIs include:
 - the blowup of an arbitrary scheme along a quasi-coherent ideal sheaf, glued from the affine
   Rees blowups of its affine opens along the flat restriction maps, with cartesian affine pieces,
   properness over a locally Noetherian base, and the isomorphism away from the centre;
+- the blowup of a model of a curve over a DVR along a centre in its special fibre is again a
+  model of the same curve, flat by torsion-freeness of the Rees charts and with the generic fibre
+  untouched, and the projection is a proper modification of models; finite chains of such
+  blowups compose to proper modifications and preserve properness;
 - higher direct images of abelian sheaves are genuine right derived functors of pushforward,
   with `R⁰ f_* = f_*` and the degree-zero base-change comparison identified with the canonical
   Beck--Chevalley morphism;
