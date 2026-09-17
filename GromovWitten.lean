@@ -46,7 +46,9 @@ import GromovWitten.AlgebraicGeometry.Modules.Derived
 import GromovWitten.AlgebraicGeometry.Cones.Affine
 import GromovWitten.AlgebraicGeometry.Cones.RegularSequence
 import GromovWitten.AlgebraicGeometry.Cones.DeformationSpace
+import GromovWitten.AlgebraicGeometry.Cones.DeformationSpaceGeometry
 import GromovWitten.AlgebraicGeometry.Cones.Graded
+import GromovWitten.AlgebraicGeometry.Cones.NormalConeGlobal
 import GromovWitten.AlgebraicGeometry.Cones.Quotient
 import GromovWitten.AlgebraicGeometry.Cones.Examples
 import GromovWitten.AlgebraicGeometry.Cones.Picard
@@ -60,7 +62,9 @@ import GromovWitten.AlgebraicGeometry.CotangentComplex.AffinePresentation
 import GromovWitten.AlgebraicGeometry.CotangentComplex.Derived
 import GromovWitten.AlgebraicGeometry.CotangentComplex.Perfect
 import GromovWitten.AlgebraicGeometry.CotangentComplex.PerfectComplex
+import GromovWitten.AlgebraicGeometry.CotangentComplex.PerfectDual
 import GromovWitten.AlgebraicGeometry.CotangentComplex.SquareZero
+import GromovWitten.AlgebraicGeometry.CotangentComplex.SquareZeroExt
 import GromovWitten.AlgebraicGeometry.CotangentComplex.Full
 import GromovWitten.AlgebraicGeometry.CotangentComplex.Global
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.ChowGroup
@@ -125,6 +129,7 @@ import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ReesBlowupGlobal
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ModelBlowup
 import GromovWitten.AlgebraicGeometry.ProjBaseChange
 import GromovWitten.AlgebraicGeometry.RelativeProj
+import GromovWitten.AlgebraicGeometry.RelativeSpec
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNode
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeRegularity
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeNodal
