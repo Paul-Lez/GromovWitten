@@ -18,6 +18,7 @@ import GromovWitten.AlgebraicGeometry.Stacks.Scheme
 import GromovWitten.AlgebraicGeometry.Stacks.AlgebraicSpace
 import GromovWitten.AlgebraicGeometry.Stacks.Properties
 import GromovWitten.AlgebraicGeometry.Stacks.PropertiesDescent
+import GromovWitten.AlgebraicGeometry.Stacks.AtlasRefinement
 import GromovWitten.AlgebraicGeometry.Stacks.PresentationTransport
 import GromovWitten.AlgebraicGeometry.Stacks.EquivalencePresentation
 import GromovWitten.AlgebraicGeometry.Stacks.EquivalenceProperties
@@ -32,6 +33,7 @@ import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackPullback
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackMaps
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackClassifying
 import GromovWitten.AlgebraicGeometry.Stacks.Geometry
+import GromovWitten.AlgebraicGeometry.Stacks.Inertia
 import GromovWitten.AlgebraicGeometry.Spaces.Representable
 import GromovWitten.AlgebraicGeometry.Spaces.Basic
 import GromovWitten.AlgebraicGeometry.Spaces.Properties
@@ -49,6 +51,7 @@ import GromovWitten.AlgebraicGeometry.Cones.Geometry
 import GromovWitten.AlgebraicGeometry.CotangentComplex.AffinePresentation
 import GromovWitten.AlgebraicGeometry.CotangentComplex.Derived
 import GromovWitten.AlgebraicGeometry.CotangentComplex.Perfect
+import GromovWitten.AlgebraicGeometry.CotangentComplex.PerfectComplex
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.ChowGroup
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.Gysin
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.ChowGroupLocalization
@@ -89,6 +92,7 @@ import GromovWitten.AlgebraicGeometry.Curves.MarkingDivisors
 import GromovWitten.AlgebraicGeometry.Curves.RelativeLineBundles
 import GromovWitten.AlgebraicGeometry.Curves.CohomologyBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.DualGraph
+import GromovWitten.AlgebraicGeometry.Curves.GeometricDualGraph
 import GromovWitten.AlgebraicGeometry.Curves.StabilityGraph
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Basic
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Evaluation
