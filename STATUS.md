@@ -110,6 +110,9 @@ Implemented APIs include:
 - the affine Rees blowup commutes with flat base change: the base-changed blowup is the
   fibre product of the blowup with the new base, so the blowup of a localized ideal is the part of
   the blowup over the corresponding principal open;
+- the blowup of an arbitrary scheme along a quasi-coherent ideal sheaf, glued from the affine
+  Rees blowups of its affine opens along the flat restriction maps, with cartesian affine pieces,
+  properness over a locally Noetherian base, and the isomorphism away from the centre;
 - higher direct images of abelian sheaves are genuine right derived functors of pushforward,
   with `R⁰ f_* = f_*` and the degree-zero base-change comparison identified with the canonical
   Beck--Chevalley morphism;
