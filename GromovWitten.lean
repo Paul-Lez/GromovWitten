@@ -20,6 +20,8 @@ import GromovWitten.AlgebraicGeometry.Stacks.Properties
 import GromovWitten.AlgebraicGeometry.Stacks.PropertiesDescent
 import GromovWitten.AlgebraicGeometry.Stacks.AtlasRefinement
 import GromovWitten.AlgebraicGeometry.Stacks.Dimension
+import GromovWitten.AlgebraicGeometry.Stacks.OverlapSwap
+import GromovWitten.AlgebraicGeometry.Stacks.PointsIndependence
 import GromovWitten.AlgebraicGeometry.Stacks.PresentationTransport
 import GromovWitten.AlgebraicGeometry.Stacks.EquivalencePresentation
 import GromovWitten.AlgebraicGeometry.Stacks.EquivalenceProperties
@@ -35,6 +37,7 @@ import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackMaps
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackClassifying
 import GromovWitten.AlgebraicGeometry.Stacks.Geometry
 import GromovWitten.AlgebraicGeometry.Stacks.Inertia
+import GromovWitten.AlgebraicGeometry.Stacks.StackProducts
 import GromovWitten.AlgebraicGeometry.Spaces.Representable
 import GromovWitten.AlgebraicGeometry.Spaces.Basic
 import GromovWitten.AlgebraicGeometry.Spaces.Properties
@@ -50,7 +53,9 @@ import GromovWitten.AlgebraicGeometry.Cones.DeformationSpace
 import GromovWitten.AlgebraicGeometry.Cones.DeformationSpaceGeometry
 import GromovWitten.AlgebraicGeometry.Cones.Graded
 import GromovWitten.AlgebraicGeometry.Cones.NormalConeGlobal
+import GromovWitten.AlgebraicGeometry.Cones.NormalConeRegular
 import GromovWitten.AlgebraicGeometry.Cones.NormalSheafPicard
+import GromovWitten.AlgebraicGeometry.Cones.Products
 import GromovWitten.AlgebraicGeometry.Cones.Quotient
 import GromovWitten.AlgebraicGeometry.Cones.Examples
 import GromovWitten.AlgebraicGeometry.Cones.Picard
@@ -65,6 +70,7 @@ import GromovWitten.AlgebraicGeometry.CotangentComplex.Derived
 import GromovWitten.AlgebraicGeometry.CotangentComplex.Perfect
 import GromovWitten.AlgebraicGeometry.CotangentComplex.PerfectComplex
 import GromovWitten.AlgebraicGeometry.CotangentComplex.PerfectDual
+import GromovWitten.AlgebraicGeometry.CotangentComplex.PerfectDualInvariance
 import GromovWitten.AlgebraicGeometry.CotangentComplex.SquareZero
 import GromovWitten.AlgebraicGeometry.CotangentComplex.SquareZeroExt
 import GromovWitten.AlgebraicGeometry.CotangentComplex.Full
@@ -72,12 +78,15 @@ import GromovWitten.AlgebraicGeometry.CotangentComplex.Global
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.ChowGroup
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.Gysin
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.ChowGroupLocalization
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.LocalizationExact
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.StabilizerWeight
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.StackChow
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.StackGysin
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.ChernClasses
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.BundlePullbackDescent
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.BundlePullbackChow
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.StackChowVistoli
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.EtalePullback
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.Operations
 import GromovWitten.AlgebraicGeometry.IntrinsicNormalCone.Basic
 import GromovWitten.AlgebraicGeometry.IntrinsicNormalCone.Relative
@@ -101,6 +110,7 @@ import GromovWitten.AlgebraicGeometry.Morphisms.Syntomic
 import GromovWitten.AlgebraicGeometry.Morphisms.Unramified
 import GromovWitten.AlgebraicGeometry.Curves.RelativeDimension
 import GromovWitten.AlgebraicGeometry.Curves.SmoothLocusDimension
+import GromovWitten.AlgebraicGeometry.Curves.SmoothPureDimension
 import GromovWitten.AlgebraicGeometry.Curves.FibreDimension
 import GromovWitten.AlgebraicGeometry.Curves.Sections
 import GromovWitten.AlgebraicGeometry.Curves.Nodal
