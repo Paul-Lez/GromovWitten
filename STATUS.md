@@ -132,6 +132,24 @@ Implemented APIs include:
   pieces are the affine constructions, together with the closed immersion of the normal cone
   into the normal sheaf over the base; the transition squares are proved from flat base change of
   Rees algebras, of ideals, and of symmetric algebras;
+- Vistoli's lemma in the polynomial model: for an ideal `I` of `R = A[x_σ]`, the translation
+  action of the tangent bundle `T_{𝔸^σ}|_U = U × 𝔸^σ` on the normal sheaf `Spec Sym(I)/I·Sym(I)`
+  preserves the normal cone `Spec gr_I(R)`: the coaction `gr_I(R) → gr_I(R)[ε]`, obtained by
+  translating the deformation space `x ↦ x + ε t⁻¹` and restricting to the special fibre,
+  satisfies the unit and associativity laws and is compatible with the normal-sheaf coaction
+  through the surjection `Sym(I)/I·Sym(I) ↠ gr_I(R)`;
+- the affine intrinsic normal sheaf: the quotient groupoid `[N_{U/M}/T_M|_U]` of the normal sheaf
+  by the tangent bundle is isomorphic, over every test algebra and compatibly with reindexing and
+  contraction, to the `h¹/h⁰` Picard groupoid of the dual of the presentation complex
+  `[I/I² → Ω ⊗ R/I]`, with `Sym(M × N) ≃ Sym(M) ⊗ Sym(N)`;
+- the affine Behrend--Fantechi criterion: a map of two-term complexes is an obstruction theory
+  (`H⁰` bijective, `H⁻¹` surjective) if and only if the induced map of `h¹/h⁰` groupoids of dual
+  points is fully faithful over every test algebra (the converse using trivial square-zero
+  extensions), with the obstruction cone as the image of a cone inside the normal sheaf;
+- flat local extensions with `m_R·S = m_S` preserve the order of vanishing without any
+  unramifiedness, giving the equality of orders at bundle points and the principal-divisor
+  comparison `π^* div(f) = div(π^* f)` for the flat pullback along an affine vector bundle over
+  an integral Noetherian base;
 - coherent cohomology `Hⁿ(X, M)` of `𝒪_X`-modules as Mathlib's `Ext`-theoretic sheaf
   cohomology, with its `Γ(X, 𝒪_X)`- and `k`-module structure constructed from multiplication
   by global functions and additivity of the cohomology functor; the arithmetic genus
