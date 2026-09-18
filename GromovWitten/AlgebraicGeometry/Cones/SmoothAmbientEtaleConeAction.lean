@@ -44,8 +44,8 @@ differentials `d(x_i)` of the coordinates (`EtaleConeAction.kaehlerBasis`) and `
   `EtaleConeAction.tangentToPoly_conormalMap`: the conormal map `J/J² → (R/J) ⊗ Ω[R⁄A]` is the
   derivative appearing in `EtaleAmbient.coactionEtale_degreeOneRaw`.
 * `EtaleConeAction.etaleNormalConeAction : ConeQuotient.ConeAction (R/J) (gr_J(R)) F`: the
-  tangent action on the affine normal cone of an étale chart, with all four `ConeAction`
-  axioms proved.  The `𝔸¹`-contraction is `GradedCone.normalConeCoactionQuot`, the unit and
+  tangent action on the affine normal cone of an étale chart, with all four `ConeAction` laws
+  proved.  The `𝔸¹`-contraction is `GradedCone.normalConeCoactionQuot`, the unit and
   associativity laws are `EtaleAmbient.translatePointEtale_zero` and `_add`, and the
   `𝔾ₘ`-equivariance is `EtaleConeAction.conic_act`.
 * `EtaleConeAction.isEquivariant_nsToGrAlg`: **Vistoli's lemma** in cone-action form for an
