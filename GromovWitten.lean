@@ -15,6 +15,7 @@ import GromovWitten.AlgebraicGeometry.Stacks.Descent
 import GromovWitten.AlgebraicGeometry.Stacks.SheafGluing
 import GromovWitten.AlgebraicGeometry.Stacks.SieveCover
 import GromovWitten.AlgebraicGeometry.Stacks.SieveDescentData
+import GromovWitten.AlgebraicGeometry.Stacks.SieveDescentEffective
 import GromovWitten.AlgebraicGeometry.Stacks.Discrete
 import GromovWitten.AlgebraicGeometry.Stacks.Algebraic
 import GromovWitten.AlgebraicGeometry.Stacks.Scheme
@@ -39,6 +40,11 @@ import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackPullback
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackMaps
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackClassifying
 import GromovWitten.AlgebraicGeometry.Stacks.TorsorStack
+import GromovWitten.AlgebraicGeometry.Stacks.TorsorStackDescent
+import GromovWitten.AlgebraicGeometry.Stacks.TorsorStackEffective
+import GromovWitten.AlgebraicGeometry.Stacks.TorsorStackCover
+import GromovWitten.AlgebraicGeometry.Stacks.TorsorStackMathlib
+import GromovWitten.AlgebraicGeometry.Stacks.TorsorStackBundle
 import GromovWitten.AlgebraicGeometry.Stacks.Geometry
 import GromovWitten.AlgebraicGeometry.Stacks.Inertia
 import GromovWitten.AlgebraicGeometry.Stacks.StackProducts
@@ -62,8 +68,14 @@ import GromovWitten.AlgebraicGeometry.Cones.NormalSheafPicard
 import GromovWitten.AlgebraicGeometry.Cones.Products
 import GromovWitten.AlgebraicGeometry.Cones.RefinementQuotient
 import GromovWitten.AlgebraicGeometry.Cones.EmbeddingIndependence
+import GromovWitten.AlgebraicGeometry.Cones.RefinementNormalSheaf
+import GromovWitten.AlgebraicGeometry.Cones.IntrinsicConeGluing
+import GromovWitten.AlgebraicGeometry.Cones.IntrinsicConeGluingPoly
 import GromovWitten.AlgebraicGeometry.Cones.Quotient
 import GromovWitten.AlgebraicGeometry.Cones.QuotientTorsor
+import GromovWitten.AlgebraicGeometry.Cones.QuotientTorsorStack
+import GromovWitten.AlgebraicGeometry.Stacks.TorsorPushout
+import GromovWitten.AlgebraicGeometry.Stacks.TorsorPushoutRelative
 import GromovWitten.AlgebraicGeometry.Cones.Examples
 import GromovWitten.AlgebraicGeometry.Cones.Picard
 import GromovWitten.AlgebraicGeometry.Cones.DerivedPicard
@@ -79,6 +91,8 @@ import GromovWitten.AlgebraicGeometry.Cones.TwoTermQuotient
 import GromovWitten.AlgebraicGeometry.Cones.Stack
 import GromovWitten.AlgebraicGeometry.Cones.StackFibreProducts
 import GromovWitten.AlgebraicGeometry.Cones.StackCoherence
+import GromovWitten.AlgebraicGeometry.Cones.StackProdCoherence
+import GromovWitten.AlgebraicGeometry.Cones.StackBaseChangeComp
 import GromovWitten.AlgebraicGeometry.Cones.Geometry
 import GromovWitten.AlgebraicGeometry.CotangentComplex.AffinePresentation
 import GromovWitten.AlgebraicGeometry.CotangentComplex.Derived
@@ -110,6 +124,12 @@ import GromovWitten.AlgebraicGeometry.IntrinsicNormalCone.Properties
 import GromovWitten.AlgebraicGeometry.ObstructionTheory.AffineCriterion
 import GromovWitten.AlgebraicGeometry.ObstructionTheory.AffineObstructionCone
 import GromovWitten.AlgebraicGeometry.Cones.NormalConeAction
+import GromovWitten.AlgebraicGeometry.Cones.SmoothAmbient
+import GromovWitten.AlgebraicGeometry.Cones.SmoothAmbientEtale
+import GromovWitten.AlgebraicGeometry.Cones.SmoothAmbientEtaleAction
+import GromovWitten.AlgebraicGeometry.Cones.SmoothAmbientEtaleConeAction
+import GromovWitten.AlgebraicGeometry.Cones.IntrinsicConeGluingCover
+import GromovWitten.AlgebraicGeometry.Cones.IntrinsicConeDescent
 import GromovWitten.AlgebraicGeometry.ObstructionTheory.DeformationMeaning
 import GromovWitten.AlgebraicGeometry.ObstructionTheory.PointObstruction
 import GromovWitten.AlgebraicGeometry.ObstructionTheory.Curvilinear
@@ -141,6 +161,8 @@ import GromovWitten.Algebra.TensorSubspaceDistrib
 import GromovWitten.AlgebraicGeometry.Cones.NormalConeProductInj
 import GromovWitten.AlgebraicGeometry.Cones.AssociatedGradedGrading
 import GromovWitten.AlgebraicGeometry.Cones.NormalConeProductInj2
+import GromovWitten.AlgebraicGeometry.Cones.NormalConeProductInj3
+import GromovWitten.AlgebraicGeometry.Cones.NormalSheafProduct
 import GromovWitten.AlgebraicGeometry.Cones.NormalConeBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.FibreDimension
 import GromovWitten.AlgebraicGeometry.Curves.Sections
