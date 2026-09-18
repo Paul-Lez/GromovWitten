@@ -226,6 +226,43 @@ Implemented APIs include:
 - descent of morphisms and effective descent of fppf sheaves over a base along any covering sieve
   (no sheafification), the reduction of fppf covering sieves to small covering families, and the
   gluing infrastructure for the quotient prestack `[U/G]`;
+- fppf descent for the quotient prestack `[U/G]`: descent of morphisms and effectiveness of
+  descent along every fppf covering sieve, proved with explicit fibre-product data and without
+  sheafification (`Stacks/TorsorStackDescent.lean`, `Stacks/TorsorStackEffective.lean`,
+  `Stacks/TorsorStackCover.lean`), the sheaf-theoretic input `SheafDescentInput` proved
+  (`Stacks/SieveDescentEffective.lean`), and, through repository-local proof-irrelevance versions
+  of Mathlib's descent lemmas that avoid the kernel wall (`Stacks/TorsorStackMathlib.lean`),
+  Mathlib's `Pseudofunctor.IsStack` for `[U/G]`, so `[U/G]` and `BG` are bundled as stacks in
+  groupoids (`Stacks/TorsorStackBundle.lean`; at the fibre universe of torsors, one above the
+  repository's `FppfStack`);
+- the pushout `r_* P` of an fppf torsor along a homomorphism of group objects, constructed by
+  descent with all torsor axioms proved (`Stacks/TorsorPushout.lean`), and the `𝔸¹`-contraction
+  of `[C/E]` on trivialised torsors with its five coherence laws
+  (`Cones/QuotientTorsorStack.lean`);
+- coherence of fibre products of coherent cone stacks, the fibre universal property of the
+  product, the pasting law for genuine two-pullbacks of stacks and the composition half of the
+  pseudofunctoriality of base change (`Cones/StackProdCoherence.lean`,
+  `Cones/StackBaseChangeComp.lean`);
+- the product formulas `C_{U×U'/M×M'} ≅ C_{U/M} × C_{U'/M'}` and
+  `N_{U×U'/M×M'} ≅ N_{U/M} × N_{U'/M'}` over a field, with no remaining hypothesis
+  (`Cones/NormalConeProductInj3.lean`, `Cones/NormalSheafProduct.lean`);
+- the normal-sheaf refinement lemma `N_{U/M×𝔸^τ} = N_{U/M} × 𝔸^τ`, the equivalence of the
+  normal-sheaf quotient groupoids and the presentation-independence package with cocycle for
+  normal sheaves (`Cones/RefinementNormalSheaf.lean`);
+- the tangent action on the affine normal cone beyond the polynomial model: for every flat
+  algebra over the polynomial ring with an extended ideal by flat base change
+  (`Cones/SmoothAmbient.lean`), and for an arbitrary ideal of a formally étale chart by Taylor
+  lifts, with counit, coassociativity, the point action, the normal-sheaf coaction, Vistoli's
+  lemma, the `ConeAction` packaging via the Kähler differentials of the chart, the obstruction
+  cone, and agreement with the polynomial model (`Cones/SmoothAmbientEtale.lean`,
+  `Cones/SmoothAmbientEtaleAction.lean`, `Cones/SmoothAmbientEtaleConeAction.lean`);
+- the prestack-level gluing of the intrinsic normal cone: abstract two-descent data of groupoids
+  with the glued groupoid and every chart inclusion an equivalence, its instance for families of
+  polynomial presentations with the Behrend–Fantechi cocycle, strict functoriality in the test
+  algebra, gluing over covers of flat charts, and Zariski descent in the test algebra
+  (unconditional for finite covers) (`Cones/IntrinsicConeGluing.lean`,
+  `Cones/IntrinsicConeGluingPoly.lean`, `Cones/IntrinsicConeGluingCover.lean`,
+  `Cones/IntrinsicConeDescent.lean`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
