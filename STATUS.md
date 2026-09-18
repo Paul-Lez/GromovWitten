@@ -189,6 +189,43 @@ Implemented APIs include:
 - higher direct images of abelian sheaves are genuine right derived functors of pushforward,
   with `R⁰ f_* = f_*` and the degree-zero base-change comparison identified with the canonical
   Beck--Chevalley morphism;
+- the rank of a strictly perfect complex is invariant under homotopy equivalence, so the rank
+  of a perfect object of the derived category and of its dual is unconditionally well defined;
+- the dimension formula `dim (A ⧸ p) + ht p = dim A` for finitely generated domains over a
+  field, hence the purity of the affine normal cone `Spec (gr_I R)` of a proper ideal of an
+  `n`-dimensional finitely generated domain (Fulton B.6.6), and the grading of `gr_I R` by
+  orthogonal degree projections with the degree-zero and degree-one parts identified;
+- the elementwise quasi-isomorphism predicate of two-term complexes agrees with Mathlib's
+  `QuasiIso`, short exact sequences of two-term complexes give distinguished triangles and
+  conversely, the resolution-independence equivalence of `h¹/h⁰` is canonical up to natural
+  isomorphism, `h¹/h⁰` extends to arbitrary derived objects by two-term truncation with
+  independence of the representative proved by roofs of quasi-isomorphisms, a complex of finite
+  projectives exact outside `[-1,0]` has `h¹/h⁰` a fibrewise vector-bundle stack, and split short
+  exact sequences of two-term complexes dualise to short exact sequences of Picard groupoids;
+- the affine cone quotient `[C/E]` is realised as a torsor prestack (fully faithful comparison
+  with the trivial torsors), base changes and fibre products of cone stacks are constructed on
+  genuine two-pullbacks of stacks, unconditionally for coherent cone stacks;
+- the tangent action on the affine normal cone is an honest `ConeAction` (Vistoli's lemma in
+  cone-action form), with the lci specialisation `𝔠 = 𝔑` and the smooth specialisation
+  `𝔠 = B T_M` fibrewise, invariance under scalar extension, and `dim C − rank T = 0`;
+- the refinement lemma for local embeddings (`C_{U/M × 𝔸^τ} = C_{U/M} × 𝔸^τ` equivariantly,
+  and the quotient groupoids `[C/T]` unchanged by the refinement) and the independence of the
+  embedding with the Behrend--Fantechi cocycle condition, in the polynomial model; the product
+  formula for normal cones with the comparison map surjective and its injectivity reduced to a
+  finite-sum distributivity statement;
+- the intrinsic pullback sequence of Picard groupoids for a tower `R → S → T`, unconditional
+  when `S` is formally smooth over `R` and `T` is flat and formally smooth over `S`;
+- obstruction cones of the affine intrinsic normal cone inside `h¹/h⁰(Eᵛ)` (fibrewise closed
+  immersions), the identification of the two-term obstruction-theory criterion with the derived
+  one, virtual rank, external sums and base change of obstruction theories, invariance under
+  derived isomorphism, and the deformation-theoretic meaning: the obstruction of `E` vanishes iff
+  the square-zero lift exists, lifts are a torsor under `Ext⁰(E, J)`, the lifting groupoid is the
+  torsor of trivialisations of the obstruction object, the obstruction space at a point is a
+  universal obstruction space, and curvilinear obstructions form a `κˣ`-stable cone containing
+  the origin;
+- descent of morphisms and effective descent of fppf sheaves over a base along any covering sieve
+  (no sheafification), the reduction of fppf covering sieves to small covering families, and the
+  gluing infrastructure for the quotient prestack `[U/G]`;
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as

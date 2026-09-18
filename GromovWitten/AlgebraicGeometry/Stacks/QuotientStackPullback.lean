@@ -786,25 +786,79 @@ theorem pullbackFunctor_assoc {T₀ T₁ T₂ T₃ : Scheme.{u}} (p : T₁ ⟶ T
     simp [FppfTorsor.pullbackMap, FppfTorsor.pullbackCompIso, Limits.pullback.lift_fst,
       Limits.pullback.lift_snd, Limits.pullback.lift_fst_assoc]
 
+/-- The fibre of the base-change pseudofunctor over a scheme, as an object of `Cat`.
+
+This is kept as a separate definition (rather than an inline lambda inside
+`pullbackPseudofunctor`) so that the body of `pullbackPseudofunctor` contains no proof terms;
+otherwise kernel-level defeq checks involving the pseudofunctor do not terminate. -/
+noncomputable def pullbackPsObj (G : AlgebraicSpaceGroup.{u}) (U : AlgebraicSpaceAction G)
+    (X : Scheme.{u}ᵒᵖ) : Cat.{u + 1, u + 1} :=
+  Cat.of (ActionTorsor G U X.unop)
+
+/-- Base change along a morphism of schemes, as a 1-morphism of `Cat`. -/
+noncomputable def pullbackPsMap (G : AlgebraicSpaceGroup.{u}) (U : AlgebraicSpaceAction G)
+    {X Y : Scheme.{u}ᵒᵖ} (f : X ⟶ Y) : pullbackPsObj G U X ⟶ pullbackPsObj G U Y :=
+  (pullbackFunctor (U := U) f.unop).toCatHom
+
+/-- The unit comparison cell of the base-change pseudofunctor. -/
+noncomputable def pullbackPsMapId (G : AlgebraicSpaceGroup.{u}) (U : AlgebraicSpaceAction G)
+    (X : Scheme.{u}ᵒᵖ) : pullbackPsMap G U (𝟙 X) ≅ 𝟙 (pullbackPsObj G U X) :=
+  Cat.Hom.isoMk (pullbackFunctorIdIso (U := U))
+
+/-- The composition comparison cell of the base-change pseudofunctor. -/
+noncomputable def pullbackPsMapComp (G : AlgebraicSpaceGroup.{u}) (U : AlgebraicSpaceAction G)
+    {X Y Z : Scheme.{u}ᵒᵖ} (f : X ⟶ Y) (g : Y ⟶ Z) :
+    pullbackPsMap G U (f ≫ g) ≅ pullbackPsMap G U f ≫ pullbackPsMap G U g :=
+  Cat.Hom.isoMk (pullbackFunctorCompIso (U := U) g.unop f.unop)
+
+/-- Associativity coherence of the base-change pseudofunctor, in the shape expected by
+`LocallyDiscrete.mkPseudofunctor`. -/
+theorem pullbackPs_associator (G : AlgebraicSpaceGroup.{u}) (U : AlgebraicSpaceAction G)
+    {X Y Z W : Scheme.{u}ᵒᵖ} (f : X ⟶ Y) (g : Y ⟶ Z) (h : Z ⟶ W) :
+    (pullbackPsMapComp G U (f ≫ g) h).hom ≫
+        Bicategory.whiskerRight (pullbackPsMapComp G U f g).hom (pullbackPsMap G U h) ≫
+          (Bicategory.associator (pullbackPsMap G U f) (pullbackPsMap G U g)
+            (pullbackPsMap G U h)).hom ≫
+            Bicategory.whiskerLeft (pullbackPsMap G U f)
+              (pullbackPsMapComp G U g h).inv ≫
+              (pullbackPsMapComp G U f (g ≫ h)).inv = eqToHom (by simp) := by
+  ext1
+  simpa [pullbackPsMapComp, pullbackPsMap, pullbackPsObj] using!
+    pullbackFunctor_assoc (U := U) f.unop g.unop h.unop
+
+/-- Left unit coherence of the base-change pseudofunctor, in the shape expected by
+`LocallyDiscrete.mkPseudofunctor`. -/
+theorem pullbackPs_leftUnitor (G : AlgebraicSpaceGroup.{u}) (U : AlgebraicSpaceAction G)
+    {X Y : Scheme.{u}ᵒᵖ} (f : X ⟶ Y) :
+    (pullbackPsMapComp G U (𝟙 X) f).hom ≫
+        Bicategory.whiskerRight (pullbackPsMapId G U X).hom (pullbackPsMap G U f) ≫
+          (Bicategory.leftUnitor (pullbackPsMap G U f)).hom = eqToHom (by simp) := by
+  ext1
+  simpa [pullbackPsMapComp, pullbackPsMapId, pullbackPsMap, pullbackPsObj] using!
+    pullbackFunctor_comp_id (U := U) f.unop
+
+/-- Right unit coherence of the base-change pseudofunctor, in the shape expected by
+`LocallyDiscrete.mkPseudofunctor`. -/
+theorem pullbackPs_rightUnitor (G : AlgebraicSpaceGroup.{u}) (U : AlgebraicSpaceAction G)
+    {X Y : Scheme.{u}ᵒᵖ} (f : X ⟶ Y) :
+    (pullbackPsMapComp G U f (𝟙 Y)).hom ≫
+        Bicategory.whiskerLeft (pullbackPsMap G U f) (pullbackPsMapId G U Y).hom ≫
+          (Bicategory.rightUnitor (pullbackPsMap G U f)).hom = eqToHom (by simp) := by
+  ext1
+  simpa [pullbackPsMapComp, pullbackPsMapId, pullbackPsMap, pullbackPsObj] using!
+    pullbackFunctor_id_comp (U := U) f.unop
+
 /-- Base change of equivariant torsors, assembled into a contravariant pseudofunctor from
-schemes to categories.  Its fibre over a scheme `T` is the groupoid `ActionTorsor G U T`. -/
+schemes to categories.  Its fibre over a scheme `T` is the groupoid `ActionTorsor G U T`.
+
+The body deliberately mentions only previously defined constants: inlining the coherence
+proofs makes every kernel-level defeq check through this definition diverge. -/
 noncomputable def pullbackPseudofunctor (G : AlgebraicSpaceGroup.{u})
     (U : AlgebraicSpaceAction G) :
     Pseudofunctor (LocallyDiscrete Scheme.{u}ᵒᵖ) Cat.{u + 1, u + 1} :=
   LocallyDiscrete.mkPseudofunctor
-    (fun X ↦ Cat.of (ActionTorsor G U X.unop))
-    (fun f ↦ (pullbackFunctor (U := U) f.unop).toCatHom)
-    (fun _ ↦ Cat.Hom.isoMk (pullbackFunctorIdIso (U := U)))
-    (fun f g ↦ Cat.Hom.isoMk (pullbackFunctorCompIso (U := U) g.unop f.unop))
-    (fun f g h ↦ by
-      ext1
-      simpa using! pullbackFunctor_assoc (U := U) f.unop g.unop h.unop)
-    (fun f ↦ by
-      ext1
-      simpa using! pullbackFunctor_comp_id (U := U) f.unop)
-    (fun f ↦ by
-      ext1
-      simpa using! pullbackFunctor_id_comp (U := U) f.unop)
+    (pullbackPsObj G U) (pullbackPsMap G U) (pullbackPsMapId G U) (pullbackPsMapComp G U)
+    (pullbackPs_associator G U) (pullbackPs_leftUnitor G U) (pullbackPs_rightUnitor G U)
 
 /-- Every fibre of the base-change pseudofunctor is the groupoid of equivariant torsors. -/
 noncomputable instance (G : AlgebraicSpaceGroup.{u}) (U : AlgebraicSpaceAction G) :
