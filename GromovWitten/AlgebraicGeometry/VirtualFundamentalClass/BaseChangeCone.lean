@@ -1,0 +1,443 @@
+/-
+Copyright (c) 2026 GromovWitten Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Claude Fable 5.1
+-/
+
+import GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.Unconditional
+import GromovWitten.AlgebraicGeometry.Cones.NormalConeBaseChange
+
+/-!
+# Base change of the resolved cone along `X × 𝔸^τ → X`
+
+Let `k` be a commutative ring, let `σ` and `τ` be index types, and put
+
+* `R = k[x_σ]`, `A' = k[y_τ]`, `R' = A'[x_σ] = k[y_τ][x_σ]`,
+* `I ⊆ R` an ideal, `I' = I·R'` its extension (`NormalConeBaseChange.extIdeal`),
+* `B = R/I` and `B' = R'/I'`.
+
+Geometrically `Spec B' = Spec B × 𝔸^τ`.  This file sets up the algebra needed to compare the
+resolved cone `C(E)` of an affine obstruction theory over `Spec B` with the resolved cone of the
+base-changed obstruction theory over `Spec B'`.
+
+## Contents
+
+* `BaseChangeCone.extIdeal`, `BaseChangeCone.baseExt`: the ideal `I'` and the ring `B'`, together
+  with the algebra structure `Algebra B B'` induced by `NormalConeBaseChange.bcMap`
+  (`BaseChangeCone.algebraMap_baseExt_mk`).
+* `BaseChangeCone.baseAlgEquiv : B' ≃ₐ[B] MvPolynomial τ B`, the trivialisation of the base
+  change, obtained from `MvPolynomial.commAlgEquiv` and
+  `MvPolynomial.quotientEquivQuotientMvPolynomial`;
+  `BaseChangeCone.free_baseExt`/`BaseChangeCone.flat_baseExt` record that `B'` is a free, hence
+  flat, `B`-module.
+* `BaseChangeCone.cotangentComparison : I/I² →ₗ[B] I'/I'²` (from `Ideal.mapCotangent`) and
+  `BaseChangeCone.kaehlerComparison : B ⊗[R] Ω[R⁄k] →ₗ[B] B' ⊗[R'] Ω[R'⁄A']` (from
+  `KaehlerDifferential.map`), with the naturality square
+  `BaseChangeCone.kaehlerComparison_conormalMap` for the conormal maps of `I` and `I'`.
+* `BaseChangeCone.baseChangeHom φ`: the base change of a chain map
+  `φ : Hom E (conormalComplex k R I)` to a chain map
+  `Hom (E.baseChange B') (conormalComplex A' R' I')`, with the two components
+  `BaseChangeCone.baseChangeZero` and `BaseChangeCone.baseChangeOne`.
+* `BaseChangeCone.bundleRingEquiv`: the coordinate ring of the bundle `E₁` over `Spec B'` is the
+  base change of the coordinate ring of `E₁` over `Spec B`
+  (`GradedCone.baseChangeEquiv` for the module `E⁻¹`), and hence, through `baseAlgEquiv`, a
+  polynomial ring in `τ` variables over `ResolvedCone.bundleRing φ`
+  (`BaseChangeCone.polyBundleRingEquiv`, with `polyBundleRingEquiv_ι_one_tmul`).
+
+The comparison of the resolved-cone *ideals* on the two sides — which needs the base change
+`gr_{I'}(R') ≃ B' ⊗_B gr_I(R)` of the associated graded ring on top of
+`NormalConeBaseChange.grBaseChangeEquiv`, and flatness of `B'` over `B` to compute the kernel of
+the base-changed product map — is not carried out here; neither is the transfer of
+`PicardCriteria.IsObstructionTheory` along `baseChangeHom`, which would additionally require the
+bijectivity of `cotangentComparison` and `kaehlerComparison` after base change.
+-/
+
+universe u
+
+open scoped TensorProduct
+
+namespace GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.BaseChangeCone
+
+open NormalSheafPicard.AffineIntrinsicNormalSheaf
+
+variable {k : Type u} [CommRing k] {σ : Type u} (τ : Type u) (I : Ideal (MvPolynomial σ k))
+
+/-! ## The base ring of the base change -/
+
+/-- The extension `I' = I·R'` of `I` to `R' = k[y_τ][x_σ]`. -/
+noncomputable abbrev extIdeal : Ideal (MvPolynomial σ (MvPolynomial τ k)) :=
+  NormalConeBaseChange.extIdeal (MvPolynomial τ k) I
+
+/-- The base ring `B' = R'/I'` of the base change; geometrically `Spec B' = Spec B × 𝔸^τ`. -/
+abbrev baseExt : Type u := MvPolynomial σ (MvPolynomial τ k) ⧸ extIdeal τ I
+
+/-- The coefficient extension `R → R'` carries `I` into `I'`. -/
+theorem le_comap_extIdeal :
+    I ≤ (extIdeal τ I).comap (NormalConeBaseChange.bcMap (MvPolynomial τ k)) := fun _ hx =>
+  Ideal.mem_map_of_mem _ hx
+
+/-- `B'` is a `B`-algebra, through the coefficient extension `R → R'`. -/
+noncomputable instance algebraBaseExt :
+    Algebra (MvPolynomial σ k ⧸ I) (baseExt τ I) :=
+  RingHom.toAlgebra
+    (Ideal.quotientMap (extIdeal τ I) (NormalConeBaseChange.bcMap (MvPolynomial τ k))
+      (le_comap_extIdeal τ I))
+
+/-- The structure map of `B'` over `B` on a class `[p]`. -/
+@[simp]
+theorem algebraMap_baseExt_mk (p : MvPolynomial σ k) :
+    algebraMap (MvPolynomial σ k ⧸ I) (baseExt τ I) (Ideal.Quotient.mk I p) =
+      Ideal.Quotient.mk _ (NormalConeBaseChange.bcMap (MvPolynomial τ k) p) :=
+  rfl
+
+/-! ## Trivialisation of the base change -/
+
+/-- Under the swap of the two groups of variables, the coefficient extension `R → R'` becomes
+the inclusion of constants `R → R[y_τ]`. -/
+theorem commAlgEquiv_bcMap (p : MvPolynomial σ k) :
+    MvPolynomial.commAlgEquiv k σ τ (NormalConeBaseChange.bcMap (MvPolynomial τ k) p) =
+      MvPolynomial.C p := by
+  induction p using MvPolynomial.induction_on with
+  | C a => simp
+  | add p q hp hq => simp [hp, hq]
+  | mul_X p i hp => simp [hp]
+
+/-- The swap carries `I'` to the ideal generated by `I` in `k[x_σ][y_τ]`. -/
+theorem map_extIdeal_commAlgEquiv :
+    Ideal.map ((MvPolynomial.commAlgEquiv k σ τ).toRingEquiv :
+        MvPolynomial σ (MvPolynomial τ k) →+* MvPolynomial τ (MvPolynomial σ k))
+        (extIdeal τ I) =
+      Ideal.map MvPolynomial.C I := by
+  rw [extIdeal, NormalConeBaseChange.extIdeal, Ideal.map_map]
+  exact congrArg (Ideal.map · I) (RingHom.ext (commAlgEquiv_bcMap τ))
+
+/-- **The base change is trivial: `B' ≃+* B[y_τ]`.**  This is the ring-level form of
+`Spec B' = Spec B × 𝔸^τ`. -/
+noncomputable def baseRingEquiv :
+    baseExt τ I ≃+* MvPolynomial τ (MvPolynomial σ k ⧸ I) :=
+  (Ideal.quotientEquiv (extIdeal τ I) (Ideal.map MvPolynomial.C I)
+      (MvPolynomial.commAlgEquiv k σ τ).toRingEquiv (map_extIdeal_commAlgEquiv τ I).symm).trans
+    (MvPolynomial.quotientEquivQuotientMvPolynomial (σ := τ) I).symm.toRingEquiv
+
+/-- The trivialisation on the class of a polynomial. -/
+theorem baseRingEquiv_mk (p : MvPolynomial σ (MvPolynomial τ k)) :
+    baseRingEquiv τ I (Ideal.Quotient.mk _ p) =
+      (MvPolynomial.quotientEquivQuotientMvPolynomial (σ := τ) I).symm
+        (Ideal.Quotient.mk _ (MvPolynomial.commAlgEquiv k σ τ p)) :=
+  rfl
+
+/-- The trivialisation is a map of `B`-algebras. -/
+theorem baseRingEquiv_algebraMap (b : MvPolynomial σ k ⧸ I) :
+    baseRingEquiv τ I (algebraMap (MvPolynomial σ k ⧸ I) (baseExt τ I) b) =
+      algebraMap (MvPolynomial σ k ⧸ I) (MvPolynomial τ (MvPolynomial σ k ⧸ I)) b := by
+  obtain ⟨p, rfl⟩ := Ideal.Quotient.mk_surjective b
+  rw [algebraMap_baseExt_mk, baseRingEquiv_mk, commAlgEquiv_bcMap, MvPolynomial.algebraMap_eq,
+    AlgEquiv.symm_apply_eq]
+  simp [MvPolynomial.quotientEquivQuotientMvPolynomial]
+
+/-- **The base change is trivial: `B' ≃ₐ[B] B[y_τ]`.** -/
+noncomputable def baseAlgEquiv :
+    baseExt τ I ≃ₐ[MvPolynomial σ k ⧸ I] MvPolynomial τ (MvPolynomial σ k ⧸ I) :=
+  AlgEquiv.ofRingEquiv (f := baseRingEquiv τ I) (baseRingEquiv_algebraMap τ I)
+
+/-- `B'` is a free `B`-module, because it is a polynomial ring over `B`. -/
+instance free_baseExt : Module.Free (MvPolynomial σ k ⧸ I) (baseExt τ I) :=
+  Module.Free.of_equiv (baseAlgEquiv τ I).symm.toLinearEquiv
+
+/-- `B'` is a flat `B`-module. -/
+instance flat_baseExt : Module.Flat (MvPolynomial σ k ⧸ I) (baseExt τ I) :=
+  Module.Flat.of_free
+
+/-! ## The base-changed obstruction theory -/
+
+section BaseChangeHom
+
+attribute [local instance] MvPolynomial.algebraMvPolynomial
+
+/-- The restricted cotangent bundle `B' ⊗[R'] Ω[R'⁄A']` of the ambient affine space over `A'`. -/
+abbrev kaehlerExt : Type u :=
+  baseExt τ I ⊗[MvPolynomial σ (MvPolynomial τ k)]
+    Ω[MvPolynomial σ (MvPolynomial τ k)⁄MvPolynomial τ k]
+
+/-- The conormal module `I'/I'²` is a `B`-module through the structure map `B → B'`. -/
+noncomputable instance moduleBaseCotangentExt :
+    Module (MvPolynomial σ k ⧸ I) (extIdeal τ I).Cotangent :=
+  Module.compHom _ (algebraMap (MvPolynomial σ k ⧸ I) (baseExt τ I))
+
+/-- On `I'/I'²` the class of `r` acts as `r` does. -/
+theorem mk_smul_cotangentExt (r : MvPolynomial σ k) (m : (extIdeal τ I).Cotangent) :
+    (Ideal.Quotient.mk I r) • m = r • m := rfl
+
+/-- The `B`- and `B'`-actions on `I'/I'²` commute. -/
+theorem smul_comm_cotangentExt (b : MvPolynomial σ k ⧸ I) (x : baseExt τ I)
+    (m : (extIdeal τ I).Cotangent) : x • b • m = b • x • m := by
+  change x • (algebraMap (MvPolynomial σ k ⧸ I) (baseExt τ I) b) • m =
+    (algebraMap (MvPolynomial σ k ⧸ I) (baseExt τ I) b) • x • m
+  rw [← mul_smul, ← mul_smul, mul_comm]
+
+/-- The `B`-action on `I'/I'²` commutes with itself. -/
+instance : SMulCommClass (MvPolynomial σ k ⧸ I) (MvPolynomial σ k ⧸ I)
+    (extIdeal τ I).Cotangent :=
+  ⟨fun a b m => smul_comm_cotangentExt τ I b
+    (algebraMap (MvPolynomial σ k ⧸ I) (baseExt τ I) a) m⟩
+
+/-- The `R'`- and `B`-actions on `B'` commute. -/
+instance smulCommClassAmbientBaseExt :
+    SMulCommClass (MvPolynomial σ (MvPolynomial τ k)) (MvPolynomial σ k ⧸ I) (baseExt τ I) :=
+  ⟨fun a b x => by simp only [Algebra.smul_def]; ring⟩
+
+/-! ### The comparison maps -/
+
+/-- The `R`-linear comparison map `I/I² → I'/I'²`. -/
+noncomputable def cotangentMapAux :
+    I.Cotangent →ₗ[MvPolynomial σ k] (extIdeal τ I).Cotangent :=
+  Ideal.mapCotangent I (extIdeal τ I)
+    (Algebra.ofId (MvPolynomial σ k) (MvPolynomial σ (MvPolynomial τ k)))
+    (le_comap_extIdeal τ I)
+
+/-- **The comparison map on conormal modules**, `I/I² → I'/I'²`, as a `B`-linear map. -/
+noncomputable def cotangentComparison :
+    I.Cotangent →ₗ[MvPolynomial σ k ⧸ I] (extIdeal τ I).Cotangent where
+  toFun := cotangentMapAux τ I
+  map_add' x y := map_add (cotangentMapAux τ I) x y
+  map_smul' b x := by
+    obtain ⟨r, rfl⟩ := Ideal.Quotient.mk_surjective b
+    have h : (Ideal.Quotient.mk I r) • x = r • x :=
+      IsScalarTower.algebraMap_smul (MvPolynomial σ k ⧸ I) r x
+    rw [h, RingHom.id_apply, mk_smul_cotangentExt, map_smul]
+
+@[simp]
+theorem cotangentComparison_toCotangent (x : I) :
+    cotangentComparison τ I (Ideal.toCotangent I x) =
+      Ideal.toCotangent (extIdeal τ I)
+        ⟨NormalConeBaseChange.bcMap (MvPolynomial τ k) (x : MvPolynomial σ k),
+          Ideal.mem_map_of_mem _ x.2⟩ :=
+  rfl
+
+/-- On `B'` the class of `r` acts as `r` does. -/
+theorem mk_smul_baseExt (r : MvPolynomial σ k) (x : baseExt τ I) :
+    (Ideal.Quotient.mk I r) • x = r • x := by
+  obtain ⟨y, rfl⟩ := Ideal.Quotient.mk_surjective x
+  rfl
+
+/-- On the restricted cotangent bundle the class of `r` acts as `r` does. -/
+theorem mk_smul_kaehlerExt (r : MvPolynomial σ k) (m : kaehlerExt τ I) :
+    (Ideal.Quotient.mk I r) • m = r • m := by
+  induction m using TensorProduct.induction_on with
+  | zero => rw [smul_zero, smul_zero]
+  | tmul x ω => rw [TensorProduct.smul_tmul', TensorProduct.smul_tmul', mk_smul_baseExt]
+  | add a b ha hb => rw [smul_add, smul_add, ha, hb]
+
+/-- The comparison map `Ω[R⁄k] → B' ⊗[R'] Ω[R'⁄A']`, `R`-linearly. -/
+noncomputable def kaehlerMapAux :
+    Ω[MvPolynomial σ k⁄k] →ₗ[MvPolynomial σ k] kaehlerExt τ I :=
+  (TensorProduct.mk (MvPolynomial σ (MvPolynomial τ k)) (baseExt τ I)
+        Ω[MvPolynomial σ (MvPolynomial τ k)⁄MvPolynomial τ k] 1).restrictScalars
+      (MvPolynomial σ k) ∘ₗ
+    KaehlerDifferential.map k (MvPolynomial τ k) (MvPolynomial σ k)
+      (MvPolynomial σ (MvPolynomial τ k))
+
+/-- The `R`-bilinear map `(b, ω) ↦ b · (1 ⊗ dω)` underlying the degree-one comparison. -/
+noncomputable def kaehlerBilin :
+    (MvPolynomial σ k ⧸ I) →ₗ[MvPolynomial σ k]
+      Ω[MvPolynomial σ k⁄k] →ₗ[MvPolynomial σ k] kaehlerExt τ I :=
+  LinearMap.mk₂ (MvPolynomial σ k) (fun b ω => b • kaehlerMapAux τ I ω)
+    (fun b b' ω => add_smul b b' _)
+    (fun r b ω => by rw [Algebra.smul_def, mul_smul]; exact mk_smul_kaehlerExt τ I r _)
+    (fun b ω ω' => by rw [map_add, smul_add])
+    (fun r b ω => by
+      rw [map_smul, ← mk_smul_kaehlerExt, ← mk_smul_kaehlerExt]
+      exact smul_comm _ _ _)
+
+/-- **The comparison map on restricted cotangent bundles**,
+`B ⊗[R] Ω[R⁄k] → B' ⊗[R'] Ω[R'⁄A']`, as a `B`-linear map. -/
+noncomputable def kaehlerComparison :
+    (MvPolynomial σ k ⧸ I) ⊗[MvPolynomial σ k] Ω[MvPolynomial σ k⁄k] →ₗ[MvPolynomial σ k ⧸ I]
+      kaehlerExt τ I where
+  toFun := TensorProduct.lift (kaehlerBilin τ I)
+  map_add' x y := map_add _ x y
+  map_smul' b z := by
+    induction z using TensorProduct.induction_on with
+    | zero => rw [smul_zero, map_zero, RingHom.id_apply, smul_zero]
+    | tmul c ω =>
+      rw [TensorProduct.smul_tmul' b c ω, TensorProduct.lift.tmul, TensorProduct.lift.tmul,
+        RingHom.id_apply]
+      exact mul_smul b c _
+    | add z w hz hw =>
+      rw [smul_add, map_add, map_add, hz, hw, RingHom.id_apply, smul_add]
+
+@[simp]
+theorem kaehlerComparison_one_tmul (ω : Ω[MvPolynomial σ k⁄k]) :
+    kaehlerComparison τ I ((1 : MvPolynomial σ k ⧸ I) ⊗ₜ ω) =
+      (1 : baseExt τ I) ⊗ₜ KaehlerDifferential.map k (MvPolynomial τ k) (MvPolynomial σ k)
+        (MvPolynomial σ (MvPolynomial τ k)) ω := by
+  change TensorProduct.lift (kaehlerBilin τ I) _ = _
+  rw [TensorProduct.lift.tmul]
+  exact one_smul _ _
+
+/-- **Naturality of the conormal map.**  The comparison maps form a commuting square with the
+conormal maps of `I` and of `I'`. -/
+theorem kaehlerComparison_conormalMap (y : I.Cotangent) :
+    kaehlerComparison τ I (AffineNormalCone.conormalMap k (MvPolynomial σ k) I y) =
+      AffineNormalCone.conormalMap (MvPolynomial τ k) (MvPolynomial σ (MvPolynomial τ k))
+        (extIdeal τ I) (cotangentComparison τ I y) := by
+  obtain ⟨a, rfl⟩ := Ideal.toCotangent_surjective I y
+  rw [AffineNormalCone.conormalMap_toCotangent, cotangentComparison_toCotangent,
+    AffineNormalCone.conormalMap_toCotangent, kaehlerComparison_one_tmul,
+    KaehlerDifferential.map_D]
+  rfl
+
+/-! ### The base-changed chain map -/
+
+variable {E : LinearTwoTermComplex (MvPolynomial σ k ⧸ I)}
+
+/-- The `B`-bilinear map underlying the degree-zero component of the base-changed chain map. -/
+noncomputable def baseChangeZeroBilin
+    (φ : LinearTwoTermComplex.Hom E (conormalComplex k (MvPolynomial σ k) I)) :
+    baseExt τ I →ₗ[MvPolynomial σ k ⧸ I]
+      E.degreeZero →ₗ[MvPolynomial σ k ⧸ I] (extIdeal τ I).Cotangent :=
+  LinearMap.mk₂ (MvPolynomial σ k ⧸ I)
+    (fun x e => x • cotangentComparison τ I (φ.degreeZero e))
+    (fun x y e => add_smul x y _)
+    (fun b x e => by rw [Algebra.smul_def]; exact mul_smul _ _ _)
+    (fun x e e' => by rw [map_add, map_add, smul_add])
+    (fun b x e => by rw [map_smul, map_smul]; exact smul_comm_cotangentExt τ I b x _)
+
+/-- The degree-zero component of the base-changed chain map. -/
+noncomputable def baseChangeZero
+    (φ : LinearTwoTermComplex.Hom E (conormalComplex k (MvPolynomial σ k) I)) :
+    baseExt τ I ⊗[MvPolynomial σ k ⧸ I] E.degreeZero →ₗ[baseExt τ I]
+      (extIdeal τ I).Cotangent where
+  toFun := TensorProduct.lift (baseChangeZeroBilin τ I φ)
+  map_add' x y := map_add _ x y
+  map_smul' x z := by
+    induction z using TensorProduct.induction_on with
+    | zero => rw [smul_zero, map_zero, RingHom.id_apply, smul_zero]
+    | tmul y e =>
+      rw [TensorProduct.smul_tmul' x y e, TensorProduct.lift.tmul, TensorProduct.lift.tmul,
+        RingHom.id_apply]
+      exact mul_smul x y _
+    | add z w hz hw =>
+      rw [smul_add, map_add, map_add, hz, hw, RingHom.id_apply, smul_add]
+
+@[simp]
+theorem baseChangeZero_tmul
+    (φ : LinearTwoTermComplex.Hom E (conormalComplex k (MvPolynomial σ k) I))
+    (x : baseExt τ I) (e : E.degreeZero) :
+    baseChangeZero τ I φ (x ⊗ₜ e) = x • cotangentComparison τ I (φ.degreeZero e) :=
+  TensorProduct.lift.tmul _ _
+
+/-- The `B`-bilinear map underlying the degree-one component of the base-changed chain map. -/
+noncomputable def baseChangeOneBilin
+    (φ : LinearTwoTermComplex.Hom E (conormalComplex k (MvPolynomial σ k) I)) :
+    baseExt τ I →ₗ[MvPolynomial σ k ⧸ I]
+      E.degreeOne →ₗ[MvPolynomial σ k ⧸ I] kaehlerExt τ I :=
+  LinearMap.mk₂ (MvPolynomial σ k ⧸ I)
+    (fun x e => x • kaehlerComparison τ I (φ.degreeOne e))
+    (fun x y e => add_smul x y _)
+    (fun b x e => smul_assoc b x _)
+    (fun x e e' => by rw [map_add, map_add, smul_add])
+    (fun b x e => by rw [map_smul, map_smul]; exact (smul_comm b x _).symm)
+
+/-- The degree-one component of the base-changed chain map. -/
+noncomputable def baseChangeOne
+    (φ : LinearTwoTermComplex.Hom E (conormalComplex k (MvPolynomial σ k) I)) :
+    baseExt τ I ⊗[MvPolynomial σ k ⧸ I] E.degreeOne →ₗ[baseExt τ I] kaehlerExt τ I where
+  toFun := TensorProduct.lift (baseChangeOneBilin τ I φ)
+  map_add' x y := map_add _ x y
+  map_smul' x z := by
+    induction z using TensorProduct.induction_on with
+    | zero => rw [smul_zero, map_zero, RingHom.id_apply, smul_zero]
+    | tmul y e =>
+      rw [TensorProduct.smul_tmul' x y e, TensorProduct.lift.tmul, TensorProduct.lift.tmul,
+        RingHom.id_apply]
+      exact mul_smul x y _
+    | add z w hz hw =>
+      rw [smul_add, map_add, map_add, hz, hw, RingHom.id_apply, smul_add]
+
+@[simp]
+theorem baseChangeOne_tmul
+    (φ : LinearTwoTermComplex.Hom E (conormalComplex k (MvPolynomial σ k) I))
+    (x : baseExt τ I) (e : E.degreeOne) :
+    baseChangeOne τ I φ (x ⊗ₜ e) = x • kaehlerComparison τ I (φ.degreeOne e) :=
+  TensorProduct.lift.tmul _ _
+
+/-- **The base change of an affine obstruction datum along `Spec B × 𝔸^τ → Spec B`.** -/
+noncomputable def baseChangeHom
+    (φ : LinearTwoTermComplex.Hom E (conormalComplex k (MvPolynomial σ k) I)) :
+    LinearTwoTermComplex.Hom (E.baseChange (baseExt τ I))
+      (conormalComplex (MvPolynomial τ k) (MvPolynomial σ (MvPolynomial τ k))
+        (extIdeal τ I)) where
+  degreeZero := baseChangeZero τ I φ
+  degreeOne := baseChangeOne τ I φ
+  comm z := by
+    induction z using TensorProduct.induction_on with
+    | zero => rw [map_zero, map_zero, map_zero, map_zero]
+    | tmul x e =>
+      change baseChangeOne τ I φ (x ⊗ₜ E.differential e) = _
+      rw [baseChangeOne_tmul, baseChangeZero_tmul, φ.comm e, map_smul,
+        kaehlerComparison_conormalMap]
+    | add z w hz hw => simp only [map_add, hz, hw]
+
+/-! ### The coordinate ring of the base-changed bundle -/
+
+/-- **Base change of the vector bundle `E₁`.**  The coordinate ring of `E₁` over `Spec B'` is the
+base change along `B → B'` of the coordinate ring of `E₁` over `Spec B`.  This is
+`GradedCone.baseChangeEquiv` for the module `E⁻¹`. -/
+noncomputable def bundleRingEquiv
+    (φ : LinearTwoTermComplex.Hom E (conormalComplex k (MvPolynomial σ k) I)) :
+    ResolvedCone.bundleRing (baseChangeHom τ I φ) ≃ₐ[baseExt τ I]
+      baseExt τ I ⊗[MvPolynomial σ k ⧸ I] ResolvedCone.bundleRing φ :=
+  GradedCone.baseChangeEquiv (MvPolynomial σ k ⧸ I) E.degreeZero (baseExt τ I)
+
+/-- The base-change comparison on a generator of the symmetric algebra. -/
+theorem bundleRingEquiv_ι
+    (φ : LinearTwoTermComplex.Hom E (conormalComplex k (MvPolynomial σ k) I))
+    (x : baseExt τ I ⊗[MvPolynomial σ k ⧸ I] E.degreeZero) :
+    bundleRingEquiv τ I φ
+        (SymmetricAlgebra.ι (baseExt τ I)
+          (baseExt τ I ⊗[MvPolynomial σ k ⧸ I] E.degreeZero) x) =
+      LinearMap.baseChange (baseExt τ I)
+        (SymmetricAlgebra.ι (MvPolynomial σ k ⧸ I) E.degreeZero) x := by
+  exact SymmetricAlgebra.lift_ι_apply _ x
+
+/-- **The trivialised form of the base change of `E₁`:** the coordinate ring of `E₁` over
+`Spec B' = Spec B × 𝔸^τ` is a polynomial ring in `τ` variables over the coordinate ring of `E₁`
+over `Spec B`.  It is stated as a ring isomorphism because the two sides carry their `B`-algebra
+structures through different towers. -/
+noncomputable def polyBundleRingEquiv
+    (φ : LinearTwoTermComplex.Hom E (conormalComplex k (MvPolynomial σ k) I)) :
+    ResolvedCone.bundleRing (baseChangeHom τ I φ) ≃+*
+      MvPolynomial τ (ResolvedCone.bundleRing φ) :=
+  (bundleRingEquiv τ I φ).toRingEquiv.trans
+    ((Algebra.TensorProduct.congr (baseAlgEquiv τ I)
+        (AlgEquiv.refl (R := MvPolynomial σ k ⧸ I)
+          (A₁ := ResolvedCone.bundleRing φ))).toRingEquiv.trans
+      ((Algebra.TensorProduct.comm (MvPolynomial σ k ⧸ I)
+          (MvPolynomial τ (MvPolynomial σ k ⧸ I))
+          (ResolvedCone.bundleRing φ)).toRingEquiv.trans
+        (MvPolynomial.algebraTensorAlgEquiv (σ := τ) (MvPolynomial σ k ⧸ I)
+          (ResolvedCone.bundleRing φ)).toRingEquiv))
+
+/-- The trivialised comparison carries the generator `1 ⊗ x` to the constant `x`. -/
+theorem polyBundleRingEquiv_ι_one_tmul
+    (φ : LinearTwoTermComplex.Hom E (conormalComplex k (MvPolynomial σ k) I))
+    (x : E.degreeZero) :
+    polyBundleRingEquiv τ I φ
+        (SymmetricAlgebra.ι (baseExt τ I)
+          (baseExt τ I ⊗[MvPolynomial σ k ⧸ I] E.degreeZero) ((1 : baseExt τ I) ⊗ₜ x)) =
+      MvPolynomial.C (SymmetricAlgebra.ι (MvPolynomial σ k ⧸ I) E.degreeZero x) := by
+  change (MvPolynomial.algebraTensorAlgEquiv (σ := τ) (MvPolynomial σ k ⧸ I)
+      (ResolvedCone.bundleRing φ))
+      ((Algebra.TensorProduct.comm _ _ _)
+        ((Algebra.TensorProduct.congr (baseAlgEquiv τ I) (AlgEquiv.refl))
+          (bundleRingEquiv τ I φ _))) = _
+  rw [bundleRingEquiv_ι, LinearMap.baseChange_tmul, Algebra.TensorProduct.congr_apply,
+    Algebra.TensorProduct.map_tmul, map_one,
+    Algebra.TensorProduct.comm_tmul, MvPolynomial.algebraTensorAlgEquiv_tmul, map_one,
+    Algebra.smul_def, mul_one, MvPolynomial.algebraMap_eq]
+  rfl
+
+end BaseChangeHom
+
+end GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.BaseChangeCone
