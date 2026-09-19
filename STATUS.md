@@ -347,6 +347,45 @@ Implemented APIs include:
   (`BaseChangeInvariance.virtualClassAt_baseChangeHom`; Behrend–Fantechi, Proposition 7.2 for
   this smooth projection); the transfer of the obstruction-theory property along the base change
   is still stated separately and not yet proved;
+- global intersection-theory foundations for the virtual class of a general scheme (Layer 2):
+  rational cycles are Zariski-local (`IntersectionTheory/CycleGluing.lean`: a cycle is determined
+  by its restrictions to an open cover, compatible local cycles glue, the fundamental cycle
+  restricts to the fundamental cycle along open immersions); homogeneity of principal divisors is
+  a Zariski-local property, characterised by the certified dimension dropping by one along the
+  covering relation of the specialisation order and verified affinely from the dimension formula
+  (`IntersectionTheory/HomogeneityLocal.lean`); for a scheme locally of finite type over a field
+  the dimension function is the transcendence degree of the residue field, compatible with every
+  open immersion (`IntersectionTheory/FiniteTypeDimension.lean`);
+- vector bundles over a general scheme (Layer 1/2): the total space `Spec_X 𝒜` of a quasi-coherent
+  algebra with an augmentation and trivialisations `𝔸^ι_U` over an affine cover
+  (`VectorBundleTotalSpace.lean`: affine projection, zero section as a closed immersion, chart
+  pullback squares), the restriction of a relative `Spec` to an open subscheme with the pullback
+  square `Spec_V (𝒜|_V) = Spec_X 𝒜 ×_X V` and its corollary for the global normal cone
+  (`RelativeSpecRestrict.lean`), the flat pullback of cycles `π^* : Z_*(X) → Z_{*+r}(E)` defined
+  through the chart-independent generic points of the fibres, agreeing with the affine pullback on
+  every chart, injective and taking the fundamental cycle to the fundamental cycle
+  (`IntersectionTheory/BundlePullbackGlobal.lean`, `BundlePullbackFundamental.lean`); the
+  restriction `E_V = E ×_X V` to an integral closed subscheme is an integral closed subscheme with
+  dominant projection (`IntersectionTheory/BundleOverSubscheme.lean`), the identity
+  `π^*(ι_V)_* div f = (ι_{E_V})_* div(π_V^* f)` holds, and hence `π^*` descends to rational Chow
+  groups, `chowPullbackBundleGlobal : A_i(X) → A_{i+r}(E)`, restricting on every chart to the affine
+  `chowPullbackBundle` (`IntersectionTheory/BundlePullbackGlobalChow.lean`); injectivity and
+  surjectivity of the global `π^*` on Chow groups (Fulton 1.9, 3.3(a)) are not yet proved beyond an
+  affine base;
+- the virtual fundamental class of a general scheme (Layer 7): the affine resolved cone commutes
+  with flat formally étale base change, in particular with localisation at an element, and the
+  obstruction-theory property transfers along it and along the round-16 polynomial base change,
+  with faithfully flat converses (`VirtualFundamentalClass/LocalisationCone.lean`,
+  `BaseChangeObstruction.lean`); a global cone datum `GlobalConeData` (bundle, cone algebra, closed
+  immersion `C ↪ E₁`, affine models on charts) has a global cone cycle `[C] ∈ Z_*(E₁)` which
+  restricts on every chart to the affine resolved-cone cycle (`VirtualFundamentalClass/GlobalCone.lean`);
+  the global virtual class `[X]^vir` is defined as the unique class with `π^*[X]^vir = [C]` for the
+  global Chow pullback, under the two remaining hypotheses that `π^*` is injective on `A_*(X)` and
+  that `[C]` lies in its range (`VirtualFundamentalClass/GlobalVirtualClass.lean`); for an affine
+  scheme with the single chart `⊤` the global data are constructed from an affine obstruction datum
+  and the global class is the affine class of round 16, with both hypotheses discharged
+  (`VirtualFundamentalClass/GlobalConeAffine.lean`); the construction of `GlobalConeData` from a
+  global embedding or from local embeddings (gluing of the cones on overlaps) is not yet done;
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
