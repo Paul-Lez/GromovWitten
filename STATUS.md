@@ -263,6 +263,34 @@ Implemented APIs include:
   (unconditional for finite covers) (`Cones/IntrinsicConeGluing.lean`,
   `Cones/IntrinsicConeGluingPoly.lean`, `Cones/IntrinsicConeGluingCover.lean`,
   `Cones/IntrinsicConeDescent.lean`);
+- Fulton's Proposition 1.9 for trivialised affine vector bundles over Noetherian rings: the flat
+  pullback `π^* : A_i(X) → A_{i+r}(E)` on rational Chow groups is surjective, proved through the
+  rank-one key lemma (a rational function on `Spec (R/p)[X]` with principal divisor `[V]` plus
+  cycles over a proper closed subset), Noetherian induction on the base and induction on the
+  rank, under homogeneity of principal divisors on the total space only
+  (`IntersectionTheory/BundleHomotopyRankOne.lean`, `IntersectionTheory/BundleHomotopy.lean`,
+  `IntersectionTheory/BundleHomotopyKey.lean`); the zero-section Gysin isomorphism
+  `0^! = (π^*)^{-1}` is defined under the explicit hypothesis that `π^*` is injective, which is
+  the Chern-class half of homotopy invariance and remains the one missing intersection-theoretic
+  input;
+- the Behrend–Fantechi resolved cone `C(E) = 𝔠_X ×_{h¹/h⁰(E^∨)} E₁` in the affine two-term model,
+  as the scheme-theoretic image of `C_{U/M} ×_U E₀ → E₁`, with its closed immersion into `E₁`,
+  translation invariance under `E₀`, the comparison with the obstruction-cone functor on test
+  algebras, the trivialisation of the tangent torsor `C_{U/M} ×_U E₀ → C(E)` by the invariant
+  ideal lemma and Vistoli's coaction, and purity of `C(E)` in dimension `rk E⁰` under the
+  dimension formula for the extended Rees algebra
+  (`VirtualFundamentalClass/ResolvedCone.lean`, `VirtualFundamentalClass/ResolvedConeDimension.lean`,
+  `VirtualFundamentalClass/ResolvedConeTrivialisation.lean`);
+- the virtual fundamental class `[X]^vir = 0^!_{E₁}[C(E)]` in the affine model with a global
+  two-term resolution: the resolved-cone class in `A_{vd + rk E⁻¹}(E₁)`, the canonical class in
+  `A_{vd}(X) ⧸ ker π^*` with no injectivity assumption, the class in `A_{vd}(X)` characterised by
+  `π^*[X]^vir = [C(E)]` once `π^*` is injective, the expected dimension
+  `vd = rk E⁰ − rk E⁻¹` as a chain-homotopy invariant, the rank-zero and proper-point checks, and
+  independence of the resolution under isomorphisms of two-term resolutions and under adding
+  an acyclic summand `[F = F]` (`C(E ⊕ [F = F])` is the preimage of `C(E)`, with the flat
+  pullback of fundamental cycles along a vector bundle proved by base change of lengths)
+  (`VirtualFundamentalClass/Construction.lean`, `VirtualFundamentalClass/Independence.lean`,
+  `VirtualFundamentalClass/IndependenceAcyclic.lean`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
