@@ -320,6 +320,33 @@ Implemented APIs include:
   restated with the two ring hypotheses `HasUniversalDimensionFormula (R ⧸ I)` and
   `UnitDifferences (R ⧸ I)` as the only inputs beyond round 14's construction
   (`VirtualFundamentalClass/Unconditional.lean`);
+- the virtual fundamental class in the affine model with no ring-theoretic hypotheses at all: the
+  dimension formula for prime quotients of polynomial algebras over a finitely generated algebra
+  over a field (`VectorBundle.HasUniversalDimensionFormula`, proved in
+  `Algebra/FiniteTypeDimensionFormula.lean` from the height-one case already in
+  `Algebra/DimensionFormula.lean`) and the unit-difference condition for an infinite field
+  discharge the two inputs of round 15, so `VirtualFundamentalClass/OverField.lean` states the
+  construction, its uniqueness, its quasi-isomorphism invariance and the purity of the resolved
+  cone for `[Field k] [Infinite k] [Algebra.FiniteType k R]` only;
+- relative obstruction theories over a smooth polynomial base (Layer 9, affine model): for
+  `X ⊆ 𝔸^σ × 𝔸^τ` and an obstruction theory relative to `Y = 𝔸^τ`, the absolute obstruction
+  theory of Behrend–Fantechi §7 is constructed (`RelativeAbsolute.absHom`), its resolved cone is
+  literally the resolved cone of the relative datum (the tangent coaction in the `τ`-directions
+  absorbs the extra differential; `ideal_absHom`), its virtual class is the relative virtual class
+  in degree `vd + dim Y` (`virtualClassAt_absHom`), and it is an obstruction theory exactly when
+  the relative datum is (`isObstructionTheory_absHom_iff`,
+  `VirtualFundamentalClass/RelativeAbsolute*.lean`); adjoining a degree-one summand leaves the
+  resolved cone unchanged in general (`VirtualFundamentalClass/DegreeOneSummand.lean`);
+- functoriality under the smooth projection `X × 𝔸^τ → X` (Layer 8, affine model): the flat
+  pullback along a trivialised bundle is transitive on Chow groups, commutes with pushforward along
+  closed immersions and with the zero-section Gysin map
+  (`IntersectionTheory/BundlePullbackBaseChange.lean`); the base change of an obstruction datum
+  is constructed, its resolved cone is the polynomial extension of the original one
+  (`VirtualFundamentalClass/BaseChangeCone*.lean`), and the virtual class of the base change is
+  the flat pullback of the virtual class, `[X × 𝔸^τ]^vir = π^*[X]^vir` in the relative form
+  (`BaseChangeInvariance.virtualClassAt_baseChangeHom`; Behrend–Fantechi, Proposition 7.2 for
+  this smooth projection); the transfer of the obstruction-theory property along the base change
+  is still stated separately and not yet proved;
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
