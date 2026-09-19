@@ -291,6 +291,35 @@ Implemented APIs include:
   pullback of fundamental cycles along a vector bundle proved by base change of lengths)
   (`VirtualFundamentalClass/Construction.lean`, `VirtualFundamentalClass/Independence.lean`,
   `VirtualFundamentalClass/IndependenceAcyclic.lean`);
+- injectivity of the flat pullback `π^* : A_i(X) → A_{i+r}(E)` along a trivialised affine vector
+  bundle over a Noetherian ring, without Chern classes: a generic translate `{t = c}` of the zero
+  section (`UnitDifferences R`: an infinite set of elements of `R` with unit differences, e.g. an
+  infinite field inside `R`) gives a cycle-level Gysin map `i_c^*` with `i_c^* ∘ π^* = id`
+  (`IntersectionTheory/BundleSectionGysin.lean`), and `i_c^*` kills every principal divisor in
+  good position by Fulton's symmetric local identity in two-dimensional local domains
+  (Appendix A.2–A.3: Koszul symmetry and dévissage, proved unconditionally in
+  `IntersectionTheory/LocalOrdSymmetry.lean`, lifted to cycles in
+  `IntersectionTheory/BundleSectionGysinIdentity.lean`); with rank induction along the tower this
+  gives `VectorBundle.chowPullbackBundle_injective` and the honest zero-section Gysin isomorphism
+  `A_{i+r}(E) ≃ A_i(X)` (`IntersectionTheory/BundleHomotopyInjective.lean`) under the catenarity
+  hypothesis `HasUniversalDimensionFormula R` (the dimension formula for all prime quotients of
+  all polynomial rings over `R`, true for finite-type algebras over a field but not yet proved in
+  the repository), which also discharges the round-14 homogeneity hypothesis on principal
+  divisors;
+- chain-homotopy invariance of the virtual fundamental class in the affine model: the
+  resolved-cone ideal depends on the obstruction theory only through its degree `−1` component,
+  and a degree-zero chain homotopy is absorbed by a translation automorphism of
+  `gr_I(R) ⊗ Sym(E⁰)`, so homotopic obstruction theories have literally the same resolved cone
+  (`VirtualFundamentalClass/HomotopyInvariance.lean`); a quasi-isomorphism `f : E → F` of perfect
+  two-term complexes yields an isomorphism `F ⊕ [E⁰ = E⁰] ≅ E ⊕ [F⁰ = F⁰]` compatible with the
+  obstruction maps up to such a homotopy (`VirtualFundamentalClass/QuasiIsoSplitting.lean`), and
+  combining this with the round-14 isomorphism and acyclic-summand invariance proves
+  Behrend–Fantechi Proposition 5.3 in the affine model, `[X]^vir_φ = [X]^vir_ψ` for
+  quasi-isomorphic (or homotopy-equivalent) obstruction theories
+  (`VirtualFundamentalClass/QuasiIsoInvariance.lean`); the virtual class and its invariance are
+  restated with the two ring hypotheses `HasUniversalDimensionFormula (R ⧸ I)` and
+  `UnitDifferences (R ⧸ I)` as the only inputs beyond round 14's construction
+  (`VirtualFundamentalClass/Unconditional.lean`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
