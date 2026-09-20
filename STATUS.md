@@ -386,6 +386,35 @@ Implemented APIs include:
   and the global class is the affine class of round 16, with both hypotheses discharged
   (`VirtualFundamentalClass/GlobalConeAffine.lean`); the construction of `GlobalConeData` from a
   global embedding or from local embeddings (gluing of the cones on overlaps) is not yet done;
+- the global homotopy property of vector bundles (Layer 2): Fulton's Proposition 1.9 for an
+  arbitrary `BundleData X ι` over a compact locally Noetherian base, proved by well-founded
+  induction on closed subsets with the supports of cycles and relations tracked
+  (`IntersectionTheory/SupportedCycles.lean`, `BundleHomotopyClosed.lean`,
+  `BundleHomotopyGlobal.lean`: `chowPullbackBundleGlobal_surjective`, hypothesis-free for
+  schemes of finite type over a field); injectivity of the global `π^*` (Fulton 3.3(a)) for
+  bundles with a global trivialisation over a compact scheme locally of finite type over an
+  infinite field, by a global constant translate of the zero section, the invariance of principal
+  divisors under the choice of the reduced subscheme (`GeneratorInvariance*.lean`), a global
+  section Gysin map glued from the affine one (`LineBundleInjective*.lean`) and rank induction
+  through the trivial tower (`BundleHomotopyInjectiveGlobal.lean`:
+  `chowPullbackBundleGlobal_injective`); injectivity for non-trivial bundles needs Chern classes
+  and is not attempted;
+- relative `Spec` of an affine morphism and trivial bundles (Layer 1): `AlgebraData.ofAffineHom`,
+  `relativeSpecOfAffineHomIso`, morphisms of relative `Spec`s from morphisms over the base
+  (`RelativeSpecAffineHom.lean`); `trivialData X ι`, `GlobalTrivialisation`, constant sections and
+  the rename tower (`VectorBundleTrivial.lean`);
+- the global cone from local embeddings and the unconditional virtual class (Layer 7): a
+  `LocalConeData` (affine obstruction models on charts whose resolved-cone ideals agree on the
+  affine opens of the overlaps) glues to a closed subscheme of the total space via the kernel
+  ideal sheaf of the map from the disjoint union of the affine cones, whose ideal on every chart
+  is the affine resolved-cone ideal, hence to a `GlobalConeData`
+  (`VirtualFundamentalClass/ConeGluing.lean`, `ConeGluingGlobal.lean`); the overlap condition
+  follows from flat formally étale base change of the affine models plus a transition datum
+  (`ConeGluingCompatible.lean`); the membership hypothesis of round 17 is discharged by the
+  global surjectivity, so `virtualClassFT'` is the virtual class of a compact scheme locally of
+  finite type over a field with no hypothesis, and it is the unique class with `π^*[X]^vir = [C(E)]`
+  when the obstruction bundle has a global trivialisation
+  (`GlobalVirtualClassSurjective.lean`, `GlobalVirtualClassUnconditional.lean`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
