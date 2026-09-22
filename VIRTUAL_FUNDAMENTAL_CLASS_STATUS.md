@@ -53,6 +53,22 @@ Specification: [Tau Ceti roadmap comparison](https://github.com/TauCetiProject/T
 
 ## Structural guarantees already established
 
+- `Morphisms/FlatDescent.lean`, `ProperDescent.lean`, and `ClosedImmersionDescent.lean`
+  establish fpqc and fppf descent for flat, separated, proper, and closed-immersion scheme
+  morphisms. Separatedness is detected by universal closedness of the diagonal; closed
+  immersions are proper monomorphisms, and monomorphism descent follows from the isomorphism
+  criterion for the diagonal. The corresponding `Stacks/*Descent.lean` modules lift these
+  results through actual `StackMorphismPresentation` pullbacks and include smooth-cover tests.
+  These statements assume representability and descend the indicated property; they do not
+  construct representability from local data. `Morphisms/ImmersionDescent.lean` additionally
+  proves general immersion descent along fppf and smooth covers: the open quotient map descends
+  local closedness of the image, the morphism factors through its coborder open, and descent of
+  the resulting closed immersion completes the proof. `Stacks/ImmersionDescent.lean` transfers
+  this through actual presentations. Regular-immersion descent remains open.
+- `Stacks/SourceLocality.lean` proves that source-local properties can be tested on open covers
+  of the representing schemes, with transport across invertible stack 2-cells. Its smooth,
+  etale, formally unramified, flat, locally finite-type and locally finitely presented
+  corollaries derive source locality from the corresponding ring-hom properties.
 - Stack fibres and quotient fibres are categories with `IsGroupoid`; automorphisms are retained.
 - Equivariant fppf torsors over a scheme base change along every scheme morphism: the pulled-back
   sheaf, action, target map, principal isomorphism, and local triviality are constructed, and the
