@@ -1,6 +1,7 @@
 /-
 Copyright (c) 2026 GromovWitten Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
+Authors: OpenAI Codex
 -/
 
 import GromovWitten.AlgebraicGeometry.Modules.AffineDescent
@@ -16,7 +17,7 @@ elements satisfying `δ n = 1 ⊗ n`, and records its faithfully flat reconstruc
 open CategoryTheory CategoryTheory.Limits
 open CategoryTheory.Comonad CategoryTheory.Comonad.ComonadicityInternal
 open ModuleCat
-open scoped ChangeOfRings
+open scoped ChangeOfRings TensorProduct
 
 namespace GromovWitten.AlgebraicGeometry.Modules
 
@@ -34,11 +35,6 @@ private noncomputable def unitA (D : AffineDescent f) :
       (extendScalars f ⋙ restrictScalars f).obj ((restrictScalars f).obj D.A) :=
   (extendRestrictScalarsAdj.{u, u, u} f).unit.app ((restrictScalars f).obj D.A)
 
-private theorem comonadTarget_eq (D : AffineDescent f) :
-    (restrictScalars f).obj ((extendRestrictScalarsAdj.{u, u, u} f).toComonad.obj D.A) =
-      (extendScalars f ⋙ restrictScalars f).obj ((restrictScalars f).obj D.A) := by
-  rfl
-
 /-- The usual module of invariant elements of an affine descent datum.
 
 The two maps in the kernel are the coaction and the unit of extension and restriction
@@ -48,6 +44,11 @@ of scalars.  Thus this is the concrete module
 noncomputable def invariantSubmodule (D : AffineDescent f) :
   Submodule A ((restrictScalars f).obj D.A) :=
   LinearMap.ker ((coactionA f D - unitA f D).hom)
+
+/-- The inclusion of the concrete invariants into the restricted underlying module. -/
+noncomputable def invariantSubtype (D : AffineDescent f) :
+    ModuleCat.of A (invariantSubmodule f D) ⟶ (restrictScalars f).obj D.A :=
+  ModuleCat.ofHom (Y := (restrictScalars f).obj D.A) (invariantSubmodule f D).subtype
 
 private theorem mem_invariantSubmodule_iff_maps (D : AffineDescent f)
     (n : (restrictScalars f).obj D.A) :
@@ -63,7 +64,6 @@ theorem mem_invariantSubmodule_iff (D : AffineDescent f)
       D.a n = (1 : B) ⊗ₜ[A, f] n := by
   rw [mem_invariantSubmodule_iff_maps]
   rw [← extension_unit_apply f ((restrictScalars f).obj D.A) n]
-  rw [comonadTarget_eq f D]
   change (coactionA f D) n = (unitA f D) n ↔
     (coactionA f D) n = (unitA f D) n
   rfl
@@ -87,21 +87,22 @@ private noncomputable def equalizerToInvariant (D : AffineDescent f) :
         descentEqualizerι_condition f D
       have h := congrArg (fun g => g.hom) hcond
       have hx := congrArg (fun g => g x) h
-      simpa only [ModuleCat.hom_comp, LinearMap.comp_apply] using hx
+      change ((coactionA f D).hom.comp (descentEqualizerι f D).hom) x =
+        ((unitA f D).hom.comp (descentEqualizerι f D).hom) x
+      exact hx
 
 private noncomputable def invariantToEqualizer (D : AffineDescent f) :
     ModuleCat.of A (invariantSubmodule f D) ⟶ (descentFunctor f).obj D :=
-  equalizer.lift (ModuleCat.ofHom (Y := (restrictScalars f).obj D.A)
-      (invariantSubmodule f D).subtype) (by
+  equalizer.lift (invariantSubtype f D) (by
     apply ModuleCat.hom_ext
     ext n
-    simpa only [ModuleCat.hom_comp, LinearMap.comp_apply, coactionA, unitA,
-      comonadTarget_eq] using
-      (mem_invariantSubmodule_iff_maps f D n).mp n.property)
+    change (coactionA f D) ((invariantSubtype f D) n) =
+      (unitA f D) ((invariantSubtype f D) n)
+    exact (mem_invariantSubmodule_iff_maps f D n).mp n.property)
 
 @[simp]
 private theorem equalizerToInvariant_comp_ι (D : AffineDescent f) :
-    equalizerToInvariant f D ≫ ModuleCat.ofHom (invariantSubmodule f D).subtype =
+    equalizerToInvariant f D ≫ invariantSubtype f D =
       descentEqualizerι f D := by
   apply ModuleCat.hom_ext
   rfl
@@ -109,7 +110,7 @@ private theorem equalizerToInvariant_comp_ι (D : AffineDescent f) :
 @[simp]
 private theorem invariantToEqualizer_comp_ι (D : AffineDescent f) :
     invariantToEqualizer f D ≫ descentEqualizerι f D =
-      ModuleCat.ofHom (invariantSubmodule f D).subtype := by
+      invariantSubtype f D := by
   exact equalizer.lift_ι _ _
 
 /-- The categorical descent equalizer is the concrete invariant submodule. -/
@@ -127,19 +128,20 @@ noncomputable def invariantEqualizerIso (D : AffineDescent f) :
       intro n
       apply Subtype.ext
       have h := congrArg (fun g => g n) (invariantToEqualizer_comp_ι f D)
-      simpa only [ModuleCat.comp_apply, ModuleCat.ofHom_apply,
-        LinearMap.codRestrict_apply] using h }
+      change descentEqualizerι f D ((invariantToEqualizer f D) n) =
+        (n : (restrictScalars f).obj D.A)
+      exact h }
 
 @[simp]
 theorem invariantEqualizerIso_hom_comp_ι (D : AffineDescent f) :
-    (invariantEqualizerIso f D).hom ≫ ModuleCat.ofHom (invariantSubmodule f D).subtype =
+    (invariantEqualizerIso f D).hom ≫ invariantSubtype f D =
       descentEqualizerι f D := by
   exact equalizerToInvariant_comp_ι f D
 
 @[simp]
 theorem invariantEqualizerIso_inv_comp_ι (D : AffineDescent f) :
     (invariantEqualizerIso f D).inv ≫ descentEqualizerι f D =
-      ModuleCat.ofHom (invariantSubmodule f D).subtype := by
+      invariantSubtype f D := by
   exact invariantToEqualizer_comp_ι f D
 
 /-- A morphism of descent data restricts to a map of invariant modules. -/
@@ -150,8 +152,8 @@ noncomputable def invariantMap (D E : AffineDescent f) (φ : D ⟶ E) :
 
 @[simp]
 theorem invariantMap_comp_subtype (D E : AffineDescent f) (φ : D ⟶ E) :
-    invariantMap f D E φ ≫ ModuleCat.ofHom (invariantSubmodule f E).subtype =
-      ModuleCat.ofHom (invariantSubmodule f D).subtype ≫
+    invariantMap f D E φ ≫ invariantSubtype f E =
+      invariantSubtype f D ≫
         (restrictScalars f).map φ.f := by
   simp only [invariantMap, Category.assoc, invariantEqualizerIso_hom_comp_ι,
     descendedHom_comp_ι]
@@ -163,7 +165,9 @@ theorem invariantMap_apply (D E : AffineDescent f) (φ : D ⟶ E)
     ((invariantMap f D E φ) n : (restrictScalars f).obj E.A) =
       φ.f (n : (restrictScalars f).obj D.A) := by
   have h := congrArg (fun g => g n) (invariantMap_comp_subtype f D E φ)
-  simpa only [ModuleCat.comp_apply, ModuleCat.ofHom_apply] using h
+  change (invariantSubtype f E) ((invariantMap f D E φ) n) =
+    φ.f ((invariantSubtype f D) n)
+  exact h
 
 /-- The descended module, extended back to `B`, is canonically the original module. -/
 noncomputable def invariantExtensionDescentIso (hf : f.FaithfullyFlat)
@@ -172,19 +176,7 @@ noncomputable def invariantExtensionDescentIso (hf : f.FaithfullyFlat)
   let i : (affineDescentComparison f).obj (ModuleCat.of A (invariantSubmodule f D)) ≅ D :=
     (affineDescentComparison f).mapIso (invariantEqualizerIso f D).symm ≪≫
       extensionDescentIso f hf D
-  exact
-    { hom := i.hom.f
-      inv := i.inv.f
-      hom_inv_id := by
-        apply ModuleCat.hom_ext
-        simpa only [Comonad.Coalgebra.comp_f, Comonad.Coalgebra.id_f,
-          ModuleCat.hom_comp, ModuleCat.hom_id] using
-          congrArg (fun k => k.f) i.hom_inv_id
-      inv_hom_id := by
-        apply ModuleCat.hom_ext
-        simpa only [Comonad.Coalgebra.comp_f, Comonad.Coalgebra.id_f,
-          ModuleCat.hom_comp, ModuleCat.hom_id] using
-          congrArg (fun k => k.f) i.inv_hom_id }
+  exact (Comonad.forget ((extendRestrictScalarsAdj.{u, u, u} f).toComonad)).mapIso i
 
 @[simp]
 theorem invariantExtensionDescentIso_hom_one_tmul (hf : f.FaithfullyFlat)
@@ -199,39 +191,42 @@ theorem invariantExtensionDescentIso_hom_one_tmul (hf : f.FaithfullyFlat)
   rw [ModuleCat.ExtendScalars.map_tmul]
   have h₁ := extensionDescentIso_hom_apply_one_tmul f hf D
     ((invariantEqualizerIso f D).inv n)
-  calc
-    (extensionDescentIso f hf D).hom.f
-        ((1 : B) ⊗ₜ[A, f] ((invariantEqualizerIso f D).inv n)) =
-        descentEqualizerι f D ((invariantEqualizerIso f D).inv n) := h₁
-    _ = (n : (restrictScalars f).obj D.A) := by
-      have h := congrArg (fun k => k n) (invariantEqualizerIso_inv_comp_ι f D)
-      simpa only [ModuleCat.comp_apply, ModuleCat.ofHom_apply] using h
+  have h₂ : descentEqualizerι f D ((invariantEqualizerIso f D).inv n) =
+      (n : (restrictScalars f).obj D.A) := by
+    have h := congrArg (fun k => k n) (invariantEqualizerIso_inv_comp_ι f D)
+    change descentEqualizerι f D ((invariantEqualizerIso f D).inv n) = _
+    exact h
+  exact h₁.trans h₂
 
+set_option backward.isDefEq.respectTransparency false in
 @[simp]
 theorem invariantExtensionDescentIso_hom_tmul (hf : f.FaithfullyFlat)
     (D : AffineDescent f) (b : B) (n : invariantSubmodule f D) :
     (invariantExtensionDescentIso f hf D).hom
         (b ⊗ₜ[A, f] n) = b • (n : (restrictScalars f).obj D.A) := by
-  calc
-    (invariantExtensionDescentIso f hf D).hom (b ⊗ₜ[A, f] n) =
-        (invariantExtensionDescentIso f hf D).hom
-          (b • (((1 : B) ⊗ₜ[A, f] n) :
-            (extendScalars f).obj (ModuleCat.of A (invariantSubmodule f D)))) := by
-            rw [ModuleCat.ExtendScalars.smul_tmul, one_mul]
-    _ = b • (invariantExtensionDescentIso f hf D).hom
-          ((1 : B) ⊗ₜ[A, f] n) := by rw [map_smul]
-    _ = b • (n : (restrictScalars f).obj D.A) := by
-      rw [invariantExtensionDescentIso_hom_one_tmul]
+  have hb :
+      b • ((1 : B) ⊗ₜ[A, f] n :
+        (extendScalars f).obj (ModuleCat.of A (invariantSubmodule f D))) =
+      (b ⊗ₜ[A, f] n :
+        (extendScalars f).obj (ModuleCat.of A (invariantSubmodule f D))) := by
+    simpa only [mul_one] using
+      (ModuleCat.ExtendScalars.smul_tmul f
+        (M := ModuleCat.of A (invariantSubmodule f D)) b (1 : B) n)
+  rw [← hb, map_smul, invariantExtensionDescentIso_hom_one_tmul]
 
+/-! The preceding isomorphism transports finite generation along faithfully flat descent. -/
+
+/-- A faithfully flat affine descent datum with finite underlying `B`-module has finite
+invariants over `A`. -/
 theorem module_finite_invariant_of_finite (hf : f.FaithfullyFlat)
     (D : AffineDescent f) [Module.Finite B D.A] :
     Module.Finite A (invariantSubmodule f D) := by
   algebraize [f]
-  letI : Module.Finite B (B ⊗[A] invariantSubmodule f D) := by
-    change Module.Finite B ((extendScalars f).obj
-      (ModuleCat.of A (invariantSubmodule f D)))
+  have hfinite :
+      Module.Finite B ((extendScalars f).obj (ModuleCat.of A (invariantSubmodule f D))) := by
     rw [Module.Finite.equiv_iff (invariantExtensionDescentIso f hf D).toLinearEquiv]
     infer_instance
-  exact Module.Finite.of_finite_tensorProduct_of_faithfullyFlat B
+  exact @Module.Finite.of_finite_tensorProduct_of_faithfullyFlat A _ B _ _
+    (ModuleCat.of A (invariantSubmodule f D)) _ _ _ hfinite
 
 end GromovWitten.AlgebraicGeometry.Modules

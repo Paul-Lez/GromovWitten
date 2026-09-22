@@ -129,13 +129,9 @@ theorem pushforwardTopology_compatiblePreserving [F.IsGroupoidValued]
     (f₁ ≫ (forget F).map g₁)
   let φ : c ⟶ Z := cartesianLift Z.fiber
     (f₁ ≫ (forget F).map g₁)
-  have hφ₁ : (forget F).map φ = f₁ ≫ (forget F).map g₁ := by
-    change φ.base = f₁ ≫ (forget F).map g₁
-    rfl
   have hφ₁lift : (forget F).IsHomLift (f₁ ≫ (forget F).map g₁) φ := by
-    apply IsHomLift.of_fac' (forget F) (f₁ ≫ (forget F).map g₁) φ
-      (by rfl) (by rfl)
-    exact hφ₁
+    change IsHomLift (forget F) ((forget F).map φ) φ
+    exact IsHomLift.map (forget F) φ
   have : (forget F).IsHomLift (f₁ ≫ (forget F).map g₁) φ := hφ₁lift
   have hstrong₁ : IsStronglyCartesian (forget F) ((forget F).map g₁) g₁ :=
     isStronglyCartesian g₁
@@ -147,12 +143,10 @@ theorem pushforwardTopology_compatiblePreserving [F.IsGroupoidValued]
   obtain ⟨χ₂, ⟨hχ₂, hfac₂⟩, -⟩ :=
     IsStronglyCartesian.universal_property (forget F) ((forget F).map g₂) g₂ f₂
       (f₁ ≫ (forget F).map g₁) heq φ
-  have : (forget F).IsHomLift f₁ χ₁ := hχ₁
-  have : (forget F).IsHomLift f₂ χ₂ := hχ₂
   have e₁ : f₁ = (forget F).map χ₁ :=
-    IsHomLift.eq_of_isHomLift (forget F) (a := c) (b := Y₁) f₁ χ₁
+    @IsHomLift.eq_of_isHomLift _ _ _ _ (forget F) c Y₁ f₁ χ₁ hχ₁
   have e₂ : f₂ = (forget F).map χ₂ :=
-    IsHomLift.eq_of_isHomLift (forget F) (a := c) (b := Y₂) f₂ χ₂
+    @IsHomLift.eq_of_isHomLift _ _ _ _ (forget F) c Y₂ f₂ χ₂ hχ₂
   rw [e₁, e₂]
   exact hx _ _ hg₁ hg₂ (hfac₁.trans hfac₂.symm)
 
