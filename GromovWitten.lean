@@ -216,6 +216,7 @@ import GromovWitten.AlgebraicGeometry.Curves.Nodal
 import GromovWitten.AlgebraicGeometry.Curves.Normalization
 import GromovWitten.AlgebraicGeometry.Curves.NormalizationFinite
 import GromovWitten.AlgebraicGeometry.Curves.Prestable
+import GromovWitten.AlgebraicGeometry.Curves.ProperGlobalFunctions
 import GromovWitten.AlgebraicGeometry.Curves.LineBundles
 import GromovWitten.AlgebraicGeometry.Curves.CartierDivisors
 import GromovWitten.AlgebraicGeometry.Curves.MarkingDivisors
