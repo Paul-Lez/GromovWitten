@@ -17,6 +17,10 @@ import GromovWitten.AlgebraicGeometry.Stacks.SheafGluing
 import GromovWitten.AlgebraicGeometry.Stacks.SieveCover
 import GromovWitten.AlgebraicGeometry.Stacks.SieveDescentData
 import GromovWitten.AlgebraicGeometry.Stacks.SieveDescentEffective
+import GromovWitten.AlgebraicGeometry.Descent.EtaleMorphisms
+import GromovWitten.AlgebraicGeometry.Descent.SchemeIsomorphisms
+import GromovWitten.AlgebraicGeometry.Descent.BaseChange
+import GromovWitten.AlgebraicGeometry.Descent.Contractions
 import GromovWitten.AlgebraicGeometry.Stacks.Discrete
 import GromovWitten.AlgebraicGeometry.Stacks.Algebraic
 import GromovWitten.AlgebraicGeometry.Stacks.Scheme

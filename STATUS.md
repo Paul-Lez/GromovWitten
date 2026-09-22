@@ -234,6 +234,12 @@ Implemented APIs include:
 - descent of morphisms and effective descent of fppf sheaves over a base along any covering sieve
   (no sheafification), the reduction of fppf covering sieves to small covering families, and the
   gluing infrastructure for the quotient prestack `[U/G]`;
+- effective descent of actual scheme morphisms along a surjective étale cover from an explicit
+  over-base kernel-pair equation, descent of actual local inverse maps to scheme isomorphisms,
+  coherence with one arbitrary base change, and globalization/uniqueness of supplied contraction
+  factorizations (`AlgebraicGeometry/Descent/{EtaleMorphisms,SchemeIsomorphisms,BaseChange,Contractions}.lean`).
+  This morphism layer does not construct descended polarized schemes, line bundles, polarization
+  isomorphisms, graded section algebras, `Proj`s, or a contraction universal property.
 - fppf descent for the quotient prestack `[U/G]`: descent of morphisms and effectiveness of
   descent along every fppf covering sieve, proved with explicit fibre-product data and without
   sheafification (`Stacks/TorsorStackDescent.lean`, `Stacks/TorsorStackEffective.lean`,
