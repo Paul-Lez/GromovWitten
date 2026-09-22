@@ -130,8 +130,8 @@ noncomputable def commonSchemeAtlasComparison {A B : StackChart X}
       ((A.identityObjectPullbackComparison p.fst).trans p.comparison.symm)).trans
       (B.objPullbackIso g p.snd).symm)
 
-/- This file exposes the comparison fibrewise. Packaging its naturality as a `StackIso2`
-   requires a further coherence proof using `stackHomNaturalityCompPullback`. -/
+/- The coherent comparison `StackIso2` is constructed from this fibrewise
+   comparison in `SchemeAtlasRefinementCoherence.lean`. -/
 
 /-- Two smooth surjective charts admit a scheme overlap which is itself an atlas,
 with smooth surjective projections to both original chart schemes. -/

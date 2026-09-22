@@ -24,6 +24,11 @@ import GromovWitten.AlgebraicGeometry.Stacks.AlgebraicSpace
 import GromovWitten.AlgebraicGeometry.Stacks.Properties
 import GromovWitten.AlgebraicGeometry.Stacks.PropertiesDescent
 import GromovWitten.AlgebraicGeometry.Stacks.AtlasRefinement
+import GromovWitten.AlgebraicGeometry.Stacks.SchemeAtlasRefinement
+import GromovWitten.AlgebraicGeometry.Stacks.SchemeAtlasRefinementChart
+import GromovWitten.AlgebraicGeometry.Stacks.SchemeAtlasRefinementReverse
+import GromovWitten.AlgebraicGeometry.Stacks.SchemeAtlasRefinementCoherence
+import GromovWitten.AlgebraicGeometry.Stacks.SchemeAtlasRefinementGroupoids
 import GromovWitten.AlgebraicGeometry.Stacks.Dimension
 import GromovWitten.AlgebraicGeometry.Stacks.OverlapSwap
 import GromovWitten.AlgebraicGeometry.Stacks.PointsIndependence
