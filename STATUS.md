@@ -90,7 +90,11 @@ Implemented APIs include:
   decorated graphs, stability
   inequalities, numerical clutching, evaluation-gated gluing data, and descent of target
   maps through supplied external pushouts and self-coequalizers; plus proper nodal prestable
-  families and base-change-stable transport of supplied numerical stability data.  Finiteness of
+  families and base-change-stable transport of supplied numerical stability data.  The canonical
+  structure-sheaf map exists for every scheme morphism, and its geometric-fibre isomorphism is
+  proved for proper geometrically reduced and geometrically connected morphisms; deriving
+  geometric reducedness from the existing prestable/nodal hypotheses, the family equivalence,
+  and arbitrary base-change comparison remain open.  Finiteness of
   the geometric automorphism group scheme is absent, while stabilization, forgetting, and
   geometric nodal gluing remain conditional outputs of caller-supplied engines;
 - the Krull dimension of a nonzero standard-smooth algebra of relative dimension `n` over a
