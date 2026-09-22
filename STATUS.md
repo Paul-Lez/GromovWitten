@@ -62,6 +62,13 @@ Implemented APIs include:
   reductions; plus the graded Rees algebra and Proj blowup, its degree-one affine cover and
   universal principalization maps, and genuine scheme isomorphisms identifying all three node
   charts with Rees charts compatibly with the blowup projection;
+- the local dual calculation for the displayed node equation: an actual short exact
+  `ModuleCat` resolution, its precomposition differential on the actual `Hom_P(P,P)` term,
+  the genuine Mathlib `Abelian.Ext` connecting map, and a presentation-relative linear
+  equivalence `Ext¹_P(R[x,y]/(xy-πⁿ), P) ≃ R[x,y]/(xy-πⁿ)`, with `Ext⁰` and higher Ext
+  vanishing and arbitrary nontrivial commutative coefficient base change of the Hom differential
+  and quotient classes. A global relative dualizing complex, trace, chart-independent gluing,
+  component-degree formula, and intrinsic derived base-change theorem remain open;
 - a resolution of the standard node of every thickness over a discrete valuation ring: a
   regular scheme with a proper morphism to the node which is an isomorphism away from the
   closed origin, obtained by induction on the thickness through relative gluing of the
