@@ -20,9 +20,11 @@ Implemented APIs include:
 - affine perfect objects represented by bounded finite-projective complexes, with shifts,
   biproducts, mapping cones, and all three distinguished-triangle closure theorems;
   a scalar-extension functor on projective-perfect derived objects and representative-independent
-  Tor amplitude, with supported-representative
-  shift and base-change bounds; and distinguished-triangle rank additivity for the existing
-  globally finite-free model (`CotangentComplex/Projective*.lean`, `PerfectTriangles.lean`);
+  Tor amplitude, with supported-representative shift and base-change bounds; locally constant
+  integer virtual rank on the prime spectrum of a nontrivial ring, independent of the projective
+  representative and compatible with scalar extension; and distinguished-triangle rank
+  additivity for the globally finite-free model
+  (`CotangentComplex/Projective*.lean`, `PerfectTriangles.lean`);
 - a scheme-level `Unramified` morphism class, agreeing on affine spectra with Mathlib's
   ring-theoretic `Algebra.Unramified`, local on source and target, stable under composition and
   arbitrary base change, and satisfied by every immersion;

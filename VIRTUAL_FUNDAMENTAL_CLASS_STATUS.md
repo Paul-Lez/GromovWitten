@@ -64,9 +64,13 @@ Specification: [Tau Ceti roadmap comparison](https://github.com/TauCetiProject/T
   chosen chain-map lift. `ProjectiveTorAmplitude.lean`
   proves representative independence and finite Tor amplitude, with shift and base-change bounds
   obtained from supported representatives. `PerfectTriangles.lean` proves rank additivity for
-  the existing globally finite-free model over nontrivial rings. Atlas-local perfectness,
-  a scalar-extension functor on the entire derived category, tensor closure, and locally constant
-  projective rank are still open; no globally constant rank is assigned to arbitrary projectives.
+  the existing globally finite-free model over nontrivial rings. `ProjectiveRank.lean` defines
+  integer virtual rank pointwise on `Spec R`, proves local constancy over nontrivial rings,
+  proves chain-level and derived scalar-extension compatibility, and derives homotopy and
+  derived-isomorphism invariance and representative independence by localization to finite-free
+  complexes over local rings.
+  Atlas-local perfectness, a scalar-extension functor on the entire derived category, and
+  tensor closure remain open; no globally constant rank is assigned to arbitrary projectives.
 - Stack fibres and quotient fibres are categories with `IsGroupoid`; automorphisms are retained.
 - Equivariant fppf torsors over a scheme base change along every scheme morphism: the pulled-back
   sheaf, action, target map, principal isomorphism, and local triviality are constructed, and the
