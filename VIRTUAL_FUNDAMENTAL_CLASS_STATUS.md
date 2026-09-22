@@ -53,6 +53,22 @@ Specification: [Tau Ceti roadmap comparison](https://github.com/TauCetiProject/T
 
 ## Structural guarantees already established
 
+- `Morphisms/FlatDescent.lean`, `ProperDescent.lean`, and `ClosedImmersionDescent.lean`
+  establish fpqc and fppf descent for flat, separated, proper, and closed-immersion scheme
+  morphisms. Separatedness is detected by universal closedness of the diagonal; closed
+  immersions are proper monomorphisms, and monomorphism descent follows from the isomorphism
+  criterion for the diagonal. The corresponding `Stacks/*Descent.lean` modules lift these
+  results through actual `StackMorphismPresentation` pullbacks and include smooth-cover tests.
+  These statements assume representability and descend the indicated property; they do not
+  construct representability from local data. `Morphisms/ImmersionDescent.lean` additionally
+  proves general immersion descent along fppf and smooth covers: the open quotient map descends
+  local closedness of the image, the morphism factors through its coborder open, and descent of
+  the resulting closed immersion completes the proof. `Stacks/ImmersionDescent.lean` transfers
+  this through actual presentations. Regular-immersion descent remains open.
+- `Stacks/SourceLocality.lean` proves that source-local properties can be tested on open covers
+  of the representing schemes, with transport across invertible stack 2-cells. Its smooth,
+  etale, formally unramified, flat, locally finite-type and locally finitely presented
+  corollaries derive source locality from the corresponding ring-hom properties.
 - Stack fibres and quotient fibres are categories with `IsGroupoid`; automorphisms are retained.
 - Equivariant fppf torsors over a scheme base change along every scheme morphism: the pulled-back
   sheaf, action, target map, principal isomorphism, and local triviality are constructed, and the
@@ -188,6 +204,22 @@ Specification: [Tau Ceti roadmap comparison](https://github.com/TauCetiProject/T
   corresponding pushforward comparisons; pullback identity/composition comparisons come from
   uniqueness of left adjoints.  None is accepted as a field.  This does not assume the
   still-missing small-etale/lisse-etale continuity and quasi-coherent comparison theorem.
+- `Modules/AffineDescent.lean` constructs effective faithfully flat descent for affine modules.
+  Descent data are the actual coalgebras of the extension/restriction-of-scalars comonad.
+  The inverse functor is the equalizer of the coaction and unit, with constructed unit and
+  counit isomorphisms, explicit descended morphisms and uniqueness, and the expected
+  reconstruction formula on `1 ⊗ x`. `AffineDescentInvariants.lean` identifies that equalizer
+  with the actual submodule of elements satisfying `δ n = 1 ⊗ n`, proves reconstruction
+  on arbitrary pure tensors, and descends finite generation from the original module.
+  This supplies the affine algebraic stage; global descent along a stack atlas and the
+  quasi-coherent site comparison remain open.
+- `Sites/StackTopology.lean` proves that every arrow in the total category of a
+  groupoid-valued pseudofunctor is strongly cartesian, and that pushing a sieve to the
+  base and pulling it back recovers that sieve. `StackCoverTopology.lean` proves that
+  sieve pushforward commutes with pullback along total arrows and identifies the induced
+  topology with the topology detected by pushed covering sieves. This gives a covering
+  criterion for the actual big fppf stack site; continuity of the small/lisse stack-site
+  inclusions is still missing.
 - The tensor product is constructed by taking the pointwise tensor product of the underlying
   presheaves over that commutative structure presheaf and applying Mathlib's actual module
   sheafification.  The structure sheaf is constructed as its unit, with left/right unit
