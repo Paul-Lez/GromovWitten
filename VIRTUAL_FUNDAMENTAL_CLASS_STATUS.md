@@ -204,6 +204,22 @@ Specification: [Tau Ceti roadmap comparison](https://github.com/TauCetiProject/T
   corresponding pushforward comparisons; pullback identity/composition comparisons come from
   uniqueness of left adjoints.  None is accepted as a field.  This does not assume the
   still-missing small-etale/lisse-etale continuity and quasi-coherent comparison theorem.
+- `Modules/AffineDescent.lean` constructs effective faithfully flat descent for affine modules.
+  Descent data are the actual coalgebras of the extension/restriction-of-scalars comonad.
+  The inverse functor is the equalizer of the coaction and unit, with constructed unit and
+  counit isomorphisms, explicit descended morphisms and uniqueness, and the expected
+  reconstruction formula on `1 ⊗ x`. `AffineDescentInvariants.lean` identifies that equalizer
+  with the actual submodule of elements satisfying `δ n = 1 ⊗ n`, proves reconstruction
+  on arbitrary pure tensors, and descends finite generation from the original module.
+  This supplies the affine algebraic stage; global descent along a stack atlas and the
+  quasi-coherent site comparison remain open.
+- `Sites/StackTopology.lean` proves that every arrow in the total category of a
+  groupoid-valued pseudofunctor is strongly cartesian, and that pushing a sieve to the
+  base and pulling it back recovers that sieve. `StackCoverTopology.lean` proves that
+  sieve pushforward commutes with pullback along total arrows and identifies the induced
+  topology with the topology detected by pushed covering sieves. This gives a covering
+  criterion for the actual big fppf stack site; continuity of the small/lisse stack-site
+  inclusions is still missing.
 - The tensor product is constructed by taking the pointwise tensor product of the underlying
   presheaves over that commutative structure presheaf and applying Mathlib's actual module
   sheafification.  The structure sheaf is constructed as its unit, with left/right unit

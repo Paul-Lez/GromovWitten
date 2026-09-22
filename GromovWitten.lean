@@ -60,6 +60,11 @@ import GromovWitten.AlgebraicGeometry.Spaces.Properties
 import GromovWitten.AlgebraicGeometry.Spaces.Scheme
 import GromovWitten.AlgebraicGeometry.Sites.Comparison
 import GromovWitten.AlgebraicGeometry.Sites.Stack
+import GromovWitten.AlgebraicGeometry.Sites.StackComparison
+import GromovWitten.AlgebraicGeometry.Sites.StackTopology
+import GromovWitten.AlgebraicGeometry.Sites.StackCoverTopology
+import GromovWitten.AlgebraicGeometry.Modules.AffineDescent
+import GromovWitten.AlgebraicGeometry.Modules.AffineDescentInvariants
 import GromovWitten.AlgebraicGeometry.Modules.Stack
 import GromovWitten.AlgebraicGeometry.Modules.Derived
 import GromovWitten.AlgebraicGeometry.Cones.Affine
