@@ -71,6 +71,22 @@ Specification: [Tau Ceti roadmap comparison](https://github.com/TauCetiProject/T
   complexes over local rings.
   Atlas-local perfectness, a scalar-extension functor on the entire derived category, and
   tensor closure remain open; no globally constant rank is assigned to arbitrary projectives.
+- `Morphisms/FlatDescent.lean`, `ProperDescent.lean`, and `ClosedImmersionDescent.lean`
+  establish fpqc and fppf descent for flat, separated, proper, and closed-immersion scheme
+  morphisms. Separatedness is detected by universal closedness of the diagonal; closed
+  immersions are proper monomorphisms, and monomorphism descent follows from the isomorphism
+  criterion for the diagonal. The corresponding `Stacks/*Descent.lean` modules lift these
+  results through actual `StackMorphismPresentation` pullbacks and include smooth-cover tests.
+  These statements assume representability and descend the indicated property; they do not
+  construct representability from local data. `Morphisms/ImmersionDescent.lean` additionally
+  proves general immersion descent along fppf and smooth covers: the open quotient map descends
+  local closedness of the image, the morphism factors through its coborder open, and descent of
+  the resulting closed immersion completes the proof. `Stacks/ImmersionDescent.lean` transfers
+  this through actual presentations. Regular-immersion descent remains open.
+- `Stacks/SourceLocality.lean` proves that source-local properties can be tested on open covers
+  of the representing schemes, with transport across invertible stack 2-cells. Its smooth,
+  etale, formally unramified, flat, locally finite-type and locally finitely presented
+  corollaries derive source locality from the corresponding ring-hom properties.
 - Stack fibres and quotient fibres are categories with `IsGroupoid`; automorphisms are retained.
 - Equivariant fppf torsors over a scheme base change along every scheme morphism: the pulled-back
   sheaf, action, target map, principal isomorphism, and local triviality are constructed, and the
@@ -206,17 +222,46 @@ Specification: [Tau Ceti roadmap comparison](https://github.com/TauCetiProject/T
   corresponding pushforward comparisons; pullback identity/composition comparisons come from
   uniqueness of left adjoints.  None is accepted as a field.  This does not assume the
   still-missing small-etale/lisse-etale continuity and quasi-coherent comparison theorem.
+- `Modules/AffineDescent.lean` constructs effective faithfully flat descent for affine modules.
+  Descent data are the actual coalgebras of the extension/restriction-of-scalars comonad.
+  The inverse functor is the equalizer of the coaction and unit, with constructed unit and
+  counit isomorphisms, explicit descended morphisms and uniqueness, and the expected
+  reconstruction formula on `1 ⊗ x`. `AffineDescentInvariants.lean` identifies that equalizer
+  with the actual submodule of elements satisfying `δ n = 1 ⊗ n`, proves reconstruction
+  on arbitrary pure tensors, and descends finite generation from the original module.
+  This supplies the affine algebraic stage; global descent along a stack atlas and the
+  quasi-coherent site comparison remain open.
+- `Sites/StackTopology.lean` proves that every arrow in the total category of a
+  groupoid-valued pseudofunctor is strongly cartesian, and that pushing a sieve to the
+  base and pulling it back recovers that sieve. `StackCoverTopology.lean` proves that
+  sieve pushforward commutes with pullback along total arrows and identifies the induced
+  topology with the topology detected by pushed covering sieves. This gives a covering
+  criterion for the actual big fppf stack site; continuity of the small/lisse stack-site
+  inclusions is still missing.
 - The tensor product is constructed by taking the pointwise tensor product of the underlying
   presheaves over that commutative structure presheaf and applying Mathlib's actual module
   sheafification.  The structure sheaf is constructed as its unit, with left/right unit
   comparisons obtained from the pointwise unitors and the sheafification counit; symmetry is
-  sheafified from the pointwise tensor symmetry.  The full associativity/coherence package and
-  preservation of quasi-coherence and finite-local-free rank remain open.
+  sheafified from the pointwise tensor symmetry. `Modules/TensorCoherence.lean` proves the
+  sheafification comparison invertible for finite-free factors, using its naturality and
+  finite coproduct presentations. It constructs an associator with globally finite-free outer
+  factors and arbitrary middle factor. `Modules/FreeTensor.lean` constructs the finite-free
+  tensor isomorphism of rank `r * s`. Tensor symmetry is proved natural and involutive for
+  arbitrary module sheaves. General associativity/coherence and preservation of
+  quasi-coherence and arbitrary finite local freeness by tensor remain open.
 - Binary direct sums and zero module sheaves are inherited from the actual abelian category of
   sheaves of modules.  Canonical finite-free sheaves of every natural rank are built from
   Mathlib's free sheaf, with explicit local generators, finite-presentation witnesses, and
   bases; finite local freeness transports across actual sheaf isomorphisms and adds under the
-  constructed direct sum.  Duals, symmetric/exterior powers, and atlas descent remain open.
+  constructed direct sum. `Modules/FiniteLocallyFree.lean` proves direct-sum rank addition from
+  independent finite-locally-free witnesses: products of charts construct a common cover,
+  restriction preserves the local bases, and the resulting generators give a finite presentation.
+- `Modules/ExteriorPower.lean` constructs exterior-power functors of module presheaves over
+  varying rings: the alternating universal property defines semilinear restrictions and proves
+  their identity, composition and naturality laws. Module sheafification then gives the
+  corresponding functors on actual module sheaves, with proved degree-zero comparison to the
+  structure sheaf and degree-one comparison to the original module. Quasi-coherence preservation, duals,
+  symmetric powers, and atlas descent remain open.
 - Scheme rational equivalence has no caller-selected generator or divisor map: generators are
   actual integral locally Noetherian closed immersions with nonzero function-field elements.
   Divisor cycles are the unmodified order-of-vanishing cycles pushed forward to the ambient

@@ -25,6 +25,21 @@ Implemented APIs include:
   representative and compatible with scalar extension; and distinguished-triangle rank
   additivity for the globally finite-free model
   (`CotangentComplex/Projective*.lean`, `PerfectTriangles.lean`);
+- finite locally free direct sums with rank addition from independently chosen local bases,
+  constructing a common cover from products of charts; finite-free tensor rank multiplication,
+  tensor associativity with globally finite-free outer factors, and natural, involutive tensor
+  symmetry (`Modules/FiniteLocallyFree.lean`, `Modules/FreeTensor.lean`, `Modules/TensorCoherence.lean`);
+- exterior-power functors for module presheaves over varying rings, with their sheaf-valued
+  versions constructed by module sheafification and degree-zero/one comparison isomorphisms
+  (`Modules/ExteriorPower.lean`);
+- fpqc, fppf, and smooth-cover descent for representable flat, separated, proper, and
+  closed-immersion stack morphisms, through actual scheme presentations; the scheme-level
+  proofs use faithfully flat module descent, diagonal criteria, and proper monomorphisms;
+  general immersions also satisfy fppf and smooth-cover descent by descent of the locally
+  closed range and closed factor (`Morphisms/*Descent.lean`, `Stacks/*Descent.lean`);
+- source-cover tests for representable smooth, etale, formally unramified, flat, locally
+  finite-type and locally finitely presented morphisms, using open covers of the actual
+  presenting schemes (`Stacks/SourceLocality.lean`);
 - a scheme-level `Unramified` morphism class, agreeing on affine spectra with Mathlib's
   ring-theoretic `Algebra.Unramified`, local on source and target, stable under composition and
   arbitrary base change, and satisfied by every immersion;

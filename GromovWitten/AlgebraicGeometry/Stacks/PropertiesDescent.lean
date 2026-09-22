@@ -51,13 +51,11 @@ isomorphism, universally closed/open/injective.  Quasi-compactness has no fpqc-d
 in Mathlib; `quasiCompact_descendsAlong_fpqcCover` supplies it here, which is what unlocks
 finite type and finite presentation.
 
-Still missing at the scheme level in Mathlib, hence only available Zariski-locally here: flat,
-separated, proper, immersion, closed immersion, regular immersion.  Faithfully flat descent for
-these would follow from fpqc descent for `AlgebraicGeometry.IsAffineHom` (Mathlib records this
-as a TODO in `Mathlib/AlgebraicGeometry/Morphisms/Descent.lean`) together with
-`HasAffineProperty.descendsAlong_of_affineAnd`, and, for separatedness and properness, from
-fpqc descent for `AlgebraicGeometry.IsClosedImmersion` via
-`AlgebraicGeometry.isSeparated_eq_diagonal_isClosedImmersion`.
+The extension modules `Stacks.FlatDescent` and `Stacks.ProperDescent` add fpqc and fppf
+descent for flat, separated, and proper morphisms. Flatness uses faithfully flat descent of
+modules; separatedness uses universal closedness of the diagonal, and properness combines
+separatedness with universal closedness and local finite type. The statements in this file
+remain available without importing those extensions.
 -/
 
 open CategoryTheory CategoryTheory.Limits
