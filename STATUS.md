@@ -17,6 +17,14 @@ public entry points are recorded in
 
 Implemented APIs include:
 
+- affine perfect objects represented by bounded finite-projective complexes, with shifts,
+  biproducts, mapping cones, and all three distinguished-triangle closure theorems;
+  a scalar-extension functor on projective-perfect derived objects and representative-independent
+  Tor amplitude, with supported-representative shift and base-change bounds; locally constant
+  integer virtual rank on the prime spectrum of a nontrivial ring, independent of the projective
+  representative and compatible with scalar extension; and distinguished-triangle rank
+  additivity for the globally finite-free model
+  (`CotangentComplex/Projective*.lean`, `PerfectTriangles.lean`);
 - finite locally free direct sums with rank addition from independently chosen local bases,
   constructing a common cover from products of charts; finite-free tensor rank multiplication,
   tensor associativity with globally finite-free outer factors, and natural, involutive tensor

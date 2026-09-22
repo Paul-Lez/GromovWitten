@@ -53,6 +53,24 @@ Specification: [Tau Ceti roadmap comparison](https://github.com/TauCetiProject/T
 
 ## Structural guarantees already established
 
+- The affine projective model in `CotangentComplex/ProjectivePerfect.lean` uses actual
+  `Module.Finite` and `Module.Projective` conditions and bounded representatives in Mathlib's
+  derived category. It includes scalar extension, shifts, biproducts, cones, and all three
+  distinguished-triangle closure results. `ProjectiveBaseChange.lean` compares scalar extension
+  across any two such representatives by lifting a derived isomorphism to a homotopy equivalence;
+  it supplies object-level identity and composition comparisons. `ProjectiveFunctor.lean`
+  constructs scalar extension on the full subcategory of projective-perfect derived objects;
+  its map laws use K-projectivity and preservation of homotopies to remove dependence on a
+  chosen chain-map lift. `ProjectiveTorAmplitude.lean`
+  proves representative independence and finite Tor amplitude, with shift and base-change bounds
+  obtained from supported representatives. `PerfectTriangles.lean` proves rank additivity for
+  the existing globally finite-free model over nontrivial rings. `ProjectiveRank.lean` defines
+  integer virtual rank pointwise on `Spec R`, proves local constancy over nontrivial rings,
+  proves chain-level and derived scalar-extension compatibility, and derives homotopy and
+  derived-isomorphism invariance and representative independence by localization to finite-free
+  complexes over local rings.
+  Atlas-local perfectness, a scalar-extension functor on the entire derived category, and
+  tensor closure remain open; no globally constant rank is assigned to arbitrary projectives.
 - `Morphisms/FlatDescent.lean`, `ProperDescent.lean`, and `ClosedImmersionDescent.lean`
   establish fpqc and fppf descent for flat, separated, proper, and closed-immersion scheme
   morphisms. Separatedness is detected by universal closedness of the diagonal; closed
