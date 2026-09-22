@@ -66,6 +66,10 @@ import GromovWitten.AlgebraicGeometry.Sites.StackCoverTopology
 import GromovWitten.AlgebraicGeometry.Modules.AffineDescent
 import GromovWitten.AlgebraicGeometry.Modules.AffineDescentInvariants
 import GromovWitten.AlgebraicGeometry.Modules.Stack
+import GromovWitten.AlgebraicGeometry.Modules.TensorCoherence
+import GromovWitten.AlgebraicGeometry.Modules.FreeTensor
+import GromovWitten.AlgebraicGeometry.Modules.FiniteLocallyFree
+import GromovWitten.AlgebraicGeometry.Modules.ExteriorPower
 import GromovWitten.AlgebraicGeometry.Modules.Derived
 import GromovWitten.AlgebraicGeometry.Cones.Affine
 import GromovWitten.AlgebraicGeometry.Cones.ConeTranslation

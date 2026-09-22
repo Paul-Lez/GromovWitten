@@ -17,6 +17,13 @@ public entry points are recorded in
 
 Implemented APIs include:
 
+- finite locally free direct sums with rank addition from independently chosen local bases,
+  constructing a common cover from products of charts; finite-free tensor rank multiplication,
+  tensor associativity with globally finite-free outer factors, and natural, involutive tensor
+  symmetry (`Modules/FiniteLocallyFree.lean`, `Modules/FreeTensor.lean`, `Modules/TensorCoherence.lean`);
+- exterior-power functors for module presheaves over varying rings, with their sheaf-valued
+  versions constructed by module sheafification and degree-zero/one comparison isomorphisms
+  (`Modules/ExteriorPower.lean`);
 - fpqc, fppf, and smooth-cover descent for representable flat, separated, proper, and
   closed-immersion stack morphisms, through actual scheme presentations; the scheme-level
   proofs use faithfully flat module descent, diagonal criteria, and proper monomorphisms;

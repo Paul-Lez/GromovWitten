@@ -224,13 +224,26 @@ Specification: [Tau Ceti roadmap comparison](https://github.com/TauCetiProject/T
   presheaves over that commutative structure presheaf and applying Mathlib's actual module
   sheafification.  The structure sheaf is constructed as its unit, with left/right unit
   comparisons obtained from the pointwise unitors and the sheafification counit; symmetry is
-  sheafified from the pointwise tensor symmetry.  The full associativity/coherence package and
-  preservation of quasi-coherence and finite-local-free rank remain open.
+  sheafified from the pointwise tensor symmetry. `Modules/TensorCoherence.lean` proves the
+  sheafification comparison invertible for finite-free factors, using its naturality and
+  finite coproduct presentations. It constructs an associator with globally finite-free outer
+  factors and arbitrary middle factor. `Modules/FreeTensor.lean` constructs the finite-free
+  tensor isomorphism of rank `r * s`. Tensor symmetry is proved natural and involutive for
+  arbitrary module sheaves. General associativity/coherence and preservation of
+  quasi-coherence and arbitrary finite local freeness by tensor remain open.
 - Binary direct sums and zero module sheaves are inherited from the actual abelian category of
   sheaves of modules.  Canonical finite-free sheaves of every natural rank are built from
   Mathlib's free sheaf, with explicit local generators, finite-presentation witnesses, and
   bases; finite local freeness transports across actual sheaf isomorphisms and adds under the
-  constructed direct sum.  Duals, symmetric/exterior powers, and atlas descent remain open.
+  constructed direct sum. `Modules/FiniteLocallyFree.lean` proves direct-sum rank addition from
+  independent finite-locally-free witnesses: products of charts construct a common cover,
+  restriction preserves the local bases, and the resulting generators give a finite presentation.
+- `Modules/ExteriorPower.lean` constructs exterior-power functors of module presheaves over
+  varying rings: the alternating universal property defines semilinear restrictions and proves
+  their identity, composition and naturality laws. Module sheafification then gives the
+  corresponding functors on actual module sheaves, with proved degree-zero comparison to the
+  structure sheaf and degree-one comparison to the original module. Quasi-coherence preservation, duals,
+  symmetric powers, and atlas descent remain open.
 - Scheme rational equivalence has no caller-selected generator or divisor map: generators are
   actual integral locally Noetherian closed immersions with nonzero function-field elements.
   Divisor cycles are the unmodified order-of-vanishing cycles pushed forward to the ambient
