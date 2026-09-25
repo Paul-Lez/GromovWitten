@@ -21,6 +21,18 @@ set_option backward.isDefEq.respectTransparency false
 
 variable {X Y : FppfStack.{u}} {R S T : Scheme.{u}}
 
+/-- The comparison in a product over the terminal stack is uniquely determined, so every
+product object is equal to the pair of its components.  This does not identify any arrows
+in either factor. -/
+theorem stackProdObj_components (p : StackFiber (stackProduct X Y).pullback T) :
+    stackProdObj (CategoricalPullback.fst p) (CategoricalPullback.snd p) = p := by
+  rcases p with ⟨x, y, e⟩
+  have he : e = Iso.refl _ := by
+    apply Iso.ext
+    exact (terminalStack_hom_subsingleton _ _).elim _ _
+  cases he
+  rfl
+
 @[simp]
 theorem stackProduct_pullback_map_fst (f : S ⟶ T)
     {p q : StackFiber (stackProduct X Y).pullback T} (a : p ⟶ q) :
