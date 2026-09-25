@@ -1,6 +1,7 @@
 /-
 Copyright (c) 2026 GromovWitten Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
+Authors: OpenAI Codex
 -/
 
 import GromovWitten.AlgebraicGeometry.Stacks.StackProducts
@@ -151,5 +152,55 @@ theorem stackDiagonal_inducedComparison_hom_snd (map : R ⟶ T)
     ((stackPullback X l).map universal.hom.snd ≫
       (stackPullbackCompIso X l map (CategoricalPullback.snd p)).hom) = _
   simp only [Category.comp_id]
+
+/-- Product extensionality uses exactly the supplied first component. -/
+theorem stackProd_ext_hom_fst {Z : FppfStack.{u}}
+    (h k : StackHom Z (stackProduct X Y).pullback)
+    (hfst : StackIso2 (Pseudofunctor.StrongTrans.vcomp h (stackProdFst X Y))
+      (Pseudofunctor.StrongTrans.vcomp k (stackProdFst X Y)))
+    (hsnd : StackIso2 (Pseudofunctor.StrongTrans.vcomp h (stackProdSnd X Y))
+      (Pseudofunctor.StrongTrans.vcomp k (stackProdSnd X Y)))
+    (z : StackFiber Z T) :
+    (((stackProd_ext h k hfst hsnd).appIso T).hom.app z).fst =
+      (hfst.appIso T).hom.app z := by
+  change ((hfst.appIso T).hom.app z ≫ 𝟙 _) ≫ (𝟙 _ ≫ 𝟙 _) = _
+  simp only [Category.comp_id]
+
+/-- Product extensionality uses exactly the supplied second component. -/
+theorem stackProd_ext_hom_snd {Z : FppfStack.{u}}
+    (h k : StackHom Z (stackProduct X Y).pullback)
+    (hfst : StackIso2 (Pseudofunctor.StrongTrans.vcomp h (stackProdFst X Y))
+      (Pseudofunctor.StrongTrans.vcomp k (stackProdFst X Y)))
+    (hsnd : StackIso2 (Pseudofunctor.StrongTrans.vcomp h (stackProdSnd X Y))
+      (Pseudofunctor.StrongTrans.vcomp k (stackProdSnd X Y)))
+    (z : StackFiber Z T) :
+    (((stackProd_ext h k hfst hsnd).appIso T).hom.app z).snd =
+      (hsnd.appIso T).hom.app z := by
+  change ((hsnd.appIso T).hom.app z ≫ 𝟙 _) ≫ (𝟙 _ ≫ 𝟙 _) = _
+  simp only [Category.comp_id]
+
+@[simp]
+theorem stackProdMap_app_map_fst {X Y X' Y' : FppfStack.{u}}
+    (f : StackHom X X') (g : StackHom Y Y') (T : Scheme.{u})
+    {p q : StackFiber (stackProduct X Y).pullback T} (a : p ⟶ q) :
+    (((stackProdMap f g).appFunctor T).map a).fst = (f.appFunctor T).map a.fst := rfl
+
+@[simp]
+theorem stackProdMap_app_map_snd {X Y X' Y' : FppfStack.{u}}
+    (f : StackHom X X') (g : StackHom Y Y') (T : Scheme.{u})
+    {p q : StackFiber (stackProduct X Y).pullback T} (a : p ⟶ q) :
+    (((stackProdMap f g).appFunctor T).map a).snd = (g.appFunctor T).map a.snd := rfl
+
+@[simp]
+theorem stackProdMap_fst_hom_app {X Y X' Y' : FppfStack.{u}}
+    (f : StackHom X X') (g : StackHom Y Y') (T : Scheme.{u})
+    (p : StackFiber (stackProduct X Y).pullback T) :
+    ((stackProdMap_fst f g).appIso T).hom.app p = 𝟙 _ := rfl
+
+@[simp]
+theorem stackProdMap_snd_hom_app {X Y X' Y' : FppfStack.{u}}
+    (f : StackHom X X') (g : StackHom Y Y') (T : Scheme.{u})
+    (p : StackFiber (stackProduct X Y).pullback T) :
+    ((stackProdMap_snd f g).appIso T).hom.app p = 𝟙 _ := rfl
 
 end GromovWitten.AlgebraicGeometry

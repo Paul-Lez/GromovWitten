@@ -279,3 +279,6 @@ import GromovWitten.AlgebraicGeometry.Curves.StableReduction.StableReduction
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.DecoratedGraph
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Clutching
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Examples
+import GromovWitten.AlgebraicGeometry.Stacks.StackProductProjections
+import GromovWitten.AlgebraicGeometry.Stacks.DiagonalComparison
+import GromovWitten.AlgebraicGeometry.Stacks.InertiaFunctoriality

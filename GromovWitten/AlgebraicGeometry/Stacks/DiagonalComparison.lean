@@ -1,16 +1,11 @@
 /-
 Copyright (c) 2026 GromovWitten Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
+Authors: OpenAI Codex
 -/
 
 import GromovWitten.AlgebraicGeometry.Stacks.StackProducts
 import GromovWitten.AlgebraicGeometry.Stacks.StackProductProjections
-
-open CategoryTheory CategoryTheory.Limits
-
-namespace GromovWitten.AlgebraicGeometry
-
-universe u
 
 /-! # From isomorphism schemes to the constructed stack diagonal
 
@@ -23,6 +18,12 @@ The resulting theorems transfer representability and properties of isomorphism s
 to the diagonal. The unramifiedness corollary still assumes the chart-isomorphism property;
 no implication from an étale atlas alone is asserted here.
 -/
+
+open CategoryTheory CategoryTheory.Limits
+
+namespace GromovWitten.AlgebraicGeometry
+
+universe u
 
 noncomputable def selfProdObj {X : FppfStack.{u}} {T : Scheme.{u}}
     (x y : StackFiber X T) : StackFiber (stackSelfProduct X).pullback T := by
