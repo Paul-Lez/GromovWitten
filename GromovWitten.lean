@@ -306,4 +306,9 @@ import GromovWitten.AlgebraicGeometry.Curves.StableReduction.PicardSpecializatio
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.StableReduction
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.DecoratedGraph
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Clutching
+import GromovWitten.AlgebraicGeometry.Curves.Clutching.Affine
+import GromovWitten.AlgebraicGeometry.Curves.Clutching.AffineScheme
+import GromovWitten.AlgebraicGeometry.Curves.Clutching.BaseChange
+import GromovWitten.AlgebraicGeometry.Curves.Clutching.Topology
+import GromovWitten.AlgebraicGeometry.Curves.Clutching.StandardNode
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Examples
