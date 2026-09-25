@@ -16,9 +16,9 @@ import Mathlib.Algebra.Category.ModuleCat.Projective
 For a complex `[C ⟶ F]` in degrees `-1,0`, we construct the distinguished triangle
 coming from the degreewise short exact sequence `F[0] ⟶ [C ⟶ F] ⟶ C[1]`.
 If `F` is projective, every derived morphism to a module in degree `-1` is represented
-by a chain map. No projectivity of `C` is required. Identifying the kernel with the
-image of `Hom(F,M) ⟶ Hom(C,M)` is a separate remaining step; this file does not claim
-the resulting cokernel equivalence.
+by a chain map. No projectivity of `C` is required. The companion `SquareZeroDerivedKernel`
+identifies the kernel with the image of `Hom(F,M) ⟶ Hom(C,M)` and deduces the resulting
+cokernel equivalence.
 -/
 
 namespace GromovWitten.AlgebraicGeometry.CotangentComplex
