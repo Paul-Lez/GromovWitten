@@ -8,6 +8,7 @@ import GromovWitten.AlgebraicGeometry.CotangentComplex.SquareZeroExt
 import Mathlib.Algebra.Homology.DerivedCategory.Ext.ExactSequences
 import Mathlib.Algebra.Homology.DerivedCategory.Ext.EnoughProjectives
 import Mathlib.Algebra.Homology.ShortComplex.ModuleCat
+import Mathlib.Algebra.Category.ModuleCat.Projective
 
 /-!
 # Derived morphisms from a two-term complex with one projective term
@@ -253,6 +254,23 @@ theorem obstructionToDerivedHom_zero : obstructionToDerivedHom R M P 0 = 0 := by
   exact (DerivedCategory.Qh (C := ModuleCat.{v} A)).map_zero _ _
 
 end AffinePresentation
+
+section PolynomialPresentation
+
+variable (R : Type u) {A B ι : Type u} [CommRing R] [CommRing A] [CommRing B]
+  [Algebra R A] [Algebra R B] (M : Ideal B) [Algebra A (B ⧸ M)]
+  [IsScalarTower R A (B ⧸ M)] [IsSquareZero M]
+
+/-- For a polynomial presentation the cotangent-space term is free, so every derived
+class has an explicit obstruction-cokernel representative without extra projectivity
+assumptions. The conormal module remains arbitrary. -/
+theorem obstructionToDerivedHom_surjective_of_generators (G : Algebra.Generators R A ι) :
+    Function.Surjective (obstructionToDerivedHom R M G.toExtension) := by
+  let _ : Projective (ModuleCat.of A G.toExtension.CotangentSpace) :=
+    ModuleCat.projective_of_free G.cotangentSpaceBasis
+  exact obstructionToDerivedHom_surjective R M G.toExtension
+
+end PolynomialPresentation
 
 end SquareZero
 
