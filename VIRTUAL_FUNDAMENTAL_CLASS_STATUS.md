@@ -365,6 +365,31 @@ Specification: [Tau Ceti roadmap comparison](https://github.com/TauCetiProject/T
   R[It, t⁻¹]` therefore carries the affine normal cone as a closed subscheme over the origin, the
   trivial family as the open subscheme over `𝔾_m`, and the original scheme as the fibre over `u =
   1`.
+- `Cones/DeformationSpecialization.lean` constructs deformation maps for every closed affine
+  subscheme by quotienting coefficients in the extended Rees algebra. The map is surjective;
+  its kernel is computed coefficientwise, and the generic-fibre, special-fibre and normal-cone
+  squares commute. The regular parameter defines an actual effective Cartier divisor, and the
+  special fibre is identified with its closed subscheme by an isomorphism over the deformation
+  space, derived from equality of the actual kernel ideal sheaves.
+  `IntersectionTheory/PrincipalGysin.lean` constructs intersection with a principal equation
+  on cycles from the actual divisors of its restrictions to integral subschemes. Height-one
+  support and finite-type dimension theory prove the degree shift, retaining the entire cycle.
+  For a regular equation this gives the cycle operation for a principal Cartier divisor.
+  `IntersectionTheory/NormalConeSpecialization.lean` constructs specialization on affine
+  finite-type cycles over a field: each integral subscheme contributes the full fundamental
+  cycle of its normal cone, pushed into the ambient normal cone by the actual closed immersion.
+  Cone purity proves that this operation preserves dimension, with generic-length
+  multiplicities retained. The empty-cone case gives zero, whereas a subscheme contained in the
+  centre has generic coefficient one. The graded operation is proved to have exactly the
+  constructed underlying cycle.
+  `Cones/PrincipalNormalCone.lean` gives explicit coordinates for a principal regular
+  immersion over any commutative ring: multiplication by its displayed equation identifies
+  the conormal module with a free rank-one module over the quotient. The associated graded
+  algebra is identified with a polynomial algebra, with the degree-one generator mapped to
+  the variable. The resulting normal-cone isomorphism with the trivial affine line commutes
+  with the projection and the zero section.
+  Descent through all rational relations, including common-component relations, and the general
+  refined Gysin construction and its functoriality remain open.
 - For every affine ideal, the coordinate map from the normal sheaf to the normal cone is now
   constructed by sending `I/I²` to the degree-one Rees classes and extending through the
   symmetric-algebra universal property.  Its surjectivity is proved from Mathlib's theorem that
