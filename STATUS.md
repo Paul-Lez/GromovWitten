@@ -278,6 +278,11 @@ Implemented APIs include:
 - the cohomology of the affine-local cotangent complex as restriction data on the affine charts of a
   morphism with the composition law and quasi-coherence along basic-open refinements
   (`CotangentComplex/AtlasDescentGlobal.lean`);
+- the affine compatible obstruction-theory square (Layer 9): the Jacobi–Zariski triangle of
+  `k → k[x_τ] → R⧸I` and the sequence `0 → E_Y ⊗ 𝒪_X → absComplex φ → E → 0` as degreewise short exact
+  sequences with commuting squares, the two-out-of-three property of obstruction theories and the intrinsic
+  pullback sequences of Picard groupoids of both rows (`VirtualFundamentalClass/RelativeAbsoluteTriangle.lean`:
+  `CompatibleSquare`, `isObstructionTheory_absHom_iff_and_id`);
 - obstruction cones of the affine intrinsic normal cone inside `h¹/h⁰(Eᵛ)` (fibrewise closed
   immersions), the identification of the two-term obstruction-theory criterion with the derived
   one, virtual rank, external sums and base change of obstruction theories, invariance under
