@@ -391,6 +391,8 @@ structure CompatibleLocalPerfectObstructionTheories (j₀ : 𝓔.J) : Prop where
   obstruction : ∀ j, PicardCriteria.IsObstructionTheory (φ j)
   virtualRank_eq : ∀ j,
     PicardCriteria.virtualRank (E j) = PicardCriteria.virtualRank (E j₀)
+  /-- The local resolution presents the bundle used by the global pullback. -/
+  bundleRank_eq : ∀ j, Module.finrank (R j ⧸ I j) (E j).degreeZero = Nat.card ι
   chartScalar : ∀ (j : 𝓔.J) (a : F),
     𝓛.chartBase j
         (((Scheme.ΓSpecIso (.of F)).inv ≫
@@ -405,6 +407,7 @@ theorem CompatibleLocalPerfectObstructionTheories.ofWitnesses (j₀ : 𝓔.J)
     (obstruction : ∀ j, PicardCriteria.IsObstructionTheory (φ j))
     (virtualRank_eq : ∀ j,
       PicardCriteria.virtualRank (E j) = PicardCriteria.virtualRank (E j₀))
+    (bundleRank_eq : ∀ j, Module.finrank (R j ⧸ I j) (E j).degreeZero = Nat.card ι)
     (chartScalar : ∀ (j : 𝓔.J) (a : F),
       𝓛.chartBase j
           (((Scheme.ΓSpecIso (.of F)).inv ≫
@@ -415,6 +418,7 @@ theorem CompatibleLocalPerfectObstructionTheories.ofWitnesses (j₀ : 𝓔.J)
     perfect := perfect
     obstruction := obstruction
     virtualRank_eq := virtualRank_eq
+    bundleRank_eq := bundleRank_eq
     chartScalar := chartScalar }
 
 variable (j₀ : 𝓔.J)
