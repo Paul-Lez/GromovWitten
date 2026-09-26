@@ -48,20 +48,22 @@ set_option backward.isDefEq.respectTransparency false in
 private lemma schemeComp_naturality (C : StackChart X)
     {R S T : Scheme.{u}} (h : R ⟶ S) (g : S ⟶ T) (k : T ⟶ C.scheme) :
     ((Pseudofunctor.StrongTrans.vcomp (FppfStack.mapOfSchemeHom k) C.map).naturality
-      ⟨h.op⟩).hom.toNatTrans.app (Discrete.mk g) ≫
+      ⟨h.op⟩).hom.toNatTrans.app (Discrete.mk (ULift.up g)) ≫
       (stackPullback X h).map (C.objPullbackIso g k).hom ≫
       (stackPullbackCompIso X h g (C.obj T k)).hom =
         (C.objPullbackIso (h ≫ g) k).hom := by
   rw [comp_naturality_app]
   have hd : ((FppfStack.mapOfSchemeHom k).naturality ⟨h.op⟩).hom.toNatTrans.app
-      (Discrete.mk g) =
-      (stackPullbackCompIso (representedStack C.scheme) h g (Discrete.mk k)).inv := by
+      (Discrete.mk (ULift.up g)) =
+      (stackPullbackCompIso (representedStack C.scheme) h g
+        (Discrete.mk (ULift.up k))).inv := by
     change @Eq (ULift (PLift (_ = _))) _ _
     apply Subsingleton.elim
   rw [hd]
-  have hc := stackHomNaturalityCompPullback C.map h g (Discrete.mk k)
+  have hc := stackHomNaturalityCompPullback C.map h g (Discrete.mk (ULift.up k))
   have hc' := congrArg (fun z => (C.map.appFunctor R).map
-    (stackPullbackCompIso (representedStack C.scheme) h g (Discrete.mk k)).inv ≫ z) hc
+    (stackPullbackCompIso (representedStack C.scheme) h g
+      (Discrete.mk (ULift.up k))).inv ≫ z) hc
   simp only [← Category.assoc, ← Functor.map_comp, Iso.inv_hom_id] at hc'
   rw [(C.map.appFunctor R).map_id, Category.id_comp] at hc'
   simpa only [Category.assoc, objPullbackIso, Iso.app_hom, Cat.Hom.toNatIso_hom] using! hc'.symm
@@ -78,7 +80,7 @@ noncomputable def commonSchemeAtlasComparisonAt
         (FppfStack.mapOfSchemeHom p.snd) B.map).app
           (LocallyDiscrete.mk (Opposite.op S)) := by
   apply Cat.Hom.isoMk
-  refine NatIso.ofComponents (fun x => commonSchemeAtlasComparison p x.as) ?_
+  refine NatIso.ofComponents (fun x => commonSchemeAtlasComparison p x.as.down) ?_
   intro x y f
   have hxy : x = y := by
     apply Discrete.ext
@@ -110,12 +112,12 @@ noncomputable def commonSchemeAtlasComparisonIso
       funext x
       dsimp [commonSchemeAtlasComparisonAt]
       let h : b.as.unop ⟶ a.as.unop := f.as.unop
-      let g : a.as.unop ⟶ p.space := x.as
+      let g : a.as.unop ⟶ p.space := x.as.down
       change (commonSchemeAtlasComparison p (h ≫ g)).hom ≫
         ((Pseudofunctor.StrongTrans.vcomp (FppfStack.mapOfSchemeHom p.snd) B.map).naturality
-          ⟨h.op⟩).hom.toNatTrans.app (Discrete.mk g) =
+          ⟨h.op⟩).hom.toNatTrans.app (Discrete.mk (ULift.up g)) =
         ((Pseudofunctor.StrongTrans.vcomp (FppfStack.mapOfSchemeHom p.fst) A.map).naturality
-          ⟨h.op⟩).hom.toNatTrans.app (Discrete.mk g) ≫
+          ⟨h.op⟩).hom.toNatTrans.app (Discrete.mk (ULift.up g)) ≫
           (stackPullback X h).map (commonSchemeAtlasComparison p g).hom
       -- Cancel an invertible tail; no target-stack arrow is discarded.
       let tail := ((stackPullback X h).mapIso (B.objPullbackIso g p.snd)).trans
