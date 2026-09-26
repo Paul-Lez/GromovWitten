@@ -310,3 +310,4 @@ import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Examples
 import GromovWitten.AlgebraicGeometry.CotangentComplex.Transitivity
 import GromovWitten.AlgebraicGeometry.CotangentComplex.TransitivityEtale
 import GromovWitten.AlgebraicGeometry.CotangentComplex.TransitivityEtaleGeneral
+import GromovWitten.AlgebraicGeometry.CotangentComplex.AtlasDescent

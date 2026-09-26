@@ -250,6 +250,9 @@ Implemented APIs include:
 - étale base change of `H⁻¹` of the truncated cotangent complex, `H⁻¹(L_{S/R}) ⊗_S T ≅ H⁻¹(L_{T/R})` for
   `S → T` étale, through compatible presentations of standard étale algebras and localisation on `T`
   (`CotangentComplex/TransitivityEtaleGeneral.lean`: `bijective_jzH1BaseChange_of_etale`, `hNegOneBaseChangeIso`);
+- descent data for the cohomology of the truncated cotangent complex along an étale cover of rings, with
+  cocycle condition and effectivity (`CotangentComplex/AtlasDescent.lean`: `cotangentDescentDatum`,
+  `cotangentDescentDatum_eq_canonical`);
 - obstruction cones of the affine intrinsic normal cone inside `h¹/h⁰(Eᵛ)` (fibrewise closed
   immersions), the identification of the two-term obstruction-theory criterion with the derived
   one, virtual rank, external sums and base change of obstruction theories, invariance under
