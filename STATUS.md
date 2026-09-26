@@ -484,6 +484,10 @@ Implemented APIs include:
   the criterion in terms of the domains of definition being affine with equal chart dimension
   (`IntersectionTheory/ProperCurveDegreeFinal.lean`: `RegularProperCurve.degreeCycle_principalCycle_eq_zero_of_not_injective`,
   `degreeCycle_principalCycle_eq_zero_of_isAffineOpen`);
+- the geometric half of the transcendental case: the preimages of the charts of `ℙ¹` are the domains of
+  definition of `r` and `r⁻¹`, affine with the first chart ring finite over `k[t]`, the overlap the basic
+  open of the representing section, and the chart-dimension comparison reduced to localisations
+  (`IntersectionTheory/ProperCurveDegreeTranscendental.lean`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
