@@ -277,6 +277,10 @@ Implemented APIs include:
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- the scalar contraction of the cone quotient stack `[C/E]` on all torsors, without the triviality
+  hypothesis, through the functoriality of the relative torsor pushout, with its unit, multiplicativity
+  and base-change laws as natural isomorphisms and the vanishing and vertex laws on objects
+  (`Cones/QuotientTorsorContraction.lean`, `Cones/QuotientTorsorContractionCoherence.lean`);
 - the inclusion of the small-étale site of a Deligne--Mumford stack into its lisse-étale site is a
   continuous, fully faithful morphism of ringed sites, with the concrete description of the covering
   sieves of both stack sites and the restriction functor on module sheaves
