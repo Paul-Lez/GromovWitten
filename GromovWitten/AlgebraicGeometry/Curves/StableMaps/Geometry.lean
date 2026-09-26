@@ -828,6 +828,30 @@ def Stable.ofIso_of_normalizedMarkingVertex_eq
       (fun i ↦ hmark K y i)).mpr
     exact hF.fiberGraph K y
 
+/-! Target postcomposition leaves the normalized source graph unchanged.  The polarization degree
+construction above carries the genuine constancy criterion to the new target, while its relative
+line is the same source line, so the canonical fibre-graph proposition is transported directly. -/
+def Stable.postcomposeOfReflectsConstancy
+    {W : Scheme.{u}} {q' : W ⟶ S} [Fintype I] [DecidableEq I]
+    (F : MarkedMap q I) (H : LineBundle W) (a : V ⟶ W) (ha : a ≫ q' = q)
+    [Mono a] (hF : Stable F (H.pullback a))
+    (hreflect : ReflectsComponentConstancy F a ha) :
+    Stable (F.postcompose a ha) H where
+  prestable := hF.prestable.postcompose a ha
+  polarizedDegree :=
+    hF.polarizedDegree.postcomposeOfReflectsConstancy F H a ha hreflect
+  fiberGraph := by
+    intro K _ _ y
+    exact hF.fiberGraph K y
+
+def Stable.postcomposeClosedImmersion
+    {W : Scheme.{u}} {q' : W ⟶ S} [Fintype I] [DecidableEq I]
+    (F : MarkedMap q I) (H : LineBundle W) (a : V ⟶ W) (ha : a ≫ q' = q)
+    [IsClosedImmersion a] (hF : Stable F (H.pullback a)) :
+    Stable (F.postcompose a ha) H :=
+  hF.postcomposeOfReflectsConstancy F H a ha
+    (reflectsComponentConstancy_of_isClosedImmersion F a ha)
+
 
 /-- A proper contraction between marked maps, with a genuine isomorphism on the complements of
 closed exceptional loci and connected point fibres. -/
