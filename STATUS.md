@@ -148,6 +148,22 @@ Implemented APIs include:
   model of the same curve, flat by torsion-freeness of the Rees charts and with the generic fibre
   untouched, and the projection is a proper modification of models; finite chains of such
   blowups compose to proper modifications and preserve properness;
+- the normalisation of a model of a curve over a DVR is again a model: flatness of the normalisation over
+  the DVR is proved unconditionally (flat ⟺ injective into a domain over a Bézout domain, chart by chart on
+  Mathlib's normalisation cover), and with finiteness of the normalisation and the generic-fibre isomorphism
+  as explicit hypotheses `Model.normalize`/`Model.normalizeModification` are constructed
+  (`Curves/StableReduction/ModelNormalization.lean`); the fibre product of two modifications of a model with
+  its proper projections and proper structure map (`Curves/StableReduction/CommonModification.lean`);
+- the closure model of a scheme over a DVR, the scheme-theoretic image of its generic fibre, is flat over
+  the DVR with the same generic fibre and inherits quasi-compactness, finite presentation and properness;
+  applied to the fibre product of two modifications it gives an actual model dominating both, the common
+  modification, with no extra hypothesis (`Curves/StableReduction/ClosureModel.lean`: `closureModel`,
+  `flat_closureModel`, `ModelModification.commonModel`);
+- the normalisation of a model is an isomorphism over the generic fibre exactly when the curve is normal
+  (`IsNormalScheme`, the normalisation morphism is an isomorphism over every normal open, and normalisation
+  commutes with the generic fibre by smooth base change), so `Model.normalize'` needs only finiteness of the
+  normalisation, and `Model.normalize_charZero` needs nothing when the base is of finite type over a field of
+  characteristic zero (`Curves/StableReduction/ModelNormalizationGeneric.lean`);
 - `Proj` commutes with arbitrary base change: a graded map which is a base change in every
   degree induces a cartesian square of `Proj`s over the spectra of the base rings, with the
   affine chart comparisons proved bijective by clearing denominators;
