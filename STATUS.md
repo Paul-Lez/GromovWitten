@@ -150,6 +150,11 @@ Implemented APIs include:
   as explicit hypotheses `Model.normalize`/`Model.normalizeModification` are constructed
   (`Curves/StableReduction/ModelNormalization.lean`); the fibre product of two modifications of a model with
   its proper projections and proper structure map (`Curves/StableReduction/CommonModification.lean`);
+- the closure model of a scheme over a DVR, the scheme-theoretic image of its generic fibre, is flat over
+  the DVR with the same generic fibre and inherits quasi-compactness, finite presentation and properness;
+  applied to the fibre product of two modifications it gives an actual model dominating both, the common
+  modification, with no extra hypothesis (`Curves/StableReduction/ClosureModel.lean`: `closureModel`,
+  `flat_closureModel`, `ModelModification.commonModel`);
 - `Proj` commutes with arbitrary base change: a graded map which is a base change in every
   degree induces a cartesian square of `Proj`s over the spectra of the base rings, with the
   affine chart comparisons proved bijective by clearing denominators;
