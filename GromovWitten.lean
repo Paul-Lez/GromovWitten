@@ -342,3 +342,5 @@ import GromovWitten.AlgebraicGeometry.CotangentComplex.TransitivityEtale
 import GromovWitten.AlgebraicGeometry.CotangentComplex.TransitivityEtaleGeneral
 import GromovWitten.AlgebraicGeometry.CotangentComplex.AtlasDescent
 import GromovWitten.AlgebraicGeometry.CotangentComplex.AtlasDescentGlobal
+import GromovWitten.AlgebraicGeometry.Cones.DeltaComparison
+import GromovWitten.AlgebraicGeometry.Cones.DeltaComparisonSequence
