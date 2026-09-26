@@ -852,6 +852,16 @@ def Stable.postcomposeClosedImmersion
   hF.postcomposeOfReflectsConstancy F H a ha
     (reflectsComponentConstancy_of_isClosedImmersion F a ha)
 
+def Stable.postcomposeIso {W : Scheme.{u}} {q' : W ⟶ S}
+    [Fintype I] [DecidableEq I] (F : MarkedMap q I) (H : LineBundle V)
+    (hF : Stable F H) (e : V ≅ W) (he : e.hom ≫ q' = q) :
+    Stable (F.postcompose e.hom he) (H.pullback e.inv) where
+  prestable := hF.prestable.postcompose e.hom he
+  polarizedDegree := hF.polarizedDegree.postcomposeIso F H e he
+  fiberGraph := by
+    intro K _ _ y
+    exact hF.fiberGraph K y
+
 
 /-- A proper contraction between marked maps, with a genuine isomorphism on the complements of
 closed exceptional loci and connected point fibres. -/
