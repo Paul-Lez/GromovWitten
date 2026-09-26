@@ -277,6 +277,10 @@ Implemented APIs include:
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- the presentation groupoid `U ×_X U ⇉ U` of an atlas as a groupoid object with its unit, inverse and
+  associativity laws as 2-cells, tied to the fibrewise groupoids (`Stacks/PresentationGroupoidObject.lean`,
+  `Stacks/PresentationGroupoidLaws.lean`), and common scheme atlases with fully faithful groupoid
+  comparison functors (`Stacks/SchemeAtlasRefinement*.lean`);
 - functoriality of the fppf torsor pushout `r_*` in the torsor, in the group homomorphism and under
   base change (`Stacks/TorsorPushoutFunctoriality.lean`), and the quotient-stack maps `[U/G] → [V/H]`
   induced by equivariant maps over a group homomorphism, with `[U/G] → BH` as a special case
