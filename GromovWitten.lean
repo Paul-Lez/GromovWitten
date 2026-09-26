@@ -55,6 +55,10 @@ import GromovWitten.AlgebraicGeometry.Stacks.TorsorStackEffective
 import GromovWitten.AlgebraicGeometry.Stacks.TorsorStackCover
 import GromovWitten.AlgebraicGeometry.Stacks.TorsorStackMathlib
 import GromovWitten.AlgebraicGeometry.Stacks.TorsorStackBundle
+import GromovWitten.AlgebraicGeometry.Stacks.QuotientGeometryTrivialization
+import GromovWitten.AlgebraicGeometry.Stacks.QuotientAtlas
+import GromovWitten.AlgebraicGeometry.Stacks.QuotientTransporter
+import GromovWitten.AlgebraicGeometry.Stacks.QuotientTransporterGeometry
 import GromovWitten.AlgebraicGeometry.Stacks.Geometry
 import GromovWitten.AlgebraicGeometry.Stacks.Inertia
 import GromovWitten.AlgebraicGeometry.Stacks.StackProducts
