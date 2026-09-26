@@ -270,6 +270,10 @@ Implemented APIs include:
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- the scalar contraction of the cone quotient stack `[C/E]` on all torsors, without the triviality
+  hypothesis, through the functoriality of the relative torsor pushout, with its unit, multiplicativity
+  and base-change laws as natural isomorphisms and the vanishing and vertex laws on objects
+  (`Cones/QuotientTorsorContraction.lean`, `Cones/QuotientTorsorContractionCoherence.lean`);
 - functoriality of the fppf torsor pushout `r_*` in the torsor, in the group homomorphism and under
   base change (`Stacks/TorsorPushoutFunctoriality.lean`), and the quotient-stack maps `[U/G] → [V/H]`
   induced by equivariant maps over a group homomorphism, with `[U/G] → BH` as a special case
