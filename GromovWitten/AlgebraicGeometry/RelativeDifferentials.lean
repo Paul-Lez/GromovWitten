@@ -63,6 +63,46 @@ def relativeDifferentialsSheafLift {X Y : Scheme.{u}} (f : X ⟶ Y)
     ((PresheafOfModules.DifferentialsConstruction.isUniversal'
       (relativeDifferentialsRingMap f)).desc d)
 
+/-- The universal derivation after passing from the presheaf to its sheafification. -/
+def relativeDifferentialsSheafDerivation {X Y : Scheme.{u}} (f : X ⟶ Y) :
+    ((Scheme.Modules.toPresheafOfModules X).obj (relativeDifferentialsSheaf f)).Derivation'
+      (relativeDifferentialsRingMap f) :=
+  (PresheafOfModules.DifferentialsConstruction.derivation'
+    (relativeDifferentialsRingMap f)).postcomp
+    ((PresheafOfModules.sheafificationAdjunction (𝟙 X.ringCatSheaf.obj)).unit.app
+      (relativeDifferentialsPresheaf f))
+
+theorem relativeDifferentialsSheafLift_fac {X Y : Scheme.{u}} (f : X ⟶ Y)
+    {N : X.Modules}
+    (d : ((Scheme.Modules.toPresheafOfModules X).obj N).Derivation'
+      (relativeDifferentialsRingMap f)) :
+    (relativeDifferentialsSheafDerivation f).postcomp
+        ((Scheme.Modules.toPresheafOfModules X).map (relativeDifferentialsSheafLift f d)) = d := by
+  have hq :
+      (PresheafOfModules.sheafificationAdjunction (𝟙 X.ringCatSheaf.obj)).unit.app
+          (relativeDifferentialsPresheaf f) ≫
+        (Scheme.Modules.toPresheafOfModules X).map (relativeDifferentialsSheafLift f d) =
+      (PresheafOfModules.DifferentialsConstruction.isUniversal'
+        (relativeDifferentialsRingMap f)).desc d := by
+    change (PresheafOfModules.sheafificationHomEquiv (𝟙 X.ringCatSheaf.obj))
+        (relativeDifferentialsSheafLift f d) = _
+    exact Equiv.apply_symm_apply _ _
+  apply PresheafOfModules.Derivation.ext
+  ext Z b
+  dsimp [relativeDifferentialsSheafDerivation, PresheafOfModules.Derivation.postcomp]
+  have hqZ := congrArg (fun q =>
+      (q.app Z).hom ((PresheafOfModules.DifferentialsConstruction.derivation'
+        (relativeDifferentialsRingMap f)).d b)) hq
+  have hfac := (PresheafOfModules.DifferentialsConstruction.isUniversal'
+    (relativeDifferentialsRingMap f)).fac d
+  have hfacZ := congrArg (fun q => q.d b) hfac
+  calc
+    _ = (ModuleCat.Hom.hom (((PresheafOfModules.DifferentialsConstruction.isUniversal'
+      (relativeDifferentialsRingMap f)).desc d).app Z))
+        ((PresheafOfModules.DifferentialsConstruction.derivation'
+          (relativeDifferentialsRingMap f)).d b) := hqZ
+    _ = d.d b := by simpa [PresheafOfModules.Derivation.postcomp] using hfacZ
+
 end
 
 end GromovWitten.AlgebraicGeometry
