@@ -464,6 +464,10 @@ Implemented APIs include:
   domain is the order of its determinant, and the norm formula `length_A(B/bB) = ord_A(N_{B/A}(b))` with its
   semilocal form, the local pushforward of principal divisors along a finite free extension
   (`Algebra/OrderDeterminant.lean`: `cokerLength_eq_ord_det`, `finsum_summand_eq_ord_norm`);
+- Fulton's Proposition 1.4 for a finite free extension of one-dimensional domains: the pushforward of the
+  divisor of `b` along `Spec B → Spec A` is the divisor of its norm, and the degree of zero-cycles is
+  compatible with this pushforward (`IntersectionTheory/NormPushforward.lean`:
+  `map_principalCycle_eq_principalCycle_norm`, `degreeCycle_principalCycleOf_norm`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as

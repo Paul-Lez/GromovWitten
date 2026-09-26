@@ -316,3 +316,4 @@ import GromovWitten.AlgebraicGeometry.IntersectionTheory.AffineDegreeScheme
 import GromovWitten.AlgebraicGeometry.ProjectiveLine
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.ProjectiveLineDegree
 import GromovWitten.Algebra.OrderDeterminant
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.NormPushforward
