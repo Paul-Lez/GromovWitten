@@ -25,15 +25,17 @@ regular embedding: a coordinate hyperplane `Y' = 𝔸^{τ'} ↪ Y = 𝔸^τ` (`�
 
 ## Part 1: the headline statements (thin re-exports)
 
-* `relativeVirtualClass_eq_absoluteVirtualClass` (`RelativeAbsolute.virtualClassAt_absHom`):
+* `relativeGradedConeClassLift_eq_absoluteGradedConeClassLift`
+  (`RelativeAbsolute.gradedConeClassLiftAt_absHom`):
   the virtual class of the absolute obstruction theory `absHom φ` attached to a relative
   obstruction theory `φ : E ⟶ relConormalComplex I` of `X = Spec(R/I) → Y = 𝔸^τ` is *the*
   relative virtual class `[X/Y]^vir`.
-* `virtualDimension_relativeVirtualClass` (`RelativeAbsolute.virtualDimension_absHom`): the
+* `virtualDimension_relativeGradedConeClassLift` (`RelativeAbsolute.virtualDimension_absHom`): the
   dimension shift `vdim(absHom φ) = vdim(φ) + dim Y` between the absolute and the relative
   reading.
-* `relativeVirtualClass_baseChange_flat`
-  (`BaseChangeInvariance.relativeVirtualClassAt_baseChangeHom`): the flat base-change formula
+* `relativeGradedConeClassLift_baseChange_flat`
+  (`BaseChangeInvariance.relativeGradedConeClassLiftAt_baseChangeHom`): the flat base-change
+  formula
   `[X ×_Y (Y × 𝔸^ρ)]^vir = π^*[X/Y]^vir` for the smooth projection `Y × 𝔸^ρ → Y`.
 * `isObstructionTheory_relative_localisation_iff`
   (`BaseChangeObstruction.LocalisationCone.isObstructionTheory_baseChangeHom_iff`): the
@@ -73,7 +75,7 @@ genuine Tor-independence argument (that multiplication by `y₀` stays injective
 free terms of `E`, hence the *non-flat* quotient `Base I → Base I'` still computes the
 kernel/cokernel of `E`'s differential correctly) which is not a repackaging of existing lemmas
 in this repository; see the docstring of `hyperplaneHom` for the precise statement of the gap.
-The final Gysin-map identification `relativeVirtualClassAt (hyperplaneHom φ) = i^! (…)` is
+The final Gysin-map identification `relativeGradedConeClassLiftAt (hyperplaneHom φ) = i^! (…)` is
 therefore also out of reach here and is not attempted, per the task's own fallback clause.
 
 None of this is Behrend–Fantechi §7's construction at DM-stack level: it is the affine model of
@@ -94,27 +96,29 @@ obstruction theory `absHom φ`.**  This is the affine model of Behrend–Fantech
 between the relative virtual class `[X/Y]^vir` of a relative obstruction theory `φ` for
 `X = Spec(R/I) → Y = 𝔸^τ` and the (ordinary) virtual class of the absolute datum `absHom φ`
 attached to it by `RelativeAbsolute.absHom`. -/
-alias relativeVirtualClass_eq_absoluteVirtualClass := RelativeAbsolute.virtualClassAt_absHom
+alias relativeGradedConeClassLift_eq_absoluteGradedConeClassLift :=
+  RelativeAbsolute.gradedConeClassLiftAt_absHom
 
 /-- **The dimension shift between the relative and the absolute reading**: the virtual dimension
 of the absolute obstruction theory `absHom φ` exceeds the virtual dimension of the relative
 datum `φ` by `dim Y = #τ`. -/
-alias virtualDimension_relativeVirtualClass := RelativeAbsolute.virtualDimension_absHom
+alias virtualDimension_relativeGradedConeClassLift := RelativeAbsolute.virtualDimension_absHom
 
 /-- **Flat base change of the relative virtual class**, `[X ×_Y (Y × 𝔸^ρ)]^vir = π^*[X/Y]^vir`:
 Behrend–Fantechi's Proposition 7.2 for the smooth projection `Y × 𝔸^ρ → Y`, read relatively (the
-left-hand side is `DegreeOneSummand.relativeVirtualClassAt` of the base-changed datum, in
+left-hand side is `DegreeOneSummand.relativeGradedConeClassLiftAt` of the base-changed datum, in
 relative dimension `Nat.card ρ`, and the right-hand side is the flat pullback, along
 `X → X ×_Y (Y × 𝔸^ρ) → X` composed appropriately, of the relative virtual class of `φ`). -/
-alias relativeVirtualClass_baseChange_flat :=
-  BaseChangeInvariance.relativeVirtualClassAt_baseChangeHom
+alias relativeGradedConeClassLift_baseChange_flat :=
+  BaseChangeInvariance.relativeGradedConeClassLiftAt_baseChangeHom
 
 open GromovWitten.AlgebraicGeometry.VirtualClass.BaseChangeObstruction
 
 /-- **Localisation (open, flat formally étale) base change of the relative obstruction-theory
 property**: for `Y' → Y` flat formally étale (e.g. a localisation `Y' = Spec (Localization.Away
 f)`) and faithfully flat, a relative datum `φ` for `X/Y` is an obstruction theory iff its base
-change to `X ×_Y Y' → Y'` is one.  Together with `relativeVirtualClass_eq_absoluteVirtualClass`
+change to `X ×_Y Y' → Y'` is one.  Together with
+`relativeGradedConeClassLift_eq_absoluteGradedConeClassLift`
 this identifies `[X/Y]^vir` with `[X ×_Y Y'/Y']^vir` under the flat pullback along `Y' → Y`
 whenever both sides are defined. -/
 alias isObstructionTheory_relative_localisation_iff :=

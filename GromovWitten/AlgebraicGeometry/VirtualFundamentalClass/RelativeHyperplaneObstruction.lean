@@ -67,7 +67,7 @@ injectivity of the degree-zero comparison map.
 As in `RelativeAbsolute.lean` and `RelativeVirtualClassBaseChange.lean` everything here is the
 affine model `X = Spec (R ⧸ I) ⊆ 𝔸^σ × Y`, not the Deligne–Mumford-stack statement of
 Behrend–Fantechi §7.  The resolved-cone ideal identity and the resulting Gysin-map identity
-`relativeVirtualClassAt (hyperplaneHom φ) = i^! …` are not treated here.
+`relativeGradedConeClassLiftAt (hyperplaneHom φ) = i^! …` are not treated here.
 -/
 
 universe u

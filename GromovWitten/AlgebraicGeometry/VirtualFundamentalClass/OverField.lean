@@ -27,7 +27,8 @@ applied to the finite-type `k`-algebra `R ⧸ I`; the second is
 
 Consequently every result of `Unconditional.lean` is restated here with **no hypotheses beyond
 the standing ones** (`R` of finite type over `k`, `E` a perfect two-term complex,
-`φ : E ⟶ conormalComplex k R I`): `OverField.virtualClass`, `pullback_virtualClass`,
+`φ : E ⟶ conormalComplex k R I`), together with the public POT witness:
+`OverField.virtualClass`, `pullback_virtualClass`,
 `eq_virtualClass_of_pullback_eq`, `virtualClass_unique`,
 `virtualClass_eq_zeroSectionGysinEquiv''`, `virtualClass_eq_of_quasiIso`,
 `virtualClass_eq_of_homotopyEquivalence`, `virtualClass_eq_of_quasiIso_homotopy`.
@@ -129,41 +130,58 @@ theorem hinjOf : Function.Injective (VirtualClass.bundlePullback φ dimX dimE RX
   Unconditional.hinjOf φ dimX dimE RX RE (hasUniversalDimensionFormula k R I)
     (unitDifferences k R I)
 
-/-- **The virtual fundamental class** `[X]^vir ∈ A_{vd}(X)` of the obstruction theory `φ` over an
-infinite field `k`, with no hypotheses left: `R` is a finitely generated `k`-algebra, `I ≠ ⊤` and
-`E` is a perfect two-term complex. -/
-noncomputable def virtualClass : RX.ChowGroup :=
-  Unconditional.virtualClass φ dimX dimE RX RE (hasUniversalDimensionFormula k R I)
-    (unitDifferences k R I)
+/-- **The virtual fundamental class** `[X]^vir ∈ A_{vd}(X)` of the affine perfect obstruction
+theory `φ` over an infinite field `k`.  The proof `hpot` is the public API gate: arbitrary chain
+maps may still use the lower-level generic graded cone-class lift, but they cannot be passed
+here. -/
+noncomputable def virtualClass
+    (hpot : VirtualClass.AffinePerfectObstructionTheory φ) : RX.ChowGroup :=
+  by
+    have _ := hpot
+    exact Unconditional.gradedConeClassLift φ dimX dimE RX RE (hasUniversalDimensionFormula k R I)
+      (unitDifferences k R I)
+
+/-! ## API regression checks -/
+
+/-- The affine VFC API rejects an invocation with no perfect-obstruction-theory witness. -/
+noncomputable example (hpot : VirtualClass.AffinePerfectObstructionTheory φ) : RX.ChowGroup := by
+  fail_if_success exact virtualClass φ dimX dimE RX RE
+  exact virtualClass φ dimX dimE RX RE hpot
 
 /-- **The defining property of the virtual class**: it pulls back to the resolved-cone class
 along the flat pullback `π^* : A_{vd}(X) → A_{vd+a}(E₁)`. -/
 @[simp]
-theorem pullback_virtualClass :
-    VirtualClass.bundlePullback φ dimX dimE RX RE (virtualClass φ dimX dimE RX RE) =
+theorem pullback_virtualClass (hpot : VirtualClass.AffinePerfectObstructionTheory φ) :
+    VirtualClass.bundlePullback φ dimX dimE RX RE (virtualClass φ dimX dimE RX RE hpot) =
       VirtualClass.resolvedConeClass φ dimE RE :=
-  Unconditional.pullback_virtualClass φ dimX dimE RX RE _ _
+  Unconditional.pullback_gradedConeClassLift φ dimX dimE RX RE
+    (hasUniversalDimensionFormula k R I) (unitDifferences k R I)
 
 /-- **Uniqueness of the virtual class**: any class pulling back to the resolved-cone class is the
 virtual class. -/
-theorem eq_virtualClass_of_pullback_eq (α : RX.ChowGroup)
+theorem eq_virtualClass_of_pullback_eq (hpot : VirtualClass.AffinePerfectObstructionTheory φ)
+    (α : RX.ChowGroup)
     (hα : VirtualClass.bundlePullback φ dimX dimE RX RE α =
       VirtualClass.resolvedConeClass φ dimE RE) :
-    α = virtualClass φ dimX dimE RX RE :=
-  Unconditional.eq_virtualClass_of_pullback_eq φ dimX dimE RX RE _ _ α hα
+    α = virtualClass φ dimX dimE RX RE hpot :=
+  Unconditional.eq_gradedConeClassLift_of_pullback_eq φ dimX dimE RX RE
+    (hasUniversalDimensionFormula k R I) (unitDifferences k R I) α hα
 
 /-- The virtual class is the unique class with the defining property. -/
-theorem virtualClass_unique :
+theorem virtualClass_unique (hpot : VirtualClass.AffinePerfectObstructionTheory φ) :
     ∃! α : RX.ChowGroup, VirtualClass.bundlePullback φ dimX dimE RX RE α =
       VirtualClass.resolvedConeClass φ dimE RE :=
-  Unconditional.virtualClass_unique φ dimX dimE RX RE (hasUniversalDimensionFormula k R I)
-    (unitDifferences k R I)
+  by
+    have _ := hpot
+    exact Unconditional.gradedConeClassLift_unique φ dimX dimE RX RE
+      (hasUniversalDimensionFormula k R I) (unitDifferences k R I)
 
 /-- **The virtual class is the zero-section Gysin pullback of the resolved-cone class**, along
 the Gysin isomorphism `0^! : A_{vd+a}(E₁) ≃ A_{vd}(X)`, which over an infinite field is available
 with no further input. -/
-theorem virtualClass_eq_zeroSectionGysinEquiv'' :
-    virtualClass φ dimX dimE RX RE =
+theorem virtualClass_eq_zeroSectionGysinEquiv''
+    (hpot : VirtualClass.AffinePerfectObstructionTheory φ) :
+    virtualClass φ dimX dimE RX RE hpot =
       VectorBundle.zeroSectionGysinEquiv'' (VirtualClass.trivialization φ) dimX dimE
         (VirtualClass.virtualDimension φ) RX RE (hasUniversalDimensionFormula k R I)
         (unitDifferences k R I) (VirtualClass.resolvedConeClass φ dimE RE) :=
@@ -209,29 +227,32 @@ include dim₁ dim₂ R₁ R₂ in
 Let `f : E ⟶ F` be a quasi-isomorphism of perfect two-term complexes with
 `ψ⁻¹ ∘ f⁻¹ = φ⁻¹`.  Then `φ` and `ψ` have the same virtual fundamental class.
 
-As in `Unconditional.virtualClass_eq_of_quasiIso`, the right-hand side is written with
-`VirtualClass.virtualClassAt ψ (trivialization ψ)` in the degree `virtualDimension φ`: this *is*
+As in `Unconditional.gradedConeClassLift_eq_of_quasiIso`, the right-hand side is written with
+`VirtualClass.gradedConeClassLiftAt ψ (trivialization ψ)` in the degree `virtualDimension φ`: this
+*is*
 the virtual class of `ψ`, but `virtualDimension ψ = virtualDimension φ` holds only
 propositionally, while the type `RX.ChowGroup` depends on the degree. -/
 theorem virtualClass_eq_of_quasiIso (f : LinearTwoTermComplex.Hom E F)
-    (hf : f.IsQuasiIsomorphism) (hcomp : ψ.degreeZero.comp f.degreeZero = φ.degreeZero) :
-    virtualClass φ dimX dimE RX RE =
-      VirtualClass.virtualClassAt ψ (VirtualClass.trivialization ψ) dimX dimF
+    (hf : f.IsQuasiIsomorphism) (hcomp : ψ.degreeZero.comp f.degreeZero = φ.degreeZero)
+    (hpot : VirtualClass.AffinePerfectObstructionTheory φ) :
+    virtualClass φ dimX dimE RX RE hpot =
+      VirtualClass.gradedConeClassLiftAt ψ (VirtualClass.trivialization ψ) dimX dimF
         (VirtualClass.virtualDimension φ) RX RF (hhomOf ψ dimF)
         (hinjAt ψ dimX dimF (VirtualClass.virtualDimension φ) RX RF) :=
-  Unconditional.virtualClass_eq_of_quasiIso φ ψ dimX dimE dimF dim₁ dim₂ RX RE RF R₁ R₂
+  Unconditional.gradedConeClassLift_eq_of_quasiIso φ ψ dimX dimE dimF dim₁ dim₂ RX RE RF R₁ R₂
     (hasUniversalDimensionFormula k R I) (unitDifferences k R I) f hf hcomp
 
 include dim₁ dim₂ R₁ R₂ in
 /-- **Chain-homotopy invariance of the virtual class over an infinite field**: a chain-homotopy
 equivalence `he : E ≃ F` with `ψ⁻¹ ∘ he.hom⁻¹ = φ⁻¹` does not change the virtual class. -/
 theorem virtualClass_eq_of_homotopyEquivalence (he : LinearTwoTermComplex.HomotopyEquivalence E F)
-    (hcomp : ψ.degreeZero.comp he.hom.degreeZero = φ.degreeZero) :
-    virtualClass φ dimX dimE RX RE =
-      VirtualClass.virtualClassAt ψ (VirtualClass.trivialization ψ) dimX dimF
+    (hcomp : ψ.degreeZero.comp he.hom.degreeZero = φ.degreeZero)
+    (hpot : VirtualClass.AffinePerfectObstructionTheory φ) :
+    virtualClass φ dimX dimE RX RE hpot =
+      VirtualClass.gradedConeClassLiftAt ψ (VirtualClass.trivialization ψ) dimX dimF
         (VirtualClass.virtualDimension φ) RX RF (hhomOf ψ dimF)
         (hinjAt ψ dimX dimF (VirtualClass.virtualDimension φ) RX RF) :=
-  Unconditional.virtualClass_eq_of_homotopyEquivalence φ ψ dimX dimE dimF dim₁ dim₂ RX RE RF
+  Unconditional.gradedConeClassLift_eq_of_homotopyEquivalence φ ψ dimX dimE dimF dim₁ dim₂ RX RE RF
     R₁ R₂ (hasUniversalDimensionFormula k R I) (unitDifferences k R I) he hcomp
 
 include dim₁ dim₂ R₁ R₂ in
@@ -240,12 +261,14 @@ homotopy** `ψ⁻¹ ∘ f⁻¹ = φ⁻¹ + h ∘ d_E`, over an infinite field. -
 theorem virtualClass_eq_of_quasiIso_homotopy (f : LinearTwoTermComplex.Hom E F)
     (hf : f.IsQuasiIsomorphism)
     (h : E.degreeOne →ₗ[R ⧸ I] (conormalComplex k R I).degreeZero)
-    (hcomp : ψ.degreeZero.comp f.degreeZero = φ.degreeZero + h.comp E.differential) :
-    virtualClass φ dimX dimE RX RE =
-      VirtualClass.virtualClassAt ψ (VirtualClass.trivialization ψ) dimX dimF
+    (hcomp : ψ.degreeZero.comp f.degreeZero = φ.degreeZero + h.comp E.differential)
+    (hpot : VirtualClass.AffinePerfectObstructionTheory φ) :
+    virtualClass φ dimX dimE RX RE hpot =
+      VirtualClass.gradedConeClassLiftAt ψ (VirtualClass.trivialization ψ) dimX dimF
         (VirtualClass.virtualDimension φ) RX RF (hhomOf ψ dimF)
         (hinjAt ψ dimX dimF (VirtualClass.virtualDimension φ) RX RF) :=
-  Unconditional.virtualClass_eq_of_quasiIso_homotopy φ ψ dimX dimE dimF dim₁ dim₂ RX RE RF R₁ R₂
+  Unconditional.gradedConeClassLift_eq_of_quasiIso_homotopy φ ψ dimX dimE dimF dim₁ dim₂ RX RE RF
+    R₁ R₂
     (hasUniversalDimensionFormula k R I) (unitDifferences k R I) f hf h hcomp
 
 end QuasiIso
@@ -278,7 +301,8 @@ omit [Module.Free (MvPolynomial σ k ⧸ I) E.degreeZero]
 /-- **Purity of `C ×_X E₀`, with no conditional input**: every irreducible component of the
 product `C ×_X E₀` has dimension `|σ| + rank E⁰`. -/
 theorem ringKrullDim_quotient_productRing (hI : I ≠ ⊤)
-    {P : Ideal (ResolvedCone.productRing φ)} (hP : P ∈ minimalPrimes (ResolvedCone.productRing φ)) :
+    {P : Ideal (ResolvedCone.productRing φ)}
+    (hP : P ∈ minimalPrimes (ResolvedCone.productRing φ)) :
     ringKrullDim (ResolvedCone.productRing φ ⧸ P) =
       ((Nat.card σ + Module.finrank (MvPolynomial σ k ⧸ I) E.degreeOne : ℕ) : ℕ∞) :=
   ResolvedCone.ringKrullDim_quotient_productRing φ hI hasDimensionFormula_extendedRees hP

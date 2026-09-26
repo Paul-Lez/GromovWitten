@@ -15,7 +15,8 @@ virtual class attached to a fixed obstruction bundle `𝓔`: chart-wise quasi-is
 (for a globally trivialised `𝓔`) the same finite-type virtual class. It builds directly on the
 isomorphism-level comparison of
 `GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.ConeGluingIndependence`
-(`ChartIso`, `coneClassAt_eq`, `virtualClassFT'_eq`), which is imported rather than reproduced.
+(`ChartIso`, `coneClassAt_eq`, `gradedConeClassLiftFT'_eq`), which is imported rather than
+reproduced.
 
 ## The key new algebraic fact
 
@@ -43,8 +44,8 @@ isomorphisms after all, so the whole comparison reduces to the isomorphism case.
   `ConeGluingIndependence.ChartIso` but with the bijectivity of `hom j` in degree zero replaced by
   the pair (`isQuasiIso`, `bijective_degreeOne`) from which it is derived.
 * `ChartQuasiIso.toChartIso` — the induced `ConeGluingIndependence.ChartIso 𝒞 𝒞'`.
-* `coneClassAt_eq_of_quasiIso`, `virtualClassFT'_eq_of_quasiIso` — the quasi-isomorphism
-  analogues of `ConeGluingIndependence.coneClassAt_eq`, `.virtualClassFT'_eq`, obtained by
+* `coneClassAt_eq_of_quasiIso`, `gradedConeClassLiftFT'_eq_of_quasiIso` — the quasi-isomorphism
+  analogues of `ConeGluingIndependence.coneClassAt_eq`, `.gradedConeClassLiftFT'_eq`, obtained by
   passing to `ChartQuasiIso.toChartIso`.
 
 ## What is not proved here
@@ -232,15 +233,18 @@ quasi-isomorphism bijective in degree one, for a fixed globally trivialised obst
 bundle.**
 
 For `X` compact and locally of finite type over an infinite field `F`, with a
-`GlobalTrivialisation t` of `𝓔`, the unconditional virtual class `virtualClassFT'` of
+`GlobalTrivialisation t` of `𝓔`, the unconditional graded cone-class lift
+`gradedConeClassLiftFT'` of
 `GlobalVirtualClassUnconditional.lean` agrees for the two chart-wise quasi-isomorphic cone data
 `𝒞`, `𝒞'`: the hypothesis is exactly `ChartQuasiIso H`, with no extra assumption beyond those of
-`existsUnique_virtualClassFT'_of_globalTrivialisation'`. The quasi-isomorphism analogue of
-`ConeGluingIndependence.virtualClassFT'_eq`, obtained by passing to the induced `ChartIso`. -/
-theorem virtualClassFT'_eq_of_quasiIso (H : ChartQuasiIso 𝒞 𝒞') (t : GlobalTrivialisation 𝓔) :
-    VirtualClass.GlobalVirtualClass.virtualClassFT' f 𝒞 i RX RE =
-      VirtualClass.GlobalVirtualClass.virtualClassFT' f 𝒞' i RX RE :=
-  virtualClassFT'_eq f i RX RE H.toChartIso t
+`existsUnique_gradedConeClassLiftFT'_of_globalTrivialisation'`. The quasi-isomorphism analogue of
+`ConeGluingIndependence.gradedConeClassLiftFT'_eq`, obtained by passing to the induced
+`ChartIso`. -/
+theorem gradedConeClassLiftFT'_eq_of_quasiIso
+    (H : ChartQuasiIso 𝒞 𝒞') (t : GlobalTrivialisation 𝓔) :
+    VirtualClass.GlobalVirtualClass.gradedConeClassLiftFT' f 𝒞 i RX RE =
+      VirtualClass.GlobalVirtualClass.gradedConeClassLiftFT' f 𝒞' i RX RE :=
+  gradedConeClassLiftFT'_eq f i RX RE H.toChartIso t
 
 end FiniteType
 

@@ -8,10 +8,11 @@ import GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.GlobalVirtualClass
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.BundleHomotopyGlobal
 
 /-!
-# The global virtual class without the surjectivity hypothesis
+# Generic global cone-class lifts with surjectivity discharged
 
-`VirtualFundamentalClass/GlobalVirtualClass.lean` constructs the virtual fundamental class
-`virtualClass 𝒞 dimX dimE hshift i RX RE hmem` of a scheme carrying a global cone datum as the
+`VirtualFundamentalClass/GlobalVirtualClass.lean` constructs the generic graded cone-class lift
+`gradedConeClassLift 𝒞 dimX dimE hshift i RX RE hmem` of a scheme carrying a global cone datum as
+the
 preimage of the global cone class under the global flat pullback
 `bundlePullback 𝓔 dimX dimE hshift i RX RE : A_i(X) →ₗ[ℚ] A_{i+r}(E₁)`.  It takes as a
 hypothesis `hmem` the membership of the cone class in the range of that pullback, i.e. *one half*
@@ -21,7 +22,7 @@ Thm. 3.3(a)).
 That half is now a theorem: `IntersectionTheory/BundleHomotopyGlobal.lean` proves by Noetherian
 induction that `BundleOverSubscheme.chowPullbackBundleGlobal` is **surjective** for a vector
 bundle of finite rank over a compact, locally Noetherian scheme.  This file feeds that theorem
-into the construction, giving primed versions of the virtual class and of its characterisations
+into the construction, giving primed versions of the generic lift and of its characterisations
 in which `hmem` no longer appears.
 
 ## Main results
@@ -30,15 +31,18 @@ in which `hmem` no longer appears.
   bundle over a compact locally Noetherian scheme (with the chart dimension functions and the
   homogeneity of principal divisors as hypotheses, exactly as in
   `BundlePullbackGlobal.chowPullbackBundleGlobal_surjective`).
-* `virtualClass'`: **the global virtual fundamental class with `hmem` discharged**, together with
-  `bundlePullback_virtualClass'`, `virtualClass'_unique`, `eq_virtualClass'_of_pullback_eq` and
-  `existsUnique_virtualClass'`.
-* `coneClassFT_mem_range`, `virtualClassFT'`, `bundlePullbackFT_virtualClassFT'`,
-  `virtualClassFT'_unique`, `existsUnique_virtualClassFT'`: the same for a **compact** scheme
+* `gradedConeClassLift'`: **the generic global graded cone-class lift with `hmem` discharged**,
+  together with `bundlePullback_gradedConeClassLift'`, `gradedConeClassLift'_unique`,
+  `eq_gradedConeClassLift'_of_pullback_eq` and
+  `existsUnique_gradedConeClassLift'`.
+* `coneClassFT_mem_range`, `gradedConeClassLiftFT'`, `bundlePullbackFT_gradedConeClassLiftFT'`,
+  `gradedConeClassLiftFT'_unique`, `existsUnique_gradedConeClassLiftFT'`: the same for a
+  **compact** scheme
   locally of finite type over a field, where no hypothesis at all is left beyond `[CompactSpace
   X]` (and, for the uniqueness statements, the injectivity `hinj`).
-* `virtualClass'_eq_overFieldVirtualClass`: the consistency statement with the affine virtual
-  class `OverField.virtualClass`, restated for `virtualClass'`.
+* `gradedConeClassLift'_eq_overFieldVirtualClass`: the consistency statement with the affine
+  virtual
+  class `OverField.virtualClass`, restated for `gradedConeClassLift'`.
 
 ## What is still hypothetical
 
@@ -95,7 +99,7 @@ variable {k : Type u} [CommRing k] {X : Scheme.{u}} {ι : Type u} [Finite ι]
 /-- **The global cone class is a flat pullback.**  For a vector bundle of finite rank over a
 compact, locally Noetherian scheme the global flat pullback `π^*` is surjective
 (`BundlePullbackGlobal.chowPullbackBundleGlobal_surjective`, the global form of Fulton's
-Proposition 1.9), so the hypothesis `hmem` of `virtualClass` holds.
+Proposition 1.9), so the hypothesis `hmem` of `gradedConeClassLift` holds.
 
 The remaining hypotheses are those of the surjectivity theorem: certified dimension functions
 `dimChart`, `dimChartE` on the affine models of the trivialising charts, compatible with `dimX`
@@ -116,15 +120,16 @@ theorem coneClass_mem_range
     hshift dimChart dimChartE hdimChart hdimChartE hdim hhom i RX RE
     (𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE))
 
-/-- **The global virtual fundamental class of a compact locally Noetherian scheme.**  This is
-`virtualClass` with the membership hypothesis `hmem` discharged by `coneClass_mem_range`: no
+/-- **The generic global graded cone-class lift of a compact locally Noetherian scheme.**  This is
+`gradedConeClassLift` with the membership hypothesis `hmem` discharged by `coneClass_mem_range`: no
 surjectivity assumption on the global flat pullback is made.
 
 The only property of the global bundle pullback that is still hypothetical in this file is its
 **injectivity** (the second half of Fulton, *Intersection Theory*, Thm. 3.3(a)); it appears as
-the hypothesis `hinj` of `virtualClass'_unique` and `existsUnique_virtualClass'` and is proved in
+the hypothesis `hinj` of `gradedConeClassLift'_unique` and `existsUnique_gradedConeClassLift'
+and is proved in
 this repository for globally trivial bundles.  It is not needed to *define* the class. -/
-def virtualClass'
+def gradedConeClassLift'
     (dimChart : ∀ j : 𝓔.J, DimensionFunction (Spec (CommRingCat.of Γ(X, (𝓔.chart j).1))))
     (dimChartE : ∀ j : 𝓔.J,
       DimensionFunction (Spec (CommRingCat.of (MvPolynomial ι Γ(X, (𝓔.chart j).1)))))
@@ -132,14 +137,15 @@ def virtualClass'
     (hdimChartE : ∀ (j : 𝓔.J) (q), dimChartE j q = dimE ((𝓔.chartι j).base q))
     (hdim : ∀ j : 𝓔.J, VectorBundle.HasUniversalDimensionFormula Γ(X, (𝓔.chart j).1))
     (hhom : PrincipalDivisorsHomogeneous 𝓔.totalSpace dimE) : RX.ChowGroup :=
-  virtualClass 𝒞 dimX dimE hshift i RX RE
+  gradedConeClassLift 𝒞 dimX dimE hshift i RX RE
     (coneClass_mem_range 𝒞 dimX dimE hshift i RX RE dimChart dimChartE hdimChart hdimChartE
       hdim hhom)
 
-/-- **The defining property of the global virtual class**: `π^*[X]^vir = [C(E)]`, now without any
+/-- **The defining property of the generic global lift**: the bundle pullback is the cone class,
+now without any
 surjectivity hypothesis. -/
 @[simp]
-theorem bundlePullback_virtualClass'
+theorem bundlePullback_gradedConeClassLift'
     (dimChart : ∀ j : 𝓔.J, DimensionFunction (Spec (CommRingCat.of Γ(X, (𝓔.chart j).1))))
     (dimChartE : ∀ j : 𝓔.J,
       DimensionFunction (Spec (CommRingCat.of (MvPolynomial ι Γ(X, (𝓔.chart j).1)))))
@@ -148,16 +154,16 @@ theorem bundlePullback_virtualClass'
     (hdim : ∀ j : 𝓔.J, VectorBundle.HasUniversalDimensionFormula Γ(X, (𝓔.chart j).1))
     (hhom : PrincipalDivisorsHomogeneous 𝓔.totalSpace dimE) :
     bundlePullback 𝓔 dimX dimE hshift i RX RE
-        (virtualClass' 𝒞 dimX dimE hshift i RX RE dimChart dimChartE hdimChart hdimChartE
+        (gradedConeClassLift' 𝒞 dimX dimE hshift i RX RE dimChart dimChartE hdimChart hdimChartE
           hdim hhom) =
       𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE :=
-  bundlePullback_virtualClass 𝒞 dimX dimE hshift i RX RE _
+  bundlePullback_gradedConeClassLift 𝒞 dimX dimE hshift i RX RE _
 
-/-- **Uniqueness of the global virtual class.**  Any class pulling back to the cone class is the
-virtual class, provided the global bundle pullback is injective.  Injectivity is the only
+/-- **Uniqueness of the generic global lift.**  Any class pulling back to the cone class is the
+selected lift, provided the global bundle pullback is injective.  Injectivity is the only
 remaining hypothesis: it is the half of Fulton, *Intersection Theory*, Thm. 3.3(a) which this
 file does not discharge (it is proved in this repository for globally trivial bundles). -/
-theorem virtualClass'_unique
+theorem gradedConeClassLift'_unique
     (hinj : Function.Injective (bundlePullback 𝓔 dimX dimE hshift i RX RE))
     (dimChart : ∀ j : 𝓔.J, DimensionFunction (Spec (CommRingCat.of Γ(X, (𝓔.chart j).1))))
     (dimChartE : ∀ j : 𝓔.J,
@@ -169,12 +175,12 @@ theorem virtualClass'_unique
     (α : RX.ChowGroup)
     (hα : bundlePullback 𝓔 dimX dimE hshift i RX RE α =
       𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE) :
-    α = virtualClass' 𝒞 dimX dimE hshift i RX RE dimChart dimChartE hdimChart hdimChartE
+    α = gradedConeClassLift' 𝒞 dimX dimE hshift i RX RE dimChart dimChartE hdimChart hdimChartE
       hdim hhom :=
-  virtualClass_unique 𝒞 dimX dimE hshift i RX RE hinj _ α hα
+  gradedConeClassLift_unique 𝒞 dimX dimE hshift i RX RE hinj _ α hα
 
-/-- The symmetric form of `virtualClass'_unique`, convenient for rewriting. -/
-theorem eq_virtualClass'_of_pullback_eq
+/-- The symmetric form of `gradedConeClassLift'_unique`, convenient for rewriting. -/
+theorem eq_gradedConeClassLift'_of_pullback_eq
     (hinj : Function.Injective (bundlePullback 𝓔 dimX dimE hshift i RX RE))
     (dimChart : ∀ j : 𝓔.J, DimensionFunction (Spec (CommRingCat.of Γ(X, (𝓔.chart j).1))))
     (dimChartE : ∀ j : 𝓔.J,
@@ -186,15 +192,16 @@ theorem eq_virtualClass'_of_pullback_eq
     (α : RX.ChowGroup)
     (hα : bundlePullback 𝓔 dimX dimE hshift i RX RE α =
       𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE) :
-    virtualClass' 𝒞 dimX dimE hshift i RX RE dimChart dimChartE hdimChart hdimChartE
+    gradedConeClassLift' 𝒞 dimX dimE hshift i RX RE dimChart dimChartE hdimChart hdimChartE
         hdim hhom = α :=
-  (virtualClass'_unique 𝒞 dimX dimE hshift i RX RE hinj dimChart dimChartE hdimChart hdimChartE
+  (gradedConeClassLift'_unique 𝒞 dimX dimE hshift i RX RE hinj dimChart dimChartE hdimChart
+    hdimChartE
     hdim hhom α hα).symm
 
-/-- **Existence and uniqueness of the global virtual class** for a compact locally Noetherian
+/-- **Existence and uniqueness of the generic global lift** for a compact locally Noetherian
 scheme: existence is unconditional here, and uniqueness needs only the injectivity `hinj` of the
 global flat pullback. -/
-theorem existsUnique_virtualClass'
+theorem existsUnique_gradedConeClassLift'
     (hinj : Function.Injective (bundlePullback 𝓔 dimX dimE hshift i RX RE))
     (dimChart : ∀ j : 𝓔.J, DimensionFunction (Spec (CommRingCat.of Γ(X, (𝓔.chart j).1))))
     (dimChartE : ∀ j : 𝓔.J,
@@ -205,7 +212,7 @@ theorem existsUnique_virtualClass'
     (hhom : PrincipalDivisorsHomogeneous 𝓔.totalSpace dimE) :
     ∃! α : RX.ChowGroup, bundlePullback 𝓔 dimX dimE hshift i RX RE α =
       𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE :=
-  existsUnique_virtualClass 𝒞 dimX dimE hshift i RX RE hinj
+  existsUnique_gradedConeClassLift 𝒞 dimX dimE hshift i RX RE hinj
     (coneClass_mem_range 𝒞 dimX dimE hshift i RX RE dimChart dimChartE hdimChart hdimChartE
       hdim hhom)
 
@@ -228,7 +235,8 @@ variable {F : Type u} [Field F] {k : Type u} [CommRing k] {X : Scheme.{u}}
     (i + (Nat.card ι : ℤ)))
 
 /-- **The global cone class is a flat pullback**, for a bundle over a compact scheme locally of
-finite type over a field.  This discharges the hypothesis `hmem` of `virtualClassFT` with no
+finite type over a field.  This discharges the hypothesis `hmem` of `gradedConeClassLiftFT'` with
+no
 extra assumption beyond compactness of `X`: it is
 `BundlePullbackGlobal.mem_range_chowPullbackBundleFiniteType`, whose map is by definition
 `bundlePullbackFT`. -/
@@ -238,55 +246,58 @@ theorem coneClassFT_mem_range :
   BundlePullbackGlobal.mem_range_chowPullbackBundleFiniteType f 𝓔 i RX RE
     (𝒞.coneClassAt (dimensionFunction (𝓔.proj ≫ f)) (i + (Nat.card ι : ℤ)) RE)
 
-/-- **The virtual fundamental class of a compact scheme locally of finite type over a field.**
-Compared with `virtualClassFT`, the membership hypothesis `hmem` is discharged by
-`coneClassFT_mem_range`, and compared with `virtualClass'` no dimension data is left: the
+/-- **A generic graded cone-class lift of a compact scheme locally of finite type over a field.**
+Compared with `gradedConeClassLiftFT`, the membership hypothesis `hmem` is discharged by
+`coneClassFT_mem_range`, and compared with `gradedConeClassLift'` no dimension data is left: the
 gradings are the canonical ones of `IntersectionTheory/FiniteTypeDimension.lean`.
 
 Hence this definition has **no hypotheses at all** besides the instance `[CompactSpace X]`.  The
 only statement about the global flat pullback that is still hypothetical is its injectivity
 (Fulton, *Intersection Theory*, Thm. 3.3(a)), which enters the characterisations
-`virtualClassFT'_unique` and `existsUnique_virtualClassFT'` as `hinj` and is proved in this
+`gradedConeClassLiftFT'_unique` and `existsUnique_gradedConeClassLiftFT'` as `hinj` and is
+proved in this
 repository for globally trivial bundles. -/
-def virtualClassFT' : RX.ChowGroup :=
-  virtualClassFT f 𝒞 i RX RE (coneClassFT_mem_range f 𝒞 i RX RE)
+def gradedConeClassLiftFT' : RX.ChowGroup :=
+  gradedConeClassLiftFT f 𝒞 i RX RE (coneClassFT_mem_range f 𝒞 i RX RE)
 
-/-- The defining property of the finite-type virtual class: `π^*[X]^vir = [C(E)]`. -/
+/-- The defining property of the finite-type generic lift: the bundle pullback is the cone class.
+-/
 @[simp]
-theorem bundlePullbackFT_virtualClassFT' :
-    bundlePullbackFT f i RX RE (virtualClassFT' f 𝒞 i RX RE) =
+theorem bundlePullbackFT_gradedConeClassLiftFT' :
+    bundlePullbackFT f i RX RE (gradedConeClassLiftFT' f 𝒞 i RX RE) =
       𝒞.coneClassAt (dimensionFunction (𝓔.proj ≫ f)) (i + (Nat.card ι : ℤ)) RE :=
-  bundlePullbackFT_virtualClassFT f 𝒞 i RX RE (coneClassFT_mem_range f 𝒞 i RX RE)
+  bundlePullbackFT_gradedConeClassLiftFT f 𝒞 i RX RE (coneClassFT_mem_range f 𝒞 i RX RE)
 
-/-- **Uniqueness of the finite-type virtual class**, under the injectivity `hinj` of the global
+/-- **Uniqueness of the finite-type generic lift**, under the injectivity `hinj` of the global
 flat pullback — the only hypothesis left. -/
-theorem virtualClassFT'_unique (hinj : Function.Injective (bundlePullbackFT f i RX RE))
+theorem gradedConeClassLiftFT'_unique (hinj : Function.Injective (bundlePullbackFT f i RX RE))
     (α : RX.ChowGroup)
     (hα : bundlePullbackFT f i RX RE α =
       𝒞.coneClassAt (dimensionFunction (𝓔.proj ≫ f)) (i + (Nat.card ι : ℤ)) RE) :
-    α = virtualClassFT' f 𝒞 i RX RE :=
-  virtualClass_unique 𝒞 (dimensionFunction f) (dimensionFunction (𝓔.proj ≫ f))
+    α = gradedConeClassLiftFT' f 𝒞 i RX RE :=
+  gradedConeClassLift_unique 𝒞 (dimensionFunction f) (dimensionFunction (𝓔.proj ≫ f))
     (dimensionFunction_bundlePoint f 𝓔) i RX RE hinj (coneClassFT_mem_range f 𝒞 i RX RE) α hα
 
-/-- The symmetric form of `virtualClassFT'_unique`. -/
-theorem eq_virtualClassFT'_of_pullback_eq
+/-- The symmetric form of `gradedConeClassLiftFT'_unique`. -/
+theorem eq_gradedConeClassLiftFT'_of_pullback_eq
     (hinj : Function.Injective (bundlePullbackFT f i RX RE)) (α : RX.ChowGroup)
     (hα : bundlePullbackFT f i RX RE α =
       𝒞.coneClassAt (dimensionFunction (𝓔.proj ≫ f)) (i + (Nat.card ι : ℤ)) RE) :
-    virtualClassFT' f 𝒞 i RX RE = α :=
-  (virtualClassFT'_unique f 𝒞 i RX RE hinj α hα).symm
+    gradedConeClassLiftFT' f 𝒞 i RX RE = α :=
+  (gradedConeClassLiftFT'_unique f 𝒞 i RX RE hinj α hα).symm
 
-/-- **Existence and uniqueness of the virtual class of a compact scheme locally of finite type
+/-- **Existence and uniqueness of the generic lift of a compact scheme locally of finite type
 over a field**: existence is unconditional, uniqueness needs only the injectivity `hinj` of the
 global flat pullback. -/
-theorem existsUnique_virtualClassFT' (hinj : Function.Injective (bundlePullbackFT f i RX RE)) :
+theorem existsUnique_gradedConeClassLiftFT'
+    (hinj : Function.Injective (bundlePullbackFT f i RX RE)) :
     ∃! α : RX.ChowGroup, bundlePullbackFT f i RX RE α =
       𝒞.coneClassAt (dimensionFunction (𝓔.proj ≫ f)) (i + (Nat.card ι : ℤ)) RE :=
-  existsUnique_virtualClassFT f 𝒞 i RX RE hinj (coneClassFT_mem_range f 𝒞 i RX RE)
+  existsUnique_gradedConeClassLiftFT f 𝒞 i RX RE hinj (coneClassFT_mem_range f 𝒞 i RX RE)
 
 end FiniteType
 
-/-! ## Consistency with the affine virtual class -/
+/-! ## Consistency with the affine VFC -/
 
 section AffineConsistency
 
@@ -297,6 +308,7 @@ variable {k R : Type u} [Field k] [Infinite k] [CommRing R] [Algebra k R]
   {E : LinearTwoTermComplex (R ⧸ I)} [Module.Free (R ⧸ I) E.degreeZero]
   [Module.Finite (R ⧸ I) E.degreeZero]
   (φ : LinearTwoTermComplex.Hom E (conormalComplex k R I))
+  (hpot : VirtualClass.AffinePerfectObstructionTheory φ)
   (dimX : DimensionFunction (Spec (CommRingCat.of (R ⧸ I))))
   (dimE : DimensionFunction (bundleData φ).totalSpace)
   (dimC : DimensionFunction (ResolvedCone.bundleSpace φ))
@@ -308,17 +320,18 @@ variable {k R : Type u} [Field k] [Infinite k] [CommRing R] [Algebra k R]
   (RE : RationalEquivalenceSystem (bundleData φ).totalSpace dimE (VirtualClass.coneDegree φ))
   (RC : RationalEquivalenceSystem (ResolvedCone.bundleSpace φ) dimC (VirtualClass.coneDegree φ))
 
-/-- **Consistency with the affine virtual class**, for the virtual class with `hmem` discharged.
+/-- **Consistency with the affine VFC**, for the generic lift with `hmem` discharged.
 For the single-chart global cone datum `GlobalConeAffine.globalConeData φ` attached to an affine
-obstruction datum over a field, `virtualClass'` is the affine virtual class
+obstruction datum over a field, `gradedConeClassLift'` is the generic global lift corresponding to
 `OverField.virtualClass φ`, as soon as the genuine global bundle pullback agrees with the
 transported affine pullback `GlobalConeAffine.chowPullback` of the acceptance test (the
 hypothesis `hmatch`, which is not proved in this repository).
 
-This is `virtualClass_eq_overFieldVirtualClass` with its hypothesis `hmem` replaced by
+This is `gradedConeClassLift_eq_overFieldVirtualClass` with its hypothesis `hmem` replaced by
 `coneClass_mem_range`; the base `Spec (R ⧸ I)` is compact and locally Noetherian, so the only
 hypotheses left are the chart dimension data and `hmatch`. -/
-theorem virtualClass'_eq_overFieldVirtualClass
+theorem gradedConeClassLift'_eq_overFieldVirtualClass
+    (hpot : VirtualClass.AffinePerfectObstructionTheory φ)
     (dimChart : ∀ j : (bundleData φ).J,
       DimensionFunction (Spec (CommRingCat.of Γ(Spec (CommRingCat.of (R ⧸ I)),
         ((bundleData φ).chart j).1))))
@@ -335,10 +348,11 @@ theorem virtualClass'_eq_overFieldVirtualClass
     (hhom : PrincipalDivisorsHomogeneous (bundleData φ).totalSpace dimE)
     (hmatch : bundlePullback (bundleData φ) dimX dimE hshift
       (VirtualClass.virtualDimension φ) RX RE = chowPullback φ dimX dimE dimC hdimC RX RE RC) :
-    virtualClass' (globalConeData φ) dimX dimE hshift (VirtualClass.virtualDimension φ) RX RE
+    gradedConeClassLift' (globalConeData φ) dimX dimE hshift (VirtualClass.virtualDimension φ) RX
+      RE
         dimChart dimChartE hdimChart hdimChartE hdim hhom =
-      OverField.virtualClass φ dimX dimC RX RC :=
-  virtualClass_eq_overFieldVirtualClass φ dimX dimE dimC hdimC hshift RX RE RC hmatch _
+      OverField.virtualClass φ dimX dimC RX RC hpot :=
+  gradedConeClassLift_eq_overFieldVirtualClass φ hpot dimX dimE dimC hdimC hshift RX RE RC hmatch _
 
 end AffineConsistency
 

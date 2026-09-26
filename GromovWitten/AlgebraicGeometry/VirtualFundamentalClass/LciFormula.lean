@@ -214,10 +214,10 @@ theorem virtualClass_eq_fundamental_of_injective
       dimX p = virtualDimension (lciHom k I))
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace (lciHom k I)) dimE)
     (hinj' : Function.Injective (bundlePullback (lciHom k I) dimX dimE RX RE)) :
-    virtualClass (lciHom k I) dimX dimE RX RE hhom hinj' =
+    gradedConeClassLift (lciHom k I) dimX dimE RX RE hhom hinj' =
       RX.quotientMap (cyclesOfDimension.fundamental hpureX) := by
   symm
-  refine eq_virtualClass_of_pullback_eq (lciHom k I) dimX dimE RX RE hhom hinj' _ ?_
+  refine eq_gradedConeClassLift_of_pullback_eq (lciHom k I) dimX dimE RX RE hhom hinj' _ ?_
   rw [bundlePullback, VectorBundle.chowPullbackBundle_quotientMap,
     flatPullbackBundle_fundamental_eq_resolvedConeCycle_of_injective k I hinj dimX dimE hpureX]
   rfl
@@ -248,7 +248,7 @@ theorem lci_formula (x : AffineNormalCone.QuasiregularGenerators R I)
       dimX p = virtualDimension (lciHom k I))
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace (lciHom k I)) dimE)
     (hinj' : Function.Injective (bundlePullback (lciHom k I) dimX dimE RX RE)) :
-    virtualClass (lciHom k I) dimX dimE RX RE hhom hinj' =
+    gradedConeClassLift (lciHom k I) dimX dimE RX RE hhom hinj' =
       RX.quotientMap (cyclesOfDimension.fundamental hpureX) :=
   virtualClass_eq_fundamental_of_injective k I x.normalSheafCoordinateMap_injective dimX dimE RX
     RE hpureX hhom hinj'
@@ -280,10 +280,15 @@ theorem virtualClass_eq_fundamental_of_injective
       (VirtualClass.coneDegree (VirtualClass.lciHom k I)))
     (hpureX : ∀ p : Spec (CommRingCat.of (R ⧸ I)), IsMax p →
       dimX p = VirtualClass.virtualDimension (VirtualClass.lciHom k I)) :
-    virtualClass (VirtualClass.lciHom k I) dimX dimE RX RE =
+    VirtualClass.gradedConeClassLift (VirtualClass.lciHom k I) dimX dimE RX RE
+        (hhomOf (VirtualClass.lciHom k I) dimE)
+        (hinjOf (VirtualClass.lciHom k I) dimX dimE RX RE) =
       RX.quotientMap (cyclesOfDimension.fundamental hpureX) := by
   symm
-  refine eq_virtualClass_of_pullback_eq (VirtualClass.lciHom k I) dimX dimE RX RE _ ?_
+  refine VirtualClass.eq_gradedConeClassLift_of_pullback_eq
+    (VirtualClass.lciHom k I) dimX dimE RX RE
+    (hhomOf (VirtualClass.lciHom k I) dimE)
+    (hinjOf (VirtualClass.lciHom k I) dimX dimE RX RE) _ ?_
   rw [VirtualClass.bundlePullback, VectorBundle.chowPullbackBundle_quotientMap,
     VirtualClass.flatPullbackBundle_fundamental_eq_resolvedConeCycle_of_injective k I hinj dimX
       dimE hpureX]
@@ -303,7 +308,9 @@ theorem lci_formula (x : AffineNormalCone.QuasiregularGenerators R I)
       (VirtualClass.coneDegree (VirtualClass.lciHom k I)))
     (hpureX : ∀ p : Spec (CommRingCat.of (R ⧸ I)), IsMax p →
       dimX p = VirtualClass.virtualDimension (VirtualClass.lciHom k I)) :
-    virtualClass (VirtualClass.lciHom k I) dimX dimE RX RE =
+    VirtualClass.gradedConeClassLift (VirtualClass.lciHom k I) dimX dimE RX RE
+        (hhomOf (VirtualClass.lciHom k I) dimE)
+        (hinjOf (VirtualClass.lciHom k I) dimX dimE RX RE) =
       RX.quotientMap (cyclesOfDimension.fundamental hpureX) :=
   virtualClass_eq_fundamental_of_injective k I x.normalSheafCoordinateMap_injective dimX dimE RX
     RE hpureX

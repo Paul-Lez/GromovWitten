@@ -122,6 +122,23 @@ instance finite_cotangent_of_formallySmooth :
 
 variable [Module.Free (MvPolynomial σ k ⧸ I) I.Cotangent]
 
+omit [Infinite k] [Nontrivial (MvPolynomial σ k ⧸ I)] in
+/-- The perfect obstruction-theory witness for the identity conormal complex. -/
+theorem lciPerfectObstructionTheory :
+    VirtualClass.AffinePerfectObstructionTheory (VirtualClass.lciHom k I) := by
+  exact
+    { ambientSmooth := by infer_instance
+      perfect :=
+        { free_degreeZero := inferInstance
+          finite_degreeZero := finite_cotangent_of_formallySmooth k I
+          free_degreeOne := Module.Free.of_basis
+            ((KaehlerDifferential.mvPolynomialBasis k σ).baseChange
+              (MvPolynomial σ k ⧸ I))
+          finite_degreeOne := Module.Finite.of_basis
+            ((KaehlerDifferential.mvPolynomialBasis k σ).baseChange
+              (MvPolynomial σ k ⧸ I)) }
+      obstruction := PicardCriteria.IsObstructionTheory.id _ }
+
 /-- **The smooth case of the lci formula** (Behrend–Fantechi): for `k` an infinite field and `I`
 an ideal of `R = k[x_1,…,x_n]` such that `S = R/I` is formally smooth over `k`, the virtual
 fundamental class of the identity ("lci") obstruction theory on `X = Spec S` is the class of the
@@ -138,11 +155,12 @@ theorem smooth_lci_formula
       (VirtualClass.coneDegree (VirtualClass.lciHom k I)))
     (hpureX : ∀ p : Spec (CommRingCat.of (MvPolynomial σ k ⧸ I)), IsMax p →
       dimX p = VirtualClass.virtualDimension (VirtualClass.lciHom k I)) :
-    virtualClass (VirtualClass.lciHom k I) dimX dimE RX RE =
+    virtualClass (VirtualClass.lciHom k I) dimX dimE RX RE (lciPerfectObstructionTheory k I) =
       RX.quotientMap (cyclesOfDimension.fundamental hpureX) :=
-  virtualClass_eq_fundamental_of_injective k I
-    (AffineNormalCone.normalSheafCoordinateMap_injective_of_formallySmooth I) dimX dimE RX RE
-    hpureX
+  by
+    exact virtualClass_eq_fundamental_of_injective k I
+      (AffineNormalCone.normalSheafCoordinateMap_injective_of_formallySmooth I) dimX dimE RX RE
+      hpureX
 
 variable [Fintype σ]
 
@@ -159,7 +177,7 @@ theorem smooth_lci_formula'
       (VirtualClass.coneDegree (VirtualClass.lciHom k I)))
     (hpureX : ∀ p : Spec (CommRingCat.of (MvPolynomial σ k ⧸ I)), IsMax p →
       dimX p = (Fintype.card σ : ℤ) - (Module.finrank (MvPolynomial σ k ⧸ I) I.Cotangent : ℤ)) :
-    virtualClass (VirtualClass.lciHom k I) dimX dimE RX RE =
+    virtualClass (VirtualClass.lciHom k I) dimX dimE RX RE (lciPerfectObstructionTheory k I) =
       RX.quotientMap (cyclesOfDimension.fundamental
         (fun p hp => (hpureX p hp).trans (VirtualClass.virtualDimension_lciHom_eq k I).symm)) :=
   smooth_lci_formula k I dimX dimE RX RE _

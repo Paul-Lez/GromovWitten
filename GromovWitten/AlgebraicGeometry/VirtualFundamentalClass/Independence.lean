@@ -27,17 +27,19 @@ same virtual class.
   `productEquiv_comp_productMap`, `ideal_map_bundleEquiv` (the isomorphism of bundles carries
   the ideal of `C(E)` onto the ideal of `C(E')`), `ringEquiv`, `bundleSpaceIso`,
   `coneSchemeIso` and `toBundle_comp_bundleSpaceIso_inv`.
-* The degree-generic virtual class `virtualClassAt`, which records the trivialisation of `E₁`
+* The degree-generic virtual class `gradedConeClassLiftAt`, which records the trivialisation of
+  `E₁`
   and the degree as explicit parameters.  It agrees with `VirtualClass.virtualClass` for the
-  canonical trivialisation and degree (`virtualClassAt_trivialization`, by `rfl`).  This is
+  canonical trivialisation and degree (`gradedConeClassLiftAt_trivialization`, by `rfl`).  This is
   needed because for two different complexes `E`, `E'` the degrees `virtualDimension φ` and
   `virtualDimension φ'` are only propositionally equal, and the two canonical trivialisation
   index types are different types.
 * Isomorphism invariance: `flatPullbackOpen_resolvedConeCycleAt`,
   `chowEquivOfAlgEquiv_resolvedConeClassAt`, `chowPullbackBundle_eq_resolvedConeClassAt_iff`
   (a class on the base is a virtual class for `φ` if and only if it is one for `φ'`, with no
-  injectivity hypothesis), `virtualClassQuotAt_congr` (the canonical classes in
-  `A_i(X) ⧸ ker π^*` agree), `virtualClassAt_congr` and `virtualClass_eq_virtualClassAt`
+  injectivity hypothesis), `gradedConeClassLiftQuotAt_congr` (the canonical classes in
+  `A_i(X) ⧸ ker π^*` agree), `gradedConeClassLiftAt_congr` and
+  `gradedConeClassLift_eq_gradedConeClassLiftAt`
   (the virtual classes themselves agree, under the injectivity hypothesis inherited from
   `Construction.lean`), and `virtualDimension_congr`.
 * Acyclic summands: `acyclicComplex`, `sumAcyclic`, `isObstructionTheory_sumAcyclic`,
@@ -404,7 +406,7 @@ trivialisation `trivialization φ` of `E₁` and lives in degree `virtualDimensi
 the virtual classes of two obstruction theories requires the two degrees and the two
 trivialisation index types to be *the same*, which for two different complexes `E`, `E'` is only
 propositionally true.  The following degree-generic version takes both as parameters; it agrees
-with `virtualClass` for the canonical choices (`virtualClassAt_trivialization`).
+with `virtualClass` for the canonical choices (`gradedConeClassLiftAt_trivialization`).
 -/
 
 section AtDegree
@@ -453,7 +455,7 @@ noncomputable def resolvedConeClassAt : RE.ChowGroup :=
   RE.quotientMap (resolvedConeCycleAt φ dimE (i + (Nat.card ι : ℤ)))
 
 /-- **The virtual class of `φ` computed in the trivialisation `e` and the degree `i`.** -/
-noncomputable def virtualClassAt
+noncomputable def gradedConeClassLiftAt
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (VectorBundle.chowPullbackBundle e dimX dimE i RX RE)) :
     RX.ChowGroup :=
@@ -462,17 +464,17 @@ noncomputable def virtualClassAt
 
 /-- **The defining property of the degree-generic virtual class.** -/
 @[simp]
-theorem chowPullbackBundle_virtualClassAt
+theorem chowPullbackBundle_gradedConeClassLiftAt
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (VectorBundle.chowPullbackBundle e dimX dimE i RX RE)) :
     VectorBundle.chowPullbackBundle e dimX dimE i RX RE
-        (virtualClassAt φ e dimX dimE i RX RE hhom hinj) =
+        (gradedConeClassLiftAt φ e dimX dimE i RX RE hhom hinj) =
       resolvedConeClassAt φ dimE i RE :=
   VectorBundle.pullback_zeroSectionGysin' e dimX dimE i RX RE hhom hinj _
 
 /-- **Existence of a virtual class in the degree-generic setting**, with no injectivity
 hypothesis: the resolved-cone class is a flat pullback from the base. -/
-theorem exists_virtualClassAt
+theorem exists_gradedConeClassLiftAt
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE) :
     ∃ α : RX.ChowGroup, VectorBundle.chowPullbackBundle e dimX dimE i RX RE α =
       resolvedConeClassAt φ dimE i RE :=
@@ -480,7 +482,7 @@ theorem exists_virtualClassAt
 
 /-- **The canonical virtual class** in the degree-generic setting, an element of
 `A_i(X) ⧸ ker π^*`; no injectivity hypothesis is needed. -/
-noncomputable def virtualClassQuotAt
+noncomputable def gradedConeClassLiftQuotAt
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE) :
     RX.ChowGroup ⧸ LinearMap.ker (VectorBundle.chowPullbackBundle e dimX dimE i RX RE) :=
   (VectorBundle.chowQuotientEquiv' e dimX dimE i RX RE hhom).symm
@@ -497,25 +499,25 @@ theorem chowQuotientEquiv_mk
 
 /-- The canonical virtual class is the class of any cycle class pulling back to the
 resolved-cone class. -/
-theorem virtualClassQuotAt_eq_mk
+theorem gradedConeClassLiftQuotAt_eq_mk
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (α : RX.ChowGroup)
     (hα : VectorBundle.chowPullbackBundle e dimX dimE i RX RE α =
       resolvedConeClassAt φ dimE i RE) :
-    virtualClassQuotAt φ e dimX dimE i RX RE hhom = Submodule.Quotient.mk α := by
+    gradedConeClassLiftQuotAt φ e dimX dimE i RX RE hhom = Submodule.Quotient.mk α := by
   apply (VectorBundle.chowQuotientEquiv' e dimX dimE i RX RE hhom).injective
   rw [chowQuotientEquiv_mk, hα]
   exact (VectorBundle.chowQuotientEquiv' e dimX dimE i RX RE hhom).apply_symm_apply _
 
 /-- The degree-generic virtual class is characterised by its defining property. -/
-theorem eq_virtualClassAt_of_pullback_eq
+theorem eq_gradedConeClassLiftAt_of_pullback_eq
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (VectorBundle.chowPullbackBundle e dimX dimE i RX RE))
     (α : RX.ChowGroup)
     (hα : VectorBundle.chowPullbackBundle e dimX dimE i RX RE α =
       resolvedConeClassAt φ dimE i RE) :
-    α = virtualClassAt φ e dimX dimE i RX RE hhom hinj :=
-  hinj (by rw [hα, chowPullbackBundle_virtualClassAt])
+    α = gradedConeClassLiftAt φ e dimX dimE i RX RE hhom hinj :=
+  hinj (by rw [hα, chowPullbackBundle_gradedConeClassLiftAt])
 
 end AtDegree
 
@@ -540,11 +542,11 @@ theorem resolvedConeClassAt_trivialization :
 
 /-- **The degree-generic virtual class in the canonical trivialisation and degree is the virtual
 class of `VirtualFundamentalClass/Construction.lean`.** -/
-theorem virtualClassAt_trivialization
+theorem gradedConeClassLiftAt_trivialization
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (bundlePullback φ dimX dimE RX RE)) :
-    virtualClassAt φ (trivialization φ) dimX dimE (virtualDimension φ) RX RE hhom hinj =
-      virtualClass φ dimX dimE RX RE hhom hinj :=
+    gradedConeClassLiftAt φ (trivialization φ) dimX dimE (virtualDimension φ) RX RE hhom hinj =
+      gradedConeClassLift φ dimX dimE RX RE hhom hinj :=
   rfl
 
 end CanonicalDegree
@@ -721,7 +723,7 @@ The trivialisation of `E'₁` is the one transported from the trivialisation `e`
 both classes live in the same Chow group `RX.ChowGroup`; the homogeneity and injectivity
 hypotheses for `φ'` are the transports of those for `φ`
 (`principalDivisorsHomogeneous_transport`, `injective_chowPullbackBundle_transport`). -/
-theorem virtualClassAt_congr {ι : Type u} [Finite ι]
+theorem gradedConeClassLiftAt_congr {ι : Type u} [Finite ι]
     (ψ : LinearTwoTermComplex.Hom E E')
     (hψ0 : Function.Bijective ψ.degreeZero) (hψ1 : Function.Bijective ψ.degreeOne)
     (hcomp : φ'.degreeZero.comp ψ.degreeZero = φ.degreeZero)
@@ -735,14 +737,14 @@ theorem virtualClassAt_congr {ι : Type u} [Finite ι]
       (i + (Nat.card ι : ℤ)))
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (VectorBundle.chowPullbackBundle e dimX dimE i RX RE)) :
-    virtualClassAt φ e dimX dimE i RX RE hhom hinj =
-      virtualClassAt φ' (trivializationTransport φ φ' ψ hψ0 e) dimX dimE' i RX RE'
+    gradedConeClassLiftAt φ e dimX dimE i RX RE hhom hinj =
+      gradedConeClassLiftAt φ' (trivializationTransport φ φ' ψ hψ0 e) dimX dimE' i RX RE'
         (principalDivisorsHomogeneous_transport φ φ' ψ hψ0 dimE dimE' hhom)
         (injective_chowPullbackBundle_transport φ φ' ψ hψ0 e dimX dimE dimE' i RX RE RE'
           hinj) := by
-  apply eq_virtualClassAt_of_pullback_eq
+  apply eq_gradedConeClassLiftAt_of_pullback_eq
   rw [chowPullbackBundle_transport φ φ' ψ hψ0 e dimX dimE dimE' i RX RE RE',
-    chowPullbackBundle_virtualClassAt,
+    chowPullbackBundle_gradedConeClassLiftAt,
     chowEquivOfAlgEquiv_resolvedConeClassAt φ φ' ψ hψ0 hψ1 hcomp dimE dimE' i RE RE']
 
 
@@ -825,7 +827,7 @@ theorem ker_chowPullbackBundle_transport {ι : Type u} [Finite ι]
 /-- **The canonical virtual classes of two isomorphic obstruction theories agree**, under the
 canonical identification of the two quotients given by `ker_chowPullbackBundle_transport`.  This
 statement carries no injectivity hypothesis. -/
-theorem virtualClassQuotAt_congr {ι : Type u} [Finite ι]
+theorem gradedConeClassLiftQuotAt_congr {ι : Type u} [Finite ι]
     (ψ : LinearTwoTermComplex.Hom E E') (hψ0 : Function.Bijective ψ.degreeZero)
     (hψ1 : Function.Bijective ψ.degreeOne)
     (hcomp : φ'.degreeZero.comp ψ.degreeZero = φ.degreeZero)
@@ -840,12 +842,13 @@ theorem virtualClassQuotAt_congr {ι : Type u} [Finite ι]
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE) :
     Submodule.quotEquivOfEq _ _
         (ker_chowPullbackBundle_transport φ φ' ψ hψ0 e dimX dimE dimE' i RX RE RE')
-        (virtualClassQuotAt φ' (trivializationTransport φ φ' ψ hψ0 e) dimX dimE' i RX RE'
+        (gradedConeClassLiftQuotAt φ' (trivializationTransport φ φ' ψ hψ0 e) dimX dimE' i RX RE'
           (principalDivisorsHomogeneous_transport φ φ' ψ hψ0 dimE dimE' hhom)) =
-      virtualClassQuotAt φ e dimX dimE i RX RE hhom := by
-  obtain ⟨α, hα⟩ := exists_virtualClassAt φ e dimX dimE i RX RE hhom
-  rw [virtualClassQuotAt_eq_mk φ e dimX dimE i RX RE hhom α hα,
-    virtualClassQuotAt_eq_mk φ' (trivializationTransport φ φ' ψ hψ0 e) dimX dimE' i RX RE' _ α
+      gradedConeClassLiftQuotAt φ e dimX dimE i RX RE hhom := by
+  obtain ⟨α, hα⟩ := exists_gradedConeClassLiftAt φ e dimX dimE i RX RE hhom
+  rw [gradedConeClassLiftQuotAt_eq_mk φ e dimX dimE i RX RE hhom α hα,
+    gradedConeClassLiftQuotAt_eq_mk φ' (trivializationTransport φ φ' ψ hψ0 e) dimX dimE' i RX RE' _
+      α
       ((chowPullbackBundle_eq_resolvedConeClassAt_iff φ φ' ψ hψ0 hψ1 hcomp e dimX dimE dimE' i
         RX RE RE' α).mp hα),
     Submodule.quotEquivOfEq_mk]
@@ -854,7 +857,7 @@ theorem virtualClassQuotAt_congr {ι : Type u} [Finite ι]
 /-- **A common virtual class for two isomorphic obstruction theories**, with no injectivity
 hypothesis: one and the same class on the base pulls back to the resolved-cone class of `φ` and
 to the resolved-cone class of `φ'`. -/
-theorem exists_virtualClassAt_congr {ι : Type u} [Finite ι]
+theorem exists_gradedConeClassLiftAt_congr {ι : Type u} [Finite ι]
     (ψ : LinearTwoTermComplex.Hom E E') (hψ0 : Function.Bijective ψ.degreeZero)
     (hψ1 : Function.Bijective ψ.degreeOne)
     (hcomp : φ'.degreeZero.comp ψ.degreeZero = φ.degreeZero)
@@ -871,7 +874,7 @@ theorem exists_virtualClassAt_congr {ι : Type u} [Finite ι]
       VectorBundle.chowPullbackBundle e dimX dimE i RX RE α = resolvedConeClassAt φ dimE i RE ∧
         VectorBundle.chowPullbackBundle (trivializationTransport φ φ' ψ hψ0 e) dimX dimE' i RX
           RE' α = resolvedConeClassAt φ' dimE' i RE' := by
-  obtain ⟨α, hα⟩ := exists_virtualClassAt φ e dimX dimE i RX RE hhom
+  obtain ⟨α, hα⟩ := exists_gradedConeClassLiftAt φ e dimX dimE i RX RE hhom
   exact ⟨α, hα, (chowPullbackBundle_eq_resolvedConeClassAt_iff φ φ' ψ hψ0 hψ1 hcomp e dimX dimE
     dimE' i RX RE RE' α).mp hα⟩
 
@@ -879,7 +882,7 @@ theorem exists_virtualClassAt_congr {ι : Type u} [Finite ι]
 `VirtualFundamentalClass/Construction.lean`.**  The virtual class built from the canonical
 trivialisation of `E₁` equals the virtual class of the isomorphic obstruction theory `φ'`
 computed in the transported trivialisation of `E'₁`. -/
-theorem virtualClass_eq_virtualClassAt
+theorem gradedConeClassLift_eq_gradedConeClassLiftAt
     (ψ : LinearTwoTermComplex.Hom E E') (hψ0 : Function.Bijective ψ.degreeZero)
     (hψ1 : Function.Bijective ψ.degreeOne)
     (hcomp : φ'.degreeZero.comp ψ.degreeZero = φ.degreeZero)
@@ -892,14 +895,14 @@ theorem virtualClass_eq_virtualClassAt
       (virtualDimension φ + (bundleRank φ : ℤ)))
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (bundlePullback φ dimX dimE RX RE)) :
-    virtualClass φ dimX dimE RX RE hhom hinj =
-      virtualClassAt φ' (trivializationTransport φ φ' ψ hψ0 (trivialization φ)) dimX dimE'
+    gradedConeClassLift φ dimX dimE RX RE hhom hinj =
+      gradedConeClassLiftAt φ' (trivializationTransport φ φ' ψ hψ0 (trivialization φ)) dimX dimE'
         (virtualDimension φ) RX RE'
         (principalDivisorsHomogeneous_transport φ φ' ψ hψ0 dimE dimE' hhom)
         (injective_chowPullbackBundle_transport φ φ' ψ hψ0 (trivialization φ) dimX dimE dimE'
           (virtualDimension φ) RX RE RE' hinj) := by
-  rw [← virtualClassAt_trivialization φ dimX dimE RX RE hhom hinj]
-  exact virtualClassAt_congr φ φ' ψ hψ0 hψ1 hcomp (trivialization φ) dimX dimE dimE'
+  rw [← gradedConeClassLiftAt_trivialization φ dimX dimE RX RE hhom hinj]
+  exact gradedConeClassLiftAt_congr φ φ' ψ hψ0 hψ1 hcomp (trivialization φ) dimX dimE dimE'
     (virtualDimension φ) RX RE RE' hhom hinj
 
 end Independence

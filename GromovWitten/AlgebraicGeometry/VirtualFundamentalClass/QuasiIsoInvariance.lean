@@ -19,27 +19,29 @@ proves that `φ` and `ψ` define the *same* virtual fundamental class.
 The proof is the chain of four equalities of Behrend–Fantechi, Proposition 5.3, assembled from
 the three previous layers:
 
-1. `VirtualClass.virtualClassAt_sumAcyclic` (round 14): the class of `ψ` equals the class of
+1. `VirtualClass.gradedConeClassLiftAt_sumAcyclic` (round 14): the class of `ψ` equals the class of
    `Ψ := ψ ⊕ 0 : F ⊕ [E⁰ = E⁰] ⟶ L`;
-2. `HomotopyInvariance.virtualClassAt_congr` together with
+2. `HomotopyInvariance.gradedConeClassLiftAt_congr` together with
    `LinearTwoTermComplex.QuasiIsoSplitting.coprod_comp_iso_degreeZero`: the class of `Ψ` equals
    the class of `Ψ' := Φ ∘ Θ`, where `Θ : F ⊕ [E⁰ = E⁰] ⟶ E ⊕ [F⁰ = F⁰]` is the isomorphism
    produced by the splitting of `f` and `Φ := φ ⊕ 0`, because `Ψ'` and `Ψ` differ in degree `-1`
    by a chain homotopy;
-3. `VirtualClass.virtualClassAt_congr` (round 14, isomorphism invariance): the class of `Ψ'`
+3. `VirtualClass.gradedConeClassLiftAt_congr` (round 14, isomorphism invariance): the class of `Ψ'`
    equals the class of `Φ`, the compatibility `Φ⁻¹ ∘ Θ⁻¹ = Ψ'⁻¹` being `rfl`;
-4. `VirtualClass.virtualClassAt_sumAcyclic` again: the class of `Φ` equals the class of `φ`.
+4. `VirtualClass.gradedConeClassLiftAt_sumAcyclic` again: the class of `Φ` equals the class of `φ`.
 
 ## Main results
 
-* `virtualClassAt_eq_of_quasiIso`: the chain above, for arbitrary trivialisations and an
+* `gradedConeClassLiftAt_eq_of_quasiIso`: the chain above, for arbitrary trivialisations and an
   arbitrary degree `i`.  The classes of `φ` and of `ψ` live in the same Chow group `RX.ChowGroup`
   and are equal, for *arbitrary* proofs of the homogeneity and injectivity hypotheses of the two
   sides (both are `Prop`s, so proof irrelevance applies).
-* `virtualClass_eq_of_quasiIso`: the same statement for the canonical trivialisations and the
+* `gradedConeClassLiftAt_eq_of_quasiIso_canonical`: the same statement for the canonical
+  trivialisations and the
   canonical degree, so that the left-hand side is literally
-  `VirtualClass.virtualClass φ dimX dimE RX RE hhomE hinjE`.
-* `virtualClassAt_eq_of_homotopyEquivalence`, `virtualClassAt_eq_of_quasiIso_homotopy`: the two
+  `VirtualClass.gradedConeClassLift φ dimX dimE RX RE hhomE hinjE`.
+* `gradedConeClassLiftAt_eq_of_homotopyEquivalence`,
+  `gradedConeClassLiftAt_eq_of_quasiIso_homotopy`: the two
   corollaries, for a chain-homotopy equivalence `E ≃ F` and for compatibility of `φ` and `ψ`
   only up to a degree-zero homotopy.
 * `isObstructionTheory_comp_of_isQuasiIsomorphism`, `isObstructionTheory_sumAcyclic_comp_iso`:
@@ -157,7 +159,7 @@ variable [Module.Free (R ⧸ I) F.degreeOne]
 /-- **The degree `-1` homotopy formula for the two obstruction theories on `F ⊕ [E⁰ = E⁰]`.**
 Transporting `Φ = φ ⊕ 0` along the splitting isomorphism `Θ` gives `Ψ = ψ ⊕ 0` up to the
 degree `-1` part of the chain homotopy `LinearTwoTermComplex.QuasiIsoSplitting.homotopy`.  This
-is exactly the hypothesis shape consumed by `HomotopyInvariance.virtualClassAt_congr`. -/
+is exactly the hypothesis shape consumed by `HomotopyInvariance.gradedConeClassLiftAt_congr`. -/
 theorem degreeZero_sumAcyclic_comp_iso
     (φ : LinearTwoTermComplex.Hom E (conormalComplex k R I))
     (ψ : LinearTwoTermComplex.Hom F (conormalComplex k R I))
@@ -212,7 +214,7 @@ the dimension function `dim₁`, the rational-equivalence system `R₁`) and of
 injectivity `hinj₁` for `F ⊕ [E⁰ = E⁰]`, and the two rank identities `hcard₁`, `hcard₂`.  The
 homogeneity and injectivity hypotheses `hhomE`, `hinjE`, `hhomF`, `hinjF` appearing in the two
 sides are arbitrary: they are `Prop`s, so the conclusion is independent of their proofs. -/
-theorem virtualClassAt_eq_of_quasiIso
+theorem gradedConeClassLiftAt_eq_of_quasiIso
     (f : LinearTwoTermComplex.Hom E F) (hf : f.IsQuasiIsomorphism)
     (hcomp : ψ.degreeZero.comp f.degreeZero = φ.degreeZero)
     {κE κF κ₁ : Type u} [Finite κE] [Finite κF] [Finite κ₁]
@@ -248,25 +250,26 @@ theorem virtualClassAt_eq_of_quasiIso
     (hinjE : Function.Injective (VectorBundle.chowPullbackBundle eE dimX dimE i RX RE))
     (hhomF : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace ψ) dimF)
     (hinjF : Function.Injective (VectorBundle.chowPullbackBundle eF dimX dimF i RX RF)) :
-    VirtualClass.virtualClassAt φ eE dimX dimE i RX RE hhomE hinjE =
-      VirtualClass.virtualClassAt ψ eF dimX dimF i RX RF hhomF hinjF := by
+    VirtualClass.gradedConeClassLiftAt φ eE dimX dimE i RX RE hhomE hinjE =
+      VirtualClass.gradedConeClassLiftAt ψ eF dimX dimF i RX RF hhomF hinjF := by
   have hΘ0 := LinearTwoTermComplex.QuasiIsoSplitting.iso_degreeZero_bijective f hf
   have hΘ1 := LinearTwoTermComplex.QuasiIsoSplitting.iso_degreeOne_bijective f hf
   have hhomotopy := degreeZero_sumAcyclic_comp_iso φ ψ f hf hcomp
-  have step1 := VirtualClass.virtualClassAt_sumAcyclic ψ E.degreeOne eF e₁ dimX dimF dim₁ i
+  have step1 := VirtualClass.gradedConeClassLiftAt_sumAcyclic ψ E.degreeOne eF e₁ dimX dimF dim₁ i
     RX RF R₁ hcard₁ hhom₁ hinj₁
-  have step2 := HomotopyInvariance.virtualClassAt_congr (VirtualClass.sumAcyclic ψ E.degreeOne)
+  have step2 := HomotopyInvariance.gradedConeClassLiftAt_congr
+    (VirtualClass.sumAcyclic ψ E.degreeOne)
     ((VirtualClass.sumAcyclic φ F.degreeOne).comp
       (LinearTwoTermComplex.QuasiIsoSplitting.iso f hf))
     (LinearTwoTermComplex.QuasiIsoSplitting.homotopy f hf ψ) hhomotopy e₁ dimX dim₁ i RX R₁
     hhom₁ hinj₁
-  have step3 := VirtualClass.virtualClassAt_congr
+  have step3 := VirtualClass.gradedConeClassLiftAt_congr
     ((VirtualClass.sumAcyclic φ F.degreeOne).comp
       (LinearTwoTermComplex.QuasiIsoSplitting.iso f hf))
     (VirtualClass.sumAcyclic φ F.degreeOne)
     (LinearTwoTermComplex.QuasiIsoSplitting.iso f hf) hΘ0 hΘ1 rfl e₁ dimX dim₁ dim₂ i RX R₁ R₂
     hhom₁ hinj₁
-  have step4 := VirtualClass.virtualClassAt_sumAcyclic φ F.degreeOne eE
+  have step4 := VirtualClass.gradedConeClassLiftAt_sumAcyclic φ F.degreeOne eE
     (VirtualClass.trivializationTransport
       ((VirtualClass.sumAcyclic φ F.degreeOne).comp
         (LinearTwoTermComplex.QuasiIsoSplitting.iso f hf))
@@ -288,7 +291,7 @@ theorem virtualClassAt_eq_of_quasiIso
 /-- **Quasi-isomorphism invariance for a chain-homotopy equivalence.**  If `e : E ≃ F` is a
 chain-homotopy equivalence with `ψ⁻¹ ∘ e.hom⁻¹ = φ⁻¹`, then `φ` and `ψ` have the same virtual
 class. -/
-theorem virtualClassAt_eq_of_homotopyEquivalence
+theorem gradedConeClassLiftAt_eq_of_homotopyEquivalence
     (he : LinearTwoTermComplex.HomotopyEquivalence E F)
     (hcomp : ψ.degreeZero.comp he.hom.degreeZero = φ.degreeZero)
     {κE κF κ₁ : Type u} [Finite κE] [Finite κF] [Finite κ₁]
@@ -324,16 +327,17 @@ theorem virtualClassAt_eq_of_homotopyEquivalence
     (hinjE : Function.Injective (VectorBundle.chowPullbackBundle eE dimX dimE i RX RE))
     (hhomF : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace ψ) dimF)
     (hinjF : Function.Injective (VectorBundle.chowPullbackBundle eF dimX dimF i RX RF)) :
-    VirtualClass.virtualClassAt φ eE dimX dimE i RX RE hhomE hinjE =
-      VirtualClass.virtualClassAt ψ eF dimX dimF i RX RF hhomF hinjF :=
-  virtualClassAt_eq_of_quasiIso φ ψ he.hom he.isQuasiIsomorphism hcomp eE eF e₁ dimX dimE dimF
+    VirtualClass.gradedConeClassLiftAt φ eE dimX dimE i RX RE hhomE hinjE =
+      VirtualClass.gradedConeClassLiftAt ψ eF dimX dimF i RX RF hhomF hinjF :=
+  gradedConeClassLiftAt_eq_of_quasiIso φ ψ he.hom he.isQuasiIsomorphism hcomp eE eF e₁ dimX dimE
+    dimF
     dim₁ dim₂ i RX RE RF R₁ R₂ hcard₁ hcard₂ hhom₁ hinj₁ hhomE hinjE hhomF hinjF
 
 /-- **Quasi-isomorphism invariance when `φ` and `ψ` are compatible only up to a degree-zero
 homotopy.**  If `ψ⁻¹ ∘ f⁻¹ = φ⁻¹ + h ∘ d_E` for some `h : E⁰ →ₗ I/I²`, then `φ` and `ψ` still
 have the same virtual class: the theory `ψ ∘ f` is homotopic to `φ` in the sense of
-`HomotopyInvariance.virtualClassAt_congr` and is strictly compatible with `ψ`. -/
-theorem virtualClassAt_eq_of_quasiIso_homotopy
+`HomotopyInvariance.gradedConeClassLiftAt_congr` and is strictly compatible with `ψ`. -/
+theorem gradedConeClassLiftAt_eq_of_quasiIso_homotopy
     (f : LinearTwoTermComplex.Hom E F) (hf : f.IsQuasiIsomorphism)
     (h : E.degreeOne →ₗ[R ⧸ I] (conormalComplex k R I).degreeZero)
     (hcomp : ψ.degreeZero.comp f.degreeZero = φ.degreeZero + h.comp E.differential)
@@ -370,11 +374,11 @@ theorem virtualClassAt_eq_of_quasiIso_homotopy
     (hinjE : Function.Injective (VectorBundle.chowPullbackBundle eE dimX dimE i RX RE))
     (hhomF : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace ψ) dimF)
     (hinjF : Function.Injective (VectorBundle.chowPullbackBundle eF dimX dimF i RX RF)) :
-    VirtualClass.virtualClassAt φ eE dimX dimE i RX RE hhomE hinjE =
-      VirtualClass.virtualClassAt ψ eF dimX dimF i RX RF hhomF hinjF := by
-  have hstep := HomotopyInvariance.virtualClassAt_congr φ (ψ.comp f) h hcomp eE dimX dimE i
+    VirtualClass.gradedConeClassLiftAt φ eE dimX dimE i RX RE hhomE hinjE =
+      VirtualClass.gradedConeClassLiftAt ψ eF dimX dimF i RX RF hhomF hinjF := by
+  have hstep := HomotopyInvariance.gradedConeClassLiftAt_congr φ (ψ.comp f) h hcomp eE dimX dimE i
     RX RE hhomE hinjE
-  have hmain := virtualClassAt_eq_of_quasiIso (ψ.comp f) ψ f hf rfl eE eF e₁ dimX dimE dimF
+  have hmain := gradedConeClassLiftAt_eq_of_quasiIso (ψ.comp f) ψ f hf rfl eE eF e₁ dimX dimE dimF
     dim₁ dim₂ i RX RE RF R₁ R₂ hcard₁ hcard₂ hhom₁ hinj₁ hhomE hinjE hhomF hinjF
   exact hstep.symm.trans hmain
 
@@ -409,17 +413,17 @@ theorem virtualDimension_eq_of_quasiIso
 trivialisations.**
 
 The left-hand side is the virtual fundamental class
-`VirtualClass.virtualClass φ dimX dimE RX RE hhomE hinjE` of
+`VirtualClass.gradedConeClassLift φ dimX dimE RX RE hhomE hinjE` of
 `VirtualFundamentalClass/Construction.lean`.  The right-hand side is the virtual class of `ψ`,
 computed in the canonical trivialisation of `F₁` and in the degree `virtualDimension φ`; by
 `virtualDimension_eq_of_quasiIso` this degree is `virtualDimension ψ`, so by
-`VirtualClass.virtualClassAt_trivialization` the right-hand side is the virtual class of `ψ`
+`VirtualClass.gradedConeClassLiftAt_trivialization` the right-hand side is the virtual class of `ψ`
 in the sense of `Construction.lean` as well.  (It cannot be *written* as
 `VirtualClass.virtualClass ψ …` here, because the degree of `RX` would then be the
 syntactically different integer `virtualDimension ψ`.)
 
 The remaining hypotheses are those of the intermediate complex `F ⊕ [E⁰ = E⁰]`. -/
-theorem virtualClass_eq_of_quasiIso
+theorem gradedConeClassLiftAt_eq_of_quasiIso_canonical
     (f : LinearTwoTermComplex.Hom E F) (hf : f.IsQuasiIsomorphism)
     (hcomp : ψ.degreeZero.comp f.degreeZero = φ.degreeZero)
     (dimX : DimensionFunction (Spec (CommRingCat.of (R ⧸ I))))
@@ -453,11 +457,11 @@ theorem virtualClass_eq_of_quasiIso
     (hhomF : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace ψ) dimF)
     (hinjF : Function.Injective (VectorBundle.chowPullbackBundle
       (VirtualClass.trivialization ψ) dimX dimF (VirtualClass.virtualDimension φ) RX RF)) :
-    VirtualClass.virtualClass φ dimX dimE RX RE hhomE hinjE =
-      VirtualClass.virtualClassAt ψ (VirtualClass.trivialization ψ) dimX dimF
+    VirtualClass.gradedConeClassLift φ dimX dimE RX RE hhomE hinjE =
+      VirtualClass.gradedConeClassLiftAt ψ (VirtualClass.trivialization ψ) dimX dimF
         (VirtualClass.virtualDimension φ) RX RF hhomF hinjF := by
-  rw [← VirtualClass.virtualClassAt_trivialization φ dimX dimE RX RE hhomE hinjE]
-  exact virtualClassAt_eq_of_quasiIso φ ψ f hf hcomp (VirtualClass.trivialization φ)
+  rw [← VirtualClass.gradedConeClassLiftAt_trivialization φ dimX dimE RX RE hhomE hinjE]
+  exact gradedConeClassLiftAt_eq_of_quasiIso φ ψ f hf hcomp (VirtualClass.trivialization φ)
     (VirtualClass.trivialization ψ)
     (VirtualClass.trivialization (VirtualClass.sumAcyclic ψ E.degreeOne))
     dimX dimE dimF dim₁ dim₂ (VirtualClass.virtualDimension φ) RX RE RF R₁ R₂

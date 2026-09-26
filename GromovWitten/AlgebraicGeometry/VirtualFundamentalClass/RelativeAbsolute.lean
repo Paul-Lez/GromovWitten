@@ -36,8 +36,8 @@ cut out by the *relative* datum.
 * `compareMap φ`: the algebra map `relProductRing φ → ResolvedCone.productRing (absHom φ)` built
   from the tangent coaction of `Cones/NormalConeAction.lean` in the `τ`-directions, and its
   retraction `compareRetraction φ`.
-* `relConeCycle φ dimE d`, `relativeVirtualClass φ …`: the cycle of the relative resolved cone
-  and the relative virtual class.
+* `relConeCycle φ dimE d`, `relativeGradedConeClassLift φ …`: the cycle of the relative resolved
+  cone and the relative graded cone-class lift.
 
 ## Main results
 
@@ -48,7 +48,7 @@ cut out by the *relative* datum.
 * `compareMap_injective`, `productMap_absHom`: the comparison map is injective and identifies the
   coordinate-ring map of the absolute datum with that of the relative datum.
 * `ideal_absHom : ResolvedCone.ideal (absHom φ) = ideal' φ`: **the main theorem**.
-* `resolvedConeCycleAt_absHom`, `virtualClassAt_absHom`: the cycle-level and Chow-level
+* `resolvedConeCycleAt_absHom`, `gradedConeClassLiftAt_absHom`: the cycle-level and Chow-level
   consequences, the latter stating that the virtual class of the absolute obstruction theory is
   the relative virtual class, and `virtualDimension_absHom`, the shift of the virtual dimension
   by `#τ = dim Y`.
@@ -447,7 +447,7 @@ variable (RE : RationalEquivalenceSystem (ResolvedCone.bundleSpace (absHom φ)) 
 
 /-- **The relative virtual class** of a relative obstruction datum: the Gysin image of the class
 of the resolved cone of the relative datum. -/
-noncomputable def relativeVirtualClass
+noncomputable def relativeGradedConeClassLift
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace (absHom φ)) dimE)
     (hinj : Function.Injective (VectorBundle.chowPullbackBundle e dimX dimE i RX RE)) :
     RX.ChowGroup :=
@@ -457,11 +457,11 @@ noncomputable def relativeVirtualClass
 /-- **The virtual class of the absolute obstruction theory is the relative virtual class.**
 This is the affine model of Behrend–Fantechi's comparison of the virtual classes of a relative
 and of the associated absolute obstruction theory. -/
-theorem virtualClassAt_absHom
+theorem gradedConeClassLiftAt_absHom
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace (absHom φ)) dimE)
     (hinj : Function.Injective (VectorBundle.chowPullbackBundle e dimX dimE i RX RE)) :
-    VirtualClass.virtualClassAt (absHom φ) e dimX dimE i RX RE hhom hinj =
-      relativeVirtualClass φ e dimX dimE i RX RE hhom hinj := by
+    VirtualClass.gradedConeClassLiftAt (absHom φ) e dimX dimE i RX RE hhom hinj =
+      relativeGradedConeClassLift φ e dimX dimE i RX RE hhom hinj := by
   have h : VirtualClass.resolvedConeClassAt (absHom φ) dimE i RE =
       RE.quotientMap (relConeCycle φ dimE (i + (Nat.card ι : ℤ))) :=
     congrArg RE.quotientMap (resolvedConeCycleAt_absHom φ dimE (i + (Nat.card ι : ℤ)))
