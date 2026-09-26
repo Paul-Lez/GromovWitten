@@ -448,6 +448,13 @@ Implemented APIs include:
   finite type over a field with no hypothesis, and it is the unique class with `π^*[X]^vir = [C(E)]`
   when the obstruction bundle has a global trivialisation
   (`GlobalVirtualClassSurjective.lean`, `GlobalVirtualClassUnconditional.lean`);
+- the lci formula for the virtual class (Layer 7): for the identity obstruction theory on the
+  conormal complex of a quasi-regular ideal, the resolved cone is the whole obstruction bundle and
+  `[X]^vir = [X]` (`VirtualFundamentalClass/LciFormula.lean`: `VirtualClass.lci_formula`,
+  `OverField.lci_formula`); for a regular sequence in a polynomial ring over an infinite field the
+  formula holds with no hypothesis at all (`VirtualFundamentalClass/LciFormulaPure.lean`:
+  `OverField.lci_formula_polynomial`, with the purity of `Spec (R⧸I)` from
+  `height_eq_length_of_isWeaklyRegular` and the basis of `I/I²` from `QuasiregularGenerators.cotangentBasis`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
