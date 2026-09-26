@@ -442,6 +442,9 @@ Implemented APIs include:
   and the reduction of the descent of `c₁` through rational equivalence to the symmetric identity for a
   section with no common support components with the divisor (`IntersectionTheory/FirstChernClassDescent.lean`:
   `Scheme.IsUnitAt`, `RationalSection.restrict`, `SymmetricIdentity`, `killsRelations_of_symmetricIdentity`);
+- the affine moving lemma for rational sections (Layer 2): one unit of the fraction field of a Noetherian
+  domain makes finitely many prescribed units local units at finitely many codimension-one primes
+  simultaneously (`Algebra/SemilocalMoving.lean`: `exists_unit_mul_isUnit_atPrime`);
 - relative `Spec` of an affine morphism and trivial bundles (Layer 1): `AlgebraData.ofAffineHom`,
   `relativeSpecOfAffineHomIso`, morphisms of relative `Spec`s from morphisms over the base
   (`RelativeSpecAffineHom.lean`); `trivialData X ι`, `GlobalTrivialisation`, constant sections and

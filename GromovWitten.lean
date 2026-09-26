@@ -311,3 +311,4 @@ import GromovWitten.AlgebraicGeometry.IntersectionTheory.LineBundleData
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.FirstChernClass
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.DivisorSymmetryAffine
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.FirstChernClassDescent
+import GromovWitten.Algebra.SemilocalMoving
