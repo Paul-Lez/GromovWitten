@@ -176,6 +176,9 @@ Implemented APIs include:
 - the connecting map `h⁰(K'') → h¹(K')` of a short exact sequence of two-term complexes agrees with
   Mathlib's connecting homomorphism of the associated short exact sequence of cochain complexes
   (`Cones/DeltaComparison.lean`: `delta_eq_δ`, `injective_delta_iff`);
+- the full six-term correspondence: naturality of the homology identifications and the equivalence of each
+  exactness statement of the two-term sequence with Mathlib's long exact homology sequence
+  (`Cones/DeltaComparisonSequence.lean`: `homology_exact_sequence`);
 - flat local extensions with `m_R·S = m_S` preserve the order of vanishing without any
   unramifiedness, giving the equality of orders at bundle points and the principal-divisor
   comparison `π^* div(f) = div(π^* f)` for the flat pullback along an affine vector bundle over
