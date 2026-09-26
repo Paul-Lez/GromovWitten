@@ -264,6 +264,11 @@ Implemented APIs include:
   finite-sum distributivity statement;
 - the intrinsic pullback sequence of Picard groupoids for a tower `R → S → T`, unconditional
   when `S` is formally smooth over `R` and `T` is flat and formally smooth over `S`;
+- the affine compatible obstruction-theory square (Layer 9): the Jacobi–Zariski triangle of
+  `k → k[x_τ] → R⧸I` and the sequence `0 → E_Y ⊗ 𝒪_X → absComplex φ → E → 0` as degreewise short exact
+  sequences with commuting squares, the two-out-of-three property of obstruction theories and the intrinsic
+  pullback sequences of Picard groupoids of both rows (`VirtualFundamentalClass/RelativeAbsoluteTriangle.lean`:
+  `CompatibleSquare`, `isObstructionTheory_absHom_iff_and_id`);
 - the transitivity long exact sequence of the truncated cotangent complex for a tower `R → S → T`
   (Layer 3): the flat base-change arrow on `H⁻¹` and its exactness complete the Jacobi–Zariski sequence,
   bundled as `TransitivitySequence` with all exactness proved; étale base change of `H⁰` is an isomorphism
