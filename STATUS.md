@@ -448,6 +448,15 @@ Implemented APIs include:
   finite type over a field with no hypothesis, and it is the unique class with `π^*[X]^vir = [C(E)]`
   when the obstruction bundle has a global trivialisation
   (`GlobalVirtualClassSurjective.lean`, `GlobalVirtualClassUnconditional.lean`);
+- towards the virtual degree (Layer 7): the degree map on rational zero-cycles of a quasi-compact scheme
+  locally of finite type over a field with residue degrees positive at closed points
+  (`IntersectionTheory/ZeroCycleDegree.lean`), Fulton's affine length formula
+  `∑_m [κ(m):k]·ord_{A_m}(a) = dim_k(A/(a))` (`IntersectionTheory/AffineDegreeFormula.lean`), and the
+  order-of-vanishing calculus for finite extensions of one-dimensional local domains: Lemma A.2.3 in general
+  (`Algebra/OrderFiniteExtension.lean`), the semilocal length formula (`Algebra/OrderSemilocal.lean`) and
+  Example A.3.1 for finite birational extensions (`Algebra/OrderBirational.lean`: `OrderBirational.ord_eq_finsum`),
+  the scheme-level formula `deg (div a) = dim_k(A/(a))` on an integral affine curve and the invariance of the
+  degree under closed-immersion pushforward (`IntersectionTheory/AffineDegreeScheme.lean`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as

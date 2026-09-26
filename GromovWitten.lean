@@ -307,3 +307,9 @@ import GromovWitten.AlgebraicGeometry.Curves.StableReduction.StableReduction
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.DecoratedGraph
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Clutching
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Examples
+import GromovWitten.Algebra.OrderFiniteExtension
+import GromovWitten.Algebra.OrderSemilocal
+import GromovWitten.Algebra.OrderBirational
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.ZeroCycleDegree
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.AffineDegreeFormula
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.AffineDegreeScheme
