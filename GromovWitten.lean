@@ -372,3 +372,5 @@ import GromovWitten.AlgebraicGeometry.Stacks.DeligneMumfordCriterion
 import GromovWitten.AlgebraicGeometry.Stacks.TorsorPushoutFunctoriality
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackGroupMaps
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackAlgebraicAPI
+import GromovWitten.AlgebraicGeometry.Stacks.StrongTransOfDiscrete
+import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackAtlas

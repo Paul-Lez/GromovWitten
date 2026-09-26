@@ -270,6 +270,9 @@ Implemented APIs include:
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- the atlas map `U → [U/G]` as a stack morphism whose fibre over a torsor is the torsor, with a generic
+  componentwise constructor of strong transformations on locally discrete bicategories
+  (`Stacks/QuotientStackAtlas.lean`, `Stacks/StrongTransOfDiscrete.lean`);
 - the quotient stacks `[U/G]` and `BG` are `FppfStack`s: the fibre universe of `FppfStack` was raised to
   `Cat.{u+1, u+1}` with a `ULift`-based represented stack, so they inherit the stack-morphism, chart,
   algebraicity and inertia API (`Stacks/Algebraic.lean`, `Stacks/QuotientStackAlgebraicAPI.lean`);
