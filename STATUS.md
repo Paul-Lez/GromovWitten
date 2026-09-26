@@ -144,6 +144,12 @@ Implemented APIs include:
   model of the same curve, flat by torsion-freeness of the Rees charts and with the generic fibre
   untouched, and the projection is a proper modification of models; finite chains of such
   blowups compose to proper modifications and preserve properness;
+- the normalisation of a model of a curve over a DVR is again a model: flatness of the normalisation over
+  the DVR is proved unconditionally (flat ⟺ injective into a domain over a Bézout domain, chart by chart on
+  Mathlib's normalisation cover), and with finiteness of the normalisation and the generic-fibre isomorphism
+  as explicit hypotheses `Model.normalize`/`Model.normalizeModification` are constructed
+  (`Curves/StableReduction/ModelNormalization.lean`); the fibre product of two modifications of a model with
+  its proper projections and proper structure map (`Curves/StableReduction/CommonModification.lean`);
 - `Proj` commutes with arbitrary base change: a graded map which is a base change in every
   degree induces a cartesian square of `Proj`s over the spectra of the base rings, with the
   affine chart comparisons proved bijective by clearing denominators;
