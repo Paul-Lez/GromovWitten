@@ -270,6 +270,10 @@ Implemented APIs include:
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- the presentation groupoid `U ×_X U ⇉ U` of an atlas as a groupoid object with its unit, inverse and
+  associativity laws as 2-cells, tied to the fibrewise groupoids (`Stacks/PresentationGroupoidObject.lean`,
+  `Stacks/PresentationGroupoidLaws.lean`), and common scheme atlases with fully faithful groupoid
+  comparison functors (`Stacks/SchemeAtlasRefinement*.lean`);
 - coherent cohomology `Hⁿ(X, M)` of `𝒪_X`-modules as Mathlib's `Ext`-theoretic sheaf
   cohomology, with its `Γ(X, 𝒪_X)`- and `k`-module structure constructed from multiplication
   by global functions and additivity of the cohomology functor; the arithmetic genus
