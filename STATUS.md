@@ -339,6 +339,9 @@ Implemented APIs include:
 - the affine cone quotient `[C/E]` is realised as a torsor prestack (fully faithful comparison
   with the trivial torsors), base changes and fibre products of cone stacks are constructed on
   genuine two-pullbacks of stacks, unconditionally for coherent cone stacks;
+- the cone-stack structure of the affine cone quotient for every formally étale chart of the ambient
+  polynomial ring, through the étale cone action (`Cones/EtaleChartConeStack.lean`); gluing over all local
+  embeddings needs base change of cone stacks and remains open;
 - the tangent action on the affine normal cone is an honest `ConeAction` (Vistoli's lemma in
   cone-action form), with the lci specialisation `𝔠 = 𝔑` and the smooth specialisation
   `𝔠 = B T_M` fibrewise, invariance under scalar extension, and `dim C − rank T = 0`;
