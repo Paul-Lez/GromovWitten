@@ -319,3 +319,4 @@ import GromovWitten.Algebra.OrderDeterminant
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.NormPushforward
 import GromovWitten.AlgebraicGeometry.Curves.RationalFunctionToProjectiveLine
 import GromovWitten.AlgebraicGeometry.Curves.ProperCurveTopology
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.ProperCurveDegree

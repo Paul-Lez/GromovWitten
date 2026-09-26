@@ -475,6 +475,10 @@ Implemented APIs include:
 - `ℙ¹_k` is separated over `k` (affine-diagonal criterion for a scheme glued from two affine charts), and the
   one-dimensionality package of a regular proper curve: non-generic points closed, proper closed subsets
   finite, local rings valuation rings (`Curves/ProperCurveTopology.lean`: `RegularProperCurve`);
+- the vanishing of the degree of a principal divisor on a regular proper curve reduced to the equality of
+  the two partial degrees over the domains of definition of `r` and `r⁻¹`, each identified with
+  `dim_k (B ⧸ (b))` over an affine chart (`IntersectionTheory/ProperCurveDegree.lean`:
+  `degreeCycle_principalCycle_eq_zero_of_affineCharts`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
