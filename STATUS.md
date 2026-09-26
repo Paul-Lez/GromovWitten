@@ -88,6 +88,10 @@ Implemented APIs include:
   decrease, finite contraction chains, and termination at a relatively minimal model;
 - finite connected dual multigraphs with loops, valence, arithmetic genus, unpointed
   stability, and relabelling invariance;
+- the numerical stability criterion on dual graphs without a separate genus hypothesis: a dual graph is
+  stable (semistable) iff every canonical degree `2g_v - 2 + val v` is positive (nonnegative), stability
+  implies semistability, and pointed stability of a decorated graph without legs is stability of the
+  underlying graph (`Curves/StabilityNumerical.lean`);
 - the geometric dual graph of a nodal curve over a field, constructed from the irreducible
   components, the finite discrete set of points without a smooth étale chart, and the finite
   set of points lying on two distinct components, with connectivity derived from connectedness
