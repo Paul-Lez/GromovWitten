@@ -375,6 +375,10 @@ Implemented APIs include:
   localisation case, and the relative conormal complex and comparison chain map for base change along a
   coordinate hyperplane of the base (`VirtualFundamentalClass/RelativeVirtualClassBaseChange.lean`:
   `hyperplaneConormalComplex`, `hyperplaneHom`);
+- transfer of the obstruction-theory condition along the coordinate-hyperplane base change, with no
+  regularity hypothesis, and the conormal splitting `I ∩ (y₀) = y₀·I` with the converse when `y₀` is a
+  non-zero-divisor (`VirtualFundamentalClass/RelativeHyperplaneObstruction.lean`:
+  `isObstructionTheory_hyperplaneHom`, `hyperplaneCotangentEquiv`, `isObstructionTheory_hyperplaneHom_iff`);
 - functoriality under the smooth projection `X × 𝔸^τ → X` (Layer 8, affine model): the flat
   pullback along a trivialised bundle is transitive on Chow groups, commutes with pushforward along
   closed immersions and with the zero-section Gysin map
