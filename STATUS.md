@@ -144,6 +144,11 @@ Implemented APIs include:
   model of the same curve, flat by torsion-freeness of the Rees charts and with the generic fibre
   untouched, and the projection is a proper modification of models; finite chains of such
   blowups compose to proper modifications and preserve properness;
+- the first geometric inputs to the special-fibre numerical type of an arithmetic surface: the vanishing
+  ideal sheaf of a component of the special fibre with its support, the intersection number of two components
+  as the sum of the stalk intersection multiplicities (symmetric, zero for disjoint components, finite under
+  explicit finite-support and radical hypotheses) and the multiplicity of a component as the order of the
+  uniformiser at its generic point, positive (`Curves/StableReduction/ComponentIntersection.lean`);
 - `Proj` commutes with arbitrary base change: a graded map which is a base change in every
   degree induces a cartesian square of `Proj`s over the spectra of the base rings, with the
   affine chart comparisons proved bijective by clearing denominators;
