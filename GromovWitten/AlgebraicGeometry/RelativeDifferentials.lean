@@ -26,11 +26,16 @@ def inverseImageCommRingSheaf.toStructureSheaf {X Y : Scheme.{u}} (f : X ⟶ Y) 
   (TopCat.Sheaf.pullbackPushforwardAdjunction CommRingCat f.base).homEquiv
     Y.sheaf X.sheaf |>.symm g
 
+/-- The presheaf map of commutative rings underlying the structural map used above. -/
+def relativeDifferentialsRingMap {X Y : Scheme.{u}} (f : X ⟶ Y) :
+    (inverseImageCommRingSheaf f).presheaf ⟶ X.sheaf.presheaf :=
+  (inverseImageCommRingSheaf.toStructureSheaf f).hom
+
 /-- The presheaf of relative Kähler differentials obtained from the structural sheaf map. -/
 def relativeDifferentialsPresheaf {X Y : Scheme.{u}} (f : X ⟶ Y) :
     X.PresheafOfModules := by
   exact PresheafOfModules.DifferentialsConstruction.relativeDifferentials'
-    (inverseImageCommRingSheaf.toStructureSheaf f).hom
+    (relativeDifferentialsRingMap f)
 
 /-- The sheafification of the relative differential presheaf over the source structure sheaf. -/
 def relativeDifferentialsSheaf {X Y : Scheme.{u}} (f : X ⟶ Y) : X.Modules :=
@@ -44,6 +49,19 @@ restriction requires the usual finite-presentation and localization hypotheses. 
 def relativeDifferentialsSectionFittingIdeal {X Y : Scheme.{u}} (f : X ⟶ Y)
     (U : X.Opens) (i : ℕ) : Ideal Γ(X, U) :=
   Module.fittingIdeal Γ(X, U) Γ(relativeDifferentialsSheaf f, U) i
+
+/-- The sheaf-level map induced by the universal property of relative differentials.
+
+The input is a compatible presheaf derivation into a sheaf of source modules; the
+sheafification adjunction turns the resulting presheaf map into a morphism of sheaves. -/
+def relativeDifferentialsSheafLift {X Y : Scheme.{u}} (f : X ⟶ Y)
+    {N : X.Modules}
+    (d : ((Scheme.Modules.toPresheafOfModules X).obj N).Derivation'
+      (relativeDifferentialsRingMap f)) :
+    relativeDifferentialsSheaf f ⟶ N :=
+  (PresheafOfModules.sheafificationHomEquiv (𝟙 X.ringCatSheaf.obj)).symm
+    ((PresheafOfModules.DifferentialsConstruction.isUniversal'
+      (relativeDifferentialsRingMap f)).desc d)
 
 end
 
