@@ -310,3 +310,4 @@ import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Examples
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ModelNormalization
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.CommonModification
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ClosureModel
+import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ModelNormalizationGeneric

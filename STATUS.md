@@ -155,6 +155,11 @@ Implemented APIs include:
   applied to the fibre product of two modifications it gives an actual model dominating both, the common
   modification, with no extra hypothesis (`Curves/StableReduction/ClosureModel.lean`: `closureModel`,
   `flat_closureModel`, `ModelModification.commonModel`);
+- the normalisation of a model is an isomorphism over the generic fibre exactly when the curve is normal
+  (`IsNormalScheme`, the normalisation morphism is an isomorphism over every normal open, and normalisation
+  commutes with the generic fibre by smooth base change), so `Model.normalize'` needs only finiteness of the
+  normalisation, and `Model.normalize_charZero` needs nothing when the base is of finite type over a field of
+  characteristic zero (`Curves/StableReduction/ModelNormalizationGeneric.lean`);
 - `Proj` commutes with arbitrary base change: a graded map which is a base change in every
   degree induces a cartesian square of `Proj`s over the spectra of the base rings, with the
   affine chart comparisons proved bijective by clearing denominators;
