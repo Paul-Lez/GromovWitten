@@ -448,6 +448,10 @@ Implemented APIs include:
   finite type over a field with no hypothesis, and it is the unique class with `π^*[X]^vir = [C(E)]`
   when the obstruction bundle has a global trivialisation
   (`GlobalVirtualClassSurjective.lean`, `GlobalVirtualClassUnconditional.lean`);
+- resolution independence of the global virtual class for a fixed bundle (Layer 7): chart-wise isomorphic
+  global cone data give the same glued cone class in every grading and, for a globally trivialised bundle over
+  an infinite field, the same unconditional virtual class
+  (`VirtualFundamentalClass/ConeGluingIndependence.lean`: `ChartIso`, `coneClassAt_eq`, `virtualClassFT'_eq`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
