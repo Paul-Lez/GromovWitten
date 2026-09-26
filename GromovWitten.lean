@@ -360,3 +360,5 @@ import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ComponentIntersecti
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.SpecialFibreDimension
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.SpecialFibreStalk
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.SpecialFibreStalkIso
+import GromovWitten.AlgebraicGeometry.Cones.PicardBaseChange
+import GromovWitten.AlgebraicGeometry.Cones.ConormalBaseChange
