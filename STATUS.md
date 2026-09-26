@@ -337,6 +337,9 @@ Implemented APIs include:
   (unconditional for finite covers) (`Cones/IntrinsicConeGluing.lean`,
   `Cones/IntrinsicConeGluingPoly.lean`, `Cones/IntrinsicConeGluingCover.lean`,
   `Cones/IntrinsicConeDescent.lean`);
+- Zariski descent of the affine intrinsic cone groupoid for every cover of the test algebra, by Čech
+  vanishing reduced to a finite spanning subcover (`Cones/IntrinsicConeDescentInfinite.lean`:
+  `cechVanishing_of_span_eq_top`, `descentEquivalence'`);
 - Fulton's Proposition 1.9 for trivialised affine vector bundles over Noetherian rings: the flat
   pullback `π^* : A_i(X) → A_{i+r}(E)` on rational Chow groups is surjective, proved through the
   rank-one key lemma (a rational function on `Spec (R/p)[X]` with principal divisor `[V]` plus

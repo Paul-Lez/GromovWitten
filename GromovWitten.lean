@@ -307,6 +307,7 @@ import GromovWitten.AlgebraicGeometry.Curves.StableReduction.StableReduction
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.DecoratedGraph
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Clutching
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Examples
+import GromovWitten.AlgebraicGeometry.Cones.IntrinsicConeDescentInfinite
 import GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.RelativeAbsoluteTriangle
 import GromovWitten.AlgebraicGeometry.Curves.StabilityNumerical
 import GromovWitten.AlgebraicGeometry.Cones.DeltaComparison
