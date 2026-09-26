@@ -40,7 +40,8 @@ obstruction class in the cokernel `ObstructionGroup R M P` of
   homotopy category of cochain complexes, `Hom_{K(ModuleCat A)}(K, M[1])`, is the obstruction
   group; this needs no hypothesis on the presentation.  Likewise `chainHomEquivZero`,
   `extZeroEquivSubtype` and `homotopyExtZeroEquiv` compute `Hom_{K(ModuleCat A)}(K, M[0])` as
-  `Hom_A(H⁰K, M) = Der_R(A, M)`, and `derivedExtZeroEquiv` passes to the derived category.
+  `Hom_A(H⁰K, M) = Der_R(A, M)`. Under projectivity of both terms,
+  `derivedExtZeroEquiv` passes to the derived category.
 * `derivedExtOneEquiv`, `obstructionGroupEquivDerivedExt`,
   `obstructionGroupEquivDerivedExt_obstruction_eq_zero_iff`: when both terms of `K` are
   projective the previous identification is the honest derived-category group
@@ -513,9 +514,9 @@ structure LiftHom (f g : Lift R M A) where
   aut_hom : ∀ a : A, aut.hom (f.hom a) = g.hom a
 
 /-- **The solutions of a square-zero lifting problem form a groupoid**, with the automorphisms
-of the extension as morphisms.  Stack automorphisms are retained: the objects are the lifts and
-the morphisms are exactly the automorphisms of `B` over `B ⧸ M` and `M` that intertwine
-them. -/
+of the extension as morphisms. The objects are algebra lifts and the morphisms are exactly
+the automorphisms of `B` over `B ⧸ M` and `M` that intertwine them. This action groupoid
+is not an identification with the deformation groupoid of an arbitrary algebraic stack. -/
 noncomputable instance instGroupoidLift : Groupoid (Lift R M A) where
   Hom f g := LiftHom M f g
   id f := ⟨1, fun _ => rfl⟩
