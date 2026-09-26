@@ -5,6 +5,7 @@ Authors: OpenAI Codex
 -/
 
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeChart
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.ChowGroup
 
 /-!
 # Intrinsic thickness of a local node
@@ -68,6 +69,17 @@ theorem intrinsicThickness_eq_parameterLength (R : Type u) [CommRing R] (a : R) 
   rw [nodeThickness_eq_parameterLength]
   rw [parameterPowerIdeal, show ({a ^ 1} : Set R) = {a} by simp]
 
+/-- Intrinsic node thickness is preserved by a flat local formally unramified essentially finite
+type extension.  This general form includes zero and unit parameters; the DVR finite étale
+specialization below uses it for standard node charts. -/
+theorem intrinsicThickness_baseChange_eq
+    {R S : Type*} [CommRing R] [CommRing S] [IsLocalRing R] [IsLocalRing S]
+    [Algebra R S] [IsLocalHom (algebraMap R S)] [Module.Flat R S]
+    [Algebra.FormallyUnramified R S] [Algebra.EssFiniteType R S] (a : R) :
+    intrinsicThickness S (algebraMap R S a) = intrinsicThickness R a := by
+  rw [intrinsicThickness_eq_parameterLength, intrinsicThickness_eq_parameterLength]
+  exact Ring.ord_algebraMap_of_flat_formallyUnramified_local a
+
 /-- For an irreducible uniformizer, the actual singular quotient has precisely the prescribed
 finite length. -/
 theorem nodeThickness_eq_of_irreducible {R : Type u} [CommRing R] [IsDomain R]
@@ -119,6 +131,39 @@ theorem intrinsicThickness_zero {R : Type u} [CommRing R] [IsDomain R]
   rw [intrinsicThickness_eq_parameterLength,
     show Ideal.span ({(0 : R)} : Set R) = ⊥ by simp]
   exact (AlgEquiv.quotientBot R R).toLinearEquiv.length_eq ▸ dvr_length_ring_eq_top R
+
+/-! ## Unramified finite étale coefficient extension -/
+
+/-- A formally unramified essentially finite-type local extension of DVRs carries a source
+uniformizer to a target uniformizer up to a unit.  The proof uses maximal-ideal extension and
+does not assume a ramification-index factorization. -/
+theorem formallyUnramifiedDvr_map_uniformizer
+    {R : Type u} {S : Type v} [CommRing R] [CommRing S] [IsDomain R] [IsDomain S]
+    [IsDiscreteValuationRing R] [IsDiscreteValuationRing S] [Algebra R S]
+    [IsLocalHom (algebraMap R S)] [Algebra.FormallyUnramified R S]
+    [Algebra.EssFiniteType R S]
+    {π : R} {ϖ : S} (hπ : Irreducible π) (hϖ : Irreducible ϖ) :
+    ∃ u : Sˣ, algebraMap R S π = (u : S) * ϖ := by
+  have hmax : (IsLocalRing.maximalIdeal R).map (algebraMap R S) =
+      IsLocalRing.maximalIdeal S :=
+    Algebra.FormallyUnramified.map_maximalIdeal
+  have hspan : Ideal.span ({algebraMap R S π} : Set S) = Ideal.span ({ϖ} : Set S) := by
+    calc
+      Ideal.span ({algebraMap R S π} : Set S) =
+          (Ideal.span ({π} : Set R)).map (algebraMap R S) := by
+            rw [Ideal.map_span]
+            simp
+      _ = (IsLocalRing.maximalIdeal R).map (algebraMap R S) := by
+        rw [hπ.maximalIdeal_eq]
+      _ = IsLocalRing.maximalIdeal S := hmax
+      _ = Ideal.span ({ϖ} : Set S) := hϖ.maximalIdeal_eq
+  rcases (Ideal.span_singleton_eq_span_singleton.mp hspan) with ⟨u, hu⟩
+  refine ⟨u⁻¹, ?_⟩
+  calc
+    algebraMap R S π = algebraMap R S π * 1 := by simp
+    _ = algebraMap R S π * ((↑(u⁻¹) : S) * (u : S)) := by simp
+    _ = (↑(u⁻¹) : S) * (algebraMap R S π * (u : S)) := by ac_rfl
+    _ = (↑(u⁻¹) : S) * ϖ := by rw [hu]
 
 /-! ## Ramified coefficient extension -/
 
@@ -313,6 +358,37 @@ theorem nodeThickness_baseChange_eq_mul
   rw [hpow, Ideal.span_singleton_mul_left_unit (v.isUnit.pow n),
     ← Ideal.span_singleton_pow, ← hϖ.maximalIdeal_eq]
   exact IsDiscreteValuationRing.length_quotient_pow_maximalIdeal S (e * n)
+
+/-- After a finite étale local DVR extension, the coefficient base change of a standard node
+has the normalized target equation with the same exponent.  The returned equivalence is the
+actual tensor-product node algebra equivalence, and the final equality records intrinsic
+thickness preservation for this node. -/
+theorem finiteEtaleDvr_nodeBaseChange_exists
+    {R : Type u} {S : Type v} [CommRing R] [CommRing S] [IsDomain R] [IsDomain S]
+    [IsDiscreteValuationRing R] [IsDiscreteValuationRing S] [Algebra R S]
+    [Module.Finite R S] [Algebra.Etale R S] [IsLocalHom (algebraMap R S)]
+    {π : R} {ϖ : S} (hπ : Irreducible π) (hϖ : Irreducible ϖ) (n : ℕ) :
+    ∃ u : Sˣ, algebraMap R S π = (u : S) * ϖ ∧
+      Nonempty (S ⊗[R] Ring R π n ≃ₐ[S] Ring S ϖ n) ∧
+        nodeThickness S (algebraMap R S π) n = nodeThickness R π n := by
+  obtain ⟨u, hu⟩ := formallyUnramifiedDvr_map_uniformizer hπ hϖ
+  refine ⟨u, hu, ?_, ?_⟩
+  · refine ⟨?_⟩
+    have hn : 1 * n = n := Nat.one_mul n
+    let E := (baseChangeEquivLeft R S π n).trans
+      (ramifiedNodeEquiv R S π ϖ 1 n u (by simpa [pow_one] using hu))
+    exact (congrArg (fun k : ℕ => S ⊗[R] Ring R π n ≃ₐ[S] Ring S ϖ k) hn).mp E
+  · calc
+      nodeThickness S (algebraMap R S π) n =
+          intrinsicThickness S ((algebraMap R S π) ^ n) := by
+        rw [nodeThickness_eq_parameterLength, parameterPowerIdeal,
+          intrinsicThickness_eq_parameterLength]
+      _ = intrinsicThickness S (algebraMap R S (π ^ n)) := by rw [map_pow]
+      _ = intrinsicThickness R (π ^ n) :=
+        intrinsicThickness_baseChange_eq (R := R) (S := S) (π ^ n)
+      _ = nodeThickness R π n := by
+        rw [intrinsicThickness_eq_parameterLength, nodeThickness_eq_parameterLength,
+          parameterPowerIdeal]
 
 end
 
