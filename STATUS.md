@@ -370,6 +370,11 @@ Implemented APIs include:
   the relative datum is (`isObstructionTheory_absHom_iff`,
   `VirtualFundamentalClass/RelativeAbsolute*.lean`); adjoining a degree-one summand leaves the
   resolved cone unchanged in general (`VirtualFundamentalClass/DegreeOneSummand.lean`);
+- the relative virtual class and its base change (Layer 9, affine model): the headline statements
+  `[X/Y]^vir = [X]^vir` with the dimension shift, flat base change along `Y × 𝔸^ρ → Y` and the
+  localisation case, and the relative conormal complex and comparison chain map for base change along a
+  coordinate hyperplane of the base (`VirtualFundamentalClass/RelativeVirtualClassBaseChange.lean`:
+  `hyperplaneConormalComplex`, `hyperplaneHom`);
 - functoriality under the smooth projection `X × 𝔸^τ → X` (Layer 8, affine model): the flat
   pullback along a trivialised bundle is transitive on Chow groups, commutes with pushforward along
   closed immersions and with the zero-section Gysin map
