@@ -277,6 +277,9 @@ Implemented APIs include:
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- the quotient stacks `[U/G]` and `BG` are `FppfStack`s: the fibre universe of `FppfStack` was raised to
+  `Cat.{u+1, u+1}` with a `ULift`-based represented stack, so they inherit the stack-morphism, chart,
+  algebraicity and inertia API (`Stacks/Algebraic.lean`, `Stacks/QuotientStackAlgebraicAPI.lean`);
 - the presentation groupoid `U ×_X U ⇉ U` of an atlas as a groupoid object with its unit, inverse and
   associativity laws as 2-cells, tied to the fibrewise groupoids (`Stacks/PresentationGroupoidObject.lean`,
   `Stacks/PresentationGroupoidLaws.lean`), and common scheme atlases with fully faithful groupoid

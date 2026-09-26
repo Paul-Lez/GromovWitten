@@ -109,11 +109,11 @@ fibres of a represented stack are discrete. -/
 theorem precomp_objPullbackIso {W T S : Scheme.{u}} (g : W ⟶ A.scheme) (f : T ⟶ W) (m : S ⟶ T) :
     (A.precomp g).objPullbackIso m f = A.objPullbackIso m (f ≫ g) := by
   apply Iso.ext
-  have hcomp := congrArg (fun k ↦ k.toNatTrans.app (Discrete.mk f))
+  have hcomp := congrArg (fun k ↦ k.toNatTrans.app (Discrete.mk (ULift.up f)))
     (Pseudofunctor.StrongTrans.categoryStruct_comp_naturality_hom
       (FppfStack.mapOfSchemeHom g) A.map ⟨m.op⟩)
   change ((Pseudofunctor.StrongTrans.vcomp (FppfStack.mapOfSchemeHom g) A.map).naturality
-    ⟨m.op⟩).hom.toNatTrans.app (Discrete.mk f) = _ at hcomp
+    ⟨m.op⟩).hom.toNatTrans.app (Discrete.mk (ULift.up f)) = _ at hcomp
   simp only [Cat.Hom.comp_toFunctor, GrothendieckTopology.yoneda_obj_obj, yoneda_obj_obj,
     Functor.comp_obj, Cat.Hom.toNatTrans_comp, Cat.associator_inv_toNatTrans,
     Cat.whiskerRight_toNatTrans, Cat.associator_hom_toNatTrans, Cat.whiskerLeft_toNatTrans,
@@ -122,9 +122,9 @@ theorem precomp_objPullbackIso {W T S : Scheme.{u}} (g : W ⟶ A.scheme) (f : T 
     Category.comp_id, Category.id_comp] at hcomp
   change ((Pseudofunctor.StrongTrans.vcomp (FppfStack.mapOfSchemeHom g) A.map).naturality
     (⟨m.op⟩ : LocallyDiscrete.mk (Opposite.op T) ⟶
-      LocallyDiscrete.mk (Opposite.op S))).hom.toNatTrans.app (Discrete.mk f) =
+      LocallyDiscrete.mk (Opposite.op S))).hom.toNatTrans.app (Discrete.mk (ULift.up f)) =
     (A.map.naturality (⟨m.op⟩ : LocallyDiscrete.mk (Opposite.op T) ⟶
-      LocallyDiscrete.mk (Opposite.op S))).hom.toNatTrans.app (Discrete.mk (f ≫ g))
+      LocallyDiscrete.mk (Opposite.op S))).hom.toNatTrans.app (Discrete.mk (ULift.up (f ≫ g)))
   rw [hcomp]
   exact Category.id_comp _
 
@@ -139,8 +139,8 @@ theorem precomp_inducedComparison {W U T S : Scheme.{u}} (g : W ⟶ A.scheme) (f
   apply Iso.ext
   simp only [inducedComparison, Iso.trans_hom]
   rw [show ((Cat.Hom.toNatIso ((A.precomp g).map.naturality ⟨m.op⟩)).app
-        (Discrete.mk snd)).hom =
-      ((Cat.Hom.toNatIso (A.map.naturality ⟨m.op⟩)).app (Discrete.mk (snd ≫ g))).hom from
+        (Discrete.mk (ULift.up snd))).hom =
+      ((Cat.Hom.toNatIso (A.map.naturality ⟨m.op⟩)).app (Discrete.mk (ULift.up (snd ≫ g)))).hom from
     congrArg Iso.hom (A.precomp_objPullbackIso g snd m)]
 
 set_option backward.isDefEq.respectTransparency false in
@@ -187,19 +187,20 @@ theorem inducedComparison_comp {V U T S : Scheme.{u}} (fst : U ⟶ T) (snd : U �
   rw [stackPullbackCompIso_assoc X m k fst x]
   rw [reassoc_of% hp]
   have hn : (A.map.naturality (⟨m.op⟩ : LocallyDiscrete.mk (Opposite.op V) ⟶
-          LocallyDiscrete.mk (Opposite.op S))).hom.toNatTrans.app (Discrete.mk (k ≫ snd)) ≫
+          LocallyDiscrete.mk (Opposite.op S))).hom.toNatTrans.app
+            (Discrete.mk (ULift.up (k ≫ snd))) ≫
         (stackPullback X m).map
           ((A.map.naturality (⟨k.op⟩ : LocallyDiscrete.mk (Opposite.op U) ⟶
-            LocallyDiscrete.mk (Opposite.op V))).hom.toNatTrans.app (Discrete.mk snd)) ≫
+            LocallyDiscrete.mk (Opposite.op V))).hom.toNatTrans.app (Discrete.mk (ULift.up snd))) ≫
         (stackPullbackCompIso X m k (A.obj U snd)).hom =
       (A.map.appFunctor S).map
-          (stackPullbackCompIso (representedStack A.scheme) m k (Discrete.mk snd)).hom ≫
+          (stackPullbackCompIso (representedStack A.scheme) m k (Discrete.mk (ULift.up snd))).hom ≫
         (A.map.naturality (⟨(m ≫ k).op⟩ : LocallyDiscrete.mk (Opposite.op U) ⟶
-          LocallyDiscrete.mk (Opposite.op S))).hom.toNatTrans.app (Discrete.mk snd) :=
-    (stackHomNaturalityCompPullback A.map m k (Discrete.mk snd)).symm
+          LocallyDiscrete.mk (Opposite.op S))).hom.toNatTrans.app (Discrete.mk (ULift.up snd)) :=
+    (stackHomNaturalityCompPullback A.map m k (Discrete.mk (ULift.up snd))).symm
   rw [reassoc_of% hn]
   have hobj : (A.map.appFunctor S).map
-        (stackPullbackCompIso (representedStack A.scheme) m k (Discrete.mk snd)).hom =
+        (stackPullbackCompIso (representedStack A.scheme) m k (Discrete.mk (ULift.up snd))).hom =
       (A.objIsoOfEq (Category.assoc m k snd).symm).hom := by
     rw [objIsoOfEq_hom]
     refine congrArg (A.map.appFunctor S).map ?_

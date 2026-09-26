@@ -28,10 +28,13 @@ universe u
 
 namespace FppfStack
 
-/-- A sheaf of types on the fppf site as a stack of discrete groupoids. -/
+/-- A sheaf of types on the fppf site as a stack of discrete groupoids.  The fibre over `T` is
+`Discrete (ULift (P.obj (op T)))`: an object is `⟨⟨s⟩⟩` for a section `s`, and `x.as.down`
+recovers `s` from a fibre object `x`. -/
 noncomputable def ofSheaf (P : FppfSheaf.{u}) : FppfStack.{u} :=
   StackInGroupoids.ofSheafOfTypes
-    (_root_.AlgebraicGeometry.Scheme.fppfTopology : GrothendieckTopology Scheme.{u}) P
+    (_root_.AlgebraicGeometry.Scheme.fppfTopology : GrothendieckTopology Scheme.{u})
+    (uliftSheafFunctor.obj P)
 
 /-- The representable fppf stack associated to a scheme. -/
 noncomputable def ofScheme (X : Scheme.{u}) : FppfStack.{u} :=
@@ -41,7 +44,7 @@ noncomputable def ofScheme (X : Scheme.{u}) : FppfStack.{u} :=
 `FppfStack`.  Its 1-morphisms are strong transformations and its 2-morphisms are
 modifications. -/
 abbrev FppfBicategory :=
-  StackBicategory.{u, u, u + 1, u} Scheme.{u}
+  StackBicategory.{u, u + 1, u + 1, u + 1} Scheme.{u}
     (_root_.AlgebraicGeometry.Scheme.fppfTopology : GrothendieckTopology Scheme.{u})
 
 /-- View an fppf stack as an object of its induced bicategory. -/
@@ -53,19 +56,36 @@ noncomputable def ofSchemeObj (X : Scheme.{u}) : FppfBicategory.{u} :=
   asBicategory (ofScheme X)
 
 /-- A morphism of fppf sheaves induces a strong morphism of their discrete stacks. -/
-def mapOfSheafHom {P Q : FppfSheaf.{u}} (η : P ⟶ Q) :
+noncomputable def mapOfSheafHom {P Q : FppfSheaf.{u}} (η : P ⟶ Q) :
     StackHom (ofSheaf P) (ofSheaf Q) :=
-  Pseudofunctor.strongTransOfNatTrans η.hom
+  Pseudofunctor.strongTransOfNatTrans (uliftSheafFunctor.map η).hom
 
 /-- A scheme morphism induces a strong morphism between its representable stacks. -/
-def mapOfSchemeHom {X Y : Scheme.{u}} (f : X ⟶ Y) :
+noncomputable def mapOfSchemeHom {X Y : Scheme.{u}} (f : X ⟶ Y) :
     StackHom (ofScheme X) (ofScheme Y) :=
   mapOfSheafHom (fppfYoneda.map f)
 
-/-- Extract the unique sheaf morphism represented by a strong morphism of discrete stacks. -/
-def sheafHomOfMap {P Q : FppfSheaf.{u}}
+/-- Extract the unique sheaf morphism represented by a strong morphism of discrete stacks.
+Since `ofSheaf` promotes `P` to `Type (u + 1)` through `uliftSheafFunctor`, which is fully
+faithful, the sheaf morphism between the lifted sheaves has a unique preimage. -/
+noncomputable def sheafHomOfMap {P Q : FppfSheaf.{u}}
     (η : StackHom (ofSheaf P) (ofSheaf Q)) : P ⟶ Q :=
-  ObjectProperty.homMk (Pseudofunctor.natTransOfStrongTrans η)
+  uliftSheafFunctor.fullyFaithful.preimage
+    (ObjectProperty.homMk (Pseudofunctor.natTransOfStrongTrans η))
+
+/-- `sheafHomOfMap` inverts `mapOfSheafHom`, because `uliftSheafFunctor` is fully faithful. -/
+theorem sheafHomOfMap_mapOfSheafHom {P Q : FppfSheaf.{u}} (p : P ⟶ Q) :
+    sheafHomOfMap (mapOfSheafHom p) = p :=
+  uliftSheafFunctor.fullyFaithful.preimage_map p
+
+/-- `mapOfSheafHom` is injective at the level of underlying presheaf natural transformations,
+because `uliftSheafFunctor` is faithful. -/
+theorem mapOfSheafHom_injective {P Q : FppfSheaf.{u}} {p q : P ⟶ Q}
+    (h : Pseudofunctor.natTransOfStrongTrans (mapOfSheafHom p) =
+      Pseudofunctor.natTransOfStrongTrans (mapOfSheafHom q)) : p = q := by
+  apply uliftSheafFunctor.map_injective
+  apply ObjectProperty.hom_ext
+  simpa only [mapOfSheafHom, Pseudofunctor.natTransOfStrongTrans_strongTransOfNatTrans] using h
 
 /-- Extract the unique scheme morphism represented by a strong morphism of representable
 stacks. -/
@@ -80,8 +100,20 @@ theorem schemeHomOfMap_mapOfSchemeHom {X Y : Scheme.{u}} (f : X ⟶ Y) :
   apply fppfYoneda.map_injective
   change fppfYoneda.map (fppfYoneda.preimage _) = _
   rw [fppfYoneda.map_preimage]
-  apply ObjectProperty.hom_ext
-  exact Pseudofunctor.natTransOfStrongTrans_strongTransOfNatTrans _
+  exact sheafHomOfMap_mapOfSheafHom (fppfYoneda.map f)
+
+/-- `sheafHomOfMap` sends the identity strong transformation to the identity sheaf map. -/
+theorem sheafHomOfMap_id (P : FppfSheaf.{u}) :
+    sheafHomOfMap (Pseudofunctor.StrongTrans.id (ofSheaf P).toPseudofunctor) = 𝟙 P := by
+  change uliftSheafFunctor.fullyFaithful.preimage
+      (ObjectProperty.homMk (Pseudofunctor.natTransOfStrongTrans
+        (Pseudofunctor.StrongTrans.id
+          (Pseudofunctor.ofPresheafOfTypes (uliftSheafFunctor.obj P).obj)))) = 𝟙 P
+  rw [Pseudofunctor.natTransOfStrongTrans_id,
+    show (ObjectProperty.homMk (𝟙 (uliftSheafFunctor.obj P).obj) :
+        uliftSheafFunctor.obj P ⟶ uliftSheafFunctor.obj P) = 𝟙 (uliftSheafFunctor.obj P) from rfl,
+    ← uliftSheafFunctor.map_id]
+  exact uliftSheafFunctor.fullyFaithful.preimage_map (𝟙 P)
 
 /-- The scheme morphism extracted from the identity strong transformation is the identity. -/
 @[simp]
@@ -90,18 +122,31 @@ theorem schemeHomOfMap_id (X : Scheme.{u}) :
       (Pseudofunctor.StrongTrans.id (ofScheme X).toPseudofunctor) = 𝟙 X := by
   apply fppfYoneda.map_injective
   change fppfYoneda.map (fppfYoneda.preimage _) = fppfYoneda.map (𝟙 X)
-  rw [fppfYoneda.map_preimage]
-  apply ObjectProperty.hom_ext
-  ext T f
+  rw [fppfYoneda.map_preimage, fppfYoneda.map_id]
+  exact sheafHomOfMap_id (fppfYoneda.obj X)
+
+/-- `mapOfSheafHom` composed with `sheafHomOfMap` recovers the strong transformation induced
+by the underlying natural transformation, on the nose (not just up to modification). -/
+theorem mapOfSheafHom_sheafHomOfMap {P Q : FppfSheaf.{u}}
+    (η : StackHom (ofSheaf P) (ofSheaf Q)) :
+    mapOfSheafHom (sheafHomOfMap η) =
+      Pseudofunctor.strongTransOfNatTrans (Pseudofunctor.natTransOfStrongTrans η) := by
+  change Pseudofunctor.strongTransOfNatTrans
+      (uliftSheafFunctor.map (uliftSheafFunctor.fullyFaithful.preimage
+        (ObjectProperty.homMk (Pseudofunctor.natTransOfStrongTrans η)))).hom =
+    Pseudofunctor.strongTransOfNatTrans (Pseudofunctor.natTransOfStrongTrans η)
+  rw [uliftSheafFunctor.fullyFaithful.map_preimage]
   rfl
 
 /-- Every strong morphism between representable discrete stacks is invertibly 2-isomorphic to
 the one obtained from its unique underlying scheme morphism. -/
-def mapOfSchemeHom_schemeHomOfMap_iso {X Y : Scheme.{u}}
+noncomputable def mapOfSchemeHom_schemeHomOfMap_iso {X Y : Scheme.{u}}
     (η : StackHom (ofScheme X) (ofScheme Y)) :
     StackIso2 (mapOfSchemeHom (schemeHomOfMap η)) η := by
-  rw [mapOfSchemeHom, schemeHomOfMap, mapOfSheafHom,
-    fppfYoneda.map_preimage]
+  rw [mapOfSchemeHom, schemeHomOfMap, fppfYoneda.map_preimage]
+  rw [show mapOfSheafHom (sheafHomOfMap η) =
+      Pseudofunctor.strongTransOfNatTrans (Pseudofunctor.natTransOfStrongTrans η) from
+      mapOfSheafHom_sheafHomOfMap η]
   exact {
     hom := Pseudofunctor.discreteCounitHom η
     inv := Pseudofunctor.discreteCounitInv η
@@ -122,8 +167,32 @@ noncomputable def mapOfSchemeHom_id_iso (X : Scheme.{u}) :
 theorem mapOfSchemeHom_injective_up_to_iso {X Y : Scheme.{u}} {f g : X ⟶ Y}
     (e : StackIso2 (mapOfSchemeHom f) (mapOfSchemeHom g)) : f = g := by
   apply fppfYoneda.map_injective
-  apply ObjectProperty.hom_ext
+  apply mapOfSheafHom_injective
   exact Pseudofunctor.natTransOfStrongTrans_eq_of_modification e.hom
+
+theorem sheafHomOfMap_vcomp {P Q R : FppfSheaf.{u}} (p : P ⟶ Q) (q : Q ⟶ R) :
+    sheafHomOfMap
+      (Pseudofunctor.StrongTrans.vcomp (mapOfSheafHom p) (mapOfSheafHom q)) = p ≫ q := by
+  have hnat : Pseudofunctor.natTransOfStrongTrans
+      (Pseudofunctor.StrongTrans.vcomp (mapOfSheafHom p) (mapOfSheafHom q)) =
+      (uliftSheafFunctor.map p).hom ≫ (uliftSheafFunctor.map q).hom := by
+    change Pseudofunctor.natTransOfStrongTrans
+        (Pseudofunctor.StrongTrans.vcomp
+          (Pseudofunctor.strongTransOfNatTrans (uliftSheafFunctor.map p).hom)
+          (Pseudofunctor.strongTransOfNatTrans (uliftSheafFunctor.map q).hom)) =
+        (uliftSheafFunctor.map p).hom ≫ (uliftSheafFunctor.map q).hom
+    rw [Pseudofunctor.natTransOfStrongTrans_vcomp,
+      Pseudofunctor.natTransOfStrongTrans_strongTransOfNatTrans,
+      Pseudofunctor.natTransOfStrongTrans_strongTransOfNatTrans]
+  change uliftSheafFunctor.fullyFaithful.preimage
+      (ObjectProperty.homMk (Pseudofunctor.natTransOfStrongTrans
+        (Pseudofunctor.StrongTrans.vcomp (mapOfSheafHom p) (mapOfSheafHom q)))) = p ≫ q
+  rw [hnat,
+    show (ObjectProperty.homMk ((uliftSheafFunctor.map p).hom ≫ (uliftSheafFunctor.map q).hom) :
+        uliftSheafFunctor.obj P ⟶ uliftSheafFunctor.obj R) =
+        uliftSheafFunctor.map p ≫ uliftSheafFunctor.map q from rfl,
+    ← uliftSheafFunctor.map_comp]
+  exact uliftSheafFunctor.fullyFaithful.preimage_map (p ≫ q)
 
 private theorem schemeHom_vcomp_mapOfSchemeHom {X Y Z : Scheme.{u}}
     (f : X ⟶ Y) (g : Y ⟶ Z) :
@@ -132,10 +201,8 @@ private theorem schemeHom_vcomp_mapOfSchemeHom {X Y Z : Scheme.{u}}
         f ≫ g := by
   apply fppfYoneda.map_injective
   change fppfYoneda.map (fppfYoneda.preimage _) = fppfYoneda.map (f ≫ g)
-  rw [fppfYoneda.map_preimage]
-  apply ObjectProperty.hom_ext
-  ext T x
-  rfl
+  rw [fppfYoneda.map_preimage, fppfYoneda.map_comp]
+  exact sheafHomOfMap_vcomp (fppfYoneda.map f) (fppfYoneda.map g)
 
 /-- Promotion of a composite scheme morphism agrees, by an invertible modification, with the
 composite of the promoted morphisms. -/
@@ -172,35 +239,22 @@ theorem schemeModification_subsingleton {X Y : Scheme.{u}}
     (f g : ofSchemeObj X ⟶ ofSchemeObj Y) : Subsingleton (f ⟶ g) :=
   ⟨fun m n ↦ by
     apply InducedBicategory.hom₂_ext
-    apply Pseudofunctor.StrongTrans.homCategory.ext
-    intro a
-    apply Cat.Hom₂.ext
-    apply NatTrans.ext
-    funext x
-    change @Eq (ULift (PLift (_ = _))) _ _
-    exact Subsingleton.elim _ _⟩
+    apply Pseudofunctor.StrongTrans.Hom.ext
+    exact Pseudofunctor.modification_subsingleton.elim m.hom.as n.hom.as⟩
 
 /-- On every pair of schemes, the Yoneda promotion maps their discrete morphism category into
 the full hom-category of strong transformations and modifications. -/
 noncomputable def schemeHomFunctor (X Y : Scheme.{u}) :
-    Discrete (X ⟶ Y) ⥤ (ofSchemeObj X ⟶ ofSchemeObj Y) where
-  obj f := InducedBicategory.mkHom (mapOfSchemeHom f.as)
-  map {f g} m := by
-    exact eqToHom (InducedBicategory.hom_ext
-      (congrArg mapOfSchemeHom (Discrete.eq_of_hom m)))
-  map_id := by
-    intro f
-    apply (schemeModification_subsingleton _ _).elim
-  map_comp := by
-    intro f g h m n
-    apply (schemeModification_subsingleton _ _).elim
+    Discrete (X ⟶ Y) ⥤ (ofSchemeObj X ⟶ ofSchemeObj Y) :=
+  discreteFunctorOfSubsingleton (fun f ↦ InducedBicategory.mkHom (mapOfSchemeHom f))
+    (fun _ _ ↦ schemeModification_subsingleton _ _)
 
 /-- The local scheme-to-stack hom functor is fully faithful at the modification level. -/
 noncomputable def schemeHomFunctorFullyFaithful (X Y : Scheme.{u}) :
     (schemeHomFunctor X Y).FullyFaithful where
   preimage {f g} m := Discrete.eqToHom (by
     apply fppfYoneda.map_injective
-    apply ObjectProperty.hom_ext
+    apply mapOfSheafHom_injective
     exact Pseudofunctor.natTransOfStrongTrans_eq_of_modification m.hom.as)
   map_preimage {f g} m := (schemeModification_subsingleton _ _).elim _ _
   preimage_map {f g} m := Subsingleton.elim _ _
@@ -228,44 +282,24 @@ coherence laws are built from Yoneda and the proved uniqueness of modifications 
 representable discrete stacks. -/
 noncomputable def schemeEmbedding :
     LocallyDiscrete Scheme.{u} ⥤ᵖ FppfBicategory.{u} :=
-  LocallyDiscrete.mkPseudofunctor
+  LocallyDiscrete.mkPseudofunctorOfSubsingleton
     ofSchemeObj
     (fun f ↦ InducedBicategory.mkHom (mapOfSchemeHom f))
     (fun X ↦ stackIso2ToBicategoryIso (mapOfSchemeHom_id_iso X))
     (fun f g ↦ stackIso2ToBicategoryIso (mapOfSchemeHom_comp_iso f g).symm)
-    (by
-      intro X Y Z W f g h
-      apply (schemeModification_subsingleton _ _).elim)
-    (by
-      intro X Y f
-      apply (schemeModification_subsingleton _ _).elim)
-    (by
-      intro X Y f
-      apply (schemeModification_subsingleton _ _).elim)
+    (fun _ _ ↦ schemeModification_subsingleton _ _)
 
 private theorem schemeHom_vcomp_iso_hom_inv {X Y : Scheme.{u}} (e : X ≅ Y) :
     schemeHomOfMap
       (Pseudofunctor.StrongTrans.vcomp
         (mapOfSchemeHom e.hom) (mapOfSchemeHom e.inv)) = 𝟙 X := by
-  apply fppfYoneda.map_injective
-  change fppfYoneda.map (fppfYoneda.preimage _) = fppfYoneda.map (𝟙 X)
-  rw [fppfYoneda.map_preimage]
-  apply ObjectProperty.hom_ext
-  ext T f
-  change (f ≫ e.hom) ≫ e.inv = f
-  rw [Category.assoc, e.hom_inv_id, Category.comp_id]
+  rw [schemeHom_vcomp_mapOfSchemeHom e.hom e.inv, e.hom_inv_id]
 
 private theorem schemeHom_vcomp_iso_inv_hom {X Y : Scheme.{u}} (e : X ≅ Y) :
     schemeHomOfMap
       (Pseudofunctor.StrongTrans.vcomp
         (mapOfSchemeHom e.inv) (mapOfSchemeHom e.hom)) = 𝟙 Y := by
-  apply fppfYoneda.map_injective
-  change fppfYoneda.map (fppfYoneda.preimage _) = fppfYoneda.map (𝟙 Y)
-  rw [fppfYoneda.map_preimage]
-  apply ObjectProperty.hom_ext
-  ext T f
-  change (f ≫ e.inv) ≫ e.hom = f
-  rw [Category.assoc, e.inv_hom_id, Category.comp_id]
+  rw [schemeHom_vcomp_mapOfSchemeHom e.inv e.hom, e.inv_hom_id]
 
 /-- A scheme isomorphism induces an equivalence of the corresponding representable fppf
 stacks.  Both inverse 2-cells are constructed from the Yoneda image of the actual inverse laws. -/
@@ -297,19 +331,19 @@ noncomputable def schemeChartPullbackPresentation (X T : Scheme.{u})
     (schemeChart X).PullbackPresentation T x where
   space := T
   fst := 𝟙 T
-  snd := x.as
-  comparison := Discrete.eqToIso (by
-    change x.as = (𝟙 T) ≫ x.as
+  snd := x.as.down
+  comparison := Discrete.eqToIsoULift (by
+    change x.as.down = (𝟙 T) ≫ x.as.down
     simp)
   lift toBase toChart comparison := toBase
   lift_fst toBase toChart comparison := by simp
   lift_snd toBase toChart comparison := by
-    change toBase ≫ x.as = toChart
-    exact (Discrete.eq_of_hom comparison.hom).symm
+    change toBase ≫ x.as.down = toChart
+    exact (Discrete.eq_of_hom_ulift comparison.hom).symm
   lift_compatible toBase toChart comparison := by
     refine ⟨by simp, ?_, ?_⟩
-    · change toBase ≫ x.as = toChart
-      exact (Discrete.eq_of_hom comparison.hom).symm
+    · change toBase ≫ x.as.down = toChart
+      exact (Discrete.eq_of_hom_ulift comparison.hom).symm
     · apply Iso.ext
       change @Eq (ULift (PLift (_ = _))) _ _
       apply Subsingleton.elim
@@ -329,8 +363,8 @@ noncomputable def schemeChartPullbackPresentationIso (X T : Scheme.{u})
     exact p.lift_fst q.fst q.snd q.comparison
   have hinv_snd : inv ≫ p.snd = q.snd := by
     exact p.lift_snd q.fst q.snd q.comparison
-  have hpEq : p.snd = p.fst ≫ x.as :=
-    Discrete.eq_of_hom p.comparison.hom
+  have hpEq : p.snd = p.fst ≫ x.as.down :=
+    Discrete.eq_of_hom_ulift p.comparison.hom
   have hidCompatible :
       (schemeChart X).Classifies p.fst p.snd p.comparison
         p.fst p.snd p.comparison (𝟙 p.space) := by
@@ -345,7 +379,7 @@ noncomputable def schemeChartPullbackPresentationIso (X T : Scheme.{u})
     · rw [Category.assoc, hinv_fst]
       simp only [q, schemeChartPullbackPresentation, Category.comp_id]
     · rw [Category.assoc, hinv_snd]
-      change p.fst ≫ x.as = p.snd
+      change p.fst ≫ x.as.down = p.snd
       exact hpEq.symm
     · apply Iso.ext
       change @Eq (ULift (PLift (_ = _))) _ _
@@ -410,22 +444,22 @@ theorem schemeChart_hasPureRelativeDimension_zero (X : Scheme.{u}) :
 
 private theorem diagonalPullback_fst
     (X T : Scheme.{u}) (x y : StackFiber (ofScheme X) T) :
-    pullback.fst (prod.lift x.as y.as) (Limits.diag X) ≫ x.as =
-      pullback.snd (prod.lift x.as y.as) (Limits.diag X) := by
-  have h₀ : pullback.fst (prod.lift x.as y.as) (Limits.diag X) ≫
-      prod.lift x.as y.as =
-      pullback.snd (prod.lift x.as y.as) (Limits.diag X) ≫ Limits.diag X :=
+    pullback.fst (prod.lift x.as.down y.as.down) (Limits.diag X) ≫ x.as.down =
+      pullback.snd (prod.lift x.as.down y.as.down) (Limits.diag X) := by
+  have h₀ : pullback.fst (prod.lift x.as.down y.as.down) (Limits.diag X) ≫
+      prod.lift x.as.down y.as.down =
+      pullback.snd (prod.lift x.as.down y.as.down) (Limits.diag X) ≫ Limits.diag X :=
     pullback.condition
   have h := congrArg (fun q => q ≫ Limits.prod.fst) h₀
   simpa only [Category.assoc, prod.lift_fst, Category.comp_id] using h
 
 private theorem diagonalPullback_snd
     (X T : Scheme.{u}) (x y : StackFiber (ofScheme X) T) :
-    pullback.fst (prod.lift x.as y.as) (Limits.diag X) ≫ y.as =
-      pullback.snd (prod.lift x.as y.as) (Limits.diag X) := by
-  have h₀ : pullback.fst (prod.lift x.as y.as) (Limits.diag X) ≫
-      prod.lift x.as y.as =
-      pullback.snd (prod.lift x.as y.as) (Limits.diag X) ≫ Limits.diag X :=
+    pullback.fst (prod.lift x.as.down y.as.down) (Limits.diag X) ≫ y.as.down =
+      pullback.snd (prod.lift x.as.down y.as.down) (Limits.diag X) := by
+  have h₀ : pullback.fst (prod.lift x.as.down y.as.down) (Limits.diag X) ≫
+      prod.lift x.as.down y.as.down =
+      pullback.snd (prod.lift x.as.down y.as.down) (Limits.diag X) ≫ Limits.diag X :=
     pullback.condition
   have h := congrArg (fun q => q ≫ Limits.prod.snd) h₀
   simpa only [Category.assoc, prod.lift_snd, Category.comp_id] using h
@@ -435,16 +469,16 @@ pullback of the diagonal of `X`. -/
 noncomputable def schemeDiagonalPresentation
     (X T : Scheme.{u}) (x y : StackFiber (ofScheme X) T) :
     DiagonalPresentation (ofScheme X) T x y where
-  space := pullback (prod.lift x.as y.as) (Limits.diag X)
-  map := pullback.fst (prod.lift x.as y.as) (Limits.diag X)
-  universalIso := Discrete.eqToIso <| (diagonalPullback_fst X T x y).trans
+  space := pullback (prod.lift x.as.down y.as.down) (Limits.diag X)
+  map := pullback.fst (prod.lift x.as.down y.as.down) (Limits.diag X)
+  universalIso := Discrete.eqToIsoULift <| (diagonalPullback_fst X T x y).trans
     (diagonalPullback_snd X T x y).symm
-  lift {S} f e := pullback.lift f (f ≫ x.as) (by
+  lift {S} f e := pullback.lift f (f ≫ x.as.down) (by
     apply prod.hom_ext
     · simp only [Category.assoc, prod.lift_fst, Category.comp_id]
     · simp only [Category.assoc, prod.lift_snd]
-      have he := Discrete.eq_of_hom e.hom
-      change f ≫ x.as = f ≫ y.as at he
+      have he := Discrete.eq_of_hom_ulift e.hom
+      change f ≫ x.as.down = f ≫ y.as.down at he
       exact he.symm)
   lift_map f e := pullback.lift_fst _ _ _
   lift_compatible f e := by
@@ -456,18 +490,18 @@ noncomputable def schemeDiagonalPresentation
     obtain ⟨hg, -⟩ := compatible
     apply pullback.hom_ext
     · calc
-        g ≫ pullback.fst (prod.lift x.as y.as) (Limits.diag X) = f := hg
-        _ = pullback.lift f (f ≫ x.as) _ ≫
-            pullback.fst (prod.lift x.as y.as) (Limits.diag X) :=
+        g ≫ pullback.fst (prod.lift x.as.down y.as.down) (Limits.diag X) = f := hg
+        _ = pullback.lift f (f ≫ x.as.down) _ ≫
+            pullback.fst (prod.lift x.as.down y.as.down) (Limits.diag X) :=
           (pullback.lift_fst _ _ _).symm
     · rw [pullback.lift_snd]
       calc
-        g ≫ pullback.snd (prod.lift x.as y.as) (Limits.diag X) =
-            g ≫ pullback.fst (prod.lift x.as y.as) (Limits.diag X) ≫ x.as := by
+        g ≫ pullback.snd (prod.lift x.as.down y.as.down) (Limits.diag X) =
+            g ≫ pullback.fst (prod.lift x.as.down y.as.down) (Limits.diag X) ≫ x.as.down := by
               have h := congrArg (fun q => g ≫ q) (diagonalPullback_fst X T x y)
               simpa only [Category.assoc] using h.symm
-        _ = f ≫ x.as := by
-          simpa only [Category.assoc] using congrArg (fun q => q ≫ x.as) hg
+        _ = f ≫ x.as.down := by
+          simpa only [Category.assoc] using congrArg (fun q => q ≫ x.as.down) hg
 
 /-- The diagonal of a representable scheme stack is represented by schemes. -/
 theorem ofScheme_hasRepresentableDiagonal (X : Scheme.{u}) :
@@ -483,10 +517,10 @@ theorem ofScheme_diagonal_unramified (X : Scheme.{u}) :
   intro T x y
   refine ⟨⟨schemeDiagonalPresentation X T x y, ?_⟩⟩
   change GromovWitten.AlgebraicGeometry.Unramified
-    (pullback.fst (prod.lift x.as y.as) (Limits.diag X))
+    (pullback.fst (prod.lift x.as.down y.as.down) (Limits.diag X))
   exact MorphismProperty.IsStableUnderBaseChange.of_isPullback
     (P := @GromovWitten.AlgebraicGeometry.Unramified)
-    (IsPullback.of_hasPullback (prod.lift x.as y.as) (Limits.diag X)).flip inferInstance
+    (IsPullback.of_hasPullback (prod.lift x.as.down y.as.down) (Limits.diag X)).flip inferInstance
 
 /-- A separated scheme has proper diagonal after passage to its represented stack.  Each
 scheme-valued isomorphism fibre is the actual base change of the scheme diagonal. -/
@@ -496,10 +530,10 @@ theorem ofScheme_diagonal_proper (X : Scheme.{u}) [X.IsSeparated] :
   intro T x y
   refine ⟨⟨schemeDiagonalPresentation X T x y, ?_⟩⟩
   change _root_.AlgebraicGeometry.IsProper
-    (pullback.fst (prod.lift x.as y.as) (Limits.diag X))
+    (pullback.fst (prod.lift x.as.down y.as.down) (Limits.diag X))
   exact MorphismProperty.IsStableUnderBaseChange.of_isPullback
     (P := @_root_.AlgebraicGeometry.IsProper)
-    (IsPullback.of_hasPullback (prod.lift x.as y.as) (Limits.diag X)).flip inferInstance
+    (IsPullback.of_hasPullback (prod.lift x.as.down y.as.down) (Limits.diag X)).flip inferInstance
 
 /-- A scheme, regarded as a discrete fppf stack, is algebraic. -/
 noncomputable def ofSchemeAlgebraicStack (X : Scheme.{u}) : AlgebraicStack.{u} where

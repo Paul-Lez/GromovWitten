@@ -61,7 +61,7 @@ theorem objPullbackIso_comp {U T S : Scheme.{u}} (g : U ⟶ T) (k : T ⟶ A.sche
       (A.objIsoOfEq (Category.assoc m g k).symm).trans (A.objPullbackIso (m ≫ g) k) := by
   apply Iso.ext
   have h := Pseudofunctor.StrongTrans.naturality_comp_hom_app
-    A.map ⟨g.op⟩ ⟨m.op⟩ (Discrete.mk k)
+    A.map ⟨g.op⟩ ⟨m.op⟩ (Discrete.mk (ULift.up k))
   dsimp [representedStack, StackInGroupoids.ofSheafOfTypes,
     Pseudofunctor.ofPresheafOfTypes, Functor.toPseudofunctor',
     pseudofunctorOfIsLocallyDiscrete, typeToCat] at h
@@ -72,7 +72,7 @@ theorem objPullbackIso_comp {U T S : Scheme.{u}} (g : U ⟶ T) (k : T ⟶ A.sche
   let mgop : LocallyDiscrete.mk (Opposite.op T) ⟶
       LocallyDiscrete.mk (Opposite.op S) := ⟨(m ≫ g).op⟩
   have hop : gop ≫ mop = mgop := rfl
-  change (A.map.naturality (gop ≫ mop)).hom.toNatTrans.app (Discrete.mk k) = _ at h
+  change (A.map.naturality (gop ≫ mop)).hom.toNatTrans.app (Discrete.mk (ULift.up k)) = _ at h
   rw [CategoryTheory.Functor.map_id, Category.id_comp] at h
   simp only [inducedComparison, objIsoOfEq, objPullbackIso, Iso.trans_hom,
     Functor.mapIso, Category.assoc, Iso.refl_hom, Category.id_comp]
