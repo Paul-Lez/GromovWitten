@@ -935,6 +935,13 @@ def Stable.postcomposeIso {W : Scheme.{u}} {q' : W ⟶ S}
     intro K _ _ y
     exact hF.fiberGraph K y
 
+def Stable.ofTargetedIso {W : Scheme.{u}} {q' : W ⟶ S}
+    {F : MarkedMap q I} {G : MarkedMap q' I} [Fintype I] [DecidableEq I]
+    (e : TargetedIso F G) (H : LineBundle V) (hF : Stable F H) :
+    Stable G (H.pullback e.targetIso.inv) :=
+  Stable.ofIso e.toIso (H.pullback e.targetIso.inv)
+    (hF.postcomposeIso F H e.targetIso e.targetIso_toBase)
+
 
 /-- A proper contraction between marked maps, with a genuine isomorphism on the complements of
 closed exceptional loci and connected point fibres. -/
