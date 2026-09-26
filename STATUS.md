@@ -242,6 +242,11 @@ Implemented APIs include:
   finite-sum distributivity statement;
 - the intrinsic pullback sequence of Picard groupoids for a tower `R → S → T`, unconditional
   when `S` is formally smooth over `R` and `T` is flat and formally smooth over `S`;
+- the transitivity long exact sequence of the truncated cotangent complex for a tower `R → S → T`
+  (Layer 3): the flat base-change arrow on `H⁻¹` and its exactness complete the Jacobi–Zariski sequence,
+  bundled as `TransitivitySequence` with all exactness proved; étale base change of `H⁰` is an isomorphism
+  and base change of `H⁻¹` is an isomorphism for localisations
+  (`CotangentComplex/Transitivity.lean`, `CotangentComplex/TransitivityEtale.lean`);
 - obstruction cones of the affine intrinsic normal cone inside `h¹/h⁰(Eᵛ)` (fibrewise closed
   immersions), the identification of the two-term obstruction-theory criterion with the derived
   one, virtual rank, external sums and base change of obstruction theories, invariance under
