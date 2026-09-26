@@ -247,6 +247,9 @@ Implemented APIs include:
   bundled as `TransitivitySequence` with all exactness proved; étale base change of `H⁰` is an isomorphism
   and base change of `H⁻¹` is an isomorphism for localisations
   (`CotangentComplex/Transitivity.lean`, `CotangentComplex/TransitivityEtale.lean`);
+- étale base change of `H⁻¹` of the truncated cotangent complex, `H⁻¹(L_{S/R}) ⊗_S T ≅ H⁻¹(L_{T/R})` for
+  `S → T` étale, through compatible presentations of standard étale algebras and localisation on `T`
+  (`CotangentComplex/TransitivityEtaleGeneral.lean`: `bijective_jzH1BaseChange_of_etale`, `hNegOneBaseChangeIso`);
 - obstruction cones of the affine intrinsic normal cone inside `h¹/h⁰(Eᵛ)` (fibrewise closed
   immersions), the identification of the two-term obstruction-theory criterion with the derived
   one, virtual rank, external sums and base change of obstruction theories, invariance under
