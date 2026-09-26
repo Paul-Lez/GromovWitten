@@ -362,3 +362,6 @@ import GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.LciFormulaPure
 import GromovWitten.AlgebraicGeometry.Cones.SmoothQuasiregular
 import GromovWitten.AlgebraicGeometry.Cones.SmoothIntrinsicNormalSheaf
 import GromovWitten.AlgebraicGeometry.Cones.SmoothFormula
+import GromovWitten.AlgebraicGeometry.Stacks.StackProductProjections
+import GromovWitten.AlgebraicGeometry.Stacks.DiagonalComparison
+import GromovWitten.AlgebraicGeometry.Stacks.InertiaFunctoriality
