@@ -126,6 +126,31 @@ universe u
 variable {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶ Z)
     [QuasiCompact f] [QuasiSeparated f] [IsIntegralHom g]
 
+/-- Normalization factorization is natural under equality of the normalized morphisms.  The
+explicit class arguments in this statement are essential: `QuasiCompact` and `QuasiSeparated`
+are indexed by the morphism, so an unannotated rewrite cannot transport `fromNormalization`. -/
+theorem normalization_eq_of_eq
+    {X Y : Scheme.{u}} (f g : X ⟶ Y)
+    [qcf : QuasiCompact f] [qsf : QuasiSeparated f]
+    [qcg : QuasiCompact g] [qsg : QuasiSeparated g]
+    (h : f = g) :
+    @Scheme.Hom.normalization X Y f qcf qsf =
+      @Scheme.Hom.normalization X Y g qcg qsg := by
+  cases h
+  rfl
+
+theorem normalization_fromNormalization_eqToIso
+    {X Y : Scheme.{u}} (f g : X ⟶ Y)
+    [qcf : QuasiCompact f] [qsf : QuasiSeparated f]
+    [qcg : QuasiCompact g] [qsg : QuasiSeparated g]
+    (h : f = g) :
+    eqToHom (show @Scheme.Hom.normalization X Y f qcf qsf =
+        @Scheme.Hom.normalization X Y g qcg qsg by cases h; rfl) ≫
+      @Scheme.Hom.fromNormalization X Y g qcg qsg =
+      @Scheme.Hom.fromNormalization X Y f qcf qsf := by
+  cases h
+  simp
+
 noncomputable def integralPostcompBase : (f ≫ g).normalization ⟶ Y :=
   (f ≫ g).normalizationDesc f g rfl
 
@@ -176,6 +201,17 @@ noncomputable def normalizationIntegralPostcompIso :
   change integralPostcompHom f g ≫ f.fromNormalization ≫ g = _
   rw [← Category.assoc, integralPostcompHom_fromNormalization]
   simp [integralPostcompBase]
+
+@[reassoc (attr := simp)] theorem normalizationIntegralPostcompIso_inv_fromNormalization :
+    (normalizationIntegralPostcompIso f g).inv ≫ (f ≫ g).fromNormalization =
+      f.fromNormalization ≫ g := by
+  calc
+    (normalizationIntegralPostcompIso f g).inv ≫ (f ≫ g).fromNormalization =
+        (normalizationIntegralPostcompIso f g).inv ≫
+          ((normalizationIntegralPostcompIso f g).hom ≫ f.fromNormalization ≫ g) := by
+            rw [normalizationIntegralPostcompIso_hom_fromNormalization]
+    _ = f.fromNormalization ≫ g := by
+      simp only [Iso.inv_hom_id_assoc]
 
 @[reassoc (attr := simp)] theorem toNormalization_normalizationIntegralPostcompIso_hom :
     (f ≫ g).toNormalization ≫ (normalizationIntegralPostcompIso f g).hom =

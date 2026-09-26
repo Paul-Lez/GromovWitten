@@ -154,6 +154,42 @@ theorem standardNodeBranchPairMap_inr (K : Type u) [Field K] :
     coprod.inr ≫ standardNodeBranchPairMap K = yGenericMap K := by
   simp [standardNodeBranchPairMap, yGenericMap, coprod.inr_desc]
 
+theorem standardNodeBranchPairMap_inl_fromNormalization (K : Type u) [Field K] :
+    eqToHom (Scheme.Hom.normalization_eq_of_eq
+      (coprod.inl ≫ standardNodeBranchPairMap K) (xGenericMap K)
+      (standardNodeBranchPairMap_inl K)) ≫ (xGenericMap K).fromNormalization =
+      (coprod.inl ≫ standardNodeBranchPairMap K).fromNormalization := by
+  exact Scheme.Hom.normalization_fromNormalization_eqToIso
+    (coprod.inl ≫ standardNodeBranchPairMap K) (xGenericMap K)
+    (standardNodeBranchPairMap_inl K)
+
+theorem standardNodeBranchPairMap_inr_fromNormalization (K : Type u) [Field K] :
+    eqToHom (Scheme.Hom.normalization_eq_of_eq
+      (coprod.inr ≫ standardNodeBranchPairMap K) (yGenericMap K)
+      (standardNodeBranchPairMap_inr K)) ≫ (yGenericMap K).fromNormalization =
+      (coprod.inr ≫ standardNodeBranchPairMap K).fromNormalization := by
+  exact Scheme.Hom.normalization_fromNormalization_eqToIso
+    (coprod.inr ≫ standardNodeBranchPairMap K) (yGenericMap K)
+    (standardNodeBranchPairMap_inr K)
+
+theorem standardNodeBranchPairMap_inl_fromNormalization_inv (K : Type u) [Field K] :
+    eqToHom (Scheme.Hom.normalization_eq_of_eq
+      (coprod.inl ≫ standardNodeBranchPairMap K) (xGenericMap K)
+      (standardNodeBranchPairMap_inl K)).symm ≫
+        (coprod.inl ≫ standardNodeBranchPairMap K).fromNormalization =
+      (xGenericMap K).fromNormalization := by
+  rw [← standardNodeBranchPairMap_inl_fromNormalization]
+  simp
+
+theorem standardNodeBranchPairMap_inr_fromNormalization_inv (K : Type u) [Field K] :
+    eqToHom (Scheme.Hom.normalization_eq_of_eq
+      (coprod.inr ≫ standardNodeBranchPairMap K) (yGenericMap K)
+      (standardNodeBranchPairMap_inr K)).symm ≫
+        (coprod.inr ≫ standardNodeBranchPairMap K).fromNormalization =
+      (yGenericMap K).fromNormalization := by
+  rw [← standardNodeBranchPairMap_inr_fromNormalization]
+  simp
+
 noncomputable def standardNodeBranchNormalizationIsoInl (K : Type u) [Field K] :
     (coprod.inl ≫ standardNodeBranchPairMap K).normalization ≅ branchAxis K := by
   exact eqToIso (congrArg (fun h : branchGeneric K ⟶ branchNode K => h.normalization)
@@ -175,6 +211,39 @@ noncomputable def standardNodeNormalizationIso (K : Type u) [Field K] :
   let c := standardNodeNormalizationCoprodIso K
   change (branchAxis K ⨿ branchAxis K) ≅ f.normalization
   exact coprod.mapIso b₁.symm b₂.symm ≪≫ c
+
+theorem standardNodeNormalizationIso_hom_fromNormalization
+    (K : Type u) [Field K] :
+    (standardNodeNormalizationIso K).hom ≫
+        (standardNodeBranchPairMap K).fromNormalization =
+      standardNodeAxesMap K := by
+  apply coprod.hom_ext
+  · dsimp [standardNodeNormalizationIso, coprod.mapIso]
+    simp only [← Category.assoc]
+    rw [coprod.inl_map]
+    simp only [Category.assoc]
+    rw [standardNodeNormalizationCoprodIso_hom_fromNormalization_inl]
+    simp only [standardNodeBranchNormalizationIsoInl]
+    simp only [branchGenericNormalizationIso]
+    simp only [Iso.trans_inv]
+    simp only [Category.assoc, eqToIso.inv]
+    rw [standardNodeBranchPairMap_inl_fromNormalization_inv]
+    rw [Scheme.Hom.normalizationIntegralPostcompIso_inv_fromNormalization]
+    simp only [Normalization.toCurve, asIso_inv, IsIso.inv_hom_id_assoc,
+      standardNodeAxesMap, coprod.inl_desc]
+  · dsimp [standardNodeNormalizationIso, coprod.mapIso]
+    simp only [← Category.assoc]
+    rw [coprod.inr_map]
+    simp only [Category.assoc]
+    rw [standardNodeNormalizationCoprodIso_hom_fromNormalization_inr]
+    simp only [standardNodeBranchNormalizationIsoInr]
+    simp only [branchGenericNormalizationIso]
+    simp only [Iso.trans_inv]
+    simp only [Category.assoc, eqToIso.inv]
+    rw [standardNodeBranchPairMap_inr_fromNormalization_inv]
+    rw [Scheme.Hom.normalizationIntegralPostcompIso_inv_fromNormalization]
+    simp only [Normalization.toCurve, asIso_inv, IsIso.inv_hom_id_assoc,
+      standardNodeAxesMap, coprod.inr_desc]
 
 end
 end GromovWitten.AlgebraicGeometry.Curves.StableReduction
