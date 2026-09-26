@@ -307,6 +307,10 @@ import GromovWitten.AlgebraicGeometry.Curves.StableReduction.StableReduction
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.DecoratedGraph
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Clutching
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Examples
+import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ComponentIntersection
+import GromovWitten.AlgebraicGeometry.Curves.StableReduction.SpecialFibreDimension
+import GromovWitten.AlgebraicGeometry.Curves.StableReduction.SpecialFibreStalk
+import GromovWitten.AlgebraicGeometry.Curves.StableReduction.SpecialFibreStalkIso
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ModelNormalization
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.CommonModification
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ClosureModel

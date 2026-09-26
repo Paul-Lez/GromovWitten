@@ -148,6 +148,29 @@ Implemented APIs include:
   model of the same curve, flat by torsion-freeness of the Rees charts and with the generic fibre
   untouched, and the projection is a proper modification of models; finite chains of such
   blowups compose to proper modifications and preserve properness;
+- the first geometric inputs to the special-fibre numerical type of an arithmetic surface: the vanishing
+  ideal sheaf of a component of the special fibre with its support, the intersection number of two components
+  as the sum of the stalk intersection multiplicities (symmetric, zero for disjoint components, finite under
+  explicit finite-support and radical hypotheses) and the multiplicity of a component as the order of the
+  uniformiser at its generic point, positive (`Curves/StableReduction/ComponentIntersection.lean`);
+- the local rings of a regular proper model along the special fibre: a regular local ring is a domain and
+  a one-dimensional one is a DVR, the stalks are flat over the base so Krull's principal ideal theorem gives
+  `dim 𝒪_{M,x}/(π) + 1 = dim 𝒪_{M,x}`, the local ring at the generic point of a component is a DVR, so the
+  component multiplicities are positive natural numbers and the intersection numbers have an `ℕ`-valued form
+  (`Curves/StableReduction/SpecialFibreDimension.lean`: `IsRegularLocalRing.isDomain`,
+  `isDiscreteValuationRing_stalk_genericPoint`, `componentMultiplicityNat_pos_of_span_eq`);
+- the prime-to-point dictionary for `fromSpecStalk` and the stalk-ideal/support dictionary for ideal
+  sheaves, giving `dim 𝒪_{M,x} = 2` at closed points of the special fibre when the fibre has topological
+  dimension at most one, finiteness of the intersection of two distinct components with zero-dimensional
+  local intersection algebras, hence genuine natural intersection numbers of distinct components
+  (`Curves/StableReduction/SpecialFibreStalk.lean`: `ringKrullDim_stalk_eq_two_of_isClosed`,
+  `componentIntersection_ne_top_of_ne`);
+- the special fibre of a model over a DVR is the closed subscheme cut out by the uniformiser
+  (`ker_specialFiberι`, `specialFiberSchemeIsoSubscheme`), the kernel of the stalk map of a closed immersion
+  is the extension of the kernel on an affine chart (`ker_stalkMap_of_isClosedImmersion`), hence the stalks of
+  the special fibre are `𝒪_{M,x} ⧸ (π)` (`specialFiberStalkIso`) and drop the dimension by exactly one at
+  closed points, with the one-dimensionality of the special fibre in three equivalent forms
+  (`Curves/StableReduction/SpecialFibreStalkIso.lean`);
 - the normalisation of a model of a curve over a DVR is again a model: flatness of the normalisation over
   the DVR is proved unconditionally (flat ⟺ injective into a domain over a Bézout domain, chart by chart on
   Mathlib's normalisation cover), and with finiteness of the normalisation and the generic-fibre isomorphism
