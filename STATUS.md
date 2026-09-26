@@ -497,6 +497,12 @@ Implemented APIs include:
   localisation case, and the relative conormal complex and comparison chain map for base change along a
   coordinate hyperplane of the base (`VirtualFundamentalClass/RelativeVirtualClassBaseChange.lean`:
   `hyperplaneConormalComplex`, `hyperplaneHom`);
+- the long exact cohomology sequence of a short exact sequence of sheaves of modules on a scheme, from
+  short exactness in the category of sheaves of modules alone (the forgetful functor to abelian sheaves
+  preserves finite limits and epimorphisms, the latter through a reflection criterion absent from Mathlib),
+  with a connecting homomorphism linear over the global sections, and the additivity of the Euler
+  characteristic under explicit finite-dimensionality and vanishing hypotheses
+  (`Curves/CohomologyExactSequence.lean`);
 - transfer of the obstruction-theory condition along the coordinate-hyperplane base change, with no
   regularity hypothesis, and the conormal splitting `I ∩ (y₀) = y₀·I` with the converse when `y₀` is a
   non-zero-divisor (`VirtualFundamentalClass/RelativeHyperplaneObstruction.lean`:
