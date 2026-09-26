@@ -320,6 +320,8 @@ import GromovWitten.AlgebraicGeometry.Curves.Clutching.BaseChange
 import GromovWitten.AlgebraicGeometry.Curves.Clutching.Topology
 import GromovWitten.AlgebraicGeometry.Curves.Clutching.StandardNode
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Examples
+import GromovWitten.AlgebraicGeometry.Curves.Dualizing.NodeHypersurface
+import GromovWitten.AlgebraicGeometry.Curves.Dualizing.Ext
 import GromovWitten.AlgebraicGeometry.Cones.PicardBaseChange
 import GromovWitten.AlgebraicGeometry.Cones.ConormalBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ComponentIntersection
