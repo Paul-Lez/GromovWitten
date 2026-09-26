@@ -468,6 +468,10 @@ Implemented APIs include:
   divisor of `b` along `Spec B → Spec A` is the divisor of its norm, and the degree of zero-cycles is
   compatible with this pushforward (`IntersectionTheory/NormPushforward.lean`:
   `map_principalCycle_eq_principalCycle_norm`, `degreeCycle_principalCycleOf_norm`);
+- the morphism to `ℙ¹_k` defined by a rational function on a regular proper curve, glued from the chart
+  morphisms on the domains of definition of `r` and `r⁻¹`, and its finiteness by Zariski's main theorem under
+  explicit separatedness and one-dimensionality hypotheses (`Curves/RationalFunctionToProjectiveLine.lean`:
+  `regularLocus`, `regularSection`, `toProjectiveLine`, `isFinite_toProjectiveLine`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as

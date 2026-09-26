@@ -317,3 +317,4 @@ import GromovWitten.AlgebraicGeometry.ProjectiveLine
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.ProjectiveLineDegree
 import GromovWitten.Algebra.OrderDeterminant
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.NormPushforward
+import GromovWitten.AlgebraicGeometry.Curves.RationalFunctionToProjectiveLine
