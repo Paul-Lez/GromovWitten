@@ -13,11 +13,10 @@ import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackAtlas
 
 This file assembles the affine cone quotient `[C/E]` of `Cones/QuotientTorsor.lean` into a
 `GromovWitten.AlgebraicGeometry.ConeStack` over the represented stack of the base `Spec R`:
-`ConeQuotient.coneQuotientStackOfZeroIso`.  The total stack is
+`ConeQuotient.coneQuotientStack`.  The total stack is
 `ActionTorsor.quotientStack (vectorBundleGroup σ) (coneActionSpace A bas)`, the contraction is the
-unconditional `ConeQuotient.contractionFunctor` of `Cones/QuotientTorsorContraction.lean`, and all
-the `ConeStack` fields except the *naturality* of the vanishing law are constructed here; see
-"What is not done" below.
+unconditional `ConeQuotient.contractionFunctor` of `Cones/QuotientTorsorContraction.lean`, and every
+`ConeStack` field is constructed here or in `Cones/QuotientTorsorContractionCoherence.lean`.
 
 ## The descent of the base point
 
@@ -73,41 +72,52 @@ same design as `Stacks/StrongTransOfDiscrete.lean` and `Stacks/Inertia.lean`.
 * **`ConeQuotient.coneContractionZeroIsoApp`** -- the vanishing law at the level of objects, from
   `ConeQuotient.zeroSection_eq` (the vertex over the base point of an object is the vertex section
   applied to its base point) and `ConeQuotient.lift_scaleConeScheme_zero`.
-* **`ConeQuotient.coneQuotientStackOfZeroIso`** -- the `ConeStack` itself.
+* **`ConeQuotient.coneContractionZeroIso`** -- the vanishing law of the contraction as a natural
+  isomorphism, the transport of `ConeQuotient.zeroVertexIso_naturality` along
+  `ConeQuotient.trivialWithPoint_vertexPoint_eq`.
+* **`ConeQuotient.coneQuotientStack`** -- the `ConeStack` itself, with
+  `ConeQuotient.coneQuotientStackOfZeroIso` the auxiliary form parametrised by the vanishing law.
 * `ConeQuotient.trivialHomSection_comp_pushMap` (with `pushMap_trivialDatum`): **the canonical
   section of a pointwise trivial relative pushout is natural in the torsor**, the missing
   ingredient for the naturality of the vanishing law; and
   `ConeQuotient.sectionMap_comp_iso_hom`: the trivialisation attached to a section is natural.
 
-## What is not done
+## The vanishing law, and the two category instances on a fibre of `[C/E]`
 
-`coneQuotientStackOfZeroIso` takes the *natural* isomorphism `contractionFunctor A bas 0 ≅
-projection ⋙ vertex` as an input rather than building it.  Everything it needs is proved here:
+The vanishing law `contractionFunctor A bas 0 ≅ projection ⋙ vertex` is the delicate field, and the
+reason is worth recording.  Its content is
+`ConeQuotient.zeroVertexIso` -- the isomorphism of the contraction by `0` of an object with the
+trivialised object of the vertex over its base point -- together with its naturality
+`ConeQuotient.zeroVertexIso_naturality`, which rests on
+`ConeQuotient.trivialHomSection_comp_pushMap` (the canonical section of a pointwise trivial
+relative pushout is natural in the torsor, the statement
+`Cones/QuotientTorsorContractionCoherence.lean` does not provide),
+`ConeQuotient.zeroHomSection_comp_zeroTrivialisation_inv` and
+`ConeQuotient.trivialSection_comp_eqToHom`; the identification of that trivialised object with the
+value of `projection ⋙ vertex` is `ConeQuotient.trivialWithPoint_vertexPoint_eq`.
 
-* `ConeQuotient.zeroVertexIso` is the isomorphism of the contraction by `0` of an object with the
-  trivialised object of the vertex over its base point, and
-  `ConeQuotient.zeroVertexIso_naturality` is its **naturality**, proved from
-  `ConeQuotient.trivialHomSection_comp_pushMap` (the canonical section of a pointwise trivial
-  relative pushout is natural in the torsor -- the statement
-  `Cones/QuotientTorsorContractionCoherence.lean` does not provide) together with
-  `ConeQuotient.zeroHomSection_comp_zeroTrivialisation_inv` and
-  `ConeQuotient.trivialSection_comp_eqToHom`;
-* `ConeQuotient.trivialWithPoint_vertexPoint_eq` identifies that trivialised object with the value
-  of `projection ⋙ vertex`, and `ConeQuotient.projVertex_map_eq_eqToHom` shows that
-  `projection ⋙ vertex` acts on arrows by the canonical identification (the middle fibre is
-  discrete).
+Transporting the naturality along that identification is pure `eqToHom` bookkeeping, but it cannot
+be done by rewriting.  The domain of `contractionFunctor A bas 0` carries the category instance
+`ActionTorsor.instCategory`, whereas the domain of
+`StackHom.appFunctor (baseProjection A bas) T ⋙ StackHom.appFunctor (coneVertexHom A bas ε) T`
+carries `(StackFiber (coneTotalStack A bas) T).str`.  The two are definitionally equal, so every
+statement relating them elaborates, but such a statement is *not* type-correct at `implicit`
+transparency, so `rw` and `simp` cannot be used on it at all (they fail with "did not find an
+occurrence of the pattern").  The way through is to keep every rewriting step inside a lemma about
+an *abstract* category -- here `ConeQuotient.comp_assoc_paste` and
+`ConeQuotient.natIsoOfDiscreteFactor`, whose `Category` instances are arguments -- and to
+instantiate those lemmas by ordinary term application, which is checked at default transparency and
+costs a handful of projection reductions instead of an unfolding of the fibre.  This is the same
+design as the "coherence for free" helpers above, and
+`ConeQuotient.natIsoOfDiscreteFactor` additionally uses the fact that the middle fibre
+`StackFiber (coneBaseStack R) T` is discrete, so that `projection ⋙ vertex` acts on arrows by the
+identification of their endpoints (`ConeQuotient.projVertex_map_eq_eqToHom` is the same fact,
+proved directly at the concrete fibre).
 
-What is missing is only the *transport* of `zeroVertexIso_naturality` along those two facts, i.e.
-pure `eqToHom` bookkeeping.  Two attempts failed for a reason worth recording: the domain of
-`contractionFunctor A bas 0` carries the category instance `ActionTorsor.instCategory`, whereas the
-domain of `StackHom.appFunctor (baseProjection A bas) T ⋙ StackHom.appFunctor (coneVertexHom A bas
-ε) T` carries `(StackFiber (coneTotalStack A bas) T).str`.  The two are definitionally equal, so
-every statement elaborates, but `rw` fails to match across them ("did not find an occurrence of the
-pattern") and closing the gap with `exact`/`congrArg` instead makes the *kernel* unfold
-`StackFiber` and time out.  Completing the field therefore means first fixing one of the two
-instances throughout (for instance by restating `ConeQuotient.zeroVertexIso` and
-`ConeQuotient.contractionFunctor`'s naturality at `StackFiber (coneTotalStack A bas) T`) and then
-using an abstract transport helper in the style of `ConeQuotient.natIsoOfObjEq`.
+## Not done
+
+No claim is made that `[C/E]` is an *algebraic* stack, nor that the cone stack is coherent in the
+sense of `ConeStack.IsCoherent` (`Cones/StackCoherence.lean`).
 -/
 
 open CategoryTheory CategoryTheory.Limits CartesianMonoidalCategory Opposite
@@ -981,10 +991,10 @@ theorem projVertex_map_eq_eqToHom
       ((StackHom.appFunctor (baseProjection A bas) T).map f) = eqToHom h
   rw [hmap, eqToHom_map]
 
-/-! The remaining step towards `ConeStack.contractionZeroIso` as a natural isomorphism is the
-transport of `ConeQuotient.zeroVertexIso_naturality` along
-`ConeQuotient.trivialWithPoint_vertexPoint_eq` and `ConeQuotient.projVertex_map_eq_eqToHom`; see the
-module docstring. -/
+/-! `ConeStack.contractionZeroIso` as a natural isomorphism is `ConeQuotient.coneContractionZeroIso`
+below, the transport of `ConeQuotient.zeroVertexIso_naturality` along
+`ConeQuotient.trivialWithPoint_vertexPoint_eq`; see the module docstring for why that transport has
+to be done by term application rather than by rewriting. -/
 
 end ContractionZeroNatural
 
@@ -996,15 +1006,14 @@ variable {R S F : Type u} [CommRing R] [CommRing S] [Algebra R S]
   [AddCommGroup F] [Module R F] {σ : Type u} {T T' : Scheme.{u}}
 variable (A : ConeAction R S F) (bas : Module.Basis σ R F)
 
-/-- **The affine cone quotient `[C/E]` as a cone stack over `Spec R`**, given the one coherence
-datum that this file does not construct: the *naturality in the object* of the vanishing law
-`ConeQuotient.coneContractionZeroIsoApp` (which is proved here for every single object, and is a
-natural isomorphism as soon as the canonical section of a pointwise trivial relative pushout is
-natural in the torsor — a statement about `TorsorPushoutRel.trivialHomSection` which
-`Cones/QuotientTorsorContractionCoherence.lean` does not provide).  Every other field, in
-particular the projection, the vertex, the fact that the vertex is a section of the projection, and
-the unit, multiplicativity, vertex, projection and base-change laws of the contraction, is
-constructed in this file or in `Cones/QuotientTorsorContractionCoherence.lean`. -/
+/-- **The affine cone quotient `[C/E]` as a cone stack over `Spec R`**, parametrised by the
+vanishing law of the contraction in its natural form.  That datum is constructed below
+(`ConeQuotient.coneContractionZeroIso`), which turns this into the unconditional
+`ConeQuotient.coneQuotientStack`; the parametrised form is kept because it isolates the vanishing
+law from every other field -- the projection, the vertex, the fact that the vertex is a section of
+the projection, and the unit, multiplicativity, vertex, projection and base-change laws of the
+contraction -- all of which come from this file or from
+`Cones/QuotientTorsorContractionCoherence.lean`. -/
 noncomputable def coneQuotientStackOfZeroIso {ε : S →ₐ[R] R}
     (hv : GradedCone.IsConeVertex A.coaction ε)
     (zeroIso : ∀ T : Scheme.{u}, contractionFunctor A bas (0 : Γ(T, ⊤)) ≅
@@ -1024,6 +1033,166 @@ noncomputable def coneQuotientStackOfZeroIso {ε : S →ₐ[R] R}
   contractionPullbackIso f r := contractionFunctorPullbackIso A bas r f
 
 end Assembly
+
+/-! ### The vanishing law as a natural isomorphism -/
+
+section DiscreteFactor
+
+universe w₂ w₃ w₄ v₂ v₃ v₄
+
+/-- **Pasting a naturality square onto an identification of its targets.**  Stated for an abstract
+category, so that it can be applied to a goal whose terms are only *definitionally* type-correct
+(the fibre of `[C/E]` carries two definitionally equal category instances, so `rw` cannot be used
+on such a goal at all: the goal is not type-correct at `implicit` transparency). -/
+theorem comp_assoc_paste {C : Type v₂} [Category.{w₂} C] {W X Y Y' Z V : C}
+    {m : W ⟶ X} {a : X ⟶ Y'} {a' : W ⟶ Y} {u : Y ⟶ Y'} {e : Y' ⟶ Z} {e' : Y ⟶ V}
+    {ef : V ⟶ Z} (h1 : m ≫ a = a' ≫ u) (h2 : u ≫ e = e' ≫ ef) :
+    m ≫ a ≫ e = (a' ≫ e') ≫ ef := by
+  rw [← Category.assoc, h1, Category.assoc, h2, Category.assoc]
+
+/-- **A natural isomorphism onto a functor which factors through a category with subsingleton
+hom-types**, from the isomorphisms of the values on objects together with the naturality expressed
+through the canonical identifications `hobjH` of those values.  Because the middle category has
+subsingleton hom-types, the composite `Ψ ⋙ Θ` acts on an arrow by the identification of its
+endpoints, so the naturality square of the components collapses to `hnat`.
+
+Stated for abstract categories, whose `Category` instances are therefore *arguments*: instantiating
+it at a fibre of a stack fixes one instance once and for all, costs a single definitional check,
+and never asks the kernel to unfold the fibre. -/
+def natIsoOfDiscreteFactor {C : Type v₂} [Category.{w₂} C] {D : Type v₃} [Category.{w₃} D]
+    {E : Type v₄} [Category.{w₄} E] {Φ : C ⥤ D} {Ψ : C ⥤ E} {Θ : E ⥤ D}
+    (hs : ∀ x y : E, Subsingleton (x ⟶ y))
+    (hobjG : ∀ {X Y : C}, (X ⟶ Y) → Ψ.obj X = Ψ.obj Y)
+    (hobjH : ∀ {X Y : C}, (X ⟶ Y) → (Ψ ⋙ Θ).obj X = (Ψ ⋙ Θ).obj Y)
+    (app : ∀ X, Φ.obj X ≅ (Ψ ⋙ Θ).obj X)
+    (hnat : ∀ {X Y : C} (f : X ⟶ Y),
+      Φ.map f ≫ (app Y).hom = (app X).hom ≫ eqToHom (hobjH f)) :
+    Φ ≅ Ψ ⋙ Θ :=
+  NatIso.ofComponents app (fun {_ _} f => by
+    have hmap : (Ψ ⋙ Θ).map f = eqToHom (hobjH f) := by
+      have h1 : Ψ.map f = eqToHom (hobjG f) := (hs _ _).elim _ _
+      rw [Functor.comp_map, h1, eqToHom_map]
+    rw [hnat f, hmap])
+
+end DiscreteFactor
+
+section ContractionZeroIso
+
+variable {R S F : Type u} [CommRing R] [CommRing S] [Algebra R S]
+  [AddCommGroup F] [Module R F] {σ : Type u} {T : Scheme.{u}}
+variable (A : ConeAction R S F) (bas : Module.Basis σ R F)
+variable {ε : S →ₐ[R] R}
+
+/-- **The projection to the base identifies isomorphic objects of `[C/E]`**, as an equality of
+objects of the fibre of the base. -/
+theorem baseProjection_obj_congr
+    {P Q : ActionTorsor (vectorBundleGroup σ) (coneActionSpace A bas) T} (f : P ⟶ Q) :
+    (StackHom.appFunctor (baseProjection A bas) T).obj P =
+      (StackHom.appFunctor (baseProjection A bas) T).obj Q :=
+  (baseProjection_app_obj A bas T P).trans
+    ((congrArg (fun t => (Discrete.mk (ULift.up t) : StackFiber (coneBaseStack R) T))
+      (basePoint_congr A bas f)).trans (baseProjection_app_obj A bas T Q).symm)
+
+/-- The canonical identification of the values of `projection ⋙ vertex` on isomorphic objects of
+`[C/E]`: both are the trivialised object of the vertex over the common base point. -/
+theorem projVertex_obj_congr
+    {P Q : ActionTorsor (vectorBundleGroup σ) (coneActionSpace A bas) T} (f : P ⟶ Q) :
+    (StackHom.appFunctor (baseProjection A bas) T ⋙
+        StackHom.appFunctor (coneVertexHom A bas ε) T).obj P =
+      (StackHom.appFunctor (baseProjection A bas) T ⋙
+        StackHom.appFunctor (coneVertexHom A bas ε) T).obj Q :=
+  (trivialWithPoint_vertexPoint_eq A bas (ε := ε) P).symm.trans
+    ((congrArg trivialWithPoint (vertexPoint_congr A bas (ε := ε) f)).trans
+      (trivialWithPoint_vertexPoint_eq A bas (ε := ε) Q))
+
+/-- **The vanishing law of the contraction of `[C/E]` is natural in the object**, in the form
+required by `ConeQuotient.natIsoOfDiscreteFactor`: the transport of
+`ConeQuotient.zeroVertexIso_naturality` along `ConeQuotient.trivialWithPoint_vertexPoint_eq`.  The
+proof is in term mode, because the goal mentions the fibre of `[C/E]` through two definitionally
+equal category instances and is therefore not type-correct at `implicit` transparency. -/
+theorem zeroVertexIso_naturality' (hv : GradedCone.IsConeVertex A.coaction ε)
+    {P Q : ActionTorsor (vectorBundleGroup σ) (coneActionSpace A bas) T} (f : P ⟶ Q) :
+    (contractionFunctor A bas (0 : Γ(T, ⊤))).map f ≫
+        (zeroVertexIso A bas hv Q).hom ≫
+          eqToHom (trivialWithPoint_vertexPoint_eq A bas (ε := ε) Q) =
+      ((zeroVertexIso A bas hv P).hom ≫
+          eqToHom (trivialWithPoint_vertexPoint_eq A bas (ε := ε) P)) ≫
+        eqToHom (projVertex_obj_congr A bas (ε := ε) f) :=
+  comp_assoc_paste (zeroVertexIso_naturality A bas hv f)
+    ((eqToHom_trans (congrArg trivialWithPoint (vertexPoint_congr A bas (ε := ε) f))
+        (trivialWithPoint_vertexPoint_eq A bas (ε := ε) Q)).trans
+      (eqToHom_trans (trivialWithPoint_vertexPoint_eq A bas (ε := ε) P)
+        (projVertex_obj_congr A bas (ε := ε) f)).symm)
+
+/-- **The vanishing law of the contraction of `[C/E]`, as a natural isomorphism**: contracting by
+the scalar `0` is the projection to the base followed by the vertex section.  This is the last
+field of the cone stack `ConeQuotient.coneQuotientStack`. -/
+noncomputable def coneContractionZeroIso (hv : GradedCone.IsConeVertex A.coaction ε)
+    (T : Scheme.{u}) :
+    contractionFunctor A bas (0 : Γ(T, ⊤)) ≅
+      StackHom.appFunctor (baseProjection A bas) T ⋙
+        StackHom.appFunctor (coneVertexHom A bas ε) T :=
+  natIsoOfDiscreteFactor (coneBaseStack_hom_subsingleton R (T := T))
+    (fun {_ _} f => baseProjection_obj_congr A bas f)
+    (fun {_ _} f => projVertex_obj_congr A bas (ε := ε) f)
+    (fun P => zeroVertexIso A bas hv P ≪≫
+      eqToIso (trivialWithPoint_vertexPoint_eq A bas (ε := ε) P))
+    (fun {_ _} f => zeroVertexIso_naturality' A bas hv f)
+
+end ContractionZeroIso
+
+/-! ### The cone stack `[C/E]` -/
+
+section ConeStackFinal
+
+variable {R S F : Type u} [CommRing R] [CommRing S] [Algebra R S]
+  [AddCommGroup F] [Module R F] {σ : Type u}
+variable (A : ConeAction R S F) (bas : Module.Basis σ R F)
+
+/-- **The affine cone quotient `[C/E]` as a cone stack over `Spec R`.**  Every field is
+constructed: the total stack is `ActionTorsor.quotientStack (vectorBundleGroup σ)
+(coneActionSpace A bas)`, the projection is `ConeQuotient.baseProjection` (the descent of the base
+point), the vertex is `ConeQuotient.coneVertexHom`, the contraction is the unconditional
+`ConeQuotient.contractionFunctor`, and the vanishing law is
+`ConeQuotient.coneContractionZeroIso`. -/
+noncomputable def coneQuotientStack {ε : S →ₐ[R] R}
+    (hv : GradedCone.IsConeVertex A.coaction ε) :
+    ConeStack (coneBaseStack R) canonicalFppfScalarRings.{u} :=
+  coneQuotientStackOfZeroIso A bas hv (coneContractionZeroIso A bas hv)
+
+/-- The total stack of `ConeQuotient.coneQuotientStack` is the quotient stack `[C/E]`. -/
+theorem coneQuotientStack_total {ε : S →ₐ[R] R}
+    (hv : GradedCone.IsConeVertex A.coaction ε) :
+    (coneQuotientStack A bas hv).total = coneTotalStack A bas :=
+  rfl
+
+/-- The projection of `ConeQuotient.coneQuotientStack` is `ConeQuotient.baseProjection`. -/
+theorem coneQuotientStack_projection {ε : S →ₐ[R] R}
+    (hv : GradedCone.IsConeVertex A.coaction ε) :
+    (coneQuotientStack A bas hv).projection = baseProjection A bas :=
+  rfl
+
+/-- The vertex of `ConeQuotient.coneQuotientStack` is `ConeQuotient.coneVertexHom`. -/
+theorem coneQuotientStack_vertex {ε : S →ₐ[R] R}
+    (hv : GradedCone.IsConeVertex A.coaction ε) :
+    (coneQuotientStack A bas hv).vertex = coneVertexHom A bas ε :=
+  rfl
+
+/-- The contraction of `ConeQuotient.coneQuotientStack` is
+`ConeQuotient.contractionFunctor`. -/
+theorem coneQuotientStack_contraction {ε : S →ₐ[R] R}
+    (hv : GradedCone.IsConeVertex A.coaction ε) (T : Scheme.{u}) (r : Γ(T, ⊤)) :
+    (coneQuotientStack A bas hv).contraction T r = contractionFunctor A bas r :=
+  rfl
+
+/-- The vanishing law of `ConeQuotient.coneQuotientStack` is
+`ConeQuotient.coneContractionZeroIso`. -/
+theorem coneQuotientStack_contractionZeroIso {ε : S →ₐ[R] R}
+    (hv : GradedCone.IsConeVertex A.coaction ε) (T : Scheme.{u}) :
+    (coneQuotientStack A bas hv).contractionZeroIso T = coneContractionZeroIso A bas hv T :=
+  rfl
+
+end ConeStackFinal
 
 end ConeQuotient
 
