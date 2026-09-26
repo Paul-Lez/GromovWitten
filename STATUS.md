@@ -173,6 +173,9 @@ Implemented APIs include:
   (`H⁰` bijective, `H⁻¹` surjective) if and only if the induced map of `h¹/h⁰` groupoids of dual
   points is fully faithful over every test algebra (the converse using trivial square-zero
   extensions), with the obstruction cone as the image of a cone inside the normal sheaf;
+- the connecting map `h⁰(K'') → h¹(K')` of a short exact sequence of two-term complexes agrees with
+  Mathlib's connecting homomorphism of the associated short exact sequence of cochain complexes
+  (`Cones/DeltaComparison.lean`: `delta_eq_δ`, `injective_delta_iff`);
 - flat local extensions with `m_R·S = m_S` preserve the order of vanishing without any
   unramifiedness, giving the equality of orders at bundle points and the principal-divisor
   comparison `π^* div(f) = div(π^* f)` for the flat pullback along an affine vector bundle over
