@@ -189,6 +189,12 @@ Implemented APIs include:
   normal sheaf, the normal sheaf is the abelian hull of the normal cone, and both cones map to
   the closed subscheme; products and fibre products of affine cones and cone actions, and
   smoothness of `Spec Sym F` for every finite projective `F`;
+- the smooth formula in the affine model (Layer 5): a formally smooth quotient of a polynomial ring
+  has quasi-regular conormal data, `Sym_S(I/I²) → gr_I` injective
+  (`Cones/SmoothQuasiregular.lean`: `normalSheafCoordinateMap_injective_of_formallySmooth`), so
+  `C_{U/M} = N_{U/M}` and the affine intrinsic normal sheaf and cone of `U ⊆ 𝔸ⁿ` are `B T_U`: connected
+  quotient groupoids with automorphisms `Derivation k S B` (`Cones/SmoothIntrinsicNormalSheaf.lean`,
+  `Cones/SmoothFormula.lean`), together with the smooth case of the lci formula for the virtual class;
 - the dual of a perfect complex is well defined up to canonical isomorphism, with biduality and
   full faithfulness of duality on strictly perfect complexes;
 - the underlying topological space of an algebraic stack is independent of the atlas: the point
@@ -432,6 +438,19 @@ Implemented APIs include:
   through the trivial tower (`BundleHomotopyInjectiveGlobal.lean`:
   `chowPullbackBundleGlobal_injective`); injectivity for non-trivial bundles needs Chern classes
   and is not attempted;
+- the first Chern class of a line bundle (Layer 2): Čech line bundle data, rational sections, their
+  chart-independent orders and divisor cycles (`IntersectionTheory/LineBundleData.lean`), the map
+  `c1Cycle L : Z_{i+1}(X) → A_i(X)` and, given the descent statement `KillsRelations` (Fulton Prop. 2.5),
+  `c1 L : A_{i+1}(X) → A_i(X)` with `c1_trivial`, `c1_tensor`, `c1_dual`
+  (`IntersectionTheory/FirstChernClass.lean`); Fulton's symmetric identity of Theorem 2.4 for two elements
+  of a Noetherian domain without common height-one prime, as an identity of cycles on `Spec A`
+  (`IntersectionTheory/DivisorSymmetryAffine.lean`: `VectorBundle.Affine.divisorSymmetry`);
+  and the reduction of the descent of `c₁` through rational equivalence to the symmetric identity for a
+  section with no common support components with the divisor (`IntersectionTheory/FirstChernClassDescent.lean`:
+  `Scheme.IsUnitAt`, `RationalSection.restrict`, `SymmetricIdentity`, `killsRelations_of_symmetricIdentity`);
+- the affine moving lemma for rational sections (Layer 2): one unit of the fraction field of a Noetherian
+  domain makes finitely many prescribed units local units at finitely many codimension-one primes
+  simultaneously (`Algebra/SemilocalMoving.lean`: `exists_unit_mul_isUnit_atPrime`);
 - relative `Spec` of an affine morphism and trivial bundles (Layer 1): `AlgebraData.ofAffineHom`,
   `relativeSpecOfAffineHomIso`, morphisms of relative `Spec`s from morphisms over the base
   (`RelativeSpecAffineHom.lean`); `trivialData X ι`, `GlobalTrivialisation`, constant sections and
@@ -492,6 +511,13 @@ Implemented APIs include:
   (`IntersectionTheory/ProperCurveDegreeUnconditional.lean`:
   `RegularProperCurve.degreeCycle_principalCycle_eq_zero'`), the well-definedness of the degree on `A_0`
   reducing to the dichotomy curve-or-point for integral closed subschemes;
+- the lci formula for the virtual class (Layer 7): for the identity obstruction theory on the
+  conormal complex of a quasi-regular ideal, the resolved cone is the whole obstruction bundle and
+  `[X]^vir = [X]` (`VirtualFundamentalClass/LciFormula.lean`: `VirtualClass.lci_formula`,
+  `OverField.lci_formula`); for a regular sequence in a polynomial ring over an infinite field the
+  formula holds with no hypothesis at all (`VirtualFundamentalClass/LciFormulaPure.lean`:
+  `OverField.lci_formula_polynomial`, with the purity of `Spec (R⧸I)` from
+  `height_eq_length_of_isWeaklyRegular` and the basis of `I/I²` from `QuasiregularGenerators.cotangentBasis`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
