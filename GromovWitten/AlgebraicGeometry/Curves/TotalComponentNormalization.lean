@@ -58,56 +58,18 @@ lemma genericPointSummand_eq (x : GenericPointSet X) :
   simp [genericPointsToScheme]
 
 omit [AlgebraicGeometry.IsNoetherian X] in
-lemma normalizationPrecompIso_inv_fromNormalization
-    {Y S : Scheme} (q : Y ⟶ S) (e : X ≅ Y)
-    [QuasiCompact q] [QuasiSeparated q] :
-    (Scheme.Hom.normalizationPrecompIso q e).inv ≫
-        (e.hom ≫ q).fromNormalization = q.fromNormalization := by
-  rw [← Scheme.Hom.normalizationPrecompIso_hom_fromNormalization q e]
-  simp only [Iso.inv_hom_id_assoc]
-
-omit [AlgebraicGeometry.IsNoetherian X] in
 lemma componentGenericPointEquiv_val (C : Component X) :
     (componentGenericPointEquiv (f := f) C).val =
       componentInclusion f C (componentGenericPoint f C) := rfl
-
-noncomputable def residueFieldNormalizationIso {x y : X} (h : x = y) :
-    (X.fromSpecResidueField x).normalization ≅
-      (X.fromSpecResidueField y).normalization := by
-  let e : Spec (X.residueField x) ≅ Spec (X.residueField y) :=
-    Scheme.Spec.mapIso (X.residueFieldCongr h).symm.op
-  let qx := X.fromSpecResidueField x
-  let qy := X.fromSpecResidueField y
-  have hq : e.symm.hom ≫ qx = qy := by
-    dsimp [e, qx, qy]
-    exact Scheme.residueFieldCongr_fromSpecResidueField h
-  exact (Scheme.Hom.normalizationPrecompIso qx e.symm).symm ≪≫
-    Scheme.Hom.normalizationCongr hq
-
-omit [AlgebraicGeometry.IsNoetherian X] in
-lemma residueFieldNormalizationIso_hom_fromNormalization {x y : X} (h : x = y) :
-    (residueFieldNormalizationIso (X := X) h).hom ≫
-        (X.fromSpecResidueField y).fromNormalization =
-      (X.fromSpecResidueField x).fromNormalization := by
-  let e : Spec (X.residueField x) ≅ Spec (X.residueField y) :=
-    Scheme.Spec.mapIso (X.residueFieldCongr h).symm.op
-  let qx := X.fromSpecResidueField x
-  let qy := X.fromSpecResidueField y
-  have hq : e.symm.hom ≫ qx = qy := by
-    dsimp [e, qx, qy]
-    exact Scheme.residueFieldCongr_fromSpecResidueField h
-  dsimp only [residueFieldNormalizationIso, Iso.trans_hom]
-  simp only [Category.assoc]
-  rw [Scheme.Hom.normalizationCongr_hom_fromNormalization hq]
-  exact normalizationPrecompIso_inv_fromNormalization qx e.symm
 
 noncomputable def componentNormalizationIsoFamily (C : Component X) :
     componentNormalizationFamily (f := f) C ≅
       (genericResidueNormalizationFamily (X := X) ∘
         componentGenericPointEquiv (f := f)) C := by
-  let h := (componentGenericPointEquiv_val (f := f) C).symm
-  exact componentNormalizationResidueIso f C ≪≫
-    residueFieldNormalizationIso (X := X) h
+  change normalizedComponentScheme f C ≅
+    (X.fromSpecResidueField
+      (componentInclusion f C (componentGenericPoint f C))).normalization
+  exact componentNormalizationResidueIso f C
 
 omit [AlgebraicGeometry.IsNoetherian X] in
 theorem componentNormalizationIsoFamily_hom_toCurve
@@ -115,9 +77,6 @@ theorem componentNormalizationIsoFamily_hom_toCurve
     (componentNormalizationIsoFamily (f := f) C).hom ≫
         (X.fromSpecResidueField (componentGenericPointEquiv (f := f) C).val).fromNormalization =
       normalizedComponentToCurve f C := by
-  dsimp only [componentNormalizationIsoFamily, Iso.trans_hom]
-  simp only [Category.assoc]
-  rw [residueFieldNormalizationIso_hom_fromNormalization]
   exact componentNormalizationResidueIso_hom_toCurve f C
 
 noncomputable def genericPointSigmaIso :
