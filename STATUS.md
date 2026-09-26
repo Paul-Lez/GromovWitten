@@ -432,6 +432,16 @@ Implemented APIs include:
   through the trivial tower (`BundleHomotopyInjectiveGlobal.lean`:
   `chowPullbackBundleGlobal_injective`); injectivity for non-trivial bundles needs Chern classes
   and is not attempted;
+- the first Chern class of a line bundle (Layer 2): Čech line bundle data, rational sections, their
+  chart-independent orders and divisor cycles (`IntersectionTheory/LineBundleData.lean`), the map
+  `c1Cycle L : Z_{i+1}(X) → A_i(X)` and, given the descent statement `KillsRelations` (Fulton Prop. 2.5),
+  `c1 L : A_{i+1}(X) → A_i(X)` with `c1_trivial`, `c1_tensor`, `c1_dual`
+  (`IntersectionTheory/FirstChernClass.lean`); Fulton's symmetric identity of Theorem 2.4 for two elements
+  of a Noetherian domain without common height-one prime, as an identity of cycles on `Spec A`
+  (`IntersectionTheory/DivisorSymmetryAffine.lean`: `VectorBundle.Affine.divisorSymmetry`);
+  and the reduction of the descent of `c₁` through rational equivalence to the symmetric identity for a
+  section with no common support components with the divisor (`IntersectionTheory/FirstChernClassDescent.lean`:
+  `Scheme.IsUnitAt`, `RationalSection.restrict`, `SymmetricIdentity`, `killsRelations_of_symmetricIdentity`);
 - relative `Spec` of an affine morphism and trivial bundles (Layer 1): `AlgebraData.ofAffineHom`,
   `relativeSpecOfAffineHomIso`, morphisms of relative `Spec`s from morphisms over the base
   (`RelativeSpecAffineHom.lean`); `trivialData X ι`, `GlobalTrivialisation`, constant sections and

@@ -307,3 +307,7 @@ import GromovWitten.AlgebraicGeometry.Curves.StableReduction.StableReduction
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.DecoratedGraph
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Clutching
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Examples
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.LineBundleData
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.FirstChernClass
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.DivisorSymmetryAffine
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.FirstChernClassDescent
