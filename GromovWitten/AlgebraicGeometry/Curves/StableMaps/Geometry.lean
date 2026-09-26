@@ -10,6 +10,7 @@ import GromovWitten.AlgebraicGeometry.Curves.GeometricDualGraph
 import GromovWitten.AlgebraicGeometry.Curves.GeometricGraphIso
 import GromovWitten.AlgebraicGeometry.Curves.NormalizedComponentIso
 import GromovWitten.AlgebraicGeometry.Curves.SchemeIsoGenus
+import GromovWitten.AlgebraicGeometry.Curves.SmoothComponents
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.NodeNormalization
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.DecoratedGraph
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.GraphTransport
@@ -787,6 +788,56 @@ theorem normalizedDecoratedGraph_isStable_of_iso
       ((D.ofIso e H).degreeLine.degree y C).toNat
     rfl
 
+theorem normalizedMarkingVertex_eq_of_iso
+    {F G : MarkedMap q I}
+    (e : F ≅ G) (hF : Prestable F)
+    [PrestableFamily F.toBase] [PrestableFamily G.toBase]
+    {K : Type u} [Field K] [IsAlgClosed K]
+    (y : Spec (.of K) ⟶ S)
+    [PrestableFamily (pullback.snd F.toBase y)]
+    [PrestableFamily (pullback.snd G.toBase y)] (i : I) :
+    normalizedMarkingVertex G y i =
+      irreducibleComponentsEquivOfSchemeIso (baseChangeSourceIso e y)
+        (normalizedMarkingVertex F y i) := by
+  let hGprestable : Prestable G := hF.of_iso e
+  let hGsource : PrestableFamily G.toBase := hGprestable.sourceFamily
+  let hFsource : PrestableFamily F.toBase := hF.sourceFamily
+  let _ : PrestableFamily F.toBase := hFsource
+  let _ : PrestableFamily G.toBase := hGsource
+  let hFy : PrestableFamily (pullback.snd F.toBase y) :=
+    PrestableFamily.pullback_snd F.toBase y
+  let _ : PrestableFamily (pullback.snd F.toBase y) := hFy
+  let hGy : PrestableFamily (pullback.snd G.toBase y) :=
+    PrestableFamily.pullback_snd G.toBase y
+  let _ : PrestableFamily (pullback.snd G.toBase y) := hGy
+  let E := baseChangeSourceIso e y
+  let pF : F.sourceFiber y :=
+    (F.baseChange y).marking i (genericPoint (Spec (.of K)))
+  let pG : G.sourceFiber y :=
+    (G.baseChange y).marking i (genericPoint (Spec (.of K)))
+  have hp : E.hom pF = pG := by
+    let eFiber := (baseChangeFunctor y).mapIso e
+    change eFiber.hom.hom pF = pG
+    exact congrArg
+      (fun k : Spec (.of K) ⟶ G.sourceFiber y ↦
+        k (genericPoint (Spec (.of K))))
+      (eFiber.hom.marking_comm i)
+  have hsm : pG ∈ (pullback.snd G.toBase y).smoothLocus := by
+    exact hGprestable.baseChange y |>.markings_smooth i (genericPoint (Spec (.of K)))
+  obtain ⟨hc⟩ : Nonempty (SmoothChartAt (pullback.snd G.toBase y) pG) := by
+    refine ⟨{ source := (pullback.snd G.toBase y).smoothLocus.toScheme
+              point := ⟨pG, hsm⟩
+              toCurve := (pullback.snd G.toBase y).smoothLocus.ι
+              etale_toCurve := inferInstance
+              mapsToPoint := rfl
+              smooth_toBase := ?_ }⟩
+    rw [← Scheme.Hom.smoothLocus_eq_top_iff, ← Scheme.Hom.preimage_smoothLocus_eq,
+      Scheme.Opens.ι_preimage_self]
+  apply components_eq_of_smoothChart hc
+  · exact mem_componentOf pG
+  · rw [← hp]
+    exact (transportedComponent_mem E (componentOf pF) pF).mp (mem_componentOf pF)
+
 /-- A geometric stable map: every geometric fibre has a fully anchored stable decorated graph. -/
 structure Stable (F : MarkedMap q I) [Fintype I] [DecidableEq I]
     (H : LineBundle V) : Type (max (u + 2) (v + 1)) where
@@ -827,6 +878,28 @@ def Stable.ofIso_of_normalizedMarkingVertex_eq
     apply (normalizedDecoratedGraph_isStable_of_iso e hF.polarizedDegree y
       (fun i ↦ hmark K y i)).mpr
     exact hF.fiberGraph K y
+
+def Stable.ofIso {F G : MarkedMap q I} [Fintype I] [DecidableEq I]
+    (e : F ≅ G) (H : LineBundle V) (hF : Stable F H) : Stable G H := by
+  let hGprestable : Prestable G := hF.prestable.of_iso e
+  let hGsource : PrestableFamily G.toBase := hGprestable.sourceFamily
+  refine { prestable := hGprestable,
+            polarizedDegree := hF.polarizedDegree.ofIso e H,
+            fiberGraph := ?_ }
+  intro K _ _ y
+  let hFsource : PrestableFamily F.toBase := hF.prestable.sourceFamily
+  let _ : PrestableFamily F.toBase := hFsource
+  let _ : PrestableFamily G.toBase := hGsource
+  let hFy : PrestableFamily (pullback.snd F.toBase y) :=
+    PrestableFamily.pullback_snd F.toBase y
+  let _ : PrestableFamily (pullback.snd F.toBase y) := hFy
+  let hGy : PrestableFamily (pullback.snd G.toBase y) :=
+    PrestableFamily.pullback_snd G.toBase y
+  let _ : PrestableFamily (pullback.snd G.toBase y) := hGy
+  apply (normalizedDecoratedGraph_isStable_of_iso e hF.polarizedDegree y ?_).mpr
+    (hF.fiberGraph K y)
+  intro i
+  exact normalizedMarkingVertex_eq_of_iso e hF.prestable y i
 
 /-! Target postcomposition leaves the normalized source graph unchanged.  The polarization degree
 construction above carries the genuine constancy criterion to the new target, while its relative
