@@ -2,15 +2,13 @@
 
 Partial implementation toward [finite unramified automorphism schemes](https://github.com/Paul-Lez/GromovWitten/issues/16).
 
-- `ObstructionTheory/MarkedAutomorphisms.lean`: actual split dual-number automorphisms correspond to derivations; target and marking constraints give their linear kernel.
-- `ObstructionTheory/MarkedAutomorphismsBase.lean`: characterizes these automorphisms by preserving the dual-number base and reducing to the identity.
-- `Curves/StableMaps/PolynomialAffineIntegral.lean`: scale, inverse scale, and translation of an affine substitution preserving a nonconstant polynomial are integral, including over algebras with nilpotents.
-- `Curves/StableMaps/PolynomialAutomorphisms.lean`: initial coordinate presentation by `ac=1` and the coefficients of `f(aX+b)-f(X)`, maps between algebra homomorphisms and stabilizing substitutions, and actual polynomial substitution automorphisms. Their equivalence and naturality remain to be proved.
+Files below are relative to `GromovWitten/AlgebraicGeometry/`.
 
-Paths above are relative to `GromovWitten/AlgebraicGeometry/`.
+- `ObstructionTheory/MarkedAutomorphisms.lean` and `MarkedAutomorphismsBase.lean`: split dual-number automorphisms correspond to derivations; target and marking constraints give their linear kernel, with a converse characterized by preserving the dual base and reducing to the identity.
+- `Curves/StableMaps/PolynomialAutomorphisms.lean`: `Point f S` is a group, functorial for arbitrary test-algebra homomorphisms and naturally equivalent to maps from the explicit coordinate algebra. That algebra and its `Spec` are finite for nonconstant `f`, and formally unramified when `f.derivative ≠ 0`.
+- `PolynomialAffineIntegral.lean` and `PolynomialAffineRigidity.lean`: integral universal coordinates and square-zero uniqueness, retaining arbitrary test algebras with nilpotents.
+- `PolynomialFrobenius.lean`: explicit infinitesimal scaling preserving Frobenius and translation when the derivative vanishes. `coordinateRing_formallyUnramified_iff` proves formal unramifiedness exactly when the derivative is nonzero, in every characteristic.
 
-Next: prove the point correspondence and naturality, use coordinate integrality to establish module finiteness, then prove formal unramifiedness under `f.derivative ≠ 0`. A square-zero change of substitution gives `f'(aX+b)*(δa*X+δb)=0`; the leading coefficient is a unit. Full stable-curve/map representability and rigidity still need geometric proofs. The affine-linear stabilizer does not describe every affine-line automorphism over nonreduced algebras.
+Remaining: geometric stable-curve/map representability, the geometric tangent-kernel identification and stability criteria, polarization independence, and the exponent-at-least-three theorem. The affine-linear stabilizer does not include all affine-line automorphisms over nonreduced algebras. The Frobenius obstruction requires qualifying the proposed stable-map unramifiedness statement; the projective stable-map example is not yet formalized.
 
-The issue needs a separability/characteristic qualification: in characteristic `p`, `t ↦ (1+ε)t` preserves `t^p` over dual numbers, so unconditional stable-map unramifiedness is false. This example is explained in the issue comment; it is not yet formalized here.
-
-Validation: `lake build` passed (Lean/Mathlib 4.33.1, warnings treated as errors). Audits of the main declarations report only `propext`, `Classical.choice`, and `Quot.sound`. No proof placeholders or custom axioms were added.
+Validation: full `lake build` passed with warnings as errors (Lean/Mathlib 4.33.1). Audited principal declarations, including the group laws and derivative criterion, use only `propext`, `Classical.choice`, and `Quot.sound`. No proof placeholders or custom axioms were added. Builds were serialized through the shared lock.
