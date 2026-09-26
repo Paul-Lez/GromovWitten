@@ -118,3 +118,68 @@ end Normalization
 end
 
 end GromovWitten.AlgebraicGeometry.Curves
+
+namespace AlgebraicGeometry.Scheme.Hom
+
+universe u
+
+variable {X Y Z : Scheme.{u}} (f : X ⟶ Y) (g : Y ⟶ Z)
+    [QuasiCompact f] [QuasiSeparated f] [IsIntegralHom g]
+
+noncomputable def integralPostcompBase : (f ≫ g).normalization ⟶ Y :=
+  (f ≫ g).normalizationDesc f g rfl
+
+instance : IsIntegralHom (integralPostcompBase f g) := by
+  unfold integralPostcompBase
+  infer_instance
+
+noncomputable def integralPostcompHom : (f ≫ g).normalization ⟶ f.normalization :=
+  (f ≫ g).normalizationDesc f.toNormalization (f.fromNormalization ≫ g) (by simp)
+
+noncomputable def integralPostcompInv : f.normalization ⟶ (f ≫ g).normalization :=
+  f.normalizationDesc (f ≫ g).toNormalization (integralPostcompBase f g)
+    (by simp [integralPostcompBase])
+
+theorem integralPostcompHom_fromNormalization :
+    integralPostcompHom f g ≫ f.fromNormalization = integralPostcompBase f g := by
+  apply normalization.hom_ext (f ≫ g) _ _ g
+  · simp [integralPostcompHom, integralPostcompBase]
+  · simp [Category.assoc, integralPostcompHom]
+  · simp [integralPostcompBase]
+
+noncomputable def normalizationIntegralPostcompIso :
+    (f ≫ g).normalization ≅ f.normalization where
+  hom := integralPostcompHom f g
+  inv := integralPostcompInv f g
+  hom_inv_id := by
+    apply normalization.hom_ext (f ≫ g) _ _ (f ≫ g).fromNormalization
+    · simp [integralPostcompHom, integralPostcompInv]
+    · have hp : integralPostcompBase f g ≫ g = (f ≫ g).fromNormalization := by
+        simp [integralPostcompBase]
+      rw [← hp]
+      have hkp : integralPostcompInv f g ≫ integralPostcompBase f g =
+          f.fromNormalization := by simp [integralPostcompInv]
+      simp only [Category.assoc]
+      rw [← Category.assoc (integralPostcompInv f g), hkp,
+        ← Category.assoc, integralPostcompHom_fromNormalization]
+    · simp
+  inv_hom_id := by
+    apply normalization.hom_ext f _ _ f.fromNormalization
+    · simp [integralPostcompHom, integralPostcompInv]
+    · rw [Category.assoc, integralPostcompHom_fromNormalization]
+      simp [integralPostcompInv]
+    · simp
+
+@[reassoc (attr := simp)] theorem normalizationIntegralPostcompIso_hom_fromNormalization :
+    (normalizationIntegralPostcompIso f g).hom ≫ f.fromNormalization ≫ g =
+      (f ≫ g).fromNormalization := by
+  change integralPostcompHom f g ≫ f.fromNormalization ≫ g = _
+  rw [← Category.assoc, integralPostcompHom_fromNormalization]
+  simp [integralPostcompBase]
+
+@[reassoc (attr := simp)] theorem toNormalization_normalizationIntegralPostcompIso_hom :
+    (f ≫ g).toNormalization ≫ (normalizationIntegralPostcompIso f g).hom =
+      f.toNormalization := by
+  simp [normalizationIntegralPostcompIso, integralPostcompHom]
+
+end AlgebraicGeometry.Scheme.Hom
