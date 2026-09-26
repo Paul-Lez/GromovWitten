@@ -488,6 +488,10 @@ Implemented APIs include:
   definition of `r` and `r⁻¹`, affine with the first chart ring finite over `k[t]`, the overlap the basic
   open of the representing section, and the chart-dimension comparison reduced to localisations
   (`IntersectionTheory/ProperCurveDegreeTranscendental.lean`);
+- the degree of every principal divisor on a regular proper curve over a field is zero, with no hypothesis
+  (`IntersectionTheory/ProperCurveDegreeUnconditional.lean`:
+  `RegularProperCurve.degreeCycle_principalCycle_eq_zero'`), the well-definedness of the degree on `A_0`
+  reducing to the dichotomy curve-or-point for integral closed subschemes;
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
