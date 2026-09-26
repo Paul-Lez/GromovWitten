@@ -479,6 +479,11 @@ Implemented APIs include:
   the two partial degrees over the domains of definition of `r` and `r⁻¹`, each identified with
   `dim_k (B ⧸ (b))` over an affine chart (`IntersectionTheory/ProperCurveDegree.lean`:
   `degreeCycle_principalCycle_eq_zero_of_affineCharts`);
+- the algebraic case of that vanishing unconditionally (a root of a monic polynomial over `k` is a unit at
+  every point of a curve with valuation-ring local rings), the affine charts of the transcendental case and
+  the criterion in terms of the domains of definition being affine with equal chart dimension
+  (`IntersectionTheory/ProperCurveDegreeFinal.lean`: `RegularProperCurve.degreeCycle_principalCycle_eq_zero_of_not_injective`,
+  `degreeCycle_principalCycle_eq_zero_of_isAffineOpen`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
