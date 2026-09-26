@@ -169,6 +169,10 @@ Implemented APIs include:
   by the tangent bundle is isomorphic, over every test algebra and compatibly with reindexing and
   contraction, to the `h¹/h⁰` Picard groupoid of the dual of the presentation complex
   `[I/I² → Ω ⊗ R/I]`, with `Sym(M × N) ≃ Sym(M) ⊗ Sym(N)`;
+- invariance of the affine intrinsic normal sheaf under base change of the ground field: base change of
+  two-term complexes commutes with the Picard groupoid of dual points, naturally in the test algebra
+  (`Cones/PicardBaseChange.lean`), and the conormal complex of a polynomial presentation base-changes
+  along any `k → k'` (`Cones/ConormalBaseChange.lean`: `conormalBaseChange`, `normalSheafBaseChangeEquiv'`);
 - the affine Behrend--Fantechi criterion: a map of two-term complexes is an obstruction theory
   (`H⁰` bijective, `H⁻¹` surjective) if and only if the induced map of `h¹/h⁰` groupoids of dual
   points is fully faithful over every test algebra (the converse using trivial square-zero

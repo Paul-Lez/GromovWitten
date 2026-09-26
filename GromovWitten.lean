@@ -307,3 +307,5 @@ import GromovWitten.AlgebraicGeometry.Curves.StableReduction.StableReduction
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.DecoratedGraph
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Clutching
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Examples
+import GromovWitten.AlgebraicGeometry.Cones.PicardBaseChange
+import GromovWitten.AlgebraicGeometry.Cones.ConormalBaseChange
