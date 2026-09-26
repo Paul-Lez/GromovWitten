@@ -497,6 +497,12 @@ Implemented APIs include:
   localisation case, and the relative conormal complex and comparison chain map for base change along a
   coordinate hyperplane of the base (`VirtualFundamentalClass/RelativeVirtualClassBaseChange.lean`:
   `hyperplaneConormalComplex`, `hyperplaneHom`);
+- the multiplicity of an effective Cartier divisor at a point as the length of the stalk of its structure
+  sheaf, additive under sums of divisors and independent of the chart, and the degree of an effective
+  Cartier divisor as the degree of its zero-cycle, additive and well defined on formal differences, with
+  finiteness of the support and of the lengths as an explicit hypothesis, together with a first link between
+  the component-degree labels of relative line bundles and these degrees
+  (`Curves/CartierDivisorDegree.lean`);
 - transfer of the obstruction-theory condition along the coordinate-hyperplane base change, with no
   regularity hypothesis, and the conormal splitting `I ∩ (y₀) = y₀·I` with the converse when `y₀` is a
   non-zero-divisor (`VirtualFundamentalClass/RelativeHyperplaneObstruction.lean`:
