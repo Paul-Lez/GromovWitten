@@ -9,9 +9,6 @@ import GromovWitten.Algebra.FinitePresentationRetract
 import Mathlib.RingTheory.Smooth.Basic
 import Mathlib.RingTheory.Finiteness.Projective
 
-open CategoryTheory AlgebraicGeometry Polynomial
-open scoped TensorProduct
-
 /-!
 # Smoothness of symmetric cones for projective modules
 
@@ -21,6 +18,9 @@ property of the symmetric algebra.  A finite projective module is a retract of a
 module, so its symmetric algebra is finitely presented as well.  The final section transports
 this result across the scalar-extension equivalence from `SymmetricFunctoriality`.
 -/
+
+open CategoryTheory AlgebraicGeometry Polynomial
+open scoped TensorProduct
 
 namespace GromovWitten.AlgebraicGeometry.GradedCone
 
