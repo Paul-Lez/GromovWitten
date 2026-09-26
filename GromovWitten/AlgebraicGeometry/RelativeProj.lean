@@ -175,6 +175,28 @@ theorem toBase_isProper [∀ U, Algebra.FiniteType (𝒜.grading U 0) (𝒜.ring
   have : IsProper (projection (𝒜.grading U)) := projection_isProper (𝒜.grading U) (h0 U)
   infer_instance
 
+/-! ### The affine case -/
+
+/-- The whole scheme as an affine open of an affine scheme. -/
+abbrev topIndex [IsAffine X] : X.affineOpens :=
+  ⟨⊤, isAffineOpen_top X⟩
+
+/-- On an affine base, the affine `Proj` over the whole base is the glued relative `Proj`. -/
+theorem isIso_affineι_top [IsAffine X] : IsIso (affineι X 𝒜 (topIndex X)) := by
+  have hι : MorphismProperty.isomorphisms Scheme (⊤ : X.Opens).ι :=
+    (MorphismProperty.isomorphisms.iff _).mpr
+      ⟨⟨X.topIso.inv, X.ι_toIso_inv, X.toIso_inv_ι⟩⟩
+  exact MorphismProperty.of_isPullback (isPullback_affine X 𝒜 (topIndex X)) hι
+
+/-- The affine model of a relative `Proj` over an affine base. -/
+def affineιIso (X : Scheme.{u}) (𝒜 : GradedAlgebraData X) [IsAffine X] :
+    (gluingFunctor X 𝒜).obj (topIndex X) ≅ relativeProj X 𝒜 :=
+  have := isIso_affineι_top X 𝒜
+  asIso (affineι X 𝒜 (topIndex X))
+
+@[simp] theorem affineιIso_hom (X : Scheme.{u}) (𝒜 : GradedAlgebraData X) [IsAffine X] :
+    (affineιIso X 𝒜).hom = affineι X 𝒜 (topIndex X) := rfl
+
 end RelativeProj
 
 end
