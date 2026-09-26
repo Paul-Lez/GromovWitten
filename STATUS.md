@@ -177,6 +177,12 @@ Implemented APIs include:
   (`H⁰` bijective, `H⁻¹` surjective) if and only if the induced map of `h¹/h⁰` groupoids of dual
   points is fully faithful over every test algebra (the converse using trivial square-zero
   extensions), with the obstruction cone as the image of a cone inside the normal sheaf;
+- external direct sums of obstruction theories over a product of affine schemes (Layer 6): the
+  external sum of two-term complexes over `S ⊗[k] S'` with rank additivity and preservation of the
+  obstruction-theory condition, the split-triangle case (`ObstructionTheory/ExternalSum.lean`), and the
+  identification of the conormal complex of a product embedding of polynomial rings over a field with the
+  external sum of the two conormal complexes (`ObstructionTheory/ExternalSumConormal.lean`:
+  `conormalProdEquiv`, `isObstructionTheory_externalSum_conormal`);
 - the connecting map `h⁰(K'') → h¹(K')` of a short exact sequence of two-term complexes agrees with
   Mathlib's connecting homomorphism of the associated short exact sequence of cochain complexes
   (`Cones/DeltaComparison.lean`: `delta_eq_δ`, `injective_delta_iff`);
