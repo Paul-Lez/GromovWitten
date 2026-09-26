@@ -214,65 +214,64 @@ theorem eq_standardNodeOrigin_of_mem (p : Spec (.of (LocalNode.Ring K 0 1)))
     · exact hy
   exact PrimeSpectrum.ext (hmax.eq_of_le p.isPrime.ne_top hle).symm
 
-/-- The `x`-away chart of the standard node is smooth over the field. -/
-theorem smooth_xAwayToBaseSpec : Smooth (LocalNode.xAwayToBaseSpec K 0 1) := by
-  rw [LocalNode.xAwayToBaseSpec, HasRingHomProperty.Spec_iff (P := @Smooth)]
-  exact RingHom.smooth_algebraMap.mpr (LocalNode.xAway_smooth K 0 1)
+/-- Both node coordinates lie in the ideal of the origin of the standard node: the converse of
+`eq_standardNodeOrigin_of_mem`. -/
+theorem mem_asIdeal_standardNodeOrigin (K : Type u) [Field K] :
+    LocalNode.x K 0 1 ∈ (standardNodeOrigin K).asIdeal ∧
+      LocalNode.y K 0 1 ∈ (standardNodeOrigin K).asIdeal := by
+  have hker : (standardNodeOrigin K).asIdeal =
+      Ideal.span ({LocalNode.x K 0 1, LocalNode.y K 0 1} : Set (LocalNode.Ring K 0 1)) := by
+    change RingHom.ker (LocalNode.nodeOrigin K 1 one_ne_zero).toRingHom = _
+    exact LocalNode.nodeOrigin_ker K 1 one_ne_zero
+  rw [hker]
+  exact ⟨Ideal.subset_span (Set.mem_insert _ _),
+    Ideal.subset_span (Set.mem_insert_of_mem _ rfl)⟩
 
-/-- The `y`-away chart of the standard node is smooth over the field. -/
-theorem smooth_yAwayToBaseSpec : Smooth (LocalNode.yAwayToBaseSpec K 0 1) := by
-  rw [LocalNode.yAwayToBaseSpec, HasRingHomProperty.Spec_iff (P := @Smooth)]
-  exact RingHom.smooth_algebraMap.mpr (LocalNode.yAway_smooth K 0 1)
+/-- The chart point of a node chart is the origin of the standard node: the new `mapsToOrigin`
+field of `NodeChartAt`, identified with the named point `standardNodeOrigin`. -/
+theorem NodeChartAt.toNode_point_eq_standardNodeOrigin {x : X} (c : NodeChartAt f x) :
+    c.toNode c.point = standardNodeOrigin K :=
+  eq_standardNodeOrigin_of_mem _ c.mapsToOrigin.1 c.mapsToOrigin.2
+
+/-- **Sanity check.** The origin of the standard node admits a node chart: the identity is
+simultaneously an étale chart onto the curve and onto the node itself. -/
+theorem nonempty_nodeChartAt_standardNodeOrigin (K : Type u) [Field K] :
+    Nonempty (NodeChartAt (standardNodeToSpec K) (standardNodeOrigin K)) :=
+  ⟨{ source := Spec (.of (LocalNode.Ring K 0 1))
+     point := standardNodeOrigin K
+     toCurve := 𝟙 _
+     toNode := 𝟙 _
+     etale_toCurve := inferInstance
+     etale_toNode := inferInstance
+     mapsToPoint := rfl
+     overBase := rfl
+     mapsToOrigin := mem_asIdeal_standardNodeOrigin K }⟩
+
+/-- **Sanity check.** The standard node over a field is at worst nodal, with the origin's chart
+a node chart and every other point's a smooth chart, via `of_overIso_standardNode` applied to the
+identity isomorphism.  This does not yet show that an arbitrary `NodeChartAt` of the standard
+node (with any étale legs) can only sit at the origin; that converse remains open. -/
+theorem isNodalCurveOverField_standardNodeToSpec (K : Type u) [Field K] :
+    IsNodalCurveOverField (standardNodeToSpec K) :=
+  IsNodalCurveOverField.of_overIso_standardNode _ (Iso.refl _)
 
 /-- A point of a node chart lying over the locus where `x` is invertible has a smooth
 chart. -/
 theorem smoothChart_of_xAway {x : X} (c : NodeChartAt f x) (q : c.source)
     (hq : LocalNode.x K 0 1 ∉ (c.toNode q).asIdeal) :
     Nonempty (SmoothChartAt f (c.toCurve q)) := by
-  have hmem : c.toNode q ∈ Set.range (LocalNode.xAwaySpec K 0 1) := by
-    rw [LocalNode.range_xAwaySpec]
-    exact hq
-  obtain ⟨r, hr⟩ := hmem
-  obtain ⟨z, hz1, hz2⟩ := Scheme.Pullback.exists_preimage_pullback (f := c.toNode)
-    (g := LocalNode.xAwaySpec K 0 1) q r hr.symm
-  have hEn : Etale c.toNode := c.etale_toNode
-  have hEc : Etale c.toCurve := c.etale_toCurve
-  have hsm := smooth_xAwayToBaseSpec (K := K)
-  refine ⟨{
-    source := pullback c.toNode (LocalNode.xAwaySpec K 0 1),
-    point := z,
-    toCurve := pullback.fst c.toNode (LocalNode.xAwaySpec K 0 1) ≫ c.toCurve,
-    etale_toCurve := inferInstance,
-    mapsToPoint := by rw [Scheme.Hom.comp_apply, hz1],
-    smooth_toBase := ?_ }⟩
-  rw [Category.assoc, c.overBase, ← Category.assoc, pullback.condition, Category.assoc,
-    LocalNode.xAwaySpec_toBaseSpec]
-  infer_instance
+  let _ : Etale c.toCurve := c.etale_toCurve
+  let _ : Etale c.toNode := c.etale_toNode
+  exact smoothChartAt_of_not_mem_asIdeal_x c.toCurve c.toNode c.overBase q hq
 
 /-- A point of a node chart lying over the locus where `y` is invertible has a smooth
 chart. -/
 theorem smoothChart_of_yAway {x : X} (c : NodeChartAt f x) (q : c.source)
     (hq : LocalNode.y K 0 1 ∉ (c.toNode q).asIdeal) :
     Nonempty (SmoothChartAt f (c.toCurve q)) := by
-  have hmem : c.toNode q ∈ Set.range (LocalNode.yAwaySpec K 0 1) := by
-    rw [LocalNode.range_yAwaySpec]
-    exact hq
-  obtain ⟨r, hr⟩ := hmem
-  obtain ⟨z, hz1, hz2⟩ := Scheme.Pullback.exists_preimage_pullback (f := c.toNode)
-    (g := LocalNode.yAwaySpec K 0 1) q r hr.symm
-  have hEn : Etale c.toNode := c.etale_toNode
-  have hEc : Etale c.toCurve := c.etale_toCurve
-  have hsm := smooth_yAwayToBaseSpec (K := K)
-  refine ⟨{
-    source := pullback c.toNode (LocalNode.yAwaySpec K 0 1),
-    point := z,
-    toCurve := pullback.fst c.toNode (LocalNode.yAwaySpec K 0 1) ≫ c.toCurve,
-    etale_toCurve := inferInstance,
-    mapsToPoint := by rw [Scheme.Hom.comp_apply, hz1],
-    smooth_toBase := ?_ }⟩
-  rw [Category.assoc, c.overBase, ← Category.assoc, pullback.condition, Category.assoc,
-    LocalNode.yAwaySpec_toBaseSpec]
-  infer_instance
+  let _ : Etale c.toCurve := c.etale_toCurve
+  let _ : Etale c.toNode := c.etale_toNode
+  exact smoothChartAt_of_not_mem_asIdeal_y c.toCurve c.toNode c.overBase q hq
 
 /-- A point of a node chart not lying over the origin has a smooth chart. -/
 theorem smoothChart_of_nodeChart {x : X} (c : NodeChartAt f x) (q : c.source)
@@ -283,13 +282,12 @@ theorem smoothChart_of_nodeChart {x : X} (c : NodeChartAt f x) (q : c.source)
     · exact smoothChart_of_yAway f c q hy
   · exact smoothChart_of_xAway f c q hx
 
-/-- On a nodal curve, the chart point of a node chart at a node lies over the origin. -/
-theorem nodeChart_toNode_point {x : X} (hx : x ∈ nodeSet f) (c : NodeChartAt f x) :
-    c.toNode c.point = standardNodeOrigin K := by
-  by_contra hne
-  have h := smoothChart_of_nodeChart f c c.point hne
-  rw [c.mapsToPoint] at h
-  exact hx h
+/-- On a nodal curve, the chart point of a node chart at a node lies over the origin.  This now
+holds unconditionally on any curve, by `mapsToOrigin`; the hypothesis `_hx` is kept for backward
+compatibility with call sites. -/
+theorem nodeChart_toNode_point {x : X} (_hx : x ∈ nodeSet f) (c : NodeChartAt f x) :
+    c.toNode c.point = standardNodeOrigin K :=
+  c.toNode_point_eq_standardNodeOrigin
 
 /-- The node set of a nodal curve is discrete. -/
 theorem nodeSet_isDiscrete (hf : IsNodalCurveOverField f) : _root_.IsDiscrete (nodeSet f) := by

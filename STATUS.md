@@ -103,6 +103,10 @@ Implemented APIs include:
   components, the finite discrete set of points without a smooth étale chart, and the finite
   set of points lying on two distinct components, with connectivity derived from connectedness
   of the curve;
+- node charts now send their distinguished point to the origin of the standard node, with the chart
+  construction for curves isomorphic to the standard node producing smooth charts off the origin, so that
+  the standard node has node charts at its origin and is proved nodal directly (`Curves/Nodal.lean`,
+  `Curves/GeometricDualGraph.lean`); that an arbitrary node chart occurs only at the origin remains open;
 - weighted numerical Picard groups, their comparison with the raw intersection cokernel,
   parity and signed-genus formulae, connectedness criteria, the rank-one theorem, and
   finite prime-torsion calculations, together with specialization of genuine relative
