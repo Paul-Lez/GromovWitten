@@ -307,6 +307,8 @@ import GromovWitten.AlgebraicGeometry.Curves.StableReduction.StableReduction
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.DecoratedGraph
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Clutching
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Examples
+import GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.ConeGluingIndependence
+import GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.ConeGluingQuasiIso
 import GromovWitten.AlgebraicGeometry.Cones.DerivedPicardFunctoriality
 import GromovWitten.AlgebraicGeometry.Cones.DerivedPicardFunctorialityRoof
 import GromovWitten.Algebra.OrderFiniteExtension

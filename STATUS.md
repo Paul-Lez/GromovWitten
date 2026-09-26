@@ -473,6 +473,13 @@ Implemented APIs include:
   finite type over a field with no hypothesis, and it is the unique class with `π^*[X]^vir = [C(E)]`
   when the obstruction bundle has a global trivialisation
   (`GlobalVirtualClassSurjective.lean`, `GlobalVirtualClassUnconditional.lean`);
+- resolution independence of the global virtual class for a fixed bundle (Layer 7): chart-wise isomorphic
+  global cone data give the same glued cone class in every grading and, for a globally trivialised bundle over
+  an infinite field, the same unconditional virtual class
+  (`VirtualFundamentalClass/ConeGluingIndependence.lean`: `ChartIso`, `coneClassAt_eq`, `virtualClassFT'_eq`);
+- the quasi-isomorphism variant of that independence for chart-wise quasi-isomorphisms bijective in degree
+  one, which are automatically isomorphisms (`VirtualFundamentalClass/ConeGluingQuasiIso.lean`:
+  `ChartQuasiIso`, `virtualClassFT'_eq_of_quasiIso`);
 - towards the virtual degree (Layer 7): the degree map on rational zero-cycles of a quasi-compact scheme
   locally of finite type over a field with residue degrees positive at closed points
   (`IntersectionTheory/ZeroCycleDegree.lean`), Fulton's affine length formula
