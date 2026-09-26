@@ -77,6 +77,13 @@ Implemented APIs include:
   reductions; plus the graded Rees algebra and Proj blowup, its degree-one affine cover and
   universal principalization maps, and genuine scheme isomorphisms identifying all three node
   charts with Rees charts compatibly with the blowup projection;
+- the local dual calculation for the displayed node equation: an actual short exact
+  `ModuleCat` resolution, its precomposition differential on the actual `Hom_P(P,P)` term,
+  the genuine Mathlib `Abelian.Ext` connecting map, and a presentation-relative linear
+  equivalence `Ext¹_P(R[x,y]/(xy-πⁿ), P) ≃ R[x,y]/(xy-πⁿ)`, with `Ext⁰` and higher Ext
+  vanishing and arbitrary nontrivial commutative coefficient base change of the Hom differential
+  and quotient classes. A global relative dualizing complex, trace, chart-independent gluing,
+  component-degree formula, and intrinsic derived base-change theorem remain open;
 - a resolution of the standard node of every thickness over a discrete valuation ring: a
   regular scheme with a proper morphism to the node which is an isomorphism away from the
   closed origin, obtained by induction on the thickness through relative gluing of the
@@ -274,6 +281,24 @@ Implemented APIs include:
   continuous, fully faithful morphism of ringed sites, with the concrete description of the covering
   sieves of both stack sites and the restriction functor on module sheaves
   (`Sites/StackSiteContinuity.lean`, `Sites/StackSiteMorphisms.lean`);
+- the quotient stacks `[U/G]` and `BG` are `FppfStack`s: the fibre universe of `FppfStack` was raised to
+  `Cat.{u+1, u+1}` with a `ULift`-based represented stack, so they inherit the stack-morphism, chart,
+  algebraicity and inertia API (`Stacks/Algebraic.lean`, `Stacks/QuotientStackAlgebraicAPI.lean`);
+- the presentation groupoid `U ×_X U ⇉ U` of an atlas as a groupoid object with its unit, inverse and
+  associativity laws as 2-cells, tied to the fibrewise groupoids (`Stacks/PresentationGroupoidObject.lean`,
+  `Stacks/PresentationGroupoidLaws.lean`), and common scheme atlases with fully faithful groupoid
+  comparison functors (`Stacks/SchemeAtlasRefinement*.lean`);
+- functoriality of the fppf torsor pushout `r_*` in the torsor, in the group homomorphism and under
+  base change (`Stacks/TorsorPushoutFunctoriality.lean`), and the quotient-stack maps `[U/G] → [V/H]`
+  induced by equivariant maps over a group homomorphism, with `[U/G] → BH` as a special case
+  (`Stacks/QuotientStackGroupMaps.lean`);
+- the Deligne--Mumford diagonal criterion in the direction étale atlas ⇒ unramified diagonal,
+  unconditionally (`Stacks/EtaleAtlasDiagonal.lean`), the comparison of the two encodings of the
+  diagonal and representability of the inertia projection (`Stacks/DiagonalComparison.lean`), the
+  global inertia map of a stack morphism with its identity and composition coherence and invariance
+  of inertia under stack equivalence (`Stacks/InertiaFunctoriality.lean`, `Stacks/InertiaCoherence.lean`),
+  and, for the converse, the ring-level étale slicing lemma (`Stacks/EtaleSlice.lean`) and the
+  chart-level slice infrastructure (`Stacks/DeligneMumfordCriterion.lean`);
 - coherent cohomology `Hⁿ(X, M)` of `𝒪_X`-modules as Mathlib's `Ext`-theoretic sheaf
   cohomology, with its `Γ(X, 𝒪_X)`- and `k`-module structure constructed from multiplication
   by global functions and additivity of the cohomology functor; the arithmetic genus
