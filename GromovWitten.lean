@@ -310,3 +310,4 @@ import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Examples
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ComponentIntersection
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.SpecialFibreDimension
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.SpecialFibreStalk
+import GromovWitten.AlgebraicGeometry.Curves.StableReduction.SpecialFibreStalkIso

@@ -161,6 +161,12 @@ Implemented APIs include:
   local intersection algebras, hence genuine natural intersection numbers of distinct components
   (`Curves/StableReduction/SpecialFibreStalk.lean`: `ringKrullDim_stalk_eq_two_of_isClosed`,
   `componentIntersection_ne_top_of_ne`);
+- the special fibre of a model over a DVR is the closed subscheme cut out by the uniformiser
+  (`ker_specialFiberι`, `specialFiberSchemeIsoSubscheme`), the kernel of the stalk map of a closed immersion
+  is the extension of the kernel on an affine chart (`ker_stalkMap_of_isClosedImmersion`), hence the stalks of
+  the special fibre are `𝒪_{M,x} ⧸ (π)` (`specialFiberStalkIso`) and drop the dimension by exactly one at
+  closed points, with the one-dimensionality of the special fibre in three equivalent forms
+  (`Curves/StableReduction/SpecialFibreStalkIso.lean`);
 - `Proj` commutes with arbitrary base change: a graded map which is a base change in every
   degree induces a cartesian square of `Proj`s over the spectra of the base rings, with the
   affine chart comparisons proved bijective by clearing denominators;
