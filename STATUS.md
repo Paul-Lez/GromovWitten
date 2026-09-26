@@ -467,6 +467,50 @@ Implemented APIs include:
   finite type over a field with no hypothesis, and it is the unique class with `π^*[X]^vir = [C(E)]`
   when the obstruction bundle has a global trivialisation
   (`GlobalVirtualClassSurjective.lean`, `GlobalVirtualClassUnconditional.lean`);
+- towards the virtual degree (Layer 7): the degree map on rational zero-cycles of a quasi-compact scheme
+  locally of finite type over a field with residue degrees positive at closed points
+  (`IntersectionTheory/ZeroCycleDegree.lean`), Fulton's affine length formula
+  `∑_m [κ(m):k]·ord_{A_m}(a) = dim_k(A/(a))` (`IntersectionTheory/AffineDegreeFormula.lean`), and the
+  order-of-vanishing calculus for finite extensions of one-dimensional local domains: Lemma A.2.3 in general
+  (`Algebra/OrderFiniteExtension.lean`), the semilocal length formula (`Algebra/OrderSemilocal.lean`) and
+  Example A.3.1 for finite birational extensions (`Algebra/OrderBirational.lean`: `OrderBirational.ord_eq_finsum`),
+  the scheme-level formula `deg (div a) = dim_k(A/(a))` on an integral affine curve and the invariance of the
+  degree under closed-immersion pushforward (`IntersectionTheory/AffineDegreeScheme.lean`);
+- the projective line `ℙ¹_k` as a gluing of two affine lines (`ProjectiveLine.lean`) and the vanishing of
+  the degree of every principal divisor on it (`IntersectionTheory/ProjectiveLineDegree.lean`:
+  `degreeCycle_principalCycle_eq_zero`), the first proper case of the well-definedness of the degree;
+- Fulton's Lemma A.2.6, the length of the cokernel of a square matrix over a one-dimensional Noetherian
+  domain is the order of its determinant, and the norm formula `length_A(B/bB) = ord_A(N_{B/A}(b))` with its
+  semilocal form, the local pushforward of principal divisors along a finite free extension
+  (`Algebra/OrderDeterminant.lean`: `cokerLength_eq_ord_det`, `finsum_summand_eq_ord_norm`);
+- Fulton's Proposition 1.4 for a finite free extension of one-dimensional domains: the pushforward of the
+  divisor of `b` along `Spec B → Spec A` is the divisor of its norm, and the degree of zero-cycles is
+  compatible with this pushforward (`IntersectionTheory/NormPushforward.lean`:
+  `map_principalCycle_eq_principalCycle_norm`, `degreeCycle_principalCycleOf_norm`);
+- the morphism to `ℙ¹_k` defined by a rational function on a regular proper curve, glued from the chart
+  morphisms on the domains of definition of `r` and `r⁻¹`, and its finiteness by Zariski's main theorem under
+  explicit separatedness and one-dimensionality hypotheses (`Curves/RationalFunctionToProjectiveLine.lean`:
+  `regularLocus`, `regularSection`, `toProjectiveLine`, `isFinite_toProjectiveLine`);
+- `ℙ¹_k` is separated over `k` (affine-diagonal criterion for a scheme glued from two affine charts), and the
+  one-dimensionality package of a regular proper curve: non-generic points closed, proper closed subsets
+  finite, local rings valuation rings (`Curves/ProperCurveTopology.lean`: `RegularProperCurve`);
+- the vanishing of the degree of a principal divisor on a regular proper curve reduced to the equality of
+  the two partial degrees over the domains of definition of `r` and `r⁻¹`, each identified with
+  `dim_k (B ⧸ (b))` over an affine chart (`IntersectionTheory/ProperCurveDegree.lean`:
+  `degreeCycle_principalCycle_eq_zero_of_affineCharts`);
+- the algebraic case of that vanishing unconditionally (a root of a monic polynomial over `k` is a unit at
+  every point of a curve with valuation-ring local rings), the affine charts of the transcendental case and
+  the criterion in terms of the domains of definition being affine with equal chart dimension
+  (`IntersectionTheory/ProperCurveDegreeFinal.lean`: `RegularProperCurve.degreeCycle_principalCycle_eq_zero_of_not_injective`,
+  `degreeCycle_principalCycle_eq_zero_of_isAffineOpen`);
+- the geometric half of the transcendental case: the preimages of the charts of `ℙ¹` are the domains of
+  definition of `r` and `r⁻¹`, affine with the first chart ring finite over `k[t]`, the overlap the basic
+  open of the representing section, and the chart-dimension comparison reduced to localisations
+  (`IntersectionTheory/ProperCurveDegreeTranscendental.lean`);
+- the degree of every principal divisor on a regular proper curve over a field is zero, with no hypothesis
+  (`IntersectionTheory/ProperCurveDegreeUnconditional.lean`:
+  `RegularProperCurve.degreeCycle_principalCycle_eq_zero'`), the well-definedness of the degree on `A_0`
+  reducing to the dichotomy curve-or-point for integral closed subschemes;
 - the lci formula for the virtual class (Layer 7): for the identity obstruction theory on the
   conormal complex of a quasi-regular ideal, the resolved cone is the whole obstruction bundle and
   `[X]^vir = [X]` (`VirtualFundamentalClass/LciFormula.lean`: `VirtualClass.lci_formula`,
