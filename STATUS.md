@@ -379,6 +379,11 @@ Implemented APIs include:
   regularity hypothesis, and the conormal splitting `I ∩ (y₀) = y₀·I` with the converse when `y₀` is a
   non-zero-divisor (`VirtualFundamentalClass/RelativeHyperplaneObstruction.lean`:
   `isObstructionTheory_hyperplaneHom`, `hyperplaneCotangentEquiv`, `isObstructionTheory_hyperplaneHom_iff`);
+- the reindexing of the hyperplane base change onto the smaller polynomial ring, a semilinear isomorphism of
+  the hyperplane conormal complex with the relative conormal complex of the reindexed ideal, hence the
+  relative virtual class `[X'/Y']^vir` of the hyperplane base change with virtual dimension one less, and the
+  surjection of associated graded rings (`VirtualFundamentalClass/RelativeHyperplaneReindex.lean`:
+  `hyperplaneReindexIso`, `relativeVirtualClass_hyperplane`, `surjective_grReindexHom`);
 - functoriality under the smooth projection `X × 𝔸^τ → X` (Layer 8, affine model): the flat
   pullback along a trivialised bundle is transitive on Chow groups, commutes with pushforward along
   closed immersions and with the zero-section Gysin map
