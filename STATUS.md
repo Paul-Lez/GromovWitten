@@ -420,6 +420,20 @@ Implemented APIs include:
   the relative datum is (`isObstructionTheory_absHom_iff`,
   `VirtualFundamentalClass/RelativeAbsolute*.lean`); adjoining a degree-one summand leaves the
   resolved cone unchanged in general (`VirtualFundamentalClass/DegreeOneSummand.lean`);
+- the relative virtual class and its base change (Layer 9, affine model): the headline statements
+  `[X/Y]^vir = [X]^vir` with the dimension shift, flat base change along `Y × 𝔸^ρ → Y` and the
+  localisation case, and the relative conormal complex and comparison chain map for base change along a
+  coordinate hyperplane of the base (`VirtualFundamentalClass/RelativeVirtualClassBaseChange.lean`:
+  `hyperplaneConormalComplex`, `hyperplaneHom`);
+- transfer of the obstruction-theory condition along the coordinate-hyperplane base change, with no
+  regularity hypothesis, and the conormal splitting `I ∩ (y₀) = y₀·I` with the converse when `y₀` is a
+  non-zero-divisor (`VirtualFundamentalClass/RelativeHyperplaneObstruction.lean`:
+  `isObstructionTheory_hyperplaneHom`, `hyperplaneCotangentEquiv`, `isObstructionTheory_hyperplaneHom_iff`);
+- the reindexing of the hyperplane base change onto the smaller polynomial ring, a semilinear isomorphism of
+  the hyperplane conormal complex with the relative conormal complex of the reindexed ideal, hence the
+  relative virtual class `[X'/Y']^vir` of the hyperplane base change with virtual dimension one less, and the
+  surjection of associated graded rings (`VirtualFundamentalClass/RelativeHyperplaneReindex.lean`:
+  `hyperplaneReindexIso`, `relativeVirtualClass_hyperplane`, `surjective_grReindexHom`);
 - functoriality under the smooth projection `X × 𝔸^τ → X` (Layer 8, affine model): the flat
   pullback along a trivialised bundle is transitive on Chow groups, commutes with pushforward along
   closed immersions and with the zero-section Gysin map
