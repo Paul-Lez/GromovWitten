@@ -37,6 +37,14 @@ def relativeDifferentialsSheaf {X Y : Scheme.{u}} (f : X ⟶ Y) : X.Modules :=
   (PresheafOfModules.sheafification (𝟙 X.ringCatSheaf.obj)).obj
     (relativeDifferentialsPresheaf f)
 
+/-- The Fitting ideal of the relative differential sections on an open of the source.
+
+This is the sectionwise ingredient for the global Fitting ideal sheaf; compatibility under
+restriction requires the usual finite-presentation and localization hypotheses. -/
+def relativeDifferentialsSectionFittingIdeal {X Y : Scheme.{u}} (f : X ⟶ Y)
+    (U : X.Opens) (i : ℕ) : Ideal Γ(X, U) :=
+  Module.fittingIdeal Γ(X, U) Γ(relativeDifferentialsSheaf f, U) i
+
 end
 
 end GromovWitten.AlgebraicGeometry
