@@ -195,6 +195,12 @@ Implemented APIs include:
   normal sheaf, the normal sheaf is the abelian hull of the normal cone, and both cones map to
   the closed subscheme; products and fibre products of affine cones and cone actions, and
   smoothness of `Spec Sym F` for every finite projective `F`;
+- the smooth formula in the affine model (Layer 5): a formally smooth quotient of a polynomial ring
+  has quasi-regular conormal data, `Sym_S(I/I²) → gr_I` injective
+  (`Cones/SmoothQuasiregular.lean`: `normalSheafCoordinateMap_injective_of_formallySmooth`), so
+  `C_{U/M} = N_{U/M}` and the affine intrinsic normal sheaf and cone of `U ⊆ 𝔸ⁿ` are `B T_U`: connected
+  quotient groupoids with automorphisms `Derivation k S B` (`Cones/SmoothIntrinsicNormalSheaf.lean`,
+  `Cones/SmoothFormula.lean`), together with the smooth case of the lci formula for the virtual class;
 - the dual of a perfect complex is well defined up to canonical isomorphism, with biduality and
   full faithfulness of duality on strictly perfect complexes;
 - the underlying topological space of an algebraic stack is independent of the atlas: the point
@@ -235,6 +241,12 @@ Implemented APIs include:
   independence of the representative proved by roofs of quasi-isomorphisms, a complex of finite
   projectives exact outside `[-1,0]` has `h¹/h⁰` a fibrewise vector-bundle stack, and split short
   exact sequences of two-term complexes dualise to short exact sequences of Picard groupoids;
+- functoriality of `h¹/h⁰` on derived morphisms (Layer 4): every derived morphism between the objects of
+  two K-projective two-term resolutions is realised by a chain map, unique up to chain homotopy, giving a
+  functor of Picard groupoids with unit and composition coherence up to natural isomorphism and an
+  equivalence for invertible morphisms (`Cones/DerivedPicardFunctoriality.lean`: `realize`, `picardMap`,
+  `picardMap_id`, `picardMap_comp`, `picardEquivOfIso`), extended to projectivity-free truncation
+  representatives through roofs (`Cones/DerivedPicardFunctorialityRoof.lean`: `TruncRep.picardMapRoof`);
 - the affine cone quotient `[C/E]` is realised as a torsor prestack (fully faithful comparison
   with the trivial torsors), base changes and fibre products of cone stacks are constructed on
   genuine two-pullbacks of stacks, unconditionally for coherent cone stacks;
@@ -248,6 +260,20 @@ Implemented APIs include:
   finite-sum distributivity statement;
 - the intrinsic pullback sequence of Picard groupoids for a tower `R → S → T`, unconditional
   when `S` is formally smooth over `R` and `T` is flat and formally smooth over `S`;
+- the transitivity long exact sequence of the truncated cotangent complex for a tower `R → S → T`
+  (Layer 3): the flat base-change arrow on `H⁻¹` and its exactness complete the Jacobi–Zariski sequence,
+  bundled as `TransitivitySequence` with all exactness proved; étale base change of `H⁰` is an isomorphism
+  and base change of `H⁻¹` is an isomorphism for localisations
+  (`CotangentComplex/Transitivity.lean`, `CotangentComplex/TransitivityEtale.lean`);
+- étale base change of `H⁻¹` of the truncated cotangent complex, `H⁻¹(L_{S/R}) ⊗_S T ≅ H⁻¹(L_{T/R})` for
+  `S → T` étale, through compatible presentations of standard étale algebras and localisation on `T`
+  (`CotangentComplex/TransitivityEtaleGeneral.lean`: `bijective_jzH1BaseChange_of_etale`, `hNegOneBaseChangeIso`);
+- descent data for the cohomology of the truncated cotangent complex along an étale cover of rings, with
+  cocycle condition and effectivity (`CotangentComplex/AtlasDescent.lean`: `cotangentDescentDatum`,
+  `cotangentDescentDatum_eq_canonical`);
+- the cohomology of the affine-local cotangent complex as restriction data on the affine charts of a
+  morphism with the composition law and quasi-coherence along basic-open refinements
+  (`CotangentComplex/AtlasDescentGlobal.lean`);
 - obstruction cones of the affine intrinsic normal cone inside `h¹/h⁰(Eᵛ)` (fibrewise closed
   immersions), the identification of the two-term obstruction-theory criterion with the derived
   one, virtual rank, external sums and base change of obstruction theories, invariance under
@@ -438,6 +464,19 @@ Implemented APIs include:
   through the trivial tower (`BundleHomotopyInjectiveGlobal.lean`:
   `chowPullbackBundleGlobal_injective`); injectivity for non-trivial bundles needs Chern classes
   and is not attempted;
+- the first Chern class of a line bundle (Layer 2): Čech line bundle data, rational sections, their
+  chart-independent orders and divisor cycles (`IntersectionTheory/LineBundleData.lean`), the map
+  `c1Cycle L : Z_{i+1}(X) → A_i(X)` and, given the descent statement `KillsRelations` (Fulton Prop. 2.5),
+  `c1 L : A_{i+1}(X) → A_i(X)` with `c1_trivial`, `c1_tensor`, `c1_dual`
+  (`IntersectionTheory/FirstChernClass.lean`); Fulton's symmetric identity of Theorem 2.4 for two elements
+  of a Noetherian domain without common height-one prime, as an identity of cycles on `Spec A`
+  (`IntersectionTheory/DivisorSymmetryAffine.lean`: `VectorBundle.Affine.divisorSymmetry`);
+  and the reduction of the descent of `c₁` through rational equivalence to the symmetric identity for a
+  section with no common support components with the divisor (`IntersectionTheory/FirstChernClassDescent.lean`:
+  `Scheme.IsUnitAt`, `RationalSection.restrict`, `SymmetricIdentity`, `killsRelations_of_symmetricIdentity`);
+- the affine moving lemma for rational sections (Layer 2): one unit of the fraction field of a Noetherian
+  domain makes finitely many prescribed units local units at finitely many codimension-one primes
+  simultaneously (`Algebra/SemilocalMoving.lean`: `exists_unit_mul_isUnit_atPrime`);
 - relative `Spec` of an affine morphism and trivial bundles (Layer 1): `AlgebraData.ofAffineHom`,
   `relativeSpecOfAffineHomIso`, morphisms of relative `Spec`s from morphisms over the base
   (`RelativeSpecAffineHom.lean`); `trivialData X ι`, `GlobalTrivialisation`, constant sections and
@@ -454,6 +493,64 @@ Implemented APIs include:
   finite type over a field with no hypothesis, and it is the unique class with `π^*[X]^vir = [C(E)]`
   when the obstruction bundle has a global trivialisation
   (`GlobalVirtualClassSurjective.lean`, `GlobalVirtualClassUnconditional.lean`);
+- resolution independence of the global virtual class for a fixed bundle (Layer 7): chart-wise isomorphic
+  global cone data give the same glued cone class in every grading and, for a globally trivialised bundle over
+  an infinite field, the same unconditional virtual class
+  (`VirtualFundamentalClass/ConeGluingIndependence.lean`: `ChartIso`, `coneClassAt_eq`, `virtualClassFT'_eq`);
+- the quasi-isomorphism variant of that independence for chart-wise quasi-isomorphisms bijective in degree
+  one, which are automatically isomorphisms (`VirtualFundamentalClass/ConeGluingQuasiIso.lean`:
+  `ChartQuasiIso`, `virtualClassFT'_eq_of_quasiIso`);
+- towards the virtual degree (Layer 7): the degree map on rational zero-cycles of a quasi-compact scheme
+  locally of finite type over a field with residue degrees positive at closed points
+  (`IntersectionTheory/ZeroCycleDegree.lean`), Fulton's affine length formula
+  `∑_m [κ(m):k]·ord_{A_m}(a) = dim_k(A/(a))` (`IntersectionTheory/AffineDegreeFormula.lean`), and the
+  order-of-vanishing calculus for finite extensions of one-dimensional local domains: Lemma A.2.3 in general
+  (`Algebra/OrderFiniteExtension.lean`), the semilocal length formula (`Algebra/OrderSemilocal.lean`) and
+  Example A.3.1 for finite birational extensions (`Algebra/OrderBirational.lean`: `OrderBirational.ord_eq_finsum`),
+  the scheme-level formula `deg (div a) = dim_k(A/(a))` on an integral affine curve and the invariance of the
+  degree under closed-immersion pushforward (`IntersectionTheory/AffineDegreeScheme.lean`);
+- the projective line `ℙ¹_k` as a gluing of two affine lines (`ProjectiveLine.lean`) and the vanishing of
+  the degree of every principal divisor on it (`IntersectionTheory/ProjectiveLineDegree.lean`:
+  `degreeCycle_principalCycle_eq_zero`), the first proper case of the well-definedness of the degree;
+- Fulton's Lemma A.2.6, the length of the cokernel of a square matrix over a one-dimensional Noetherian
+  domain is the order of its determinant, and the norm formula `length_A(B/bB) = ord_A(N_{B/A}(b))` with its
+  semilocal form, the local pushforward of principal divisors along a finite free extension
+  (`Algebra/OrderDeterminant.lean`: `cokerLength_eq_ord_det`, `finsum_summand_eq_ord_norm`);
+- Fulton's Proposition 1.4 for a finite free extension of one-dimensional domains: the pushforward of the
+  divisor of `b` along `Spec B → Spec A` is the divisor of its norm, and the degree of zero-cycles is
+  compatible with this pushforward (`IntersectionTheory/NormPushforward.lean`:
+  `map_principalCycle_eq_principalCycle_norm`, `degreeCycle_principalCycleOf_norm`);
+- the morphism to `ℙ¹_k` defined by a rational function on a regular proper curve, glued from the chart
+  morphisms on the domains of definition of `r` and `r⁻¹`, and its finiteness by Zariski's main theorem under
+  explicit separatedness and one-dimensionality hypotheses (`Curves/RationalFunctionToProjectiveLine.lean`:
+  `regularLocus`, `regularSection`, `toProjectiveLine`, `isFinite_toProjectiveLine`);
+- `ℙ¹_k` is separated over `k` (affine-diagonal criterion for a scheme glued from two affine charts), and the
+  one-dimensionality package of a regular proper curve: non-generic points closed, proper closed subsets
+  finite, local rings valuation rings (`Curves/ProperCurveTopology.lean`: `RegularProperCurve`);
+- the vanishing of the degree of a principal divisor on a regular proper curve reduced to the equality of
+  the two partial degrees over the domains of definition of `r` and `r⁻¹`, each identified with
+  `dim_k (B ⧸ (b))` over an affine chart (`IntersectionTheory/ProperCurveDegree.lean`:
+  `degreeCycle_principalCycle_eq_zero_of_affineCharts`);
+- the algebraic case of that vanishing unconditionally (a root of a monic polynomial over `k` is a unit at
+  every point of a curve with valuation-ring local rings), the affine charts of the transcendental case and
+  the criterion in terms of the domains of definition being affine with equal chart dimension
+  (`IntersectionTheory/ProperCurveDegreeFinal.lean`: `RegularProperCurve.degreeCycle_principalCycle_eq_zero_of_not_injective`,
+  `degreeCycle_principalCycle_eq_zero_of_isAffineOpen`);
+- the geometric half of the transcendental case: the preimages of the charts of `ℙ¹` are the domains of
+  definition of `r` and `r⁻¹`, affine with the first chart ring finite over `k[t]`, the overlap the basic
+  open of the representing section, and the chart-dimension comparison reduced to localisations
+  (`IntersectionTheory/ProperCurveDegreeTranscendental.lean`);
+- the degree of every principal divisor on a regular proper curve over a field is zero, with no hypothesis
+  (`IntersectionTheory/ProperCurveDegreeUnconditional.lean`:
+  `RegularProperCurve.degreeCycle_principalCycle_eq_zero'`), the well-definedness of the degree on `A_0`
+  reducing to the dichotomy curve-or-point for integral closed subschemes;
+- the lci formula for the virtual class (Layer 7): for the identity obstruction theory on the
+  conormal complex of a quasi-regular ideal, the resolved cone is the whole obstruction bundle and
+  `[X]^vir = [X]` (`VirtualFundamentalClass/LciFormula.lean`: `VirtualClass.lci_formula`,
+  `OverField.lci_formula`); for a regular sequence in a polynomial ring over an infinite field the
+  formula holds with no hypothesis at all (`VirtualFundamentalClass/LciFormulaPure.lean`:
+  `OverField.lci_formula_polynomial`, with the purity of `Spec (R⧸I)` from
+  `height_eq_length_of_isWeaklyRegular` and the basis of `I/I²` from `QuasiregularGenerators.cotangentBasis`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
