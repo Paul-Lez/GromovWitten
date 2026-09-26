@@ -472,6 +472,9 @@ Implemented APIs include:
   morphisms on the domains of definition of `r` and `r⁻¹`, and its finiteness by Zariski's main theorem under
   explicit separatedness and one-dimensionality hypotheses (`Curves/RationalFunctionToProjectiveLine.lean`:
   `regularLocus`, `regularSection`, `toProjectiveLine`, `isFinite_toProjectiveLine`);
+- `ℙ¹_k` is separated over `k` (affine-diagonal criterion for a scheme glued from two affine charts), and the
+  one-dimensionality package of a regular proper curve: non-generic points closed, proper closed subsets
+  finite, local rings valuation rings (`Curves/ProperCurveTopology.lean`: `RegularProperCurve`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
