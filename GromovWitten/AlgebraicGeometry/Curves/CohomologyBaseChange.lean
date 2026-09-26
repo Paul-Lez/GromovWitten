@@ -56,6 +56,7 @@ without depending on an external package.
 
 open CategoryTheory Limits
 open _root_.AlgebraicGeometry
+open scoped ZeroObject
 
 namespace GromovWitten.AlgebraicGeometry.Curves
 
@@ -230,6 +231,25 @@ structure ModuleStructure (S : Scheme.{u}) (N : TopCat.Sheaf Ab.{u} S) where
   toModule : S.Modules
   /-- The identification of the underlying abelian sheaf of `toModule` with `N`. -/
   underlyingIso : (moduleToSheafAb S).obj toModule ≅ N
+
+/-- A zero abelian sheaf has its canonical zero `𝒪_S`-module structure.
+
+This constructor is useful for acyclic derived images. It only applies after an actual
+`IsZero` proof; it does not manufacture module structures for nonzero derived images. -/
+noncomputable def ModuleStructure.of_isZero (S : Scheme.{u})
+    (N : TopCat.Sheaf Ab.{u} S) (hN : IsZero N) : ModuleStructure S N where
+  toModule := 0
+  underlyingIso := (moduleToSheafAb S).map_isZero (isZero_zero _)
+    |>.iso hN
+
+/-- An injective underlying abelian sheaf has a canonical zero module structure on every positive
+higher direct image. The proof uses derived vanishing and does not assert that the forgetful
+functor preserves injectives. -/
+noncomputable def higherDirectImageModuleStructure_of_injective (f : X ⟶ S) (M : X.Modules)
+    (n : ℕ) [Injective ((moduleToSheafAb X).obj M)] :
+    ModuleStructure S (higherDirectImageModuleAb f M (n + 1)) :=
+  ModuleStructure.of_isZero S _
+    (isZero_higherDirectImageModuleAb_succ_of_injective f M n)
 
 /-- The ordinary pushforward `f_* M` is a module structure on the derived-functor `R⁰ f_* M`.
 This is the constructed degree-zero higher direct image. -/
