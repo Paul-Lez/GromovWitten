@@ -255,6 +255,9 @@ import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ReesBlowupGlobal
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ModelBlowup
 import GromovWitten.AlgebraicGeometry.ProjBaseChange
 import GromovWitten.AlgebraicGeometry.RelativeProj
+import GromovWitten.AlgebraicGeometry.Veronese
+import GromovWitten.AlgebraicGeometry.VeroneseLocalization
+import GromovWitten.AlgebraicGeometry.VeroneseLocalizationScheme
 import GromovWitten.AlgebraicGeometry.RelativeSpec
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.CycleGluing
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.HomogeneityLocal
