@@ -277,6 +277,13 @@ Implemented APIs include:
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- the Deligne--Mumford diagonal criterion in the direction étale atlas ⇒ unramified diagonal,
+  unconditionally (`Stacks/EtaleAtlasDiagonal.lean`), the comparison of the two encodings of the
+  diagonal and representability of the inertia projection (`Stacks/DiagonalComparison.lean`), the
+  global inertia map of a stack morphism with its identity and composition coherence and invariance
+  of inertia under stack equivalence (`Stacks/InertiaFunctoriality.lean`, `Stacks/InertiaCoherence.lean`),
+  and, for the converse, the ring-level étale slicing lemma (`Stacks/EtaleSlice.lean`) and the
+  chart-level slice infrastructure (`Stacks/DeligneMumfordCriterion.lean`);
 - coherent cohomology `Hⁿ(X, M)` of `𝒪_X`-modules as Mathlib's `Ext`-theoretic sheaf
   cohomology, with its `Γ(X, 𝒪_X)`- and `k`-module structure constructed from multiplication
   by global functions and additivity of the cohomology functor; the arithmetic genus
