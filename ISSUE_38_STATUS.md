@@ -1,47 +1,40 @@
 # Issue 38: the diagonal and inertia
 
-This branch advances [issue 38](https://github.com/Paul-Lez/GromovWitten/issues/38).
-It does not prove the full Deligne–Mumford diagonal criterion.
+This file records the state of [issue 38](https://github.com/Paul-Lez/GromovWitten/issues/38).
 
 ## Constructed and proved
 
 `Stacks/DiagonalComparison.lean` turns a scheme representing an isomorphism sheaf into a
-scheme presentation of the actual diagonal stack morphism. It constructs the comparison cell,
-the classifying map, the source-object isomorphism, and both uniqueness proofs. Neither
-uniqueness nor the compatibility equation is omitted or supplied as an extra hypothesis.
+scheme presentation of the actual diagonal stack morphism, with the comparison cell, the
+classifying map and both uniqueness proofs. Hence representability of the diagonal in the
+isomorphism-sheaf encoding implies representability in the stack-morphism encoding, and the
+actual diagonal and inertia projection of an algebraic stack are representable.
 
-Consequently, representability of the diagonal in the isomorphism-sheaf encoding implies
-representability in the stack-morphism encoding. The same construction transfers any property
-of all the isomorphism schemes. The actual diagonal and inertia projection of an algebraic
-stack are therefore representable. The existing conditional Deligne–Mumford corollary no
-longer needs a separate morphism-level representability assumption.
+`Stacks/EtaleAtlasDiagonal.lean` proves the direction "étale atlas ⇒ unramified diagonal" with
+no hypothesis: `StackChart.hasUnramifiedIsom_of_isEtaleSurjective` realises the isomorphism
+scheme of two chart objects as an ordinary scheme pullback of the chart's self-overlap
+presentation, so `DeligneMumfordStack.stackDiagonal_unramified'` and
+`AlgebraicStack.stackDiagonal_unramified_of_etaleChart` follow. `DeligneMumfordStack` has no
+diagonal field.
 
-`Stacks/InertiaFunctoriality.lean` constructs a global map on inertia for every stack morphism
-using the genuine bilimit. Both projection isomorphisms and the full comparison face are
-retained. `Stacks/StackProductProjections.lean` supplies the component calculations used in
-these constructions; it does not treat morphisms of arbitrary stacks as discrete.
+`Stacks/InertiaFunctoriality.lean` constructs the global inertia map of every stack morphism
+through the genuine bilimit, and `Stacks/InertiaCoherence.lean` proves its two-dimensional
+functoriality: `inertiaMap_congr`, `inertiaMap_id`, `inertiaMap_comp`, and
+`inertiaEquivalence` (equivalent stacks have equivalent inertia stacks); `inertiaMap_aut` and
+`representedStack_aut` identify inertia of represented stacks with the schemes themselves.
+
+`Stacks/EtaleSlice.lean` proves the commutative-algebra core of the converse (Stacks 06N3):
+cutting a standard smooth algebra of relative dimension `n` by `n` elements whose differentials
+generate the cotangent module gives an étale algebra
+(`etale_of_span_eq_top_of_isStandardSmooth`), and an unramified composite forces
+surjectivity of the base-changed cotangent map (`surjective_mapBaseChange_of_formallyUnramified`).
+`Stacks/DeligneMumfordCriterion.lean` realises a slice `W → U → X` of a chart as a chart
+(`StackChart.precomp`) and computes its comparison data.
 
 ## Precise remaining scope
 
-The conditional unramified-diagonal corollary still assumes that etale-surjective charts have
-unramified isomorphism schemes. Deriving that fact from the etale atlas, and constructing an
-etale atlas from an unramified diagonal, remain open. These are essential parts of the issue,
-so this branch is not an unconditional diagonal criterion.
-
-The baseline already constructs inertia as a genuine self-intersection and supplies fibrewise
-comparisons. The new map construction is global, but identity and composition coherence and
-invariance under stack equivalence remain open. The additional identity-coherence attempt
-was not accepted as a proof and is excluded from the public source.
-
-## Verification and review
-
-Four distinct Luna agents at xhigh were assigned, followed by an additional agent for the
-inertia identity coherence. The orchestrator completed and independently reviewed the diagonal
-bridge; another agent reviewed it and found no missing uniqueness or comparison condition.
-New source has no admitted proofs, custom axioms, native decision proofs, or disabled linters.
-Representative axiom checks use only Lean's standard axioms. All builds use the shared lock
-and two Lean threads. The final full `lake build`, including the public umbrella, passed
-on 2026-09-25 (8,991 jobs), with warnings treated as errors.
-
-Revalidated against upstream `master` at `64bcf85ea95c270ef30bb951ce41a31754c97367` on
-2026-09-26: the full public build passed (9,019 jobs), with warnings treated as errors.
+The converse "unramified diagonal ⇒ étale atlas" is not assembled: presenting base changes of a
+precomposed chart by scheme pullbacks, the fppf descent of étaleness along a smooth presentation,
+the choice of slicing functions from the unramified diagonal (Nakayama plus the affine slicing
+lemma), and gluing the slices into an atlas are still missing. The comparison of inertia for
+quotient stacks (stabilisers) is not started.

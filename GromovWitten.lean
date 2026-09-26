@@ -365,3 +365,7 @@ import GromovWitten.AlgebraicGeometry.Cones.SmoothFormula
 import GromovWitten.AlgebraicGeometry.Stacks.StackProductProjections
 import GromovWitten.AlgebraicGeometry.Stacks.DiagonalComparison
 import GromovWitten.AlgebraicGeometry.Stacks.InertiaFunctoriality
+import GromovWitten.AlgebraicGeometry.Stacks.EtaleAtlasDiagonal
+import GromovWitten.AlgebraicGeometry.Stacks.InertiaCoherence
+import GromovWitten.AlgebraicGeometry.Stacks.EtaleSlice
+import GromovWitten.AlgebraicGeometry.Stacks.DeligneMumfordCriterion
