@@ -431,3 +431,4 @@ import GromovWitten.AlgebraicGeometry.Stacks.DeligneMumfordCriterionAssembly
 import GromovWitten.AlgebraicGeometry.Stacks.EtaleSliceLocal
 import GromovWitten.AlgebraicGeometry.Stacks.DeligneMumfordCriterionFinal
 import GromovWitten.AlgebraicGeometry.Stacks.EtaleSliceLocalSlicing
+import GromovWitten.AlgebraicGeometry.Stacks.EtaleSliceGeneration
