@@ -155,6 +155,12 @@ Implemented APIs include:
   component multiplicities are positive natural numbers and the intersection numbers have an `ℕ`-valued form
   (`Curves/StableReduction/SpecialFibreDimension.lean`: `IsRegularLocalRing.isDomain`,
   `isDiscreteValuationRing_stalk_genericPoint`, `componentMultiplicityNat_pos_of_span_eq`);
+- the prime-to-point dictionary for `fromSpecStalk` and the stalk-ideal/support dictionary for ideal
+  sheaves, giving `dim 𝒪_{M,x} = 2` at closed points of the special fibre when the fibre has topological
+  dimension at most one, finiteness of the intersection of two distinct components with zero-dimensional
+  local intersection algebras, hence genuine natural intersection numbers of distinct components
+  (`Curves/StableReduction/SpecialFibreStalk.lean`: `ringKrullDim_stalk_eq_two_of_isClosed`,
+  `componentIntersection_ne_top_of_ne`);
 - `Proj` commutes with arbitrary base change: a graded map which is a base change in every
   degree induces a cartesian square of `Proj`s over the spectra of the base rings, with the
   affine chart comparisons proved bijective by clearing denominators;
