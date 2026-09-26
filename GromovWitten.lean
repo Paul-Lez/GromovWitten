@@ -313,3 +313,5 @@ import GromovWitten.Algebra.OrderBirational
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.ZeroCycleDegree
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.AffineDegreeFormula
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.AffineDegreeScheme
+import GromovWitten.AlgebraicGeometry.ProjectiveLine
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.ProjectiveLineDegree

@@ -457,6 +457,9 @@ Implemented APIs include:
   Example A.3.1 for finite birational extensions (`Algebra/OrderBirational.lean`: `OrderBirational.ord_eq_finsum`),
   the scheme-level formula `deg (div a) = dim_k(A/(a))` on an integral affine curve and the invariance of the
   degree under closed-immersion pushforward (`IntersectionTheory/AffineDegreeScheme.lean`);
+- the projective line `ℙ¹_k` as a gluing of two affine lines (`ProjectiveLine.lean`) and the vanishing of
+  the degree of every principal divisor on it (`IntersectionTheory/ProjectiveLineDegree.lean`:
+  `degreeCycle_principalCycle_eq_zero`), the first proper case of the well-definedness of the degree;
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
