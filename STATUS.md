@@ -149,6 +149,12 @@ Implemented APIs include:
   as the sum of the stalk intersection multiplicities (symmetric, zero for disjoint components, finite under
   explicit finite-support and radical hypotheses) and the multiplicity of a component as the order of the
   uniformiser at its generic point, positive (`Curves/StableReduction/ComponentIntersection.lean`);
+- the local rings of a regular proper model along the special fibre: a regular local ring is a domain and
+  a one-dimensional one is a DVR, the stalks are flat over the base so Krull's principal ideal theorem gives
+  `dim 𝒪_{M,x}/(π) + 1 = dim 𝒪_{M,x}`, the local ring at the generic point of a component is a DVR, so the
+  component multiplicities are positive natural numbers and the intersection numbers have an `ℕ`-valued form
+  (`Curves/StableReduction/SpecialFibreDimension.lean`: `IsRegularLocalRing.isDomain`,
+  `isDiscreteValuationRing_stalk_genericPoint`, `componentMultiplicityNat_pos_of_span_eq`);
 - `Proj` commutes with arbitrary base change: a graded map which is a base change in every
   degree induces a cartesian square of `Proj`s over the spectra of the base rings, with the
   affine chart comparisons proved bijective by clearing denominators;
