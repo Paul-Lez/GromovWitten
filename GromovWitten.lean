@@ -369,3 +369,6 @@ import GromovWitten.AlgebraicGeometry.Stacks.EtaleAtlasDiagonal
 import GromovWitten.AlgebraicGeometry.Stacks.InertiaCoherence
 import GromovWitten.AlgebraicGeometry.Stacks.EtaleSlice
 import GromovWitten.AlgebraicGeometry.Stacks.DeligneMumfordCriterion
+import GromovWitten.AlgebraicGeometry.Stacks.TorsorPushoutFunctoriality
+import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackGroupMaps
+import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackAlgebraicAPI
