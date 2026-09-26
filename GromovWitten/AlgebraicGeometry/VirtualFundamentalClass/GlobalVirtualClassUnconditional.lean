@@ -42,13 +42,13 @@ separately in round 18 and states the resulting theorems in the form a user of t
   obstruction models on the charts of the bundle whose resolved-cone ideals agree over every
   affine open of every overlap — glues to a `GlobalCone.GlobalConeData`
   (`LocalConeData.toGlobalConeData`, `VirtualFundamentalClass/ConeGluingGlobal.lean`), and the
-  overlap hypothesis itself is a consequence of local embeddings into flat formally étale charts
-  (`ConeGluing.LocalEmbeddingData.toLocalConeData`,
+  overlap hypothesis follows from compatible local embeddings into flat formally étale charts
+  (`ConeGluing.CompatibleLocalEmbeddingData.toLocalConeData`,
   `VirtualFundamentalClass/ConeGluingCompatible.lean`).  Composing, this file defines
-  `LocalConeData.gradedConeClassLiftFT` and `LocalEmbeddingData.gradedConeClassLiftFT`: a generic
-  graded cone-class lift from
-  a compact scheme locally of finite type over a field, built from local obstruction data
-  alone.**
+  `LocalConeData.gradedConeClassLiftFT` and
+  `CompatibleLocalEmbeddingData.gradedConeClassLiftFT`: a generic graded cone-class lift for
+  a compact scheme locally of finite type over a field, built from compatible local obstruction
+  and refinement data.
 
 ## What is still missing
 
@@ -61,9 +61,9 @@ separately in round 18 and states the resulting theorems in the form a user of t
   `[Infinite F]` (a generic translate of the zero section has to exist).  For a finite base field
   the primed statements do not apply and the rank-one input
   `BundlePullbackGlobal.RankOneInjective F` has to be supplied by hand as `hrank1`.
-* The overlap comparison `LocalEmbeddingData.transition_ideal` is a field of
-  `LocalEmbeddingData`, not a theorem (it needs a transport of `LinearTwoTermComplex` and of
-  `ResolvedCone.ideal` along a ring isomorphism of the base).
+* `CompatibleLocalEmbeddingData.compat` derives ideal compatibility from direct or common-refinement
+  comparisons. Constructing these comparisons for arbitrary ambient presentations remains an
+  explicit geometric input; the ideal equality itself is no longer supplied.
 
 ## Main declarations
 
@@ -74,10 +74,10 @@ separately in round 18 and states the resulting theorems in the form a user of t
   `ConeGluing.LocalConeData.bundlePullbackFT_gradedConeClassLiftFT`,
   `ConeGluing.LocalConeData.gradedConeClassLiftFT_unique_of_globalTrivialisation` and
   `ConeGluing.LocalConeData.existsUnique_gradedConeClassLiftFT_of_globalTrivialisation`.
-* `ConeGluing.LocalEmbeddingData.gradedConeClassLiftFT` and the same three statements.
-* `ConeGluing.LocalEmbeddingData.CompatibleLocalPerfectObstructionTheories` and
-  `ConeGluing.LocalEmbeddingData.virtualClassFT`: the field-consistent public global VFC gate and
-  its rank-derived constructor.
+* `ConeGluing.CompatibleLocalEmbeddingData.gradedConeClassLiftFT` and the same three statements.
+* `ConeGluing.CompatibleLocalEmbeddingData.CompatibleLocalPerfectObstructionTheories` and
+  `ConeGluing.CompatibleLocalEmbeddingData.virtualClassFT`: the public global VFC gate
+  over one field and its rank-derived constructor.
 * The primed versions of all the uniqueness statements
   (`existsUnique_gradedConeClassLiftFT'_of_globalTrivialisation'`, …), which take `[Infinite F]` in
   place of the hypothesis `hrank1`.
@@ -304,20 +304,21 @@ end LocalConeData
 
 /-! ## The generic lift from local embeddings -/
 
-namespace LocalEmbeddingData
+namespace CompatibleLocalEmbeddingData
 
 variable {F : Type u} [Field F] [IsLocallyNoetherian X]
   (f : X ⟶ Spec (CommRingCat.of F)) [LocallyOfFiniteType f] [CompactSpace X] [Finite ι]
-  [Finite 𝓔.J] (𝓛 : LocalEmbeddingData 𝓔 φ) (i : ℤ)
+  [Finite 𝓔.J] (𝓛 : CompatibleLocalEmbeddingData 𝓔 φ) (i : ℤ)
   (RX : RationalEquivalenceSystem X (dimensionFunction f) i)
   (RE : RationalEquivalenceSystem 𝓔.totalSpace (dimensionFunction (𝓔.proj ≫ f))
     (i + (Nat.card ι : ℤ)))
 
-/-- **The generic lift attached to local embeddings.**  A `LocalEmbeddingData`
+/-- **The generic lift attached to local embeddings.**  A `CompatibleLocalEmbeddingData`
 presents, over every affine open of every chart, the sections of `X` as a quotient of a flat
 formally étale algebra and the bundle algebra as the corresponding base change of the local
-obstruction model; `LocalEmbeddingData.toLocalConeData` then *proves* the overlap compatibility
-of the resolved-cone ideals, so no ad-hoc gluing hypothesis is left. -/
+obstruction model and direct or common-refinement comparisons.
+`CompatibleLocalEmbeddingData.toLocalConeData` derives the overlap ideal equality from those
+comparisons; ideal equality is not supplied separately. -/
 def gradedConeClassLiftFT : RX.ChowGroup :=
   𝓛.toLocalConeData.gradedConeClassLiftFT f i RX RE
 
@@ -363,11 +364,11 @@ theorem existsUnique_gradedConeClassLiftFT_of_globalTrivialisation' [Infinite F]
         (i + (Nat.card ι : ℤ)) RE :=
   𝓛.toLocalConeData.existsUnique_gradedConeClassLiftFT_of_globalTrivialisation' f i RX RE t
 
-end LocalEmbeddingData
+end CompatibleLocalEmbeddingData
 
 /-! ## The VFC from compatible local obstruction theories -/
 
-namespace LocalEmbeddingData
+namespace CompatibleLocalEmbeddingData
 
 section PerfectObstructionTheory
 
@@ -377,11 +378,11 @@ variable {F : Type u} [Field F] {X : Scheme.{u}} {ι : Type u} {𝓔 : BundleDat
   {I : ∀ j, Ideal (R j)} {E : ∀ j, LinearTwoTermComplex (R j ⧸ I j)}
   {φ : ∀ j, LinearTwoTermComplex.Hom (E j) (conormalComplex F (R j) (I j))}
   (f : X ⟶ Spec (CommRingCat.of F)) [LocallyOfFiniteType f]
-  (𝓛 : LocalEmbeddingData (k := F) 𝓔 φ)
+  (𝓛 : CompatibleLocalEmbeddingData (k := F) 𝓔 φ)
 
 /-- Local perfect obstruction theories compatible with a finite affine embedding cover.
 
-The `LocalEmbeddingData` argument carries the actual overlap comparison data.  The chart-scalar
+The `CompatibleLocalEmbeddingData` argument carries the actual overlap comparisons. The scalar
 field ties each chosen affine model to the given morphism `f : X ⟶ Spec F`; this makes the local
 cotangent complexes and the global dimension function use the same field. -/
 structure CompatibleLocalPerfectObstructionTheories (j₀ : 𝓔.J) : Prop where
@@ -436,7 +437,7 @@ noncomputable example : RX₀.ChowGroup := by
 
 end PerfectObstructionTheory
 
-end LocalEmbeddingData
+end CompatibleLocalEmbeddingData
 
 end Glued
 
