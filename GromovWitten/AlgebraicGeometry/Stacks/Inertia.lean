@@ -70,13 +70,15 @@ open CategoryTheory CategoryTheory.Limits
 
 namespace GromovWitten.AlgebraicGeometry
 
-universe u
+universe u v w
 
 /-! ### The terminal stack -/
 
-/-- The constant one-point presheaf of types on the big fppf site of schemes. -/
-def terminalFppfPresheaf : Scheme.{u}ᵒᵖ ⥤ Type u :=
-  (Functor.const _).obj PUnit.{u + 1}
+/-- The constant one-point presheaf of types on the big fppf site of schemes, valued directly
+in `Type (u + 1)` (the fibre universe of `FppfStack.{u}`) so that no `ULift` bookkeeping is
+needed for the terminal stack. -/
+def terminalFppfPresheaf : Scheme.{u}ᵒᵖ ⥤ Type (u + 1) :=
+  (Functor.const _).obj PUnit.{u + 2}
 
 /-- The constant one-point presheaf is an fppf sheaf: every compatible family has the unique
 amalgamation given by the unique point. -/
@@ -85,25 +87,31 @@ theorem terminalFppfPresheaf_isSheaf :
       (_root_.AlgebraicGeometry.Scheme.fppfTopology : GrothendieckTopology Scheme.{u})
       terminalFppfPresheaf.{u} := by
   intro Z S _ x _
-  exact ⟨PUnit.unit, fun _ _ _ ↦ Subsingleton.elim (α := PUnit.{u + 1}) _ _,
-    fun _ _ ↦ Subsingleton.elim (α := PUnit.{u + 1}) _ _⟩
+  exact ⟨PUnit.unit, fun _ _ _ ↦ Subsingleton.elim (α := PUnit.{u + 2}) _ _,
+    fun _ _ ↦ Subsingleton.elim (α := PUnit.{u + 2}) _ _⟩
 
-/-- The terminal sheaf of types on the big fppf site. -/
-def terminalFppfSheaf : FppfSheaf.{u} :=
+/-- The terminal sheaf of types on the big fppf site, valued in `Type (u + 1)`. -/
+def terminalFppfSheaf :
+    Sheaf (_root_.AlgebraicGeometry.Scheme.fppfTopology : GrothendieckTopology Scheme.{u})
+      (Type (u + 1)) :=
   ⟨terminalFppfPresheaf, (isSheaf_iff_isSheaf_of_type _ _).2 terminalFppfPresheaf_isSheaf⟩
 
 /-- The terminal fppf stack: the terminal sheaf of types viewed as a stack with one-point
 discrete fibres. -/
 noncomputable def terminalStack : FppfStack.{u} :=
-  FppfStack.ofSheaf terminalFppfSheaf
+  StackInGroupoids.ofSheafOfTypes
+    (_root_.AlgebraicGeometry.Scheme.fppfTopology : GrothendieckTopology Scheme.{u})
+    terminalFppfSheaf
 
 /-- Every fibre of the terminal stack is the one-point discrete groupoid. -/
 theorem terminalStack_fiber (T : Scheme.{u}) :
-    StackFiber terminalStack.{u} T = Discrete PUnit.{u + 1} := rfl
+    StackFiber terminalStack.{u} T = Discrete PUnit.{u + 2} := rfl
 
-/-- Natural transformations into a one-point discrete groupoid are unique. -/
-theorem terminal_natTrans_subsingleton {C : Type u} [Category.{u} C]
-    (F G : C ⥤ Discrete PUnit.{u + 1}) : Subsingleton (F ⟶ G) :=
+/-- Natural transformations into a one-point discrete groupoid are unique.  Stated for a source
+category in arbitrary universes, since the fibres of `FppfStack.{u}` live in `Cat.{u + 1, u + 1}`
+while `C` is also instantiated at smaller categories. -/
+theorem terminal_natTrans_subsingleton {C : Type w} [Category.{v} C]
+    (F G : C ⥤ Discrete PUnit.{u + 2}) : Subsingleton (F ⟶ G) :=
   ⟨fun _ _ ↦ by
     apply NatTrans.ext
     funext _
@@ -311,7 +319,7 @@ end AutObj
 
 /-- The fibre of the inertia stack over a test scheme, as a genuine categorical pullback of the
 diagonal with itself. -/
-abbrev InertiaFiber (X : FppfStack.{u}) (T : Scheme.{u}) : Type u :=
+abbrev InertiaFiber (X : FppfStack.{u}) (T : Scheme.{u}) : Type (u + 1) :=
   CategoricalPullback ((stackDiagonal X).appFunctor T) ((stackDiagonal X).appFunctor T)
 
 /-- The fibre of the inertia stack really is the categorical pullback of the diagonal with
