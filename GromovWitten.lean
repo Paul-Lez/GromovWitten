@@ -347,3 +347,5 @@ import GromovWitten.AlgebraicGeometry.Cones.DeltaComparisonSequence
 import GromovWitten.AlgebraicGeometry.Curves.StabilityNumerical
 import GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.RelativeAbsoluteTriangle
 import GromovWitten.AlgebraicGeometry.Cones.IntrinsicConeDescentInfinite
+import GromovWitten.AlgebraicGeometry.ObstructionTheory.ExternalSum
+import GromovWitten.AlgebraicGeometry.ObstructionTheory.ExternalSumConormal
