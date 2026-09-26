@@ -362,3 +362,5 @@ import GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.LciFormulaPure
 import GromovWitten.AlgebraicGeometry.Cones.SmoothQuasiregular
 import GromovWitten.AlgebraicGeometry.Cones.SmoothIntrinsicNormalSheaf
 import GromovWitten.AlgebraicGeometry.Cones.SmoothFormula
+import GromovWitten.AlgebraicGeometry.Stacks.TorsorPushoutFunctoriality
+import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackGroupMaps
