@@ -60,3 +60,6 @@ Representative axiom checks use only Lean's standard axioms. Builds use the shar
 two Lean threads. The final full `lake build`, including the public umbrella, passed on
 2026-09-25 (8,993 jobs), with warnings treated as errors. A second agent independently
 reviewed the derived-kernel argument and the presentation-independence proof.
+
+Revalidated against upstream `master` at `64bcf85ea95c270ef30bb951ce41a31754c97367` on
+2026-09-26: the full public build passed (9,021 jobs), with warnings treated as errors.
