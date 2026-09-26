@@ -25,9 +25,10 @@ Two two-dimensional coherence identities are proved completely:
   applied to `R` and its leg-swap `R.swap`: both comparison maps of that round trip literally
   *are* `R.inverse`, since `R.swap.pullback = R.pullback` definitionally and `R.swap`'s defining
   cone is exactly `R`'s inversion cone.
-* Two reusable general coherence lemmas for comparing composite lifts, which is the technique
-  the remaining laws (associativity of `compose`, the two unit laws, the two inverse-composition
-  laws) all reduce to: **`Genuine.cone_classifies_precomp`** shows that if `h1` classifies a cone
+* Two reusable general coherence lemmas for comparing composite lifts (the remaining laws --
+  associativity of `compose`, the two unit laws, the two inverse-composition laws -- are proved in
+  `Stacks/PresentationGroupoidLaws.lean` by direct diagram chases through the bilimit uniqueness,
+  and do not use them): **`Genuine.cone_classifies_precomp`** shows that if `h1` classifies a cone
   `c1`, then for any `q` the composite `vcomp q h1` classifies the whiskered cone (precomposed by
   `q`), with whiskered projection data — this is the "lifts compose" lemma that the survey
   identified as the missing infrastructure.  **`Genuine.cone_classifies_congr`** transports

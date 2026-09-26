@@ -277,6 +277,11 @@ Implemented APIs include:
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- the converse Deligne--Mumford criterion reduced to a single scheme-theoretic slicing statement: an
+  unramified diagonal gives an unramified self-overlap pair for every smooth chart, representable
+  properties of a sliced chart are tested on the slice morphism, étale slices glue to an étale atlas, and
+  the affine slicing step is proved (`Stacks/EtaleAtlasDiagonal.lean`, `Stacks/DeligneMumfordCriterionAssembly.lean`,
+  `Stacks/EtaleSliceLocal.lean`, `Stacks/DeligneMumfordCriterionFinal.lean`);
 - the inclusion of the small-étale site of a Deligne--Mumford stack into its lisse-étale site is a
   continuous, fully faithful morphism of ringed sites, with the concrete description of the covering
   sieves of both stack sites and the restriction functor on module sheaves
