@@ -320,6 +320,9 @@ import GromovWitten.AlgebraicGeometry.Curves.Clutching.BaseChange
 import GromovWitten.AlgebraicGeometry.Curves.Clutching.Topology
 import GromovWitten.AlgebraicGeometry.Curves.Clutching.StandardNode
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Examples
+import GromovWitten.AlgebraicGeometry.Stacks.StackProductProjections
+import GromovWitten.AlgebraicGeometry.Stacks.DiagonalComparison
+import GromovWitten.AlgebraicGeometry.Stacks.InertiaFunctoriality
 import GromovWitten.AlgebraicGeometry.Curves.Dualizing.NodeHypersurface
 import GromovWitten.AlgebraicGeometry.Curves.Dualizing.Ext
 import GromovWitten.AlgebraicGeometry.Cones.PicardBaseChange
