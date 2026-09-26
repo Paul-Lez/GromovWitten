@@ -51,21 +51,25 @@ time combining `Genuine.inverse_comparison` with *two* naturality squares of `r.
 StackIso2 (vcomp overlapMap B.selfOverlap.inverse) (vcomp A.selfOverlap.inverse overlapMap)`
 combines both halves via `bilimit.lift_unique`, exactly as `unit_compat`.
 
-**Compose compatibility is partially built.**  The composable-pair-level induced map
+**Compose compatibility is now also fully proved.**  The composable-pair-level induced map
 `overlapMap₂ : StackHom A.selfOverlap.composable.pullback B.selfOverlap.composable.pullback` is
-fully constructed (a `bilimit.lift` of an explicit cone assembled from `A.selfOverlap`'s
-composability 2-cell and `overlapMap`'s own source/target compatibility), together with its
-first- and second-arrow projection 2-cells and full classification (`overlapMap₂_classifies`).  The
-"R-side" of compose-compatibility (`overlapMap₂ ≫ compose` classifies the composition cone of
-`B.selfOverlap` precomposed by `overlapMap₂`) is proved (`compose_R_classifies`, again a direct
-`cone_classifies_precomp` specialization), and both projection witnesses of the "S-side"
-(`compose_S_fst`, `compose_S_snd`) are built.  **Not done**: `compose_S_classifies` (the
-comparison-square diagram chase, which combines the `r.iso`-naturality argument above with a
-*second* instance of the same argument for `A.selfOverlap.composableComparison`/
-`B.selfOverlap.composableComparison`, bridged through `overlapMap₂_classifies`) and the final
-`compose_compat`/`hom_comp` assembly.  See the accompanying report for the precise remaining
-obstacle and the exact recipe (same `cone_classifies_congr` + naturality technique, one layer
-deeper).
+constructed (a `bilimit.lift` of an explicit cone assembled from `A.selfOverlap`'s composability
+2-cell and `overlapMap`'s own source/target compatibility), together with its first- and
+second-arrow projection 2-cells and full classification (`overlapMap₂_classifies`).  The "R-side"
+of compose-compatibility (`overlapMap₂ ≫ compose` classifies the composition cone of
+`B.selfOverlap` precomposed by `overlapMap₂`) is a direct `cone_classifies_precomp`
+specialization (`compose_R_classifies`); the "S-side" (`compose_S_classifies`) again transports
+`overlapMap`'s own classification, precomposed by `A.selfOverlap.compose`, to that same cone
+(`Genuine.cone_classifies_congr`), its comparison square combining `A.selfOverlap`'s composition
+law (`Genuine.compose_comparison`) with *three* naturality squares of `r.iso.appIso V` (at
+`compose_source`, `composableComparison` and `compose_target`), the classification of
+`overlapMap` at both arrows of the composable pair, the classification of `overlapMap₂` at the
+pair itself, and two naturality squares of `B.selfOverlap`'s tautological 2-cell.
+`compose_compat r : StackIso2 (vcomp overlapMap₂ B.selfOverlap.compose) (vcomp
+A.selfOverlap.compose overlapMap)` combines both halves via `bilimit.lift_unique`, exactly as
+`unit_compat`/`inverse_compat`, so `PresentationGroupoidObject.ChartMap` now carries the full
+groupoid-morphism data (`hom`, `hom_source`, `hom_target`, `hom_unit`, `hom_inv`, `hom₂`,
+`hom_comp`).
 -/
 
 open CategoryTheory CategoryTheory.Limits
@@ -673,6 +677,346 @@ noncomputable def compose_S_snd (r : ChartRefinement A B) :
           ((StackIso2.whiskerRight r.overlapMap₂_secondArrow.symm B.selfOverlap.snd).trans
             (StackIso2.associator r.overlapMap₂ B.selfOverlap.secondArrow B.selfOverlap.snd)))))
 
+/-! ### Fibre-component computations for compose-compatibility -/
+
+/-- Cancelling two interior identities and a trailing one, in an arbitrary category. -/
+theorem comp_idComp_comp_idComp_comp_id {W : Type*} [Category W] {a b c d : W} (u : a ⟶ b)
+    (v : b ⟶ c) (w : c ⟶ d) : u ≫ 𝟙 b ≫ v ≫ 𝟙 c ≫ w ≫ 𝟙 d = u ≫ v ≫ w := by simp
+
+/-- Transposing a commuting square across two invertible sides. -/
+theorem square_transpose {W : Type*} [Category W] {a b c d : W} {p : a ⟶ b} {p' : b ⟶ a}
+    {Q : b ⟶ c} {C : a ⟶ d} {t : d ⟶ c} {t' : c ⟶ d} (hp : p' ≫ p = 𝟙 b) (ht : t ≫ t' = 𝟙 d)
+    (h : p ≫ Q = C ≫ t) : p' ≫ C = Q ≫ t' := by
+  calc p' ≫ C = p' ≫ (C ≫ t) ≫ t' := by rw [Category.assoc, ht, Category.comp_id]
+    _ = p' ≫ (p ≫ Q) ≫ t' := by rw [h]
+    _ = (p' ≫ p) ≫ Q ≫ t' := by simp only [Category.assoc]
+    _ = Q ≫ t' := by rw [hp, Category.id_comp]
+
+/-- Cancelling an invertible first factor of a composite, in an arbitrary category. -/
+theorem comp_cancel_left {W : Type*} [Category W] {a b c : W} {p : a ⟶ b} {p' : b ⟶ a}
+    {Q : b ⟶ c} {C : a ⟶ c} (hp : p' ≫ p = 𝟙 b) (h : p ≫ Q = C) : p' ≫ C = Q := by
+  rw [← h, ← Category.assoc, hp, Category.id_comp]
+
+/-- Cancelling an invertible last factor of a composite, in an arbitrary category. -/
+theorem comp_cancel_right {W : Type*} [Category W] {a b c : W} {p : a ⟶ b} {t : b ⟶ c}
+    {t' : c ⟶ b} {C : a ⟶ c} (ht : t ≫ t' = 𝟙 b) (h : p ≫ t = C) : C ≫ t' = p := by
+  rw [← h, Category.assoc, ht, Category.comp_id]
+
+/-- A functor takes the inverse-then-forward composite of a natural isomorphism's components to
+the identity. -/
+theorem map_natIso_inv_hom_id {C D E : Type*} [Category C] [Category D] [Category E]
+    (F : D ⥤ E) {G H : C ⥤ D} (α : G ≅ H) (x : C) :
+    F.map (α.inv.app x) ≫ F.map (α.hom.app x) = 𝟙 (F.obj (H.obj x)) := by
+  rw [← F.map_comp, α.inv_hom_id_app, F.map_id]
+
+/-- A functor takes the forward-then-inverse composite of a natural isomorphism's components to
+the identity. -/
+theorem map_natIso_hom_inv_id {C D E : Type*} [Category C] [Category D] [Category E]
+    (F : D ⥤ E) {G H : C ⥤ D} (α : G ≅ H) (x : C) :
+    F.map (α.hom.app x) ≫ F.map (α.inv.app x) = 𝟙 (F.obj (G.obj x)) := by
+  rw [← F.map_comp, α.hom_inv_id_app, F.map_id]
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The fibre components of the comparison face of the refinement cone of a chart
+refinement. -/
+theorem refinementGroupoidCone_comparison_appIso_hom_app (r : ChartRefinement A B)
+    (V : Scheme.{u}) (z : StackFiber A.selfOverlap.pullback V) :
+    ((StackTwoPullback.refinementGroupoidCone A.selfOverlap (FppfStack.mapOfSchemeHom r.hom)
+        r.iso.symm).comparison.appIso V).hom.app z =
+      (r.iso.appIso V).inv.app ((A.selfOverlap.fst.appFunctor V).obj z) ≫
+        (A.selfOverlap.comparison.appIso V).hom.app z ≫
+          (r.iso.appIso V).hom.app ((A.selfOverlap.snd.appFunctor V).obj z) := by
+  dsimp only [StackTwoPullback.refinementGroupoidCone,
+    StackTwoPullback.refinementGroupoidConeComparison]
+  simp only [StackTwoPullback.trans_appIso_hom_app, StackIso2.associator_appIso_hom_app,
+    StackIso2.whiskerLeft_appIso_hom_app, StackIso2.symm_appIso_hom_app,
+    StackIso2.associator_appIso_inv_app, StackTwoPullback.Genuine.whiskerLeft_appIso_inv_app,
+    StackIso2.symm_appIso_inv_app, Category.id_comp, Category.comp_id, Category.assoc]
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The fibre components of the comparison face of the cone defining `overlapMap₂`. -/
+theorem overlapMap₂Comparison_appIso_hom_app (r : ChartRefinement A B) (V : Scheme.{u})
+    (x : StackFiber A.selfOverlap.composable.pullback V) :
+    (r.overlapMap₂Comparison.appIso V).hom.app x =
+      (r.overlapMap_target.appIso V).hom.app ((A.selfOverlap.firstArrow.appFunctor V).obj x) ≫
+        ((FppfStack.mapOfSchemeHom r.hom).appFunctor V).map
+            ((A.selfOverlap.composableComparison.appIso V).hom.app x) ≫
+          (r.overlapMap_source.appIso V).inv.app
+            ((A.selfOverlap.secondArrow.appFunctor V).obj x) := by
+  dsimp only [overlapMap₂Comparison]
+  simp only [StackTwoPullback.trans_appIso_hom_app, StackIso2.associator_appIso_hom_app,
+    StackIso2.whiskerLeft_appIso_hom_app, StackTwoPullback.Genuine.whiskerRight_appIso_hom_app,
+    StackIso2.symm_appIso_hom_app, StackIso2.associator_appIso_inv_app, Category.id_comp,
+    Category.assoc]
+  exact comp_idComp_comp_idComp_comp_id _ _ _
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The fibre components of the comparison face of `composeCompatCone`. -/
+theorem composeCompatCone_comparison_appIso_hom_app (r : ChartRefinement A B) (V : Scheme.{u})
+    (x : StackFiber A.selfOverlap.composable.pullback V) :
+    (r.composeCompatCone.comparison.appIso V).hom.app x =
+      (B.selfOverlap.comparison.appIso V).hom.app
+          ((B.selfOverlap.firstArrow.appFunctor V).obj ((r.overlapMap₂.appFunctor V).obj x)) ≫
+        (B.map.appFunctor V).map
+            ((B.selfOverlap.composableComparison.appIso V).hom.app
+              ((r.overlapMap₂.appFunctor V).obj x)) ≫
+          (B.selfOverlap.comparison.appIso V).hom.app
+            ((B.selfOverlap.secondArrow.appFunctor V).obj
+              ((r.overlapMap₂.appFunctor V).obj x)) := by
+  dsimp only [composeCompatCone, StackTwoPullback.Genuine.composeCone]
+  simp only [StackTwoPullback.trans_appIso_hom_app, StackIso2.associator_appIso_hom_app,
+    StackIso2.whiskerLeft_appIso_hom_app, StackIso2.symm_appIso_hom_app,
+    StackIso2.associator_appIso_inv_app, Category.id_comp, Category.comp_id]
+  exact StackTwoPullback.Genuine.composeConeComparison_appIso_hom_app _ _ _
+
+/-- The tail part of `compose_S_fst`, transporting the whiskered refinement cone's first leg to
+the first leg of `composeCompatCone`. -/
+noncomputable def compose_S_fstTail (r : ChartRefinement A B) :
+    StackIso2
+      (Pseudofunctor.StrongTrans.vcomp A.selfOverlap.compose
+        (Pseudofunctor.StrongTrans.vcomp A.selfOverlap.fst (FppfStack.mapOfSchemeHom r.hom)))
+      (r.composeCompatCone).fst :=
+  (((StackIso2.associator A.selfOverlap.compose A.selfOverlap.fst
+        (FppfStack.mapOfSchemeHom r.hom)).symm.trans
+      (StackIso2.whiskerRight A.selfOverlap.compose_source
+        (FppfStack.mapOfSchemeHom r.hom))).trans
+    (StackIso2.associator A.selfOverlap.firstArrow A.selfOverlap.fst
+      (FppfStack.mapOfSchemeHom r.hom))).trans
+    ((StackIso2.whiskerLeft A.selfOverlap.firstArrow r.overlapMap_source.symm).trans
+      ((StackIso2.associator A.selfOverlap.firstArrow r.overlapMap B.selfOverlap.fst).symm.trans
+        ((StackIso2.whiskerRight r.overlapMap₂_firstArrow.symm B.selfOverlap.fst).trans
+          (StackIso2.associator r.overlapMap₂ B.selfOverlap.firstArrow B.selfOverlap.fst))))
+
+/-- The tail part of `compose_S_snd`, transporting the whiskered refinement cone's second leg to
+the second leg of `composeCompatCone`. -/
+noncomputable def compose_S_sndTail (r : ChartRefinement A B) :
+    StackIso2
+      (Pseudofunctor.StrongTrans.vcomp A.selfOverlap.compose
+        (Pseudofunctor.StrongTrans.vcomp A.selfOverlap.snd (FppfStack.mapOfSchemeHom r.hom)))
+      (r.composeCompatCone).snd :=
+  (((StackIso2.associator A.selfOverlap.compose A.selfOverlap.snd
+        (FppfStack.mapOfSchemeHom r.hom)).symm.trans
+      (StackIso2.whiskerRight A.selfOverlap.compose_target
+        (FppfStack.mapOfSchemeHom r.hom))).trans
+    (StackIso2.associator A.selfOverlap.secondArrow A.selfOverlap.snd
+      (FppfStack.mapOfSchemeHom r.hom))).trans
+    ((StackIso2.whiskerLeft A.selfOverlap.secondArrow r.overlapMap_target.symm).trans
+      ((StackIso2.associator A.selfOverlap.secondArrow r.overlapMap B.selfOverlap.snd).symm.trans
+        ((StackIso2.whiskerRight r.overlapMap₂_secondArrow.symm B.selfOverlap.snd).trans
+          (StackIso2.associator r.overlapMap₂ B.selfOverlap.secondArrow B.selfOverlap.snd))))
+
+/-- `compose_S_fst` factors as the whiskered projection followed by its tail. -/
+theorem compose_S_fst_eq (r : ChartRefinement A B) :
+    compose_S_fst r =
+      ((StackIso2.associator A.selfOverlap.compose r.overlapMap B.selfOverlap.fst).trans
+        (StackIso2.whiskerLeft A.selfOverlap.compose r.overlapMap_source)).trans
+        (compose_S_fstTail r) := rfl
+
+/-- `compose_S_snd` factors as the whiskered projection followed by its tail. -/
+theorem compose_S_snd_eq (r : ChartRefinement A B) :
+    compose_S_snd r =
+      ((StackIso2.associator A.selfOverlap.compose r.overlapMap B.selfOverlap.snd).trans
+        (StackIso2.whiskerLeft A.selfOverlap.compose r.overlapMap_target)).trans
+        (compose_S_sndTail r) := rfl
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The fibre components of `compose_S_fstTail`. -/
+theorem compose_S_fstTail_appIso_hom_app (r : ChartRefinement A B) (V : Scheme.{u})
+    (x : StackFiber A.selfOverlap.composable.pullback V) :
+    ((compose_S_fstTail r).appIso V).hom.app x =
+      ((FppfStack.mapOfSchemeHom r.hom).appFunctor V).map
+          ((A.selfOverlap.compose_source.appIso V).hom.app x) ≫
+        (r.overlapMap_source.appIso V).inv.app
+            ((A.selfOverlap.firstArrow.appFunctor V).obj x) ≫
+          (B.selfOverlap.fst.appFunctor V).map
+            ((r.overlapMap₂_firstArrow.appIso V).inv.app x) := by
+  dsimp only [compose_S_fstTail]
+  simp only [StackTwoPullback.trans_appIso_hom_app, StackIso2.associator_appIso_hom_app,
+    StackIso2.whiskerLeft_appIso_hom_app, StackTwoPullback.Genuine.whiskerRight_appIso_hom_app,
+    StackIso2.symm_appIso_hom_app, StackIso2.associator_appIso_inv_app, Category.id_comp,
+    Category.assoc]
+  exact comp_idComp_comp_idComp_comp_id _ _ _
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The fibre components of `compose_S_sndTail`. -/
+theorem compose_S_sndTail_appIso_hom_app (r : ChartRefinement A B) (V : Scheme.{u})
+    (x : StackFiber A.selfOverlap.composable.pullback V) :
+    ((compose_S_sndTail r).appIso V).hom.app x =
+      ((FppfStack.mapOfSchemeHom r.hom).appFunctor V).map
+          ((A.selfOverlap.compose_target.appIso V).hom.app x) ≫
+        (r.overlapMap_target.appIso V).inv.app
+            ((A.selfOverlap.secondArrow.appFunctor V).obj x) ≫
+          (B.selfOverlap.snd.appFunctor V).map
+            ((r.overlapMap₂_secondArrow.appIso V).inv.app x) := by
+  dsimp only [compose_S_sndTail]
+  simp only [StackTwoPullback.trans_appIso_hom_app, StackIso2.associator_appIso_hom_app,
+    StackIso2.whiskerLeft_appIso_hom_app, StackTwoPullback.Genuine.whiskerRight_appIso_hom_app,
+    StackIso2.symm_appIso_hom_app, StackIso2.associator_appIso_inv_app, Category.id_comp,
+    Category.assoc]
+  exact comp_idComp_comp_idComp_comp_id _ _ _
+
+set_option backward.isDefEq.respectTransparency false in
+/-- **`compose ≫ overlapMap` classifies the same cone `composeCompatCone`** (the "S-side" half
+of compose-compatibility).  The comparison-face square combines `A.selfOverlap`'s own
+composition law (`Genuine.compose_comparison`) with two naturality squares of `r.iso.appIso V`
+(at the source and target of a composite), the classification of `overlapMap` at both arrows of
+the composable pair, and the classification of `overlapMap₂` at the pair itself. -/
+theorem compose_S_classifies (r : ChartRefinement A B) :
+    StackTwoPullback.ConeLiftClassifies B.selfOverlap.toStackTwoPullback r.composeCompatCone
+      (Pseudofunctor.StrongTrans.vcomp A.selfOverlap.compose r.overlapMap)
+      (compose_S_fst r) (compose_S_snd r) := by
+  rw [compose_S_fst_eq, compose_S_snd_eq]
+  apply StackTwoPullback.Genuine.cone_classifies_congr B.selfOverlap
+    _ r.composeCompatCone _ _ _
+    (StackTwoPullback.Genuine.cone_classifies_precomp B.selfOverlap
+      (StackTwoPullback.refinementGroupoidCone A.selfOverlap
+        (FppfStack.mapOfSchemeHom r.hom) r.iso.symm)
+      r.overlapMap r.overlapMap_source r.overlapMap_target r.overlapMap_classifies
+      A.selfOverlap.compose)
+    (compose_S_fstTail r) (compose_S_sndTail r)
+  intro V x
+  rw [compose_S_fstTail_appIso_hom_app, compose_S_sndTail_appIso_hom_app,
+    composeCompatCone_comparison_appIso_hom_app]
+  simp only [StackTwoPullback.trans_appIso_hom_app, StackIso2.associator_appIso_hom_app,
+    StackIso2.whiskerLeft_appIso_hom_app, StackIso2.symm_appIso_hom_app,
+    StackIso2.associator_appIso_inv_app, Category.id_comp, Category.comp_id, Functor.map_comp,
+    Category.assoc]
+  rw [refinementGroupoidCone_comparison_appIso_hom_app]
+  -- The composability law of `A.selfOverlap` at the given composable pair.
+  have hA := A.selfOverlap.compose_comparison V x
+  -- The two naturality squares of `r.iso` at the source and target of the composite.
+  have hnat_s0 :=
+    (r.iso.appIso V).hom.naturality ((A.selfOverlap.compose_source.appIso V).hom.app x)
+  have hnat_c0 :=
+    (r.iso.appIso V).hom.naturality ((A.selfOverlap.composableComparison.appIso V).hom.app x)
+  have hnat_t0 :=
+    (r.iso.appIso V).hom.naturality ((A.selfOverlap.compose_target.appIso V).hom.app x)
+  rw [StackTwoPullback.vcomp_appFunctor_map] at hnat_s0 hnat_c0 hnat_t0
+  have hnat_s : (A.map.appFunctor V).map ((A.selfOverlap.compose_source.appIso V).hom.app x) ≫
+        (r.iso.appIso V).hom.app ((A.selfOverlap.fst.appFunctor V).obj
+          ((A.selfOverlap.firstArrow.appFunctor V).obj x)) =
+      (r.iso.appIso V).hom.app ((A.selfOverlap.fst.appFunctor V).obj
+          ((A.selfOverlap.compose.appFunctor V).obj x)) ≫
+        (B.map.appFunctor V).map
+          (((FppfStack.mapOfSchemeHom r.hom).appFunctor V).map
+            ((A.selfOverlap.compose_source.appIso V).hom.app x)) := hnat_s0
+  have hnat_c :
+      (A.map.appFunctor V).map ((A.selfOverlap.composableComparison.appIso V).hom.app x) ≫
+        (r.iso.appIso V).hom.app ((A.selfOverlap.fst.appFunctor V).obj
+          ((A.selfOverlap.secondArrow.appFunctor V).obj x)) =
+      (r.iso.appIso V).hom.app ((A.selfOverlap.snd.appFunctor V).obj
+          ((A.selfOverlap.firstArrow.appFunctor V).obj x)) ≫
+        (B.map.appFunctor V).map
+          (((FppfStack.mapOfSchemeHom r.hom).appFunctor V).map
+            ((A.selfOverlap.composableComparison.appIso V).hom.app x)) := hnat_c0
+  have hnat_t : (A.map.appFunctor V).map ((A.selfOverlap.compose_target.appIso V).hom.app x) ≫
+        (r.iso.appIso V).hom.app ((A.selfOverlap.snd.appFunctor V).obj
+          ((A.selfOverlap.secondArrow.appFunctor V).obj x)) =
+      (r.iso.appIso V).hom.app ((A.selfOverlap.snd.appFunctor V).obj
+          ((A.selfOverlap.compose.appFunctor V).obj x)) ≫
+        (B.map.appFunctor V).map
+          (((FppfStack.mapOfSchemeHom r.hom).appFunctor V).map
+            ((A.selfOverlap.compose_target.appIso V).hom.app x)) := hnat_t0
+  -- The classification of `overlapMap` at the two arrows of the composable pair.
+  have hu0 : (B.map.appFunctor V).map ((r.overlapMap_source.appIso V).hom.app
+        ((A.selfOverlap.firstArrow.appFunctor V).obj x)) ≫
+      ((StackTwoPullback.refinementGroupoidCone A.selfOverlap (FppfStack.mapOfSchemeHom r.hom)
+        r.iso.symm).comparison.appIso V).hom.app
+          ((A.selfOverlap.firstArrow.appFunctor V).obj x) =
+      (B.selfOverlap.comparison.appIso V).hom.app
+          ((r.overlapMap.appFunctor V).obj ((A.selfOverlap.firstArrow.appFunctor V).obj x)) ≫
+        (B.map.appFunctor V).map ((r.overlapMap_target.appIso V).hom.app
+          ((A.selfOverlap.firstArrow.appFunctor V).obj x)) :=
+    congrArg Iso.hom (r.overlapMap_classifies V ((A.selfOverlap.firstArrow.appFunctor V).obj x))
+  have hv0 : (B.map.appFunctor V).map ((r.overlapMap_source.appIso V).hom.app
+        ((A.selfOverlap.secondArrow.appFunctor V).obj x)) ≫
+      ((StackTwoPullback.refinementGroupoidCone A.selfOverlap (FppfStack.mapOfSchemeHom r.hom)
+        r.iso.symm).comparison.appIso V).hom.app
+          ((A.selfOverlap.secondArrow.appFunctor V).obj x) =
+      (B.selfOverlap.comparison.appIso V).hom.app
+          ((r.overlapMap.appFunctor V).obj ((A.selfOverlap.secondArrow.appFunctor V).obj x)) ≫
+        (B.map.appFunctor V).map ((r.overlapMap_target.appIso V).hom.app
+          ((A.selfOverlap.secondArrow.appFunctor V).obj x)) :=
+    congrArg Iso.hom (r.overlapMap_classifies V ((A.selfOverlap.secondArrow.appFunctor V).obj x))
+  rw [refinementGroupoidCone_comparison_appIso_hom_app] at hu0 hv0
+  -- The classification of `overlapMap₂` at the composable pair itself.
+  have h20 : (B.selfOverlap.snd.appFunctor V).map
+        ((r.overlapMap₂_firstArrow.appIso V).hom.app x) ≫
+      (r.overlapMap₂Comparison.appIso V).hom.app x =
+      (B.selfOverlap.composableComparison.appIso V).hom.app
+          ((r.overlapMap₂.appFunctor V).obj x) ≫
+        (B.selfOverlap.fst.appFunctor V).map
+          ((r.overlapMap₂_secondArrow.appIso V).hom.app x) :=
+    congrArg Iso.hom (r.overlapMap₂_classifies V x)
+  rw [overlapMap₂Comparison_appIso_hom_app] at h20
+  have h2 := square_transpose
+    (map_natIso_inv_hom_id (B.selfOverlap.snd.appFunctor V)
+      (r.overlapMap₂_firstArrow.appIso V) x)
+    (map_natIso_hom_inv_id (B.selfOverlap.fst.appFunctor V)
+      (r.overlapMap₂_secondArrow.appIso V) x) h20
+  have hB := congrArg (fun m => (B.map.appFunctor V).map m) h2
+  simp only [Functor.map_comp, Category.assoc] at hB
+  -- The two naturality squares of `B.selfOverlap`'s tautological 2-cell.
+  have hfa := StackTwoPullback.Genuine.comparison_naturality B.selfOverlap V
+    ((r.overlapMap₂_firstArrow.appIso V).inv.app x)
+  have hsa := StackTwoPullback.Genuine.comparison_naturality B.selfOverlap V
+    ((r.overlapMap₂_secondArrow.appIso V).inv.app x)
+  have hfa' : (B.map.appFunctor V).map ((B.selfOverlap.fst.appFunctor V).map
+          ((r.overlapMap₂_firstArrow.appIso V).inv.app x)) ≫
+        (B.selfOverlap.comparison.appIso V).hom.app
+          ((B.selfOverlap.firstArrow.appFunctor V).obj ((r.overlapMap₂.appFunctor V).obj x)) =
+      (B.selfOverlap.comparison.appIso V).hom.app
+          ((r.overlapMap.appFunctor V).obj ((A.selfOverlap.firstArrow.appFunctor V).obj x)) ≫
+        (B.map.appFunctor V).map ((B.selfOverlap.snd.appFunctor V).map
+          ((r.overlapMap₂_firstArrow.appIso V).inv.app x)) := hfa
+  have hsa' : (B.map.appFunctor V).map ((B.selfOverlap.fst.appFunctor V).map
+          ((r.overlapMap₂_secondArrow.appIso V).inv.app x)) ≫
+        (B.selfOverlap.comparison.appIso V).hom.app
+          ((B.selfOverlap.secondArrow.appFunctor V).obj ((r.overlapMap₂.appFunctor V).obj x)) =
+      (B.selfOverlap.comparison.appIso V).hom.app
+          ((r.overlapMap.appFunctor V).obj ((A.selfOverlap.secondArrow.appFunctor V).obj x)) ≫
+        (B.map.appFunctor V).map ((B.selfOverlap.snd.appFunctor V).map
+          ((r.overlapMap₂_secondArrow.appIso V).inv.app x)) := hsa
+  -- Transposing the two classifications of `overlapMap` across the invertible sides.
+  have hD := comp_cancel_left
+    (map_natIso_inv_hom_id (B.map.appFunctor V) (r.overlapMap_source.appIso V)
+      ((A.selfOverlap.firstArrow.appFunctor V).obj x)) hu0
+  have hE := square_transpose
+    (map_natIso_inv_hom_id (B.map.appFunctor V) (r.overlapMap_source.appIso V)
+      ((A.selfOverlap.secondArrow.appFunctor V).obj x))
+    (map_natIso_hom_inv_id (B.map.appFunctor V) (r.overlapMap_target.appIso V)
+      ((A.selfOverlap.secondArrow.appFunctor V).obj x)) hv0
+  simp only [Category.assoc] at hE
+  -- Transposing the two `r.iso`-naturality squares across the invertible sides.
+  have hNs := square_transpose
+    (Iso.inv_hom_id_app (r.iso.appIso V) ((A.selfOverlap.fst.appFunctor V).obj
+      ((A.selfOverlap.compose.appFunctor V).obj x)))
+    (Iso.hom_inv_id_app (r.iso.appIso V) ((A.selfOverlap.fst.appFunctor V).obj
+      ((A.selfOverlap.firstArrow.appFunctor V).obj x))) hnat_s.symm
+  have hNc := comp_cancel_right
+    (Iso.hom_inv_id_app (r.iso.appIso V) ((A.selfOverlap.fst.appFunctor V).obj
+      ((A.selfOverlap.secondArrow.appFunctor V).obj x))) hnat_c
+  simp only [Category.assoc] at hNc
+  rw [reassoc_of% hfa', reassoc_of% hB, hsa', reassoc_of% hD, reassoc_of% hE,
+    reassoc_of% hNs.symm, reassoc_of% hNc, reassoc_of% hA, reassoc_of% hnat_t]
+  simp only [Category.assoc]
+
+/-- **Composition compatibility of the induced map of self-overlaps.**  A chart refinement's
+induced maps `overlapMap`/`overlapMap₂` are compatible with the groupoid composition maps:
+`overlapMap₂ ≫ compose` and `compose ≫ overlapMap` are both classifying maps of the same cone
+(the composition cone of `B.selfOverlap` precomposed by `overlapMap₂`), hence 2-isomorphic by
+the bilimit's uniqueness of lifts. -/
+noncomputable def compose_compat (r : ChartRefinement A B) :
+    StackIso2
+      (Pseudofunctor.StrongTrans.vcomp r.overlapMap₂ B.selfOverlap.compose)
+      (Pseudofunctor.StrongTrans.vcomp A.selfOverlap.compose r.overlapMap) :=
+  (B.selfOverlap.bilimit.lift_unique r.composeCompatCone
+      (Pseudofunctor.StrongTrans.vcomp r.overlapMap₂ B.selfOverlap.compose)
+      (compose_R_fst r) (compose_R_snd r) (compose_R_classifies r)).trans
+    (B.selfOverlap.bilimit.lift_unique r.composeCompatCone
+      (Pseudofunctor.StrongTrans.vcomp A.selfOverlap.compose r.overlapMap)
+      (compose_S_fst r) (compose_S_snd r) (compose_S_classifies r)).symm
+
 end StackChart.ChartRefinement
 
 namespace PresentationGroupoidObject
@@ -682,10 +1026,12 @@ variable {X : FppfStack.{u}} {A B : StackChart X}
 /-- **A morphism of chart-presentation-groupoid objects covering a scheme map.**  Given
 presentation groupoid objects `PA`, `PB` attached to two charts `A`, `B` of the same stack `X`
 and a scheme morphism `q : A.scheme ⟶ B.scheme` (promoted to a stack morphism), this records a
-map of arrow stacks compatible with the source, target, unit and inverse maps, up to the
-displayed 2-cells.  This is exactly the data (2) of `Stacks.ChartRefinement` induces from a
-chart refinement: no compatibility with `compose` is asserted here (see the module docstring
-for what remains open). -/
+map of arrow stacks and a map of composable-pair stacks compatible with the source, target,
+unit, inverse and composition maps, up to the displayed 2-cells.  The map of composable-pair
+stacks is not left free: `hom₂_fst`/`hom₂_snd` pin it down to the pairing of `hom` with itself,
+by identifying its two arrow projections with those of `hom`, so `hom_comp` really is the
+composition law of the map and not a statement about an unrelated `hom₂`.  This is exactly the
+data that `Stacks.ChartRefinement` induces from a chart refinement. -/
 structure ChartMap (PA : StackTwoPullback.PresentationGroupoidObject A.map)
     (PB : StackTwoPullback.PresentationGroupoidObject B.map)
     (q : StackHom (representedStack A.scheme) (representedStack B.scheme)) where
@@ -707,13 +1053,29 @@ structure ChartMap (PA : StackTwoPullback.PresentationGroupoidObject A.map)
   hom_inv : StackIso2
     (Pseudofunctor.StrongTrans.vcomp hom PB.inverse)
     (Pseudofunctor.StrongTrans.vcomp PA.inverse hom)
+  /-- The induced map of composable-pair stacks. -/
+  hom₂ : StackHom PA.composable PB.composable
+  /-- Compatibility with the first-arrow projections: together with `hom₂_snd` this pins `hom₂`
+  down to the pairing of `hom` with itself. -/
+  hom₂_fst : StackIso2
+    (Pseudofunctor.StrongTrans.vcomp hom₂ PB.R.firstArrow)
+    (Pseudofunctor.StrongTrans.vcomp PA.R.firstArrow hom)
+  /-- Compatibility with the second-arrow projections: together with `hom₂_fst` this pins `hom₂`
+  down to the pairing of `hom` with itself. -/
+  hom₂_snd : StackIso2
+    (Pseudofunctor.StrongTrans.vcomp hom₂ PB.R.secondArrow)
+    (Pseudofunctor.StrongTrans.vcomp PA.R.secondArrow hom)
+  /-- Compatibility with the composition maps, up to the displayed 2-cell. -/
+  hom_comp : StackIso2
+    (Pseudofunctor.StrongTrans.vcomp hom₂ PB.compose)
+    (Pseudofunctor.StrongTrans.vcomp PA.compose hom)
 
 /-- **The morphism of presentation-groupoid objects induced by a chart refinement.**  This is
 `PresentationGroupoidObject`'s first consumer: every `r : ChartRefinement A B` gives a
 `ChartMap` between the presentation groupoid objects of the canonical self-overlaps of `A` and
 `B`, covering the promoted refinement scheme morphism, built from `ChartRefinement.overlapMap`
-and its source/target/unit/inverse compatibility 2-cells (all fully proved; `compose`
-compatibility remains open, see the module docstring). -/
+and `ChartRefinement.overlapMap₂` together with their source/target/unit/inverse/composition
+compatibility 2-cells (all fully proved). -/
 noncomputable def map (r : StackChart.ChartRefinement A B) :
     ChartMap (StackTwoPullback.presentationGroupoidObject A.map A.selfOverlap)
       (StackTwoPullback.presentationGroupoidObject B.map B.selfOverlap)
@@ -723,6 +1085,10 @@ noncomputable def map (r : StackChart.ChartRefinement A B) :
   hom_target := r.overlapMap_target
   hom_unit := r.unit_compat
   hom_inv := r.inverse_compat
+  hom₂ := r.overlapMap₂
+  hom₂_fst := r.overlapMap₂_firstArrow
+  hom₂_snd := r.overlapMap₂_secondArrow
+  hom_comp := r.compose_compat
 
 end PresentationGroupoidObject
 
