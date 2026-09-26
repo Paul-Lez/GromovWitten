@@ -50,3 +50,6 @@ axioms, native decision proofs, or disabled linters. Targeted builds and represe
 checks pass. The final full `lake build`, including the public umbrella, passed on
 2026-09-25 (8,998 jobs) with warnings treated as errors. The umbrella check caught and resolved
 a name collision with the existing relative-Proj data type; the cone API uses `ConeAlgebraData`.
+
+Revalidated against upstream `master` at `64bcf85ea95c270ef30bb951ce41a31754c97367` on
+2026-09-26: the full public build passed (9,026 jobs), with warnings treated as errors.
