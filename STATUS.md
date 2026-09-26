@@ -277,6 +277,10 @@ Implemented APIs include:
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- the inclusion of the small-étale site of a Deligne--Mumford stack into its lisse-étale site is a
+  continuous, fully faithful morphism of ringed sites, with the concrete description of the covering
+  sieves of both stack sites and the restriction functor on module sheaves
+  (`Sites/StackSiteContinuity.lean`, `Sites/StackSiteMorphisms.lean`);
 - the quotient stacks `[U/G]` and `BG` are `FppfStack`s: the fibre universe of `FppfStack` was raised to
   `Cat.{u+1, u+1}` with a `ULift`-based represented stack, so they inherit the stack-morphism, chart,
   algebraicity and inertia API (`Stacks/Algebraic.lean`, `Stacks/QuotientStackAlgebraicAPI.lean`);
