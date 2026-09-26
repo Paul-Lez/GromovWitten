@@ -797,6 +797,37 @@ structure Stable (F : MarkedMap q I) [Fintype I] [DecidableEq I]
     letI := PrestableFamily.pullback_snd F.toBase y
     GeometricFiberGraph F polarizedDegree K y
 
+/-! This intermediate transport theorem isolates the sole geometric fact needed to transport
+stability through a source isomorphism: a smooth marking has the component transported by the
+source-fibre isomorphism.  The smooth-point component lemma supplies this equation for the public
+map-level transport API. -/
+def Stable.ofIso_of_normalizedMarkingVertex_eq
+    {F G : MarkedMap q I} [Fintype I] [DecidableEq I]
+    (e : F ≅ G) (H : LineBundle V) (hF : Stable F H)
+    (hmark : ∀ (K : Type u) [Field K] [IsAlgClosed K]
+      (y : Spec (.of K) ⟶ S) (i : I),
+      normalizedMarkingVertex G y i =
+        irreducibleComponentsEquivOfSchemeIso (baseChangeSourceIso e y)
+          (normalizedMarkingVertex F y i)) :
+    Stable G H where
+  prestable := hF.prestable.of_iso e
+  polarizedDegree := hF.polarizedDegree.ofIso e H
+  fiberGraph := by
+    intro K _ _ y
+    let hFsource : PrestableFamily F.toBase := hF.prestable.sourceFamily
+    let _ : PrestableFamily F.toBase := hFsource
+    let hGsource : PrestableFamily G.toBase := (hF.prestable.of_iso e).sourceFamily
+    let _ : PrestableFamily G.toBase := hGsource
+    let hFy : PrestableFamily (pullback.snd F.toBase y) :=
+      PrestableFamily.pullback_snd F.toBase y
+    let _ : PrestableFamily (pullback.snd F.toBase y) := hFy
+    let hGy : PrestableFamily (pullback.snd G.toBase y) :=
+      PrestableFamily.pullback_snd G.toBase y
+    let _ : PrestableFamily (pullback.snd G.toBase y) := hGy
+    apply (normalizedDecoratedGraph_isStable_of_iso e hF.polarizedDegree y
+      (fun i ↦ hmark K y i)).mpr
+    exact hF.fiberGraph K y
+
 
 /-- A proper contraction between marked maps, with a genuine isomorphism on the complements of
 closed exceptional loci and connected point fibres. -/
