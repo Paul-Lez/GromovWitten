@@ -277,6 +277,9 @@ Implemented APIs include:
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- `[C/E]` as a cone stack over `Spec R`: descent of the base point, projection, vertex, and five of the six
+  contraction laws, with the vanishing law proved and only its instance transport outstanding
+  (`Cones/ConeQuotientStack.lean`);
 - the scalar contraction of the cone quotient stack `[C/E]` on all torsors, without the triviality
   hypothesis, through the functoriality of the relative torsor pushout, with its unit, multiplicativity
   and base-change laws as natural isomorphisms and the vanishing and vertex laws on objects
