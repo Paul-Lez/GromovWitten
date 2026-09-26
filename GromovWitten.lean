@@ -346,3 +346,4 @@ import GromovWitten.AlgebraicGeometry.Cones.DeltaComparison
 import GromovWitten.AlgebraicGeometry.Cones.DeltaComparisonSequence
 import GromovWitten.AlgebraicGeometry.Curves.StabilityNumerical
 import GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.RelativeAbsoluteTriangle
+import GromovWitten.AlgebraicGeometry.Cones.IntrinsicConeDescentInfinite
