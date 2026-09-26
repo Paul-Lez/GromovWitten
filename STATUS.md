@@ -189,6 +189,12 @@ Implemented APIs include:
   normal sheaf, the normal sheaf is the abelian hull of the normal cone, and both cones map to
   the closed subscheme; products and fibre products of affine cones and cone actions, and
   smoothness of `Spec Sym F` for every finite projective `F`;
+- the smooth formula in the affine model (Layer 5): a formally smooth quotient of a polynomial ring
+  has quasi-regular conormal data, `Sym_S(I/I²) → gr_I` injective
+  (`Cones/SmoothQuasiregular.lean`: `normalSheafCoordinateMap_injective_of_formallySmooth`), so
+  `C_{U/M} = N_{U/M}` and the affine intrinsic normal sheaf and cone of `U ⊆ 𝔸ⁿ` are `B T_U`: connected
+  quotient groupoids with automorphisms `Derivation k S B` (`Cones/SmoothIntrinsicNormalSheaf.lean`,
+  `Cones/SmoothFormula.lean`), together with the smooth case of the lci formula for the virtual class;
 - the dual of a perfect complex is well defined up to canonical isomorphism, with biduality and
   full faithfulness of duality on strictly perfect complexes;
 - the underlying topological space of an algebraic stack is independent of the atlas: the point
@@ -461,6 +467,13 @@ Implemented APIs include:
   finite type over a field with no hypothesis, and it is the unique class with `π^*[X]^vir = [C(E)]`
   when the obstruction bundle has a global trivialisation
   (`GlobalVirtualClassSurjective.lean`, `GlobalVirtualClassUnconditional.lean`);
+- the lci formula for the virtual class (Layer 7): for the identity obstruction theory on the
+  conormal complex of a quasi-regular ideal, the resolved cone is the whole obstruction bundle and
+  `[X]^vir = [X]` (`VirtualFundamentalClass/LciFormula.lean`: `VirtualClass.lci_formula`,
+  `OverField.lci_formula`); for a regular sequence in a polynomial ring over an infinite field the
+  formula holds with no hypothesis at all (`VirtualFundamentalClass/LciFormulaPure.lean`:
+  `OverField.lci_formula_polynomial`, with the purity of `Spec (R⧸I)` from
+  `height_eq_length_of_isWeaklyRegular` and the basis of `I/I²` from `QuasiregularGenerators.cotangentBasis`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
