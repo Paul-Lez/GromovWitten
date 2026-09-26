@@ -421,3 +421,5 @@ import GromovWitten.AlgebraicGeometry.Stacks.InertiaCoherence
 import GromovWitten.AlgebraicGeometry.Stacks.EtaleSlice
 import GromovWitten.AlgebraicGeometry.Stacks.DeligneMumfordCriterion
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackAlgebraicAPI
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.PresentationGroupoidRefinement
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.EtaleAtlasRefinement
