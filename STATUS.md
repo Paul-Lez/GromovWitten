@@ -253,6 +253,9 @@ Implemented APIs include:
 - descent data for the cohomology of the truncated cotangent complex along an étale cover of rings, with
   cocycle condition and effectivity (`CotangentComplex/AtlasDescent.lean`: `cotangentDescentDatum`,
   `cotangentDescentDatum_eq_canonical`);
+- the cohomology of the affine-local cotangent complex as restriction data on the affine charts of a
+  morphism with the composition law and quasi-coherence along basic-open refinements
+  (`CotangentComplex/AtlasDescentGlobal.lean`);
 - obstruction cones of the affine intrinsic normal cone inside `h¹/h⁰(Eᵛ)` (fibrewise closed
   immersions), the identification of the two-term obstruction-theory criterion with the derived
   one, virtual rank, external sums and base change of obstruction theories, invariance under
