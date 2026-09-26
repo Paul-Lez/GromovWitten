@@ -229,6 +229,12 @@ Implemented APIs include:
   independence of the representative proved by roofs of quasi-isomorphisms, a complex of finite
   projectives exact outside `[-1,0]` has `h¹/h⁰` a fibrewise vector-bundle stack, and split short
   exact sequences of two-term complexes dualise to short exact sequences of Picard groupoids;
+- functoriality of `h¹/h⁰` on derived morphisms (Layer 4): every derived morphism between the objects of
+  two K-projective two-term resolutions is realised by a chain map, unique up to chain homotopy, giving a
+  functor of Picard groupoids with unit and composition coherence up to natural isomorphism and an
+  equivalence for invertible morphisms (`Cones/DerivedPicardFunctoriality.lean`: `realize`, `picardMap`,
+  `picardMap_id`, `picardMap_comp`, `picardEquivOfIso`), extended to projectivity-free truncation
+  representatives through roofs (`Cones/DerivedPicardFunctorialityRoof.lean`: `TruncRep.picardMapRoof`);
 - the affine cone quotient `[C/E]` is realised as a torsor prestack (fully faithful comparison
   with the trivial torsors), base changes and fibre products of cone stacks are constructed on
   genuine two-pullbacks of stacks, unconditionally for coherent cone stacks;
