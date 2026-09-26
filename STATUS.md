@@ -254,6 +254,20 @@ Implemented APIs include:
   finite-sum distributivity statement;
 - the intrinsic pullback sequence of Picard groupoids for a tower `R → S → T`, unconditional
   when `S` is formally smooth over `R` and `T` is flat and formally smooth over `S`;
+- the transitivity long exact sequence of the truncated cotangent complex for a tower `R → S → T`
+  (Layer 3): the flat base-change arrow on `H⁻¹` and its exactness complete the Jacobi–Zariski sequence,
+  bundled as `TransitivitySequence` with all exactness proved; étale base change of `H⁰` is an isomorphism
+  and base change of `H⁻¹` is an isomorphism for localisations
+  (`CotangentComplex/Transitivity.lean`, `CotangentComplex/TransitivityEtale.lean`);
+- étale base change of `H⁻¹` of the truncated cotangent complex, `H⁻¹(L_{S/R}) ⊗_S T ≅ H⁻¹(L_{T/R})` for
+  `S → T` étale, through compatible presentations of standard étale algebras and localisation on `T`
+  (`CotangentComplex/TransitivityEtaleGeneral.lean`: `bijective_jzH1BaseChange_of_etale`, `hNegOneBaseChangeIso`);
+- descent data for the cohomology of the truncated cotangent complex along an étale cover of rings, with
+  cocycle condition and effectivity (`CotangentComplex/AtlasDescent.lean`: `cotangentDescentDatum`,
+  `cotangentDescentDatum_eq_canonical`);
+- the cohomology of the affine-local cotangent complex as restriction data on the affine charts of a
+  morphism with the composition law and quasi-coherence along basic-open refinements
+  (`CotangentComplex/AtlasDescentGlobal.lean`);
 - obstruction cones of the affine intrinsic normal cone inside `h¹/h⁰(Eᵛ)` (fibrewise closed
   immersions), the identification of the two-term obstruction-theory criterion with the derived
   one, virtual rank, external sums and base change of obstruction theories, invariance under
