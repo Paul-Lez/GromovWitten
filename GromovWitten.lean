@@ -80,6 +80,8 @@ import GromovWitten.AlgebraicGeometry.Cones.ConeTranslation
 import GromovWitten.AlgebraicGeometry.Cones.RegularSequence
 import GromovWitten.AlgebraicGeometry.Cones.DeformationSpace
 import GromovWitten.AlgebraicGeometry.Cones.DeformationSpaceGeometry
+import GromovWitten.AlgebraicGeometry.Cones.DeformationSpecialization
+import GromovWitten.AlgebraicGeometry.Cones.PrincipalNormalCone
 import GromovWitten.AlgebraicGeometry.Cones.Graded
 import GromovWitten.AlgebraicGeometry.Cones.NormalConeGlobal
 import GromovWitten.AlgebraicGeometry.Cones.NormalConeRegular
@@ -132,6 +134,8 @@ import GromovWitten.AlgebraicGeometry.CotangentComplex.Full
 import GromovWitten.AlgebraicGeometry.CotangentComplex.Global
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.ChowGroup
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.Gysin
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.PrincipalGysin
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.NormalConeSpecialization
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.ChowGroupLocalization
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.LocalizationExact
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.StabilizerWeight
