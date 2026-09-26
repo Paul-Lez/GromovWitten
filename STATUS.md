@@ -460,6 +460,10 @@ Implemented APIs include:
 - the projective line `ℙ¹_k` as a gluing of two affine lines (`ProjectiveLine.lean`) and the vanishing of
   the degree of every principal divisor on it (`IntersectionTheory/ProjectiveLineDegree.lean`:
   `degreeCycle_principalCycle_eq_zero`), the first proper case of the well-definedness of the degree;
+- Fulton's Lemma A.2.6, the length of the cokernel of a square matrix over a one-dimensional Noetherian
+  domain is the order of its determinant, and the norm formula `length_A(B/bB) = ord_A(N_{B/A}(b))` with its
+  semilocal form, the local pushforward of principal divisors along a finite free extension
+  (`Algebra/OrderDeterminant.lean`: `cokerLength_eq_ord_det`, `finsum_summand_eq_ord_norm`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
