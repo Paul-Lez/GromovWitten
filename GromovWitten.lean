@@ -309,3 +309,6 @@ import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Clutching
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Examples
 import GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.LciFormula
 import GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.LciFormulaPure
+import GromovWitten.AlgebraicGeometry.Cones.SmoothQuasiregular
+import GromovWitten.AlgebraicGeometry.Cones.SmoothIntrinsicNormalSheaf
+import GromovWitten.AlgebraicGeometry.Cones.SmoothFormula
