@@ -506,6 +506,17 @@ Implemented APIs include:
   relative virtual class `[X'/Y']^vir` of the hyperplane base change with virtual dimension one less, and the
   surjection of associated graded rings (`VirtualFundamentalClass/RelativeHyperplaneReindex.lean`:
   `hyperplaneReindexIso`, `relativeVirtualClass_hyperplane`, `surjective_grReindexHom`);
+- the base change of the relative conormal complex along the coordinate hyperplane as a quasi-isomorphism
+  when the hyperplane equation is a non-zero-divisor on the coordinate ring, through a comparison map
+  factoring every reindexed obstruction datum (`VirtualFundamentalClass/RelativeHyperplaneBaseChange.lean`);
+  the base change of the resolved cone and the Gysin comparison need Tor independence of the associated
+  graded ring in every degree and remain open;
+- Tor independence of the associated graded ring along the coordinate hyperplane when the hyperplane
+  equation is a non-zero-divisor on every power quotient, hence the normal cone of the hyperplane section
+  is the base change of the normal cone, with the hyperplane sections of the symmetric algebras of a
+  relative obstruction datum identified, and a counterexample showing that the resolved-cone identity
+  needs a transversality hypothesis on the resolved cone
+  (`VirtualFundamentalClass/RelativeHyperplaneCone.lean`);
 - functoriality under the smooth projection `X × 𝔸^τ → X` (Layer 8, affine model): the flat
   pullback along a trivialised bundle is transitive on Chow groups, commutes with pushforward along
   closed immersions and with the zero-section Gysin map
