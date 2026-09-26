@@ -31,23 +31,27 @@ namespace FppfStack
 noncomputable def schemeHomPresentation {S T : Scheme.{u}} (f : S ⟶ T)
     {T₀ : Scheme.{u}} (y : StackFiber (representedStack T) T₀) :
     StackMorphismPresentation (mapOfSchemeHom f) T₀ y where
-  space := Limits.pullback f y.as
-  map := Limits.pullback.snd f y.as
-  object := Discrete.mk (Limits.pullback.fst f y.as)
+  space := Limits.pullback f y.as.down
+  map := Limits.pullback.snd f y.as.down
+  object := Discrete.mk (ULift.up (Limits.pullback.fst f y.as.down))
   comparison := by
     apply Discrete.eqToIso
-    change Limits.pullback.fst f y.as ≫ f =
-      (Limits.pullback.snd f y.as) ≫ y.as
+    apply ULift.ext
+    change Limits.pullback.fst f y.as.down ≫ f =
+      (Limits.pullback.snd f y.as.down) ≫ y.as.down
     exact Limits.pullback.condition
   lift toBase x comparison :=
-    Limits.pullback.lift x.as toBase (Discrete.eq_of_hom comparison.hom)
+    Limits.pullback.lift x.as.down toBase
+      (congrArg ULift.down (Discrete.eq_of_hom comparison.hom))
   lift_map toBase x comparison := by
     apply Limits.pullback.lift_snd
   liftObjectIso toBase x comparison := by
     apply Discrete.eqToIso
-    change x.as =
-      Limits.pullback.lift x.as toBase (Discrete.eq_of_hom comparison.hom) ≫
-        Limits.pullback.fst f y.as
+    apply ULift.ext
+    change x.as.down =
+      Limits.pullback.lift x.as.down toBase
+          (congrArg ULift.down (Discrete.eq_of_hom comparison.hom)) ≫
+        Limits.pullback.fst f y.as.down
     exact (Limits.pullback.lift_fst _ _ _).symm
   lift_compatible toBase x comparison := by
     refine ⟨?_, ?_⟩
@@ -70,11 +74,8 @@ noncomputable def schemeHomPresentation {S T : Scheme.{u}} (f : S ⟶ T)
     · have hobj := objectIso.hom
       change Discrete.mk _ ⟶ Discrete.mk _ at hobj
       have hobj' := Discrete.eq_of_hom hobj
-      have hobj'' : x.as = g ≫ Limits.pullback.fst f y.as := by
-        simpa [representedStack, FppfStack.ofScheme, FppfStack.ofSheaf,
-          FppfStack.mapOfSchemeHom, FppfStack.mapOfSheafHom,
-          Pseudofunctor.strongTransOfNatTrans,
-          Pseudofunctor.ofPresheafOfTypes] using hobj'
+      have hobj'' : x.as.down = g ≫ Limits.pullback.fst f y.as.down :=
+        congrArg ULift.down hobj'
       exact hobj''.symm.trans (Limits.pullback.lift_fst _ _ _).symm
     · exact map_eq.trans (Limits.pullback.lift_snd _ _ _).symm
 
@@ -87,7 +88,7 @@ theorem mapOfSchemeHom_hasRepresentableProperty
   refine ⟨mapOfSchemeHom f, ⟨StackIso2.refl _⟩, ?_⟩
   intro T₀ y
   refine ⟨⟨schemeHomPresentation f y, ?_⟩⟩
-  exact P.pullback_snd f y.as hf
+  exact P.pullback_snd f y.as.down hf
 
 end FppfStack
 
@@ -104,15 +105,13 @@ lemma stackMorphismInducedComparison_chart_raw
     (p : A.PullbackPresentation T y)
     (m : S ⟶ p.space) (x : StackFiber (representedStack A.scheme) S)
     (objectIso : x ≅ (stackPullback (representedStack A.scheme) m).obj
-      (Discrete.mk p.snd)) :
-    stackMorphismInducedComparison A.map p.fst (Discrete.mk p.snd) y p.comparison
-      m x objectIso =
-      (A.objIsoOfEq (Discrete.eq_of_hom objectIso.hom).symm).symm.trans
+      (Discrete.mk (ULift.up p.snd))) :
+    stackMorphismInducedComparison A.map p.fst (Discrete.mk (ULift.up p.snd)) y
+      p.comparison m x objectIso =
+      (A.objIsoOfEq
+          (congrArg ULift.down (Discrete.eq_of_hom objectIso.hom)).symm).symm.trans
         (A.inducedComparison p.fst p.snd p.comparison m) := by
-  have hx : x = Discrete.mk x.as := by
-    apply Discrete.ext
-    rfl
-  cases x
+  obtain ⟨⟨x⟩⟩ := x
   have hobj : objectIso = Discrete.eqToIso (Discrete.eq_of_hom objectIso.hom) := by
     apply Iso.ext
     change @Eq (ULift (PLift (_ = _))) _ _
@@ -122,14 +121,14 @@ lemma stackMorphismInducedComparison_chart_raw
   simp only [stackMorphismInducedComparison, inducedComparison, Iso.trans_hom,
     Iso.symm_hom, Functor.mapIso_hom, Category.assoc]
   let h := Discrete.eq_of_hom objectIso.hom
+  have hdown : x = m ≫ p.snd := congrArg ULift.down h
   have hd : (Discrete.eqToIso h).hom = Discrete.eqToHom h := by rfl
   have hi : (A.map.appFunctor S).map (Discrete.eqToHom h) =
-      (A.objIsoOfEq h).hom := by
-    exact (A.objIsoOfEq_hom h).symm
-  have hflip : (A.objIsoOfEq h.symm).inv = (A.objIsoOfEq h).hom := by
-    cases h
+      (A.objIsoOfEq hdown).hom := by
+    exact (A.objIsoOfEq_hom hdown).symm
+  have hflip : (A.objIsoOfEq hdown.symm).inv = (A.objIsoOfEq hdown).hom := by
+    cases hdown
     simp only [objIsoOfEq, Iso.refl_inv, Iso.refl_hom]
-    rfl
   rw [hd, hi, hflip]
 
 end StackChart
