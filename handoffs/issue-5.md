@@ -1,0 +1,16 @@
+# Handoff: issue #5
+
+Partial implementation of [étale-local standard node charts](https://github.com/Paul-Lez/GromovWitten/issues/5).
+
+Implemented in `GromovWitten/AlgebraicGeometry/Curves/StableReduction/`:
+
+- `LocalNodeChart.lean`: explicit unit normalization of `xy = a`, positive DVR factorization, uniqueness, and coefficient naturality.
+- `LocalNodeIntrinsicThickness.lean`: the actual differential-Fitting quotient, its length `n` for `xy = πⁿ`, infinite length for `xy = 0`, and ramified tensor base change with length `e*n`.
+- `LocalNodeChartInvariance.lean`: intrinsic differential-Fitting ideal transport and thickness invariance under arbitrary algebra isomorphisms over the coefficient ring.
+- `LocalNodeChartScheme.lean`: the actual ramified affine scheme isomorphism and its two projection squares.
+- `LocalNodeIntrinsicThickness.lean`: `intrinsicThickness_baseChange_eq` proves preservation under a flat local formally unramified essentially finite-type map, including zero and unit parameters. `formallyUnramifiedDvr_map_uniformizer` derives the uniformizer-up-to-unit factorization for local DVR extensions directly from `FormallyUnramified.map_maximalIdeal`, with only the formal-unramified essentially-finite-type hypotheses; `finiteEtaleDvr_nodeBaseChange_exists` then gives the normalized tensor node algebra and equal exponent/length result, using the generic length theorem for the powered parameter.
+- `LocalNodeChartScheme.lean`: `normalizedNodeEquiv` and `normalizedNodeBaseChangeSpecIso` expose the target exponent `n` directly, with coefficient-map and both `Spec` projection-square compatibilities. The finite étale local DVR existence theorem packages these normalized maps from the derived unit factorization.
+
+Remaining: construct étale-local charts for an arbitrary nodal DVR family. The exact missing geometric lift starts with `NodeChartAt` on the geometric fibre and must lift the neighbourhood into a smooth relative surface with a general hypersurface equation `g`; then an étale critical-locus section and splitting of the nondegenerate quadratic form by a quadratic étale cover must produce coordinates with `xy = a`. This is the algebraic Stacks route (37.35.6/0CAS and 53.21.1/0H8M); pinned Mathlib has no matching relative Morse API. A constructive finite étale DVR extension with a prescribed separable residue extension is also missing: `AdjoinRoot` and standard-étale APIs provide ingredients but no packaged local-DVR/residue-field theorem. Nonzero nonunit smoothing is needed for finite positive thickness. Invariance here is under coefficient-algebra isomorphisms; arbitrary total-space étale covers can change module length through residue degree.
+
+Validation: the intrinsic target, Scheme target, and final full `lake build` all passed through the locked wrapper with exit code 0. Logs: `/tmp/gw-ambitious-issues/issue-5-node-charts-intrinsic.log`, `/tmp/gw-ambitious-issues/issue-5-node-charts-scheme.log`, and `/tmp/gw-ambitious-issues/issue-5-node-charts-full.log`. The principal declaration audit also exited 0 at `/tmp/gw-ambitious-issues/issue-5-node-charts-axioms.log`; every listed declaration reports only `propext`, `Classical.choice`, and `Quot.sound`. No proof placeholders or custom axioms were added.
