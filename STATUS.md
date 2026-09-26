@@ -524,6 +524,13 @@ Implemented APIs include:
   (`IntersectionTheory/ProperCurveDegreeUnconditional.lean`:
   `RegularProperCurve.degreeCycle_principalCycle_eq_zero'`), the well-definedness of the degree on `A_0`
   reducing to the dichotomy curve-or-point for integral closed subschemes;
+- resolution independence of the global virtual class for a fixed bundle (Layer 7): chart-wise isomorphic
+  global cone data give the same glued cone class in every grading and, for a globally trivialised bundle over
+  an infinite field, the same unconditional virtual class
+  (`VirtualFundamentalClass/ConeGluingIndependence.lean`: `ChartIso`, `coneClassAt_eq`, `virtualClassFT'_eq`);
+- the quasi-isomorphism variant of that independence for chart-wise quasi-isomorphisms bijective in degree
+  one, which are automatically isomorphisms (`VirtualFundamentalClass/ConeGluingQuasiIso.lean`:
+  `ChartQuasiIso`, `virtualClassFT'_eq_of_quasiIso`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
