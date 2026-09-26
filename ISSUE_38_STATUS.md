@@ -42,3 +42,6 @@ New source has no admitted proofs, custom axioms, native decision proofs, or dis
 Representative axiom checks use only Lean's standard axioms. All builds use the shared lock
 and two Lean threads. The final full `lake build`, including the public umbrella, passed
 on 2026-09-25 (8,991 jobs), with warnings treated as errors.
+
+Revalidated against upstream `master` at `64bcf85ea95c270ef30bb951ce41a31754c97367` on
+2026-09-26: the full public build passed (9,019 jobs), with warnings treated as errors.

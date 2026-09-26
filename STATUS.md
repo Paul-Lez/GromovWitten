@@ -17,6 +17,21 @@ public entry points are recorded in
 
 Implemented APIs include:
 
+- affine perfect objects represented by bounded finite-projective complexes, with shifts,
+  biproducts, mapping cones, and all three distinguished-triangle closure theorems;
+  a scalar-extension functor on projective-perfect derived objects and representative-independent
+  Tor amplitude, with supported-representative shift and base-change bounds; locally constant
+  integer virtual rank on the prime spectrum of a nontrivial ring, independent of the projective
+  representative and compatible with scalar extension; and distinguished-triangle rank
+  additivity for the globally finite-free model
+  (`CotangentComplex/Projective*.lean`, `PerfectTriangles.lean`);
+- finite locally free direct sums with rank addition from independently chosen local bases,
+  constructing a common cover from products of charts; finite-free tensor rank multiplication,
+  tensor associativity with globally finite-free outer factors, and natural, involutive tensor
+  symmetry (`Modules/FiniteLocallyFree.lean`, `Modules/FreeTensor.lean`, `Modules/TensorCoherence.lean`);
+- exterior-power functors for module presheaves over varying rings, with their sheaf-valued
+  versions constructed by module sheafification and degree-zero/one comparison isomorphisms
+  (`Modules/ExteriorPower.lean`);
 - fpqc, fppf, and smooth-cover descent for representable flat, separated, proper, and
   closed-immersion stack morphisms, through actual scheme presentations; the scheme-level
   proofs use faithfully flat module descent, diagonal criteria, and proper monomorphisms;
@@ -90,7 +105,11 @@ Implemented APIs include:
   decorated graphs, stability
   inequalities, numerical clutching, evaluation-gated gluing data, and descent of target
   maps through supplied external pushouts and self-coequalizers; plus proper nodal prestable
-  families and base-change-stable transport of supplied numerical stability data.  Finiteness of
+  families and base-change-stable transport of supplied numerical stability data.  The canonical
+  structure-sheaf map exists for every scheme morphism, and its geometric-fibre isomorphism is
+  proved for proper geometrically reduced and geometrically connected morphisms; deriving
+  geometric reducedness from the existing prestable/nodal hypotheses, the family equivalence,
+  and arbitrary base-change comparison remain open.  Finiteness of
   the geometric automorphism group scheme is absent, while stabilization, forgetting, and
   geometric nodal gluing remain conditional outputs of caller-supplied engines;
 - the Krull dimension of a nonzero standard-smooth algebra of relative dimension `n` over a
@@ -234,6 +253,12 @@ Implemented APIs include:
 - descent of morphisms and effective descent of fppf sheaves over a base along any covering sieve
   (no sheafification), the reduction of fppf covering sieves to small covering families, and the
   gluing infrastructure for the quotient prestack `[U/G]`;
+- effective descent of actual scheme morphisms along a surjective étale cover from an explicit
+  over-base kernel-pair equation, descent of actual local inverse maps to scheme isomorphisms,
+  coherence with one arbitrary base change, and globalization/uniqueness of supplied contraction
+  factorizations (`AlgebraicGeometry/Descent/{EtaleMorphisms,SchemeIsomorphisms,BaseChange,Contractions}.lean`).
+  This morphism layer does not construct descended polarized schemes, line bundles, polarization
+  isomorphisms, graded section algebras, `Proj`s, or a contraction universal property.
 - fppf descent for the quotient prestack `[U/G]`: descent of morphisms and effectiveness of
   descent along every fppf covering sieve, proved with explicit fibre-product data and without
   sheafification (`Stacks/TorsorStackDescent.lean`, `Stacks/TorsorStackEffective.lean`,
