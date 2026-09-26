@@ -41,50 +41,53 @@ noncomputable def ofStackMorphismPresentation {T : Scheme.{u}} {y : StackFiber X
       liftObjectIso_unique lift_unique =>
     cases object with
     | mk as =>
+      obtain ⟨as⟩ := as
       exact
         { space := space
           fst := map
           snd := as
           comparison := by simpa only [StackChart.obj] using comparison
           lift := fun toBase toChart c ↦
-            lift toBase (Discrete.mk toChart) (by
+            lift toBase (Discrete.mk (ULift.up toChart)) (by
               simpa only [StackChart.obj] using c)
           lift_fst := fun toBase toChart c ↦
-            lift_map toBase (Discrete.mk toChart) (by
+            lift_map toBase (Discrete.mk (ULift.up toChart)) (by
               simpa only [StackChart.obj] using c)
           lift_snd := fun toBase toChart c ↦ by
-            have e := liftObjectIso toBase (Discrete.mk toChart) (by
+            have e := liftObjectIso toBase (Discrete.mk (ULift.up toChart)) (by
               simpa only [StackChart.obj] using c)
-            change Discrete.mk toChart ≅
-              Discrete.mk (lift toBase (Discrete.mk toChart) _ ≫ as) at e
-            exact (Discrete.eq_of_hom e.hom).symm
+            change Discrete.mk (ULift.up toChart) ≅
+              Discrete.mk (ULift.up
+                (lift toBase (Discrete.mk (ULift.up toChart)) _ ≫ as)) at e
+            exact (Discrete.eq_of_hom_ulift e.hom).symm
           lift_compatible := fun toBase toChart c ↦ by
-            let c' : (A.map.appFunctor _).obj (Discrete.mk toChart) ≅
+            let c' : (A.map.appFunctor _).obj (Discrete.mk (ULift.up toChart)) ≅
                 (stackPullback X toBase).obj y := by
               simpa only [StackChart.obj] using c
-            let g := lift toBase (Discrete.mk toChart) c'
-            have e := liftObjectIso toBase (Discrete.mk toChart) c'
-            change Discrete.mk toChart ≅ Discrete.mk (g ≫ as) at e
-            have hobj : toChart = g ≫ as := Discrete.eq_of_hom e.hom
-            have hc := lift_compatible toBase (Discrete.mk toChart) c'
+            let g := lift toBase (Discrete.mk (ULift.up toChart)) c'
+            have e := liftObjectIso toBase (Discrete.mk (ULift.up toChart)) c'
+            change Discrete.mk (ULift.up toChart) ≅
+              Discrete.mk (ULift.up (g ≫ as)) at e
+            have hobj : toChart = g ≫ as := Discrete.eq_of_hom_ulift e.hom
+            have hc := lift_compatible toBase (Discrete.mk (ULift.up toChart)) c'
             have hraw := stackMorphismInducedComparison_chart_raw'
-              (A := A) map as comparison g (Discrete.mk toChart)
-                (liftObjectIso toBase (Discrete.mk toChart) c')
-            refine ⟨lift_map toBase (Discrete.mk toChart) c', hobj.symm, ?_⟩
+              (A := A) map as comparison g (Discrete.mk (ULift.up toChart))
+                (liftObjectIso toBase (Discrete.mk (ULift.up toChart)) c')
+            refine ⟨lift_map toBase (Discrete.mk (ULift.up toChart)) c', hobj.symm, ?_⟩
             dsimp only [g] at hraw
             obtain ⟨map_eq, hcomp⟩ := hc
             rw [hraw] at hcomp
             simpa only [StackChart.obj, c', id_eq, Iso.trans_assoc] using hcomp
           lift_unique := fun toBase toChart c m compatible ↦ by
             obtain ⟨map_eq, hs, hcomp⟩ := compatible
-            let c' : (A.map.appFunctor _).obj (Discrete.mk toChart) ≅
+            let c' : (A.map.appFunctor _).obj (Discrete.mk (ULift.up toChart)) ≅
                 (stackPullback X toBase).obj y := by
               simpa only [StackChart.obj] using c
-            let objectIso := Discrete.eqToIso hs.symm
-            apply lift_unique toBase (Discrete.mk toChart) c' m objectIso
+            let objectIso := Discrete.eqToIsoULift hs.symm
+            apply lift_unique toBase (Discrete.mk (ULift.up toChart)) c' m objectIso
             refine ⟨map_eq, ?_⟩
             have hraw := stackMorphismInducedComparison_chart_raw'
-              (A := A) map as comparison m (Discrete.mk toChart)
+              (A := A) map as comparison m (Discrete.mk (ULift.up toChart))
                 objectIso
             rw [hraw]
             simpa only [StackChart.obj, c', id_eq, Iso.trans_assoc] using hcomp }
