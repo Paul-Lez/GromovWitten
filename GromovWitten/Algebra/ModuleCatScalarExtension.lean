@@ -51,4 +51,23 @@ lemma extendScalarsAlgebraIso_inv_tmul (N : ModuleCat.{u} A) (c : C) (n : N) :
   apply (ConcreteCategory.bijective_of_isIso (extendScalarsAlgebraIso N).hom).1
   simp only [Iso.inv_hom_id_apply]
   exact (extendScalarsAlgebraIso_hom_tmul (C := C) N c n).symm
+set_option backward.isDefEq.respectTransparency false in
+/-- Restriction along an algebra map agrees with a compatible scalar action. -/
+def restrictScalarsAlgebraIso (M : ModuleCat.{u} C) [Module A M] [IsScalarTower A C M] :
+    (restrictScalars (algebraMap A C)).obj M ≅ ModuleCat.of A M :=
+  LinearEquiv.toModuleIso
+    (X₁ := (restrictScalars (algebraMap A C)).obj M) (X₂ := ModuleCat.of A M)
+    { __ := AddEquiv.refl M
+      map_smul' := by
+        intro a m
+        change (algebraMap A C a) • (show M from m) = a • (show M from m)
+        exact IsScalarTower.algebraMap_smul C a (show M from m) }
+@[simp]
+lemma restrictScalarsAlgebraIso_hom_apply (M : ModuleCat.{u} C)
+    [Module A M] [IsScalarTower A C M] (m : M) :
+    (restrictScalarsAlgebraIso (A := A) M).hom m = m := rfl
+@[simp]
+lemma restrictScalarsAlgebraIso_inv_apply (M : ModuleCat.{u} C)
+    [Module A M] [IsScalarTower A C M] (m : M) :
+    (restrictScalarsAlgebraIso (A := A) M).inv m = m := rfl
 end ModuleCat
