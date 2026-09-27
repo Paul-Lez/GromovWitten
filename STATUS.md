@@ -219,6 +219,10 @@ Implemented APIs include:
   by the tangent bundle is isomorphic, over every test algebra and compatibly with reindexing and
   contraction, to the `h¹/h⁰` Picard groupoid of the dual of the presentation complex
   `[I/I² → Ω ⊗ R/I]`, with `Sym(M × N) ≃ Sym(M) ⊗ Sym(N)`;
+- the relative conormal complex and relative intrinsic normal sheaf of a tower of rings on the affine model,
+  with flat base change along a change of the base ring as an isomorphism of two-term complexes and an
+  equivalence of relative intrinsic normal sheaves (`Cones/RelativeIntrinsicNormalSheaf.lean`); purity over a
+  smooth base and the globalisation to stacks remain open;
 - invariance of the affine intrinsic normal sheaf under base change of the ground field: base change of
   two-term complexes commutes with the Picard groupoid of dual points, naturally in the test algebra
   (`Cones/PicardBaseChange.lean`), and the conormal complex of a polynomial presentation base-changes
