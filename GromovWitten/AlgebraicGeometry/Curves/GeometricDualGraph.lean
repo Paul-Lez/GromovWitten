@@ -6,7 +6,12 @@ Authors: GromovWitten Contributors
 
 import GromovWitten.AlgebraicGeometry.Curves.Prestable
 import GromovWitten.AlgebraicGeometry.Curves.DualGraph
+import GromovWitten.AlgebraicGeometry.Curves.ArithmeticGenus
+import GromovWitten.AlgebraicGeometry.Curves.Normalization
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeBaseChange
+import GromovWitten.AlgebraicGeometry.GlobalFittingIdeals
+import GromovWitten.AlgebraicGeometry.GlobalFittingBaseChange
+import GromovWitten.AlgebraicGeometry.Curves.FittingSmooth
 
 /-!
 # The geometric dual graph of a nodal curve over a field
@@ -25,8 +30,9 @@ The finiteness of the set of points lying on two distinct components uses that `
 topological Krull dimension at most one: a non-closed point of such an intersection would
 produce a chain of three irreducible closed subsets.
 
-The vertex genera (the geometric genera of the normalized components) are not computed
-here and remain an explicit parameter of the construction.
+The general graph constructor remains available for clients that already have a genus function.
+The canonical constructor `geometricDualGraphOfNormalization` computes each vertex genus from the
+first cohomology of the structure sheaf of the actual reduced normalization of that component.
 -/
 
 open CategoryTheory Limits AlgebraicGeometry TopologicalSpace Topology
@@ -177,6 +183,45 @@ theorem isOpen_compl_nodeSet : IsOpen (nodeSet f)ᶜ := by
 theorem isClosed_nodeSet : IsClosed (nodeSet f) := by
   simpa using (isOpen_compl_nodeSet f).isClosed_compl
 
+namespace SmoothChartAt
+
+/-- A smooth chart transports along an isomorphism of its ambient curve over the field. -/
+def postcompIso {Y : Scheme.{u}} {K : Type u} [Field K]
+    {f : X ⟶ Spec (.of K)} {g : Y ⟶ Spec (.of K)} {x : X}
+    (c : SmoothChartAt f x) (e : X ≅ Y) (he : e.hom ≫ g = f) :
+    SmoothChartAt g (e.hom x) where
+  source := c.source
+  point := c.point
+  toCurve := c.toCurve ≫ e.hom
+  etale_toCurve := by
+    let _ : Etale c.toCurve := c.etale_toCurve
+    let _ : Etale e.hom := by infer_instance
+    infer_instance
+  mapsToPoint := by
+    simp only [Scheme.Hom.comp_apply, c.mapsToPoint]
+  smooth_toBase := by
+    rw [Category.assoc, he]
+    exact c.smooth_toBase
+
+end SmoothChartAt
+
+/-- Nonsmooth points are preserved by an isomorphism over the field. -/
+theorem nodeSet_mem_of_iso {Y : Scheme.{u}} {K : Type u} [Field K]
+    {f : X ⟶ Spec (.of K)} {g : Y ⟶ Spec (.of K)}
+    (e : X ≅ Y) (he : e.hom ≫ g = f) {x : X} (hx : x ∈ nodeSet f) :
+    e.hom x ∈ nodeSet g := by
+  intro h
+  apply hx
+  obtain ⟨c⟩ := h
+  have he_inv : e.inv ≫ f = g := by
+    rw [← he]
+    simp
+  have hc := c.postcompIso e.symm he_inv
+  change SmoothChartAt f (e.inv (e.hom x)) at hc
+  have hex : e.inv (e.hom x) = x := congrArg (fun k : X ⟶ X => k x) e.hom_inv_id
+  rw [hex] at hc
+  exact ⟨hc⟩
+
 /-- Every node lies outside the smooth locus. -/
 theorem nodeSet_subset_compl_smoothLocus [LocallyOfFinitePresentation f] :
     nodeSet f ⊆ (f.smoothLocus : Set X)ᶜ := by
@@ -214,65 +259,64 @@ theorem eq_standardNodeOrigin_of_mem (p : Spec (.of (LocalNode.Ring K 0 1)))
     · exact hy
   exact PrimeSpectrum.ext (hmax.eq_of_le p.isPrime.ne_top hle).symm
 
-/-- The `x`-away chart of the standard node is smooth over the field. -/
-theorem smooth_xAwayToBaseSpec : Smooth (LocalNode.xAwayToBaseSpec K 0 1) := by
-  rw [LocalNode.xAwayToBaseSpec, HasRingHomProperty.Spec_iff (P := @Smooth)]
-  exact RingHom.smooth_algebraMap.mpr (LocalNode.xAway_smooth K 0 1)
+/-- Both node coordinates lie in the ideal of the origin of the standard node: the converse of
+`eq_standardNodeOrigin_of_mem`. -/
+theorem mem_asIdeal_standardNodeOrigin (K : Type u) [Field K] :
+    LocalNode.x K 0 1 ∈ (standardNodeOrigin K).asIdeal ∧
+      LocalNode.y K 0 1 ∈ (standardNodeOrigin K).asIdeal := by
+  have hker : (standardNodeOrigin K).asIdeal =
+      Ideal.span ({LocalNode.x K 0 1, LocalNode.y K 0 1} : Set (LocalNode.Ring K 0 1)) := by
+    change RingHom.ker (LocalNode.nodeOrigin K 1 one_ne_zero).toRingHom = _
+    exact LocalNode.nodeOrigin_ker K 1 one_ne_zero
+  rw [hker]
+  exact ⟨Ideal.subset_span (Set.mem_insert _ _),
+    Ideal.subset_span (Set.mem_insert_of_mem _ rfl)⟩
 
-/-- The `y`-away chart of the standard node is smooth over the field. -/
-theorem smooth_yAwayToBaseSpec : Smooth (LocalNode.yAwayToBaseSpec K 0 1) := by
-  rw [LocalNode.yAwayToBaseSpec, HasRingHomProperty.Spec_iff (P := @Smooth)]
-  exact RingHom.smooth_algebraMap.mpr (LocalNode.yAway_smooth K 0 1)
+/-- The chart point of a node chart is the origin of the standard node: the new `mapsToOrigin`
+field of `NodeChartAt`, identified with the named point `standardNodeOrigin`. -/
+theorem NodeChartAt.toNode_point_eq_standardNodeOrigin {x : X} (c : NodeChartAt f x) :
+    c.toNode c.point = standardNodeOrigin K :=
+  eq_standardNodeOrigin_of_mem _ c.mapsToOrigin.1 c.mapsToOrigin.2
+
+/-- **Sanity check.** The origin of the standard node admits a node chart: the identity is
+simultaneously an étale chart onto the curve and onto the node itself. -/
+theorem nonempty_nodeChartAt_standardNodeOrigin (K : Type u) [Field K] :
+    Nonempty (NodeChartAt (standardNodeToSpec K) (standardNodeOrigin K)) :=
+  ⟨{ source := Spec (.of (LocalNode.Ring K 0 1))
+     point := standardNodeOrigin K
+     toCurve := 𝟙 _
+     toNode := 𝟙 _
+     etale_toCurve := inferInstance
+     etale_toNode := inferInstance
+     mapsToPoint := rfl
+     overBase := rfl
+     mapsToOrigin := mem_asIdeal_standardNodeOrigin K }⟩
+
+/-- **Sanity check.** The standard node over a field is at worst nodal, with the origin's chart
+a node chart and every other point's a smooth chart, via `of_overIso_standardNode` applied to the
+identity isomorphism.  This does not yet show that an arbitrary `NodeChartAt` of the standard
+node (with any étale legs) can only sit at the origin; that converse remains open. -/
+theorem isNodalCurveOverField_standardNodeToSpec (K : Type u) [Field K] :
+    IsNodalCurveOverField (standardNodeToSpec K) :=
+  IsNodalCurveOverField.of_overIso_standardNode _ (Iso.refl _)
 
 /-- A point of a node chart lying over the locus where `x` is invertible has a smooth
 chart. -/
 theorem smoothChart_of_xAway {x : X} (c : NodeChartAt f x) (q : c.source)
     (hq : LocalNode.x K 0 1 ∉ (c.toNode q).asIdeal) :
     Nonempty (SmoothChartAt f (c.toCurve q)) := by
-  have hmem : c.toNode q ∈ Set.range (LocalNode.xAwaySpec K 0 1) := by
-    rw [LocalNode.range_xAwaySpec]
-    exact hq
-  obtain ⟨r, hr⟩ := hmem
-  obtain ⟨z, hz1, hz2⟩ := Scheme.Pullback.exists_preimage_pullback (f := c.toNode)
-    (g := LocalNode.xAwaySpec K 0 1) q r hr.symm
-  have hEn : Etale c.toNode := c.etale_toNode
-  have hEc : Etale c.toCurve := c.etale_toCurve
-  have hsm := smooth_xAwayToBaseSpec (K := K)
-  refine ⟨{
-    source := pullback c.toNode (LocalNode.xAwaySpec K 0 1),
-    point := z,
-    toCurve := pullback.fst c.toNode (LocalNode.xAwaySpec K 0 1) ≫ c.toCurve,
-    etale_toCurve := inferInstance,
-    mapsToPoint := by rw [Scheme.Hom.comp_apply, hz1],
-    smooth_toBase := ?_ }⟩
-  rw [Category.assoc, c.overBase, ← Category.assoc, pullback.condition, Category.assoc,
-    LocalNode.xAwaySpec_toBaseSpec]
-  infer_instance
+  let _ : Etale c.toCurve := c.etale_toCurve
+  let _ : Etale c.toNode := c.etale_toNode
+  exact smoothChartAt_of_not_mem_asIdeal_x c.toCurve c.toNode c.overBase q hq
 
 /-- A point of a node chart lying over the locus where `y` is invertible has a smooth
 chart. -/
 theorem smoothChart_of_yAway {x : X} (c : NodeChartAt f x) (q : c.source)
     (hq : LocalNode.y K 0 1 ∉ (c.toNode q).asIdeal) :
     Nonempty (SmoothChartAt f (c.toCurve q)) := by
-  have hmem : c.toNode q ∈ Set.range (LocalNode.yAwaySpec K 0 1) := by
-    rw [LocalNode.range_yAwaySpec]
-    exact hq
-  obtain ⟨r, hr⟩ := hmem
-  obtain ⟨z, hz1, hz2⟩ := Scheme.Pullback.exists_preimage_pullback (f := c.toNode)
-    (g := LocalNode.yAwaySpec K 0 1) q r hr.symm
-  have hEn : Etale c.toNode := c.etale_toNode
-  have hEc : Etale c.toCurve := c.etale_toCurve
-  have hsm := smooth_yAwayToBaseSpec (K := K)
-  refine ⟨{
-    source := pullback c.toNode (LocalNode.yAwaySpec K 0 1),
-    point := z,
-    toCurve := pullback.fst c.toNode (LocalNode.yAwaySpec K 0 1) ≫ c.toCurve,
-    etale_toCurve := inferInstance,
-    mapsToPoint := by rw [Scheme.Hom.comp_apply, hz1],
-    smooth_toBase := ?_ }⟩
-  rw [Category.assoc, c.overBase, ← Category.assoc, pullback.condition, Category.assoc,
-    LocalNode.yAwaySpec_toBaseSpec]
-  infer_instance
+  let _ : Etale c.toCurve := c.etale_toCurve
+  let _ : Etale c.toNode := c.etale_toNode
+  exact smoothChartAt_of_not_mem_asIdeal_y c.toCurve c.toNode c.overBase q hq
 
 /-- A point of a node chart not lying over the origin has a smooth chart. -/
 theorem smoothChart_of_nodeChart {x : X} (c : NodeChartAt f x) (q : c.source)
@@ -283,13 +327,130 @@ theorem smoothChart_of_nodeChart {x : X} (c : NodeChartAt f x) (q : c.source)
     · exact smoothChart_of_yAway f c q hy
   · exact smoothChart_of_xAway f c q hx
 
-/-- On a nodal curve, the chart point of a node chart at a node lies over the origin. -/
-theorem nodeChart_toNode_point {x : X} (hx : x ∈ nodeSet f) (c : NodeChartAt f x) :
-    c.toNode c.point = standardNodeOrigin K := by
+/-- On a nodal curve, the chart point of a node chart at a node lies over the origin.  This now
+holds unconditionally on any curve, by `mapsToOrigin`; the hypothesis `_hx` is kept for backward
+compatibility with call sites. -/
+theorem nodeChart_toNode_point {x : X} (_hx : x ∈ nodeSet f) (c : NodeChartAt f x) :
+    c.toNode c.point = standardNodeOrigin K :=
+  c.toNode_point_eq_standardNodeOrigin
+
+/-- Every point of a node chart mapping to the distinguished node has the distinguished
+standard-node coordinate.  This is the fibrewise form of `nodeChart_toNode_point`; it is the
+local input needed before transporting the two standard axes through normalization pullback. -/
+theorem nodeChart_toNode_eq_of_map_eq {x : X} (hx : x ∈ nodeSet f)
+    (c : NodeChartAt f x) {q : c.source} (hq : c.toCurve q = x) :
+    c.toNode q = standardNodeOrigin K := by
   by_contra hne
-  have h := smoothChart_of_nodeChart f c c.point hne
-  rw [c.mapsToPoint] at h
+  have h := smoothChart_of_nodeChart f c q hne
+  rw [hq] at h
   exact hx h
+
+/-- The global first differential Fitting locus on a node chart is exactly the inverse image of
+the standard node origin. -/
+theorem NodeChartAt.mem_support_globalIdealSheaf_one_iff
+    {K : Type u} [Field K] {g : X ⟶ Spec (.of K)} {p : X}
+    (c : NodeChartAt g p) [LocallyOfFinitePresentation (c.toCurve ≫ g)] (q : c.source) :
+    q ∈ (RelativeFittingLocus.globalIdealSheaf (c.toCurve ≫ g) 1).support ↔
+      c.toNode q = standardNodeOrigin K := by
+  obtain ⟨_, ⟨W, hW⟩, hq, _⟩ :=
+    c.source.isBasis_affineOpens.exists_subset_of_mem_open
+      (Set.mem_univ q) isOpen_univ
+  have hqW : q ∈ W := by
+    change q ∈ (W : Set c.source)
+    rw [hW.2]
+    exact hq
+  let W' : c.source.affineOpens := ⟨W, hW.1⟩
+  have hqW' : q ∈ W'.1 := by
+    change q ∈ W
+    exact hqW
+  have hbasic (r : StableReduction.LocalNode.Ring K 0 1) :
+      q ∉ c.source.basicOpen (NodeChartAt.chartMap c W' r) ↔
+        r ∈ (c.toNode q).asIdeal := by
+    let z : PrimeSpectrum (StableReduction.LocalNode.Ring K 0 1) := c.toNode q
+    have hlocal : q ∈ c.source.basicOpen (NodeChartAt.chartMap c W' r) ↔
+        c.toNode q ∈
+          (Spec (.of (StableReduction.LocalNode.Ring K 0 1))).basicOpen
+            ((Scheme.ΓSpecIso (.of (StableReduction.LocalNode.Ring K 0 1))).inv r) := by
+      dsimp [NodeChartAt.chartMap]
+      rw [Scheme.basicOpen_appLE]
+      change (q ∈ W'.1 ∧ q ∈ c.toNode ⁻¹ᵁ _) ↔ _
+      simp only [hqW', true_and, Scheme.Hom.mem_preimage]
+    rw [hlocal]
+    rw [basicOpen_eq_of_affine]
+    change ¬ (z ∈ PrimeSpectrum.basicOpen r) ↔ r ∈ z.asIdeal
+    simp [PrimeSpectrum.mem_basicOpen]
+  rw [RelativeFittingLocus.globalIdealSheaf_eq_idealSheaf]
+  rw [Scheme.IdealSheafData.mem_support_iff_of_mem (U := W') hqW']
+  rw [RelativeFittingLocus.idealSheaf_ideal]
+  rw [NodeChartAt.idealOn_one]
+  rw [Scheme.zeroLocus_span]
+  constructor
+  · intro h
+    rw [Scheme.mem_zeroLocus_iff] at h
+    apply eq_standardNodeOrigin_of_mem _
+    · apply (hbasic _).mp
+      exact h _ (by simp)
+    · apply (hbasic _).mp
+      exact h _ (by simp)
+  · intro h
+    rw [Scheme.mem_zeroLocus_iff]
+    intro f hf
+    rcases hf with rfl | rfl
+    · apply (hbasic _).mpr
+      rw [h]
+      change StableReduction.LocalNode.x K 0 1 ∈
+        RingHom.ker (StableReduction.LocalNode.nodeOrigin K 1 one_ne_zero).toRingHom
+      simp
+    · apply (hbasic _).mpr
+      rw [h]
+      change StableReduction.LocalNode.y K 0 1 ∈
+        RingHom.ker (StableReduction.LocalNode.nodeOrigin K 1 one_ne_zero).toRingHom
+      simp
+
+/-! ### The global nodal criterion -/
+
+/-- On a nodal curve, the global first Fitting support is the node set, provided each smooth point
+has one smooth chart carrying its natural relative-dimension-one structure. The latter is kept
+explicit because `SmoothChartAt` records smoothness but deliberately does not store a dimension
+witness. Only one such chart is needed at each point. -/
+theorem globalIdealSheaf_support_one_eq_nodeSet
+    [LocallyOfFinitePresentation f]
+    (hnodal : IsNodalCurveOverField f)
+    (hchart : ∀ {x : X}, Nonempty (SmoothChartAt f x) →
+      ∃ c : SmoothChartAt f x, SmoothOfRelativeDimension 1 (c.toCurve ≫ f)) :
+    (RelativeFittingLocus.globalIdealSheaf f 1).support = nodeSet f := by
+  ext x
+  constructor
+  · intro hx
+    by_contra hnode
+    have hsmooth : Nonempty (SmoothChartAt f x) := not_not.mp hnode
+    obtain ⟨c, hc⟩ := hchart hsmooth
+    let _ : Etale c.toCurve := c.etale_toCurve
+    let _ : SmoothOfRelativeDimension 1 (c.toCurve ≫ f) := hc
+    have hnot :=
+      RelativeFittingLocus.not_mem_globalIdealSheaf_support_one_of_smoothOfRelativeDimension
+        (f := c.toCurve ≫ f) c.point
+    have hpoint : c.point ∈
+        (RelativeFittingLocus.globalIdealSheaf (c.toCurve ≫ f) 1).support := by
+      rw [RelativeFittingLocus.globalIdealSheaf_comp_etale f c.toCurve 1]
+      rw [Scheme.IdealSheafData.support_comap]
+      change c.toCurve c.point ∈ (RelativeFittingLocus.globalIdealSheaf f 1).support
+      simpa [c.mapsToPoint] using hx
+    exact hnot hpoint
+  · intro hx
+    rcases hnodal x with hs | hn
+    · exact False.elim (hx hs)
+    · obtain ⟨c⟩ := hn
+      let _ : Etale c.toCurve := c.etale_toCurve
+      let _ : LocallyOfFinitePresentation (c.toCurve ≫ f) := inferInstance
+      have ho := nodeChart_toNode_point f hx c
+      have hpoint : c.point ∈
+          (RelativeFittingLocus.globalIdealSheaf (c.toCurve ≫ f) 1).support := by
+        exact (NodeChartAt.mem_support_globalIdealSheaf_one_iff c c.point).2 ho
+      rw [RelativeFittingLocus.globalIdealSheaf_comp_etale f c.toCurve 1] at hpoint
+      rw [Scheme.IdealSheafData.support_comap] at hpoint
+      change c.toCurve c.point ∈ (RelativeFittingLocus.globalIdealSheaf f 1).support at hpoint
+      simpa [c.mapsToPoint] using hpoint
 
 /-- The node set of a nodal curve is discrete. -/
 theorem nodeSet_isDiscrete (hf : IsNodalCurveOverField f) : _root_.IsDiscrete (nodeSet f) := by
@@ -368,6 +529,100 @@ theorem topologicalKrullDim_le_one (hdim : RelativeDimensionLE 1 f) :
   rw [← e2, ← e1]
   exact h s
 
+/-! ### Normalized components -/
+
+/- A component is represented by Mathlib's scheme-theoretic irreducible-component
+subscheme.  The Noetherian instance is obtained from the prestable fibre, rather than
+being supplied as part of the graph data. -/
+
+/-- The scheme-theoretic irreducible component of a prestable geometric fibre. -/
+noncomputable def componentScheme [PrestableFamily f] (C : Component X) : Scheme.{u} := by
+  letI : IsNoetherian X := isNoetherian_of_quasiCompact f
+  exact (X.irreducibleComponentIdeal C C.2).radical.subscheme
+
+/-- The closed immersion of a fibre component into the fibre. -/
+noncomputable def componentInclusion [PrestableFamily f] (C : Component X) :
+    componentScheme f C ⟶ X := by
+  letI : IsNoetherian X := isNoetherian_of_quasiCompact f
+  exact (X.irreducibleComponentIdeal C C.2).radical.subschemeι
+
+/- The reduced induced component is reduced, proved affine-locally from the radical ideal. -/
+theorem componentScheme_isReduced [PrestableFamily f] (C : Component X) :
+    IsReduced (componentScheme f C) := by
+  let _ : IsNoetherian X := isNoetherian_of_quasiCompact f
+  let I := (X.irreducibleComponentIdeal C C.2).radical
+  change IsReduced I.subscheme
+  let _ : ∀ i : I.subschemeCover.openCover.I₀,
+      IsReduced (I.subschemeCover.openCover.X i) := by
+    intro i
+    let U : I.subschemeCover.I₀ := i
+    have hr : _root_.IsReduced ((I.subschemeCover.X U : CommRingCat) : Type u) := by
+      dsimp [Scheme.IdealSheafData.subschemeCover] at U ⊢
+      let V : X.affineOpens := U
+      change _root_.IsReduced ((X.presheaf.obj (Opposite.op (V : X.Opens))) ⧸ I.ideal V)
+      apply (Ideal.isRadical_iff_quotient_reduced _).mp
+      exact Ideal.radical_isRadical _
+    let _ := hr
+    change IsReduced (Spec (I.subschemeCover.X U))
+    infer_instance
+  exact IsReduced.of_openCover I.subscheme I.subschemeCover.openCover
+
+/- The reduced component has the irreducible topological space of its support. -/
+theorem componentScheme_isIrreducibleSpace [PrestableFamily f] (C : Component X) :
+    IrreducibleSpace (componentScheme f C) := by
+  let _ : IsNoetherian X := isNoetherian_of_quasiCompact f
+  let I := (X.irreducibleComponentIdeal C C.2).radical
+  let e₀ := I.subschemeι.isClosedEmbedding.isEmbedding.toHomeomorph
+  let e : I.subscheme ≃ₜ (I.support : Set X) :=
+    e₀.trans (Homeomorph.setCongr I.range_subschemeι)
+  apply (Homeomorph.irreducibleSpace_iff e).mpr
+  apply Subtype.irreducibleSpace
+  have hsupport : I.support = (C : Set X) := by
+    change ((X.irreducibleComponentIdeal C C.2).radical.support : Set X) = (C : Set X)
+    rw [Scheme.IdealSheafData.support_radical]
+    rfl
+  rw [hsupport]
+  exact C.2.1
+
+/- The reduced component is integral, with no integrality witness supplied by callers. -/
+theorem componentScheme_isIntegral [PrestableFamily f] (C : Component X) :
+    IsIntegral (componentScheme f C) := by
+  let _ := componentScheme_isReduced f C
+  let _ := componentScheme_isIrreducibleSpace f C
+  exact isIntegral_of_irreducibleSpace_of_isReduced _
+
+/-- The structure morphism of a fibre component over the ground field. -/
+noncomputable def componentToBase [PrestableFamily f] (C : Component X) :
+    componentScheme f C ⟶ Spec (.of K) :=
+  componentInclusion f C ≫ f
+
+/-! ### Canonical normalized components
+
+The normalization is canonical once the reduced integral component has been fixed. -/
+
+/-- The canonical normalization scheme of a component. -/
+noncomputable def normalizedComponentScheme [PrestableFamily f] (C : Component X) :
+    Scheme.{u} :=
+  letI := componentScheme_isIntegral f C
+  Normalization.scheme (componentScheme f C)
+
+/-- The canonical normalization morphism into the fibre. -/
+noncomputable def normalizedComponentToCurve [PrestableFamily f] (C : Component X) :
+    normalizedComponentScheme f C ⟶ X := by
+  letI := componentScheme_isIntegral f C
+  exact Normalization.toCurve (componentScheme f C) ≫ componentInclusion f C
+
+/-- The structure morphism of a normalized component over the ground field. -/
+noncomputable def normalizedComponentToBase [PrestableFamily f] (C : Component X) :
+    normalizedComponentScheme f C ⟶ Spec (.of K) :=
+  normalizedComponentToCurve f C ≫ f
+
+/-- The arithmetic (equivalently geometric, after the normalization comparison) genus of a
+normalized component.  It is the dimension of the first cohomology of its actual structure
+sheaf, so no graph genus label is supplied independently. -/
+noncomputable def normalizedComponentGenus [PrestableFamily f] (C : Component X) : ℕ :=
+  arithmeticGenus K (normalizedComponentToBase f C)
+
 /-! ### Edges and the graph -/
 
 /-- The nodes lying on a single irreducible component: the loops of the dual graph. -/
@@ -404,6 +659,185 @@ def endpoint : Edge f → Fin 2 → Component X
   | Sum.inl e, _ => componentOf e.1
   | Sum.inr e, 0 => e.1.2.out.1
   | Sum.inr e, 1 => e.1.2.out.2
+
+/-- The point of the fibre represented by an edge. -/
+def edgePoint : Edge f → X
+  | Sum.inl e => e.1
+  | Sum.inr e => e.1.1
+
+/-- Every nonsmooth point of a nodal fibre is represented by an edge.  The proof first checks
+whether all components through the point coincide; otherwise the point and the two distinct
+components form the separating edge. -/
+theorem exists_edgePoint_eq_of_mem_nodeSet [PrestableFamily f]
+    {x : X} (hx : x ∈ nodeSet f) : ∃ e : Edge f, edgePoint f e = x := by
+  classical
+  by_cases hsame : ∀ D : Component X, x ∈ (D : Set X) → D = componentOf x
+  · exact ⟨Sum.inl ⟨x, hx, by
+      intro C D hxC hxD
+      exact (hsame C hxC).trans (hsame D hxD).symm⟩, rfl⟩
+  · push Not at hsame
+    obtain ⟨D, hxD, hCD⟩ := hsame
+    let C := componentOf x
+    refine ⟨Sum.inr ⟨(x, s(C, D)), ?_, ?_⟩, rfl⟩
+    · intro hdiag
+      exact hCD (Sym2.mk_isDiag_iff.mp hdiag).symm
+    · intro E hE
+      rcases Sym2.mem_iff.mp hE with rfl | rfl
+      · exact mem_componentOf x
+      · exact hxD
+
+/- Every point of `nodeSet` has a node chart, by the nodal fibre axiom. -/
+theorem nodeChart_nonempty_of_mem_nodeSet [PrestableFamily f]
+    {x : X} (hx : x ∈ nodeSet f) : Nonempty (NodeChartAt f x) := by
+  let _ : AtWorstNodal f := PrestableFamily.nodal
+  rcases (isNodalCurveOverField_of_atWorstNodal f x) with hsm | hnode
+  · exact False.elim (hx hsm)
+  · exact hnode
+
+@[simp] theorem edgePoint_inl (e : loopEdges f) :
+    edgePoint f (Sum.inl e) = e.1 := rfl
+
+@[simp] theorem edgePoint_inr (e : multiEdges (X := X)) :
+    edgePoint f (Sum.inr e) = e.1.1 := rfl
+
+namespace NormalizedComponents
+
+variable [PrestableFamily f]
+
+/-- A point on a normalized component, retaining the component it belongs to. -/
+abbrev Point := Σ C : Component X, normalizedComponentScheme f C
+
+/-- The image in the fibre of a point on a normalized component. -/
+def pointToCurve (p : Point (f := f)) : X :=
+  normalizedComponentToCurve f p.1 p.2
+
+end NormalizedComponents
+
+/- A normalized point maps into the component that indexes it. -/
+theorem normalizedPointToCurve_mem_component [PrestableFamily f]
+    (p : NormalizedComponents.Point (f := f)) :
+    NormalizedComponents.pointToCurve (f := f) p ∈ (p.1 : Set X) := by
+  let _ : IsNoetherian X := isNoetherian_of_quasiCompact f
+  let _ := componentScheme_isIntegral f p.1
+  have hrange : Set.range (componentInclusion f p.1) = (p.1 : Set X) := by
+    change Set.range (X.irreducibleComponentIdeal p.1 p.1.2).radical.subschemeι =
+      (p.1 : Set X)
+    rw [Scheme.IdealSheafData.range_subschemeι]
+    change _ = ((X.irreducibleComponentIdeal p.1 p.1.2).radical.support : Set X)
+    rw [Scheme.IdealSheafData.support_radical]
+  rw [← hrange]
+  exact ⟨Normalization.toCurve (componentScheme f p.1) p.2, rfl⟩
+
+/- Every point of a component has a preimage on its actual normalization. -/
+theorem exists_normalizedPoint_over_of_mem [PrestableFamily f]
+    (C : Component X) {x : X} (hx : x ∈ (C : Set X)) :
+    ∃ p : NormalizedComponents.Point (f := f), p.1 = C ∧
+      NormalizedComponents.pointToCurve (f := f) p = x := by
+  let _ : IsNoetherian X := isNoetherian_of_quasiCompact f
+  let _ := componentScheme_isIntegral f C
+  have hrange : Set.range (componentInclusion f C) = (C : Set X) := by
+    change Set.range (X.irreducibleComponentIdeal C C.2).radical.subschemeι = (C : Set X)
+    rw [Scheme.IdealSheafData.range_subschemeι,
+      Scheme.IdealSheafData.support_radical]
+    rfl
+  obtain ⟨z, hz⟩ : ∃ z : componentScheme f C, componentInclusion f C z = x := by
+    have hx' : x ∈ Set.range (componentInclusion f C) := hrange ▸ hx
+    exact hx'
+  obtain ⟨p, hp⟩ := Scheme.Hom.surjective (Normalization.toCurve (componentScheme f C)) z
+  refine ⟨⟨C, p⟩, rfl, ?_⟩
+  change componentInclusion f C (Normalization.toCurve (componentScheme f C) p) = x
+  rw [hp, hz]
+
+/-- Actual branches of every geometric edge on the canonical normalizations.
+
+The component and node equations make this a witness about the normalization maps themselves;
+the endpoint pair is consequently obtained from the two normalized points, rather than being an
+independent incidence label. -/
+structure NormalizedBranchData [PrestableFamily f] [IsAlgClosed K]
+    where
+  point : Edge f → Fin 2 → NormalizedComponents.Point (f := f)
+  point_to_node : ∀ e j, NormalizedComponents.pointToCurve (f := f) (point e j) = edgePoint f e
+  point_injective : ∀ e, Function.Injective (point e)
+  /-- Every normalized point above a node is one of the two local branches.
+
+  The algebraic-closure hypothesis is essential here: over a non-algebraically-closed field a
+  node can have a single topological normalization point of residue degree two. -/
+  point_fibre_surjective : ∀ e (p : NormalizedComponents.Point (f := f)),
+    NormalizedComponents.pointToCurve (f := f) p = edgePoint f e →
+      p = point e 0 ∨ p = point e 1
+
+namespace NormalizedBranchData
+
+variable [PrestableFamily f] [IsAlgClosed K]
+  (B : NormalizedBranchData (f := f))
+
+/-- The actual fibre of a normalized component over the point represented by an edge. -/
+abbrev nodeFibre (e : Edge f) :=
+  {p : NormalizedComponents.Point (f := f) //
+    NormalizedComponents.pointToCurve (f := f) p = edgePoint f e}
+
+/-- The selected branch pair is an equivalence with the entire normalization fibre over the node.
+This packages both injectivity and the all-points exhaustion statement. -/
+def branchFibreEquiv (e : Edge f) : Fin 2 ≃ nodeFibre (f := f) e :=
+  Equiv.ofBijective (fun j ↦
+      (⟨B.point e j, B.point_to_node e j⟩ : nodeFibre (f := f) e)) ⟨by
+    intro i j h
+    apply B.point_injective e
+    exact congrArg (fun z : nodeFibre (f := f) e ↦ z.1) h
+  , by
+    intro p
+    rcases B.point_fibre_surjective e p.1 p.2 with h | h
+    · exact ⟨0, Subtype.ext h.symm⟩
+    · exact ⟨1, Subtype.ext h.symm⟩⟩
+
+theorem branch_points_ne (e : Edge f) : B.point e 0 ≠ B.point e 1 := by
+  intro h
+  have hz : (0 : Fin 2) = 1 := B.point_injective e h
+  exact Fin.zero_ne_one hz
+
+omit [IsAlgClosed K] in
+theorem endpoint_pair_of_normalized_fibre (e : Edge f)
+    (p : Fin 2 → NormalizedComponents.Point (f := f))
+    (hp : ∀ j, NormalizedComponents.pointToCurve (f := f) (p j) = edgePoint f e)
+    (hs : ∀ q : NormalizedComponents.Point (f := f),
+      NormalizedComponents.pointToCurve (f := f) q = edgePoint f e →
+        q = p 0 ∨ q = p 1) :
+    s(endpoint f e 0, endpoint f e 1) = s((p 0).1, (p 1).1) := by
+  have hmem (j : Fin 2) : edgePoint f e ∈ ((p j).1 : Set X) := by
+    rw [← hp j]
+    exact normalizedPointToCurve_mem_component f (p j)
+  cases e with
+  | inl e =>
+      have heq (j : Fin 2) : componentOf e.1 = (p j).1 :=
+        e.2.2 _ _ (mem_componentOf _) (hmem j)
+      exact Sym2.eq_iff.mpr (Or.inl ⟨heq 0, heq 1⟩)
+  | inr e =>
+      have hC := e.2.2 _ (Sym2.out_fst_mem e.1.2)
+      have hD := e.2.2 _ (Sym2.out_snd_mem e.1.2)
+      obtain ⟨qC, hqC, hqCx⟩ := exists_normalizedPoint_over_of_mem f e.1.2.out.1 hC
+      obtain ⟨qD, hqD, hqDx⟩ := exists_normalizedPoint_over_of_mem f e.1.2.out.2 hD
+      have hC' : e.1.2.out.1 = (p 0).1 ∨ e.1.2.out.1 = (p 1).1 := by
+        rcases hs qC hqCx with h | h
+        · exact Or.inl (hqC.symm.trans (congrArg Sigma.fst h))
+        · exact Or.inr (hqC.symm.trans (congrArg Sigma.fst h))
+      have hD' : e.1.2.out.2 = (p 0).1 ∨ e.1.2.out.2 = (p 1).1 := by
+        rcases hs qD hqDx with h | h
+        · exact Or.inl (hqD.symm.trans (congrArg Sigma.fst h))
+        · exact Or.inr (hqD.symm.trans (congrArg Sigma.fst h))
+      have hne : e.1.2.out.1 ≠ e.1.2.out.2 := by
+        intro h
+        apply e.2.1
+        rw [← Quot.out_eq e.1.2]
+        exact Sym2.mk_isDiag_iff.mpr h
+      apply Sym2.eq_iff.mpr
+      rcases hC' with hC' | hC' <;> rcases hD' with hD' | hD'
+      · exact False.elim (hne (hC'.trans hD'.symm))
+      · exact Or.inl ⟨hC', hD'⟩
+      · exact Or.inr ⟨hC', hD'⟩
+      · exact False.elim (hne (hC'.trans hD'.symm))
+
+end NormalizedBranchData
+
 
 /-- Adjacency in the geometric dual graph. -/
 abbrev Adj (v w : Component X) : Prop :=
@@ -483,6 +917,16 @@ def geometricDualGraph [PrestableFamily f] (genus : Component X → ℕ) : DualG
     genus := genus
     connected := reflTransGen_adj f }
 
+/-- The geometric dual graph with vertex genera computed from canonical normalized components. -/
+def geometricDualGraphOfNormalization [PrestableFamily f] : DualGraph.{u} :=
+  geometricDualGraph f (normalizedComponentGenus f)
+
+@[simp]
+theorem geometricDualGraphOfNormalization_genus [PrestableFamily f]
+    (C : Component X) :
+    (geometricDualGraphOfNormalization f).genus C =
+      arithmeticGenus K (normalizedComponentToBase f C) := rfl
+
 /-- The vertices of the geometric dual graph are the irreducible components. -/
 theorem geometricDualGraph_vertex [PrestableFamily f] (genus : Component X → ℕ) :
     (geometricDualGraph f genus).Vertex = Component X := rfl
@@ -501,6 +945,32 @@ theorem endpoint_inr (e : multiEdges (X := X)) :
     s(endpoint f (Sum.inr e) 0, endpoint f (Sum.inr e) 1) = e.1.2 := by
   change s((Quot.out e.1.2).1, (Quot.out e.1.2).2) = e.1.2
   exact Quot.out_eq _
+
+/-- A separating node has two distinct component endpoints. -/
+theorem endpoint_ne_of_multi (e : multiEdges (X := X)) :
+    endpoint f (Sum.inr e) 0 ≠ endpoint f (Sum.inr e) 1 := by
+  intro h
+  apply e.2.1
+  rw [← endpoint_inr (f := f) e, Sym2.mk_isDiag_iff]
+  exact h
+
+/-- An edge joining distinct components cannot be represented by a loop at that node. -/
+theorem multi_edge_not_loop (e : multiEdges (X := X)) :
+    ¬ edgePoint f (Sum.inr e) ∈ loopEdges f := by
+  intro h
+  have hmem₀ (z : Sym2 (Component X)) : z.out.1 ∈ z := by
+    have hz : s(z.out.1, z.out.2) = z := Quot.out_eq z
+    have hm : z.out.1 ∈ s(z.out.1, z.out.2) := Sym2.mem_iff.mpr (Or.inl rfl)
+    rw [hz] at hm
+    exact hm
+  have hmem₁ (z : Sym2 (Component X)) : z.out.2 ∈ z := by
+    have hz : s(z.out.1, z.out.2) = z := Quot.out_eq z
+    have hm : z.out.2 ∈ s(z.out.1, z.out.2) := Sym2.mem_iff.mpr (Or.inr rfl)
+    rw [hz] at hm
+    exact hm
+  have h₀ : e.1.1 ∈ (e.1.2.out.1 : Set X) := e.2.2 _ (hmem₀ e.1.2)
+  have h₁ : e.1.1 ∈ (e.1.2.out.2 : Set X) := e.2.2 _ (hmem₁ e.1.2)
+  exact endpoint_ne_of_multi (f := f) e (h.2 _ _ h₀ h₁)
 
 /-- The point of a loop lies outside the smooth locus. -/
 theorem loopEdges_subset_compl_smoothLocus [LocallyOfFinitePresentation f] :
