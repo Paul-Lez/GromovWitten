@@ -7,15 +7,17 @@ Authors: OpenAI Codex
 import GromovWitten.AlgebraicGeometry.Curves.ModuleDerived
 
 /-!
-# Derived base change for module-valued pushforward
+# Derived comparison for ordinary base-change composites
 
 For a Cartesian square of schemes, the ordinary Beck--Chevalley morphism is a natural
 transformation between the two corresponding functors on sheaves of modules.  Applying the
-right-derived construction gives the canonical derived base-change morphism in every degree.
+right-derived construction gives a canonical comparison in every degree between the derived
+functors of the two ordinary composites.
 
-The component in degree zero is deliberately the existing
-`canonicalPushforwardBaseChangeComparison`: the derived construction adds no independently chosen
-comparison map or module structure.
+The resulting map is a comparison of derived composites.  An additional theorem identifying one
+side with `b^* Rⁿ f_*` is required before this becomes the usual higher direct-image base-change
+map.  In degree zero, the underlying ordinary component is exactly the existing
+`canonicalPushforwardBaseChangeComparison`.
 -/
 
 open CategoryTheory Limits
@@ -91,30 +93,18 @@ theorem modulePushforwardBaseChangeNatTrans_app_eq_canonical {T Z : Scheme.{u}}
       canonicalPushforwardBaseChangeComparison f M b p g h :=
   rfl
 
-/-- The canonical derived base-change morphism in degree `n`. -/
-def moduleDerivedBaseChangeNatTrans {T Z : Scheme.{u}}
+/-- The comparison in degree `n` between the right-derived ordinary composites
+`Rⁿ(pullback b ⋙ pushforward f)` and `Rⁿ(pushforward g ⋙ pullback p)`.
+
+This is not yet the usual morphism `b^* Rⁿ f_* M ⟶ Rⁿ g_* p^* M`; identifying the first
+derived composite with the pullback of `Rⁿ f_*` requires a separate exact-base-change theorem.
+-/
+def moduleDerivedCompositeBaseChangeNatTrans {T Z : Scheme.{u}}
     (f : X ⟶ S) (b : T ⟶ S) (p : Z ⟶ X) (g : Z ⟶ T)
     (h : IsPullback p g f b) (n : ℕ) :
     (Scheme.Modules.pushforward f ⋙ Scheme.Modules.pullback b).rightDerived n ⟶
       (Scheme.Modules.pullback p ⋙ Scheme.Modules.pushforward g).rightDerived n :=
   NatTrans.rightDerived (modulePushforwardBaseChangeNatTrans f b p g h) n
-
-/-- A natural isomorphism of ordinary base-change functors induces an isomorphism of their
-right-derived functors.  This is the honest transfer step used once a geometric ordinary
-base-change theorem supplies the isomorphism `e`. -/
-def moduleDerivedBaseChangeIsoOfOrdinaryIso {T Z : Scheme.{u}}
-    (f : X ⟶ S) (b : T ⟶ S) (p : Z ⟶ X) (g : Z ⟶ T)
-    (_h : IsPullback p g f b)
-    (e : (Scheme.Modules.pushforward f ⋙ Scheme.Modules.pullback b) ≅
-      (Scheme.Modules.pullback p ⋙ Scheme.Modules.pushforward g)) (n : ℕ) :
-    (Scheme.Modules.pushforward f ⋙ Scheme.Modules.pullback b).rightDerived n ≅
-      (Scheme.Modules.pullback p ⋙ Scheme.Modules.pushforward g).rightDerived n where
-  hom := NatTrans.rightDerived e.hom n
-  inv := NatTrans.rightDerived e.inv n
-  hom_inv_id := by
-    rw [← NatTrans.rightDerived_comp, e.hom_inv_id, NatTrans.rightDerived_id]
-  inv_hom_id := by
-    rw [← NatTrans.rightDerived_comp, e.inv_hom_id, NatTrans.rightDerived_id]
 
 end
 end GromovWitten.AlgebraicGeometry.Curves
