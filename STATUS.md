@@ -103,6 +103,11 @@ Implemented APIs include:
   components, the finite discrete set of points without a smooth étale chart, and the finite
   set of points lying on two distinct components, with connectivity derived from connectedness
   of the curve;
+- the affine-local contraction of one branch of a clutched curve: the morphism from the spectrum of the
+  pinching of two augmented algebras to the first factor which is the identity on the first branch,
+  collapses the second branch to the node with that branch as the exact fibre, and is an isomorphism off
+  that branch (`Curves/Clutching/BranchContraction.lean`); properness and the global gluing into stable-map
+  contraction remain open;
 - weighted numerical Picard groups, their comparison with the raw intersection cokernel,
   parity and signed-genus formulae, connectedness criteria, the rank-one theorem, and
   finite prime-torsion calculations, together with specialization of genuine relative
