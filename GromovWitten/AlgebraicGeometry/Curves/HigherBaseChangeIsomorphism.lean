@@ -5,6 +5,7 @@ Authors: OpenAI Codex
 -/
 
 import GromovWitten.AlgebraicGeometry.Curves.AffineHigherBaseChange
+import GromovWitten.AlgebraicGeometry.Curves.AffineBaseChangeIsomorphism
 
 /-!
 # Isomorphism criteria for flat higher base change
@@ -12,8 +13,8 @@ import GromovWitten.AlgebraicGeometry.Curves.AffineHigherBaseChange
 The degree-zero flat comparison is the ordinary Beck--Chevalley map after the
 canonical zeroth-derived identifications.  Since those identifications are
 isomorphisms, its invertibility is equivalent to ordinary base change.  For an
-affine family, the positive-degree comparisons are already isomorphisms, so an
-ordinary degree-zero isomorphism gives the comparison in every degree.
+affine family, ordinary quasi-coherent base change and positive-degree vanishing
+give the comparison in every degree.
 -/
 
 open CategoryTheory Limits
@@ -76,32 +77,20 @@ theorem moduleFlatHigherBaseChange_zero_isIso_iff
       infer_instance
     exact (isIso_middle_iff (α := α) (β := β) (γ := γ)).mpr hcomp
 
-/-- For an affine family, an ordinary degree-zero base-change isomorphism
-gives the flat higher comparison in every degree. -/
+/-- Flat higher base change for an affine morphism and a quasi-coherent module,
+in every degree. -/
 theorem moduleFlatHigherBaseChange_all_isIso
     (f : X ⟶ S) (b : T ⟶ S) (p : Z ⟶ X) (g : Z ⟶ T)
     (h : IsPullback p g f b) [IsAffineHom f] [Flat b]
     [IsLocallyNoetherian X] [IsLocallyNoetherian Z]
     (M : X.Modules) [M.IsQuasicoherent]
-    [IsIso (canonicalPushforwardBaseChangeComparison f M b p g h)]
     (n : ℕ) :
     IsIso ((moduleFlatHigherBaseChangeNatTrans f b p g h n).app M) := by
   cases n with
   | zero =>
-      exact (moduleFlatHigherBaseChange_zero_isIso_iff f b p g h M).mpr inferInstance
+      exact (moduleFlatHigherBaseChange_zero_isIso_iff f b p g h M).mpr
+        (canonicalPushforwardBaseChangeComparison_isIso_of_isAffineHom f b p g h M)
   | succ n =>
       exact moduleFlatHigherBaseChange_succ_isIso f b p g h M n
-
-/-- Explicit-assumption form of `moduleFlatHigherBaseChange_all_isIso`. -/
-theorem moduleFlatHigherBaseChange_all_isIso_of_isIso_canonical
-    (f : X ⟶ S) (b : T ⟶ S) (p : Z ⟶ X) (g : Z ⟶ T)
-    (h : IsPullback p g f b) [IsAffineHom f] [Flat b]
-    [IsLocallyNoetherian X] [IsLocallyNoetherian Z]
-    (M : X.Modules) [M.IsQuasicoherent]
-    (hcanonical : IsIso (canonicalPushforwardBaseChangeComparison f M b p g h))
-    (n : ℕ) :
-    IsIso ((moduleFlatHigherBaseChangeNatTrans f b p g h n).app M) := by
-  have : IsIso (canonicalPushforwardBaseChangeComparison f M b p g h) := hcanonical
-  exact moduleFlatHigherBaseChange_all_isIso f b p g h M n
 
 end GromovWitten.AlgebraicGeometry.Curves

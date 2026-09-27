@@ -99,5 +99,34 @@ lemma affinePullbackGammaMap_one_tmul (M : (Spec R).Modules)
   have h := ConcreteCategory.congr_hom (affinePullbackGammaMap_homEquiv φ M) n
   rw [ModuleCat.extendRestrictScalarsAdj_homEquiv_apply] at h
   exact h
+
+private theorem eq_of_eq_map {α : Type u} (F : α → α) {x y : α}
+    (h : x = F y) (hF : ∀ z, F z = z) : x = y :=
+  h.trans (hF y)
+
+private lemma affineGammaIso_apply {R S : CommRingCat.{u}} (φ : R ⟶ S)
+    (M : (Spec S).Modules) (x : (moduleSpecΓFunctor (R := R)).obj
+      ((Scheme.Modules.pushforward (Spec.map φ)).obj M)) :
+    ((affineGammaIso φ).hom.app M) x = x := by
+  dsimp [affineGammaIso, moduleSpecΓFunctor, modulesSpecToSheaf]
+  rfl
+
+set_option backward.isDefEq.respectTransparency false in
+/-- On a tensor generator, the affine comparison is global sections of the pullback unit. -/
+lemma affinePullbackGammaMap_one_tmul_unit
+    (M : (Spec R).Modules) (x : (moduleSpecΓFunctor (R := R)).obj M) :
+    affinePullbackGammaMap φ M ((1 : S) ⊗ₜ[R, φ.hom] x) =
+      ((moduleSpecΓFunctor (R := R)).map
+        ((Scheme.Modules.pullbackPushforwardAdjunction (Spec.map φ)).unit.app M)) x := by
+  refine eq_of_eq_map
+    (F := fun z => ((affineGammaIso φ).hom.app
+      ((Scheme.Modules.pullback (Spec.map φ)).obj M)) z)
+    (x := affinePullbackGammaMap φ M ((1 : S) ⊗ₜ[R, φ.hom] x))
+    (y := ((moduleSpecΓFunctor (R := R)).map
+      ((Scheme.Modules.pullbackPushforwardAdjunction (Spec.map φ)).unit.app M)) x) ?_ ?_
+  · exact affinePullbackGammaMap_one_tmul φ M x
+  · intro z
+    exact affineGammaIso_apply φ ((Scheme.Modules.pullback (Spec.map φ)).obj M) z
+
 end
 end GromovWitten.AlgebraicGeometry.Curves

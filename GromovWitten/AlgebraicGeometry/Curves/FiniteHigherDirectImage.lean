@@ -59,5 +59,25 @@ theorem isFinitePresentation_higherDirectImageModule_spec_tilde
         (isZero_higherDirectImageModule_affine_succ (Spec.map φ)
           ((tilde.functor (R := S)).obj N) n)
 
+/-- All higher direct images along a finite affine map are finitely presented for any
+quasi-coherent module with finitely presented global sections. -/
+theorem isFinitePresentation_higherDirectImageModule_spec
+    {R S : CommRingCat.{u}} (φ : R ⟶ S) [IsNoetherianRing R]
+    (hφ : RingHom.Finite φ.hom) (M : (Spec S).Modules)
+    [M.IsQuasicoherent]
+    [Module.FinitePresentation S ((moduleSpecΓFunctor.obj M : Type u))] (n : ℕ) :
+    (higherDirectImageModule (Spec.map φ) M n).IsFinitePresentation := by
+  let _ : Algebra R S := φ.hom.toAlgebra
+  have : Module.Finite R S := hφ
+  have : IsNoetherianRing S := IsNoetherianRing.of_finite R S
+  cases n with
+  | zero =>
+      exact (SheafOfModules.isFinitePresentation (Spec R).ringCatSheaf).prop_of_iso
+        (higherDirectImageModuleZeroIso (Spec.map φ) M).symm
+        (modulePushforward_spec_isFinitePresentation φ M hφ)
+  | succ n =>
+      exact isFinitePresentation_of_isZero _
+        (isZero_higherDirectImageModule_affine_succ (Spec.map φ) M n)
+
 end
 end GromovWitten.AlgebraicGeometry.Curves
