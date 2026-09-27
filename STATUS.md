@@ -25,6 +25,10 @@ Implemented APIs include:
   representative and compatible with scalar extension; and distinguished-triangle rank
   additivity for the globally finite-free model
   (`CotangentComplex/Projective*.lean`, `PerfectTriangles.lean`);
+- the derived tensor product of perfect objects over a ring from the chain-level tensor product of
+  strictly perfect representatives, with representative independence, multiplicative rank, and unit and
+  associativity isomorphisms (`CotangentComplex/PerfectTensor.lean`); the braiding and the internal Hom
+  remain open;
 - finite locally free direct sums with rank addition from independently chosen local bases,
   constructing a common cover from products of charts; finite-free tensor rank multiplication,
   tensor associativity with globally finite-free outer factors, and natural, involutive tensor
