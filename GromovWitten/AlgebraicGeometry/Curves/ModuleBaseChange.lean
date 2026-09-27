@@ -7,17 +7,14 @@ Authors: OpenAI Codex
 import GromovWitten.AlgebraicGeometry.Curves.ModuleDerived
 
 /-!
-# Derived comparison for ordinary base-change composites
+# Naturality of ordinary module base change
 
-For a Cartesian square of schemes, the ordinary Beck--Chevalley morphism is a natural
-transformation between the two corresponding functors on sheaves of modules.  Applying the
-right-derived construction gives a canonical comparison in every degree between the derived
-functors of the two ordinary composites.
+For a Cartesian square of schemes, the canonical Beck--Chevalley morphisms assemble into a
+natural transformation on sheaves of modules. The construction is adjoint to the composite
+of pullback compatibility isomorphisms and the pullback/pushforward counit.
 
-The resulting map is a comparison of derived composites.  An additional theorem identifying one
-side with `b^* Rⁿ f_*` is required before this becomes the usual higher direct-image base-change
-map.  In degree zero, the underlying ordinary component is exactly the existing
-`canonicalPushforwardBaseChangeComparison`.
+`HigherBaseChange.lean` uses this natural transformation to construct the higher direct-image
+comparison when the horizontal pullbacks are exact.
 -/
 
 open CategoryTheory Limits
@@ -92,19 +89,6 @@ theorem modulePushforwardBaseChangeNatTrans_app_eq_canonical {T Z : Scheme.{u}}
     (modulePushforwardBaseChangeNatTrans f b p g h).app M =
       canonicalPushforwardBaseChangeComparison f M b p g h :=
   rfl
-
-/-- The comparison in degree `n` between the right-derived ordinary composites
-`Rⁿ(pullback b ⋙ pushforward f)` and `Rⁿ(pushforward g ⋙ pullback p)`.
-
-This is not yet the usual morphism `b^* Rⁿ f_* M ⟶ Rⁿ g_* p^* M`; identifying the first
-derived composite with the pullback of `Rⁿ f_*` requires a separate exact-base-change theorem.
--/
-def moduleDerivedCompositeBaseChangeNatTrans {T Z : Scheme.{u}}
-    (f : X ⟶ S) (b : T ⟶ S) (p : Z ⟶ X) (g : Z ⟶ T)
-    (h : IsPullback p g f b) (n : ℕ) :
-    (Scheme.Modules.pushforward f ⋙ Scheme.Modules.pullback b).rightDerived n ⟶
-      (Scheme.Modules.pullback p ⋙ Scheme.Modules.pushforward g).rightDerived n :=
-  NatTrans.rightDerived (modulePushforwardBaseChangeNatTrans f b p g h) n
 
 end
 end GromovWitten.AlgebraicGeometry.Curves
