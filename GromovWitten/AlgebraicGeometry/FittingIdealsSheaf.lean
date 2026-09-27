@@ -42,8 +42,11 @@ to a genuine quasi-coherent ideal sheaf on the source of a relative scheme.
   formally étale maps of the total space, in particular along localisations.  The latter is
   exactly the gluing datum `RelativeFittingLocus.map_idealOn_basicOpen`.
 * `Algebra.differentialFittingIdeal_baseChange`: compatibility with base change of the base ring.
-* `Algebra.differentialFittingIdeal_of_surjective_base`: enlarging the base along a surjection
-  does not change the differential Fitting ideals.
+* `Algebra.differentialFittingIdeal_of_formallyUnramified_base`: enlarging the base through a
+  formally unramified algebra preserves the differential Fitting ideals, including surjections
+  and localizations.
+* `Algebra.differentialFittingIdeal_of_etale_restriction`: simultaneous étale restrictions of
+  the base and total space preserve differential Fitting ideals, without a cartesian assumption.
 * `RelativeFittingLocus.idealSheaf_zero_eq_top_iff`: the zeroth Fitting ideal sheaf is the unit
   ideal sheaf exactly for formally unramified morphisms; equivalently the zeroth Fitting locus is
   empty (`RelativeFittingLocus.isEmpty_locus_zero_iff`).
@@ -365,20 +368,18 @@ theorem differentialFittingIdeal_of_isLocalization [_root_.Algebra.FinitePresent
 
 end FormallyEtale
 
-section SurjectiveBase
+section UnramifiedBase
 
 variable (T : Type*) [CommRing T] [Algebra R T] [Algebra S T] [IsScalarTower R S T]
 
-/-- If the base ring surjects onto an intermediate ring, the relative Kähler differentials over
-the two bases agree. -/
-def kaehlerEquivOfSurjectiveBase (h : Function.Surjective (algebraMap R S)) :
+/-- Enlarging the base through a formally unramified algebra does not change relative
+Kähler differentials. This applies, in particular, to localizations of the base. -/
+def kaehlerEquivOfFormallyUnramifiedBase [_root_.Algebra.FormallyUnramified R S] :
     Ω[T⁄R] ≃ₗ[T] Ω[T⁄S] := by
   refine LinearEquiv.ofBijective (KaehlerDifferential.map R S T T)
     ⟨?_, KaehlerDifferential.map_surjective R S T⟩
-  have hunr : _root_.Algebra.FormallyUnramified R S :=
-    (RingHom.formallyUnramified_algebraMap (R := R) (S := S)).mp
-      (RingHom.FormallyUnramified.of_surjective h)
-  have hsub : Subsingleton Ω[S⁄R] := (_root_.Algebra.formallyUnramified_iff R S).mp hunr
+  have hsub : Subsingleton Ω[S⁄R] := (_root_.Algebra.formallyUnramified_iff R S).mp
+    inferInstance
   have hzero : ∀ z : TensorProduct S T Ω[S⁄R], z = 0 := by
     intro z
     induction z with
@@ -390,6 +391,30 @@ def kaehlerEquivOfSurjectiveBase (h : Function.Surjective (algebraMap R S)) :
   obtain ⟨y, rfl⟩ := (KaehlerDifferential.exact_mapBaseChange_map R S T x).mp hx
   rw [hzero y, map_zero]
 
+@[simp]
+theorem kaehlerEquivOfFormallyUnramifiedBase_D [_root_.Algebra.FormallyUnramified R S]
+    (t : T) :
+    kaehlerEquivOfFormallyUnramifiedBase R S T (KaehlerDifferential.D R T t) =
+      KaehlerDifferential.D S T t := by
+  change KaehlerDifferential.map R S T T (KaehlerDifferential.D R T t) = _
+  simp only [KaehlerDifferential.map_D, Algebra.algebraMap_self, RingHom.id_apply]
+
+/-- Changing the base through a formally unramified algebra preserves differential
+Fitting ideals. -/
+theorem differentialFittingIdeal_of_formallyUnramified_base
+    [_root_.Algebra.FormallyUnramified R S] [_root_.Algebra.FinitePresentation S T] (i : ℕ) :
+    differentialFittingIdeal S T i = differentialFittingIdeal R T i :=
+  Module.fittingIdeal_of_linearEquiv (kaehlerEquivOfFormallyUnramifiedBase R S T).symm i
+
+/-- If the base ring surjects onto an intermediate ring, the relative Kähler differentials over
+the two bases agree. -/
+def kaehlerEquivOfSurjectiveBase (h : Function.Surjective (algebraMap R S)) :
+    Ω[T⁄R] ≃ₗ[T] Ω[T⁄S] := by
+  have : _root_.Algebra.FormallyUnramified R S :=
+    (RingHom.formallyUnramified_algebraMap (R := R) (S := S)).mp
+      (RingHom.FormallyUnramified.of_surjective h)
+  exact kaehlerEquivOfFormallyUnramifiedBase R S T
+
 /-- Enlarging the base ring along a surjection does not change the differential Fitting
 ideals. -/
 theorem differentialFittingIdeal_of_surjective_base
@@ -397,13 +422,23 @@ theorem differentialFittingIdeal_of_surjective_base
     differentialFittingIdeal S T i = differentialFittingIdeal R T i :=
   Module.fittingIdeal_of_linearEquiv (kaehlerEquivOfSurjectiveBase R S T h).symm i
 
-end SurjectiveBase
+end UnramifiedBase
 
 section BaseChange
 
 variable (A B : Type*) [CommRing A] [CommRing B]
 variable [Algebra R A] [Algebra R B] [Algebra A B] [Algebra S B]
 variable [IsScalarTower R A B] [IsScalarTower R S B]
+
+/-- Restricting both the base and the total space through étale maps preserves the
+relative differential Fitting ideals. The square need not be a pushout. -/
+theorem differentialFittingIdeal_of_etale_restriction
+    [_root_.Algebra.FormallyUnramified R S] [_root_.Algebra.FormallyEtale A B]
+    [_root_.Algebra.FinitePresentation R A] [_root_.Algebra.FinitePresentation S B] (i : ℕ) :
+    differentialFittingIdeal S B i =
+      (differentialFittingIdeal R A i).map (algebraMap A B) :=
+  (differentialFittingIdeal_of_formallyUnramified_base R S B i).trans
+    (differentialFittingIdeal_of_formallyEtale R A B i)
 
 /-- For a pushout square of rings, `Ω[B⁄S]` is the base change of `Ω[A⁄R]` along `A → B`. -/
 theorem isBaseChange_kaehlerDifferential [_root_.Algebra.IsPushout R S A B] :

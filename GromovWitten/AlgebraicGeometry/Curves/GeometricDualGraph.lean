@@ -9,6 +9,9 @@ import GromovWitten.AlgebraicGeometry.Curves.DualGraph
 import GromovWitten.AlgebraicGeometry.Curves.ArithmeticGenus
 import GromovWitten.AlgebraicGeometry.Curves.Normalization
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeBaseChange
+import GromovWitten.AlgebraicGeometry.GlobalFittingIdeals
+import GromovWitten.AlgebraicGeometry.GlobalFittingBaseChange
+import GromovWitten.AlgebraicGeometry.Curves.FittingSmooth
 
 /-!
 # The geometric dual graph of a nodal curve over a field
@@ -341,6 +344,113 @@ theorem nodeChart_toNode_eq_of_map_eq {x : X} (hx : x ∈ nodeSet f)
   have h := smoothChart_of_nodeChart f c q hne
   rw [hq] at h
   exact hx h
+
+/-- The global first differential Fitting locus on a node chart is exactly the inverse image of
+the standard node origin. -/
+theorem NodeChartAt.mem_support_globalIdealSheaf_one_iff
+    {K : Type u} [Field K] {g : X ⟶ Spec (.of K)} {p : X}
+    (c : NodeChartAt g p) [LocallyOfFinitePresentation (c.toCurve ≫ g)] (q : c.source) :
+    q ∈ (RelativeFittingLocus.globalIdealSheaf (c.toCurve ≫ g) 1).support ↔
+      c.toNode q = standardNodeOrigin K := by
+  obtain ⟨_, ⟨W, hW⟩, hq, _⟩ :=
+    c.source.isBasis_affineOpens.exists_subset_of_mem_open
+      (Set.mem_univ q) isOpen_univ
+  have hqW : q ∈ W := by
+    change q ∈ (W : Set c.source)
+    rw [hW.2]
+    exact hq
+  let W' : c.source.affineOpens := ⟨W, hW.1⟩
+  have hqW' : q ∈ W'.1 := by
+    change q ∈ W
+    exact hqW
+  have hbasic (r : StableReduction.LocalNode.Ring K 0 1) :
+      q ∉ c.source.basicOpen (NodeChartAt.chartMap c W' r) ↔
+        r ∈ (c.toNode q).asIdeal := by
+    let z : PrimeSpectrum (StableReduction.LocalNode.Ring K 0 1) := c.toNode q
+    have hlocal : q ∈ c.source.basicOpen (NodeChartAt.chartMap c W' r) ↔
+        c.toNode q ∈
+          (Spec (.of (StableReduction.LocalNode.Ring K 0 1))).basicOpen
+            ((Scheme.ΓSpecIso (.of (StableReduction.LocalNode.Ring K 0 1))).inv r) := by
+      dsimp [NodeChartAt.chartMap]
+      rw [Scheme.basicOpen_appLE]
+      change (q ∈ W'.1 ∧ q ∈ c.toNode ⁻¹ᵁ _) ↔ _
+      simp only [hqW', true_and, Scheme.Hom.mem_preimage]
+    rw [hlocal]
+    rw [basicOpen_eq_of_affine]
+    change ¬ (z ∈ PrimeSpectrum.basicOpen r) ↔ r ∈ z.asIdeal
+    simp [PrimeSpectrum.mem_basicOpen]
+  rw [RelativeFittingLocus.globalIdealSheaf_eq_idealSheaf]
+  rw [Scheme.IdealSheafData.mem_support_iff_of_mem (U := W') hqW']
+  rw [RelativeFittingLocus.idealSheaf_ideal]
+  rw [NodeChartAt.idealOn_one]
+  rw [Scheme.zeroLocus_span]
+  constructor
+  · intro h
+    rw [Scheme.mem_zeroLocus_iff] at h
+    apply eq_standardNodeOrigin_of_mem _
+    · apply (hbasic _).mp
+      exact h _ (by simp)
+    · apply (hbasic _).mp
+      exact h _ (by simp)
+  · intro h
+    rw [Scheme.mem_zeroLocus_iff]
+    intro f hf
+    rcases hf with rfl | rfl
+    · apply (hbasic _).mpr
+      rw [h]
+      change StableReduction.LocalNode.x K 0 1 ∈
+        RingHom.ker (StableReduction.LocalNode.nodeOrigin K 1 one_ne_zero).toRingHom
+      simp
+    · apply (hbasic _).mpr
+      rw [h]
+      change StableReduction.LocalNode.y K 0 1 ∈
+        RingHom.ker (StableReduction.LocalNode.nodeOrigin K 1 one_ne_zero).toRingHom
+      simp
+
+/-! ### The global nodal criterion -/
+
+/-- On a nodal curve, the global first Fitting support is the node set, provided each smooth point
+has one smooth chart carrying its natural relative-dimension-one structure. The latter is kept
+explicit because `SmoothChartAt` records smoothness but deliberately does not store a dimension
+witness. Only one such chart is needed at each point. -/
+theorem globalIdealSheaf_support_one_eq_nodeSet
+    [LocallyOfFinitePresentation f]
+    (hnodal : IsNodalCurveOverField f)
+    (hchart : ∀ {x : X}, Nonempty (SmoothChartAt f x) →
+      ∃ c : SmoothChartAt f x, SmoothOfRelativeDimension 1 (c.toCurve ≫ f)) :
+    (RelativeFittingLocus.globalIdealSheaf f 1).support = nodeSet f := by
+  ext x
+  constructor
+  · intro hx
+    by_contra hnode
+    have hsmooth : Nonempty (SmoothChartAt f x) := not_not.mp hnode
+    obtain ⟨c, hc⟩ := hchart hsmooth
+    let _ : Etale c.toCurve := c.etale_toCurve
+    let _ : SmoothOfRelativeDimension 1 (c.toCurve ≫ f) := hc
+    have hnot :=
+      RelativeFittingLocus.not_mem_globalIdealSheaf_support_one_of_smoothOfRelativeDimension
+        (f := c.toCurve ≫ f) c.point
+    have hpoint : c.point ∈
+        (RelativeFittingLocus.globalIdealSheaf (c.toCurve ≫ f) 1).support := by
+      rw [RelativeFittingLocus.globalIdealSheaf_comp_etale f c.toCurve 1]
+      rw [Scheme.IdealSheafData.support_comap]
+      change c.toCurve c.point ∈ (RelativeFittingLocus.globalIdealSheaf f 1).support
+      simpa [c.mapsToPoint] using hx
+    exact hnot hpoint
+  · intro hx
+    rcases hnodal x with hs | hn
+    · exact False.elim (hx hs)
+    · obtain ⟨c⟩ := hn
+      let _ : Etale c.toCurve := c.etale_toCurve
+      let _ : LocallyOfFinitePresentation (c.toCurve ≫ f) := inferInstance
+      have ho := nodeChart_toNode_point f hx c
+      have hpoint : c.point ∈
+          (RelativeFittingLocus.globalIdealSheaf (c.toCurve ≫ f) 1).support := by
+        exact (NodeChartAt.mem_support_globalIdealSheaf_one_iff c c.point).2 ho
+      rw [RelativeFittingLocus.globalIdealSheaf_comp_etale f c.toCurve 1] at hpoint
+      rw [Scheme.IdealSheafData.support_comap] at hpoint
+      change c.toCurve c.point ∈ (RelativeFittingLocus.globalIdealSheaf f 1).support at hpoint
+      simpa [c.mapsToPoint] using hpoint
 
 /-- The node set of a nodal curve is discrete. -/
 theorem nodeSet_isDiscrete (hf : IsNodalCurveOverField f) : _root_.IsDiscrete (nodeSet f) := by
