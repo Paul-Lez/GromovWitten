@@ -277,6 +277,9 @@ Implemented APIs include:
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- the atlas map `U → [U/G]` as a stack morphism whose fibre over a torsor is the torsor, with a generic
+  componentwise constructor of strong transformations on locally discrete bicategories
+  (`Stacks/QuotientStackAtlas.lean`, `Stacks/StrongTransOfDiscrete.lean`);
 - `[C/E]` as a cone stack over `Spec R`: descent of the base point, projection, vertex, and five of the six
   contraction laws, with all six contraction laws, so `coneQuotientStack` is an unconditional cone stack
   (`Cones/ConeQuotientStack.lean`);
