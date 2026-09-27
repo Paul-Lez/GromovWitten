@@ -7,6 +7,7 @@ Authors: GromovWitten Contributors
 import GromovWitten.AlgebraicGeometry.Curves.Prestable
 import GromovWitten.AlgebraicGeometry.Curves.DualGraph
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeBaseChange
+import GromovWitten.AlgebraicGeometry.GlobalFittingIdeals
 
 /-!
 # The geometric dual graph of a nodal curve over a field
@@ -290,6 +291,68 @@ theorem nodeChart_toNode_point {x : X} (hx : x ∈ nodeSet f) (c : NodeChartAt f
   have h := smoothChart_of_nodeChart f c c.point hne
   rw [c.mapsToPoint] at h
   exact hx h
+
+/-- The global first differential Fitting locus on a node chart is exactly the inverse image of
+the standard node origin. -/
+theorem NodeChartAt.mem_support_globalIdealSheaf_one_iff
+    {K : Type u} [Field K] {g : X ⟶ Spec (.of K)} {p : X}
+    (c : NodeChartAt g p) [LocallyOfFinitePresentation (c.toCurve ≫ g)] (q : c.source) :
+    q ∈ (RelativeFittingLocus.globalIdealSheaf (c.toCurve ≫ g) 1).support ↔
+      c.toNode q = standardNodeOrigin K := by
+  obtain ⟨_, ⟨W, hW⟩, hq, _⟩ :=
+    c.source.isBasis_affineOpens.exists_subset_of_mem_open
+      (Set.mem_univ q) isOpen_univ
+  have hqW : q ∈ W := by
+    change q ∈ (W : Set c.source)
+    rw [hW.2]
+    exact hq
+  let W' : c.source.affineOpens := ⟨W, hW.1⟩
+  have hqW' : q ∈ W'.1 := by
+    change q ∈ W
+    exact hqW
+  have hbasic (r : StableReduction.LocalNode.Ring K 0 1) :
+      q ∉ c.source.basicOpen (NodeChartAt.chartMap c W' r) ↔
+        r ∈ (c.toNode q).asIdeal := by
+    let z : PrimeSpectrum (StableReduction.LocalNode.Ring K 0 1) := c.toNode q
+    have hlocal : q ∈ c.source.basicOpen (NodeChartAt.chartMap c W' r) ↔
+        c.toNode q ∈
+          (Spec (.of (StableReduction.LocalNode.Ring K 0 1))).basicOpen
+            ((Scheme.ΓSpecIso (.of (StableReduction.LocalNode.Ring K 0 1))).inv r) := by
+      dsimp [NodeChartAt.chartMap]
+      rw [Scheme.basicOpen_appLE]
+      change (q ∈ W'.1 ∧ q ∈ c.toNode ⁻¹ᵁ _) ↔ _
+      simp only [hqW', true_and, Scheme.Hom.mem_preimage]
+    rw [hlocal]
+    rw [basicOpen_eq_of_affine]
+    change ¬ (z ∈ PrimeSpectrum.basicOpen r) ↔ r ∈ z.asIdeal
+    simp [PrimeSpectrum.mem_basicOpen]
+  rw [RelativeFittingLocus.globalIdealSheaf_eq_idealSheaf]
+  rw [Scheme.IdealSheafData.mem_support_iff_of_mem (U := W') hqW']
+  rw [RelativeFittingLocus.idealSheaf_ideal]
+  rw [NodeChartAt.idealOn_one]
+  rw [Scheme.zeroLocus_span]
+  constructor
+  · intro h
+    rw [Scheme.mem_zeroLocus_iff] at h
+    apply eq_standardNodeOrigin_of_mem _
+    · apply (hbasic _).mp
+      exact h _ (by simp)
+    · apply (hbasic _).mp
+      exact h _ (by simp)
+  · intro h
+    rw [Scheme.mem_zeroLocus_iff]
+    intro f hf
+    rcases hf with rfl | rfl
+    · apply (hbasic _).mpr
+      rw [h]
+      change StableReduction.LocalNode.x K 0 1 ∈
+        RingHom.ker (StableReduction.LocalNode.nodeOrigin K 1 one_ne_zero).toRingHom
+      simp
+    · apply (hbasic _).mpr
+      rw [h]
+      change StableReduction.LocalNode.y K 0 1 ∈
+        RingHom.ker (StableReduction.LocalNode.nodeOrigin K 1 one_ne_zero).toRingHom
+      simp
 
 /-- The node set of a nodal curve is discrete. -/
 theorem nodeSet_isDiscrete (hf : IsNodalCurveOverField f) : _root_.IsDiscrete (nodeSet f) := by
