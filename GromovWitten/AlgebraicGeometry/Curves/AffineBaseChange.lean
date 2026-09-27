@@ -79,6 +79,19 @@ theorem affinePullbackTildeIso_counit {N : (Spec S).Modules} :
   change i.hom.app _ ≫ i.inv.app _ ≫ adj₁.counit.app N = _
   simp
 
+/-- On an affine scheme, a morphism is an isomorphism when its global-sections map
+is an isomorphism and both `fromTildeΓ` counits are isomorphisms. -/
+theorem isIso_of_isIso_fromTildeΓ {R : CommRingCat.{u}}
+    {N P : (Spec R).Modules} (f : N ⟶ P)
+    [hN : IsIso N.fromTildeΓ] [hP : IsIso P.fromTildeΓ]
+    [hΓ : IsIso ((moduleSpecΓFunctor (R := R)).map f)] : IsIso f := by
+  have hn := (tilde.adjunction (R := R)).counit.naturality f
+  change (tilde.functor (R := R)).map ((moduleSpecΓFunctor (R := R)).map f) ≫
+      P.fromTildeΓ = N.fromTildeΓ ≫ f at hn
+  refine @IsIso.of_isIso_comp_left _ _ _ _ _ N.fromTildeΓ f hN ?_
+  rw [← hn]
+  exact IsIso.comp_isIso' (Functor.map_isIso _ _) hP
+
 section TensorBaseChange
 
 variable {A B C : Type u} [CommRing A] [CommRing B] [CommRing C]
