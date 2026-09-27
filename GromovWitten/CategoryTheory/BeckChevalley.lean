@@ -5,6 +5,7 @@ Authors: OpenAI Codex
 -/
 
 import Mathlib.CategoryTheory.Adjunction.Mates
+import Mathlib.CategoryTheory.Adjunction.Unique
 /-!
 # The two descriptions of a Beck--Chevalley mate
 
@@ -63,3 +64,29 @@ lemma comp_homEquiv_map_counit (M : B) :
   simp only [Functor.map_comp, ← Category.assoc, a.right_triangle_components]
   simp only [Category.id_comp]
 end CategoryTheory.Adjunction
+
+namespace CategoryTheory
+universe u₁ u₂ u₃ u₄ v₁ v₂ v₃ v₄
+variable {A : Type u₁} {B : Type u₂} {C : Type u₃} {D : Type u₄}
+ [Category.{v₁} A] [Category.{v₂} B] [Category.{v₃} C] [Category.{v₄} D]
+ {F : B ⥤ A} {G : D ⥤ C} {L L' : A ⥤ C} {R : C ⥤ A}
+ {P P' : B ⥤ D} {Q : D ⥤ B}
+ (ab : L ⊣ R) (ab' : L' ⊣ R) (ap : P ⊣ Q) (ap' : P' ⊣ Q)
+/-- The unit formula for a base-change map is preserved by the canonical
+comparison between two choices of left adjoints. -/
+lemma baseChange_unit_leftAdjointUniq (ρ : Q ⋙ F ⟶ G ⋙ R) (M : B)
+    (β' : L'.obj (F.obj M) ⟶ G.obj (P'.obj M))
+    (h : ab'.homEquiv _ _ β' = F.map (ap'.unit.app M) ≫ ρ.app (P'.obj M)) :
+    ab.homEquiv _ _ ((ab'.leftAdjointUniq ab).inv.app (F.obj M) ≫ β' ≫
+      G.map ((ap'.leftAdjointUniq ap).hom.app M)) =
+      F.map (ap.unit.app M) ≫ ρ.app (P.obj M) := by
+  have hx : ab.homEquiv _ _ ((ab'.leftAdjointUniq ab).inv.app (F.obj M) ≫ β') =
+      ab'.homEquiv _ _ β' := by
+    rw [ab.homEquiv_naturality_right, Adjunction.leftAdjointUniq_inv_app,
+      Adjunction.homEquiv_leftAdjointUniq_hom_app, ab'.homEquiv_unit]
+  rw [← Category.assoc, ab.homEquiv_naturality_right, hx, h]
+  have hρ := ρ.naturality ((ap'.leftAdjointUniq ap).hom.app M)
+  dsimp only [Functor.comp_map] at hρ
+  rw [Category.assoc, ← hρ, ← Category.assoc, ← F.map_comp,
+    Adjunction.unit_leftAdjointUniq_hom_app]
+end CategoryTheory
