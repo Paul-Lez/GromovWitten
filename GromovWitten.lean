@@ -246,6 +246,7 @@ import GromovWitten.AlgebraicGeometry.Curves.StableMaps.GluingData
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Constant
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Pushout
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Geometry
+import GromovWitten.AlgebraicGeometry.Curves.StableMaps.NormalizedGeometry
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.PrestableMap
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.Model
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ReesBlowup
