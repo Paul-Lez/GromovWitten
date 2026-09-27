@@ -358,23 +358,24 @@ theorem NodeChartAt.mem_support_globalIdealSheaf_one_iff
 
 /-! ### The global nodal criterion -/
 
-/-- On a nodal curve, the global first Fitting support is the node set, provided the smooth
-charts carry their natural relative-dimension-one structure. The latter is kept explicit because
-`SmoothChartAt` records smoothness but deliberately does not store a dimension witness. -/
+/-- On a nodal curve, the global first Fitting support is the node set, provided each smooth point
+has one smooth chart carrying its natural relative-dimension-one structure. The latter is kept
+explicit because `SmoothChartAt` records smoothness but deliberately does not store a dimension
+witness. Only one such chart is needed at each point. -/
 theorem globalIdealSheaf_support_one_eq_nodeSet
     [LocallyOfFinitePresentation f]
     (hnodal : IsNodalCurveOverField f)
     (hchart : ∀ {x : X}, Nonempty (SmoothChartAt f x) →
-      ∀ c : SmoothChartAt f x, SmoothOfRelativeDimension 1 (c.toCurve ≫ f)) :
+      ∃ c : SmoothChartAt f x, SmoothOfRelativeDimension 1 (c.toCurve ≫ f)) :
     (RelativeFittingLocus.globalIdealSheaf f 1).support = nodeSet f := by
   ext x
   constructor
   · intro hx
     by_contra hnode
     have hsmooth : Nonempty (SmoothChartAt f x) := not_not.mp hnode
-    obtain ⟨c⟩ := hsmooth
+    obtain ⟨c, hc⟩ := hchart hsmooth
     let _ : Etale c.toCurve := c.etale_toCurve
-    let _ : SmoothOfRelativeDimension 1 (c.toCurve ≫ f) := hchart ⟨c⟩ c
+    let _ : SmoothOfRelativeDimension 1 (c.toCurve ≫ f) := hc
     have hnot :=
       RelativeFittingLocus.not_mem_globalIdealSheaf_support_one_of_smoothOfRelativeDimension
         (f := c.toCurve ≫ f) c.point

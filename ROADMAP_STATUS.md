@@ -25,10 +25,15 @@ relative differential Fitting ideal sheaf for arbitrary targets from affine-pair
 with independence of both affine neighborhoods; `GlobalFittingBaseChange.lean` proves arbitrary
 cartesian base change and étale source restriction. The arbitrary-target `globalLocus` closed
 subscheme and its support are exposed. `GeometricDualGraph.lean` identifies the global first
-Fitting support with the node set on nodal curves under the explicit local relative-dimension-one
-condition for smooth charts, and `FittingSmooth.lean` proves the smooth chart unit calculation.
+Fitting support with the node set on nodal curves when each smooth point has one smooth chart
+with relative dimension one, and `FittingSmooth.lean` proves the smooth chart unit calculation.
 The broader L0.1/L1.1 roadmap entries remain partial for their unrelated normalization and
 AtWorstNodal-rewrite obligations.
+
+The older detailed L1.1 ledger wording below predates this issue update: the arbitrary-target
+global construction, smooth-chart unit calculation, and nodal support criterion are now present.
+The remaining L1.1 item relevant here is the `AtWorstNodal` rewrite; the criterion's smooth-point
+hypothesis is one relative-dimension-one chart witness, not a condition on every smooth chart.
 
 ## Requirement ledger
 
