@@ -30,7 +30,8 @@ universe u
 
 noncomputable section
 
-private lemma tilde_isFinitePresentation
+/-- The sheaf associated to a finitely presented module is locally finitely presented. -/
+lemma tilde_isFinitePresentation
     {R : CommRingCat.{u}} (N : ModuleCat R)
     [Module.FinitePresentation R (N : Type u)] :
     SheafOfModules.IsFinitePresentation (C := Opens (Spec R))
@@ -84,7 +85,8 @@ private lemma tilde_isFinitePresentation
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
-private lemma spec_module_isFinitePresentation
+/-- A quasi-coherent affine module sheaf is finitely presented if its global sections are. -/
+lemma spec_module_isFinitePresentation
     {R : CommRingCat.{u}} (M : (Spec R).Modules)
     [IsIso M.fromTildeΓ]
     [Module.FinitePresentation R ((moduleSpecΓFunctor.obj M : Type u))] :
