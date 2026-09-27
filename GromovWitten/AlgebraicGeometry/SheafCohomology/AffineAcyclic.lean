@@ -73,7 +73,8 @@ noncomputable instance affineTildeGlobalSections_additive (A : CommRingCat.{u}) 
     (affineTildeGlobalSections A).Additive :=
   Functor.additive_of_preservesBinaryBiproducts _
 
-/-- The actual positive derived global sections of an arbitrary affine module vanish. -/
+/-- The composite associated-sheaf/global-sections functor is exact, so its positive
+right derived functors vanish. The sheaf-cohomology comparison is proved below. -/
 theorem isZero_affineTildeGlobalSections_rightDerived_succ
     (A : CommRingCat.{u}) (M : ModuleCat A) (n : ℕ) :
     IsZero (((affineTildeGlobalSections A).rightDerived (n + 1)).obj M) :=
