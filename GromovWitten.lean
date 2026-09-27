@@ -3,7 +3,6 @@ Copyright (c) 2026 GromovWitten Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
-
 import GromovWitten.Basic
 import GromovWitten.Algebra.CompleteIntersection
 import GromovWitten.Algebra.QuasiRegular
@@ -427,3 +426,33 @@ import GromovWitten.AlgebraicGeometry.Stacks.InertiaCoherence
 import GromovWitten.AlgebraicGeometry.Stacks.EtaleSlice
 import GromovWitten.AlgebraicGeometry.Stacks.DeligneMumfordCriterion
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackAlgebraicAPI
+import GromovWitten.AlgebraicGeometry.Curves.AffineBaseChange
+import GromovWitten.AlgebraicGeometry.Curves.HigherBaseChange
+import GromovWitten.AlgebraicGeometry.Curves.ModuleBaseChange
+import GromovWitten.AlgebraicGeometry.Curves.ModuleDerived
+import GromovWitten.AlgebraicGeometry.Curves.ModuleEnoughInjectives
+import GromovWitten.AlgebraicGeometry.Curves.ModuleExact
+import GromovWitten.AlgebraicGeometry.Curves.ModuleFlasque
+import GromovWitten.AlgebraicGeometry.Curves.ModuleGrothendieck
+import GromovWitten.AlgebraicGeometry.Curves.ModulePullbackExact
+import GromovWitten.AlgebraicGeometry.Curves.ModuleStalk
+import GromovWitten.AlgebraicGeometry.Curves.ModuleStalkPushforward
+import GromovWitten.AlgebraicGeometry.SheafCohomology.AffineAcyclic
+import GromovWitten.AlgebraicGeometry.SheafCohomology.AffineFlasque
+import GromovWitten.AlgebraicGeometry.SheafCohomology.ComparisonUniqueness
+import GromovWitten.AlgebraicGeometry.SheafCohomology.DerivedBaseChange
+import GromovWitten.AlgebraicGeometry.SheafCohomology.Flasque
+import GromovWitten.AlgebraicGeometry.SheafCohomology.FlasqueComplex
+import GromovWitten.AlgebraicGeometry.SheafCohomology.FlasqueNatComplex
+import GromovWitten.AlgebraicGeometry.SheafCohomology.FlasqueResolution
+import GromovWitten.AlgebraicGeometry.SheafCohomology.InjectiveLocalization
+import GromovWitten.AlgebraicGeometry.SheafCohomology.LocalVanishing
+import GromovWitten.AlgebraicGeometry.SheafCohomology.OpenRestriction
+import GromovWitten.AlgebraicGeometry.SheafCohomology.PointSheaves
+import GromovWitten.AlgebraicGeometry.SheafCohomology.ResolutionComparison
+import GromovWitten.AlgebraicGeometry.SheafCohomology.RightDerivedComposition
+import GromovWitten.AlgebraicGeometry.SheafCohomology.RightDerivedPrecomposition
+import GromovWitten.AlgebraicGeometry.SheafCohomology.SectionsMayerVietoris
+import GromovWitten.AlgebraicGeometry.SheafCohomology.TildeExact
+import GromovWitten.AlgebraicGeometry.SheafCohomology.AffineQuasiCoherent
+import GromovWitten.AlgebraicGeometry.SheafCohomology.AffineCoverVanishing

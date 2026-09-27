@@ -29,4 +29,24 @@ def rightDerivedBaseChange (α : Q ⋙ M ⟶ L ⋙ P) (n : ℕ) :
     Q.rightDerived n ⋙ M ⟶ L ⋙ P.rightDerived n :=
   (Functor.rightDerivedCompExactNatIso M Q n).inv ≫
     NatTrans.rightDerived α n ≫ Functor.rightDerivedPrecompComparison L P n
+set_option backward.isDefEq.respectTransparency false in
+/-- The higher comparison respects the canonical augmentations in degree zero. -/
+lemma rightDerivedBaseChange_zero_comp (α : Q ⋙ M ⟶ L ⋙ P) (A : C) :
+    M.map (Q.toRightDerivedZero.app A) ≫ (rightDerivedBaseChange α 0).app A =
+      α.app A ≫ P.toRightDerivedZero.app (L.obj A) := by
+  dsimp only [rightDerivedBaseChange, NatTrans.comp_app]
+  rw [← Functor.rightDerivedCompExactNatIso_zero_comp Q M A]
+  simp only [Category.assoc, Iso.hom_inv_id_app_assoc]
+  rw [← Category.assoc, NatTrans.toRightDerivedZero_comp, Category.assoc,
+    Functor.rightDerivedPrecompComparison_zero_comp]
+
+/-- Under the standard degree-zero identifications, the higher comparison is the ordinary map. -/
+lemma rightDerivedBaseChange_zero [PreservesFiniteLimits Q] [PreservesFiniteLimits P]
+    (α : Q ⋙ M ⟶ L ⋙ P) (A : C) :
+    M.map (Q.rightDerivedZeroIsoSelf.inv.app A) ≫ (rightDerivedBaseChange α 0).app A ≫
+      P.rightDerivedZeroIsoSelf.hom.app (L.obj A) = α.app A := by
+  change M.map (Q.toRightDerivedZero.app A) ≫ _ ≫ _ = _
+  rw [← Category.assoc, rightDerivedBaseChange_zero_comp, Category.assoc,
+    Functor.rightDerivedZeroIsoSelf_inv_hom_id_app]
+  exact Category.comp_id _
 end CategoryTheory.NatTrans

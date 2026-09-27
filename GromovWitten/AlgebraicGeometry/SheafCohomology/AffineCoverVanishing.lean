@@ -83,7 +83,7 @@ lemma affineUnion_inf {X : Scheme.{u}} (U : X.Opens) (Us : List X.Opens) :
   | cons V Vs ih =>
     simp only [affineUnion, List.map_cons, inf_sup_left, ih]
 
-theorem isZero_rightDerived_sections_finiteAffine_aux {X : Scheme.{u}}
+theorem isZero_rightDerived_sections_finiteAffine {X : Scheme.{u}}
     [IsLocallyNoetherian X] [X.IsSeparated] (Us : List X.Opens)
     (hUs : ∀ U ∈ Us, IsAffineOpen U) (hne : Us ≠ []) (M : X.Modules)
     [M.IsQuasicoherent] (n : ℕ) :
@@ -100,14 +100,14 @@ theorem isZero_rightDerived_sections_finiteAffine_aux {X : Scheme.{u}}
       have htailUs : ∀ V ∈ Us, IsAffineOpen V := by
         intro V hV
         exact hUs V (by simp [hV])
-      have htailzero := isZero_rightDerived_sections_finiteAffine_aux Us htailUs htail M (n + 1)
+      have htailzero := isZero_rightDerived_sections_finiteAffine Us htailUs htail M (n + 1)
       have hmap : ∀ V ∈ Us.map (fun W => U ⊓ W), IsAffineOpen V := by
         intro V hV
         obtain ⟨W, hW, rfl⟩ := List.mem_map.mp hV
         exact hU.inf (htailUs W hW)
       have hmapne : Us.map (fun W => U ⊓ W) ≠ [] := by
         simpa using htail
-      have hinter := isZero_rightDerived_sections_finiteAffine_aux
+      have hinter := isZero_rightDerived_sections_finiteAffine
         (Us.map (fun W => U ⊓ W)) hmap hmapne M n
       apply isZero_rightDerived_sections_sup ((moduleToSheafAb X).obj M) U
         (affineUnion Us) (n + Us.length)
@@ -116,14 +116,6 @@ theorem isZero_rightDerived_sections_finiteAffine_aux {X : Scheme.{u}}
       · rw [affineUnion_inf]
         simpa using hinter
 termination_by Us.length
-
-theorem isZero_rightDerived_sections_finiteAffine
-    {X : Scheme.{u}} [IsLocallyNoetherian X] [X.IsSeparated] (Us : List X.Opens)
-    (hUs : ∀ U ∈ Us, IsAffineOpen U) (hne : Us ≠ []) (M : X.Modules)
-    [M.IsQuasicoherent] (n : ℕ) :
-    IsZero (((sections (affineUnion Us)).rightDerived (n + Us.length)).obj
-      ((moduleToSheafAb X).obj M)) :=
-  isZero_rightDerived_sections_finiteAffine_aux Us hUs hne M n
 
 theorem isZero_rightDerived_sections_finiteAffineCover
     {X : Scheme.{u}} [IsLocallyNoetherian X] [X.IsSeparated] (Us : List X.Opens)

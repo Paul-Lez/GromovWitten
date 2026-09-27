@@ -9,7 +9,7 @@ import Mathlib.Algebra.Homology.ShortComplex.ExactFunctor
 
 /-! # Right derived functors and exact postcomposition -/
 
-open CategoryTheory Limits
+open CategoryTheory Limits HomologicalComplex
 noncomputable section
 
 namespace CategoryTheory.Functor
@@ -68,3 +68,91 @@ def rightDerivedCompExactNatIso (n : ℕ) :
       (Functor.mapHomotopyCategoryCompIso (Iso.refl (F ⋙ G)) (.up ℕ)).symm) _ ≪≫
     isoWhiskerLeft (F.rightDerivedToHomotopyCategory) (mapHomotopyHomologyIso G n)
 end CategoryTheory.Functor
+
+namespace CategoryTheory.Functor
+variable {C D E : Type*} [Category C] [Category D] [Category E]
+    [Abelian C] [Abelian D] [Abelian E] [EnoughInjectives C]
+    (F : C ⥤ D) [F.Additive] (G : D ⥤ E) [G.Additive] [G.PreservesHomology]
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
+set_option backward.isDefEq.respectTransparency.types false in
+/-- Exact postcomposition respects the canonical map into the zeroth derived functor. -/
+lemma rightDerivedCompExactNatIso_zero_comp (A : C) :
+    (F ⋙ G).toRightDerivedZero.app A ≫ (rightDerivedCompExactNatIso G F 0).hom.app A =
+      G.map (F.toRightDerivedZero.app A) := by
+  dsimp [rightDerivedCompExactNatIso, mapHomotopyHomologyIso]
+  simp only [Functor.mapHomotopyCategoryCompIso, Quotient.natIsoLift,
+    Functor.mapHomologicalComplexCompIso, Quotient.natTransLift,
+    NatIso.mapHomologicalComplex, Iso.refl_inv, Iso.refl_hom,
+    NatTrans.mapHomologicalComplex_id]
+  dsimp
+  simp only [Functor.map_id, Category.id_comp]
+  dsimp [Functor.mapHomotopyCategoryFactors, Functor.rightDerivedToHomotopyCategory]
+  erw [Category.id_comp, Functor.map_id, Category.id_comp]
+  change (F ⋙ G).toRightDerivedZero.app A ≫
+    (HomotopyCategory.homologyFunctorFactors E (.up ℕ) 0).hom.app
+      ((G.mapHomologicalComplex (.up ℕ)).obj
+        ((F.mapHomologicalComplex (.up ℕ)).obj (injectiveResolution A).cocomplex)) ≫
+      (ShortComplex.mapHomologyIso
+        (((F.mapHomologicalComplex (.up ℕ)).obj (injectiveResolution A).cocomplex).sc 0) G).hom ≫
+      G.map ((HomotopyCategory.homologyFunctorFactors D (.up ℕ) 0).inv.app
+        ((F.mapHomologicalComplex (.up ℕ)).obj (injectiveResolution A).cocomplex)) = _
+  dsimp only [Functor.toRightDerivedZero]
+  simp only [Functor.map_comp, Category.assoc]
+  erw [Iso.inv_hom_id_app_assoc]
+  simp only [← Category.assoc]
+  congr 1
+  let K := (F.mapHomologicalComplex (.up ℕ)).obj (injectiveResolution A).cocomplex
+  have hπ : ((K.sc 0).map G).homologyπ ≫ ((K.sc 0).mapHomologyIso G).hom =
+      ((K.sc 0).mapCyclesIso G).hom ≫ G.map (K.sc 0).homologyπ := by
+    rw [(K.sc 0).leftHomologyData.mapHomologyIso_eq,
+      (K.sc 0).leftHomologyData.mapCyclesIso_eq]
+    simp only [Iso.trans_hom, Iso.symm_hom, Functor.mapIso_hom, Category.assoc]
+    rw [ShortComplex.LeftHomologyData.homologyπ_comp_homologyIso_hom_assoc]
+    change _ ≫ G.map _ ≫ G.map _ = _ ≫ G.map _ ≫ G.map _
+    rw [← G.map_comp, ← G.map_comp,
+      ShortComplex.LeftHomologyData.π_comp_homologyIso_inv]
+  dsimp only [CochainComplex.isoHomologyπ₀, asIso_hom]
+  erw [Category.assoc, hπ, ← Category.assoc]
+  congr 1
+  apply (cancel_mono (G.map (K.sc 0).iCycles)).mp
+  rw [Category.assoc, ShortComplex.mapCyclesIso_hom_iCycles]
+  change (injectiveResolution A).toRightDerivedZero' (F ⋙ G) ≫ _ =
+    G.map ((injectiveResolution A).toRightDerivedZero' F) ≫ G.map (K.iCycles 0)
+  rw [← G.map_comp]
+  erw [InjectiveResolution.toRightDerivedZero'_comp_iCycles,
+    InjectiveResolution.toRightDerivedZero'_comp_iCycles]
+  rfl
+
+end CategoryTheory.Functor
+
+namespace CategoryTheory.NatTrans
+variable {C D : Type*} [Category C] [Category D] [Abelian C] [Abelian D]
+    [EnoughInjectives C] {F G : C ⥤ D} [F.Additive] [G.Additive] (α : F ⟶ G)
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
+set_option backward.isDefEq.respectTransparency.types false in
+/-- Deriving a natural transformation respects the canonical degree-zero comparison. -/
+lemma toRightDerivedZero_comp (A : C) :
+    F.toRightDerivedZero.app A ≫ (NatTrans.rightDerived α 0).app A =
+      α.app A ≫ G.toRightDerivedZero.app A := by
+  dsimp [NatTrans.rightDerived, NatTrans.rightDerivedToHomotopyCategory,
+    NatTrans.mapHomotopyCategory]
+  dsimp only [Functor.toRightDerivedZero]
+  simp only [Category.assoc]
+  have hnat := (HomotopyCategory.homologyFunctorFactors D (.up ℕ) 0).inv.naturality
+    ((NatTrans.mapHomologicalComplex α (.up ℕ)).app (injectiveResolution A).cocomplex)
+  dsimp only [Functor.comp_map] at hnat
+  erw [← hnat]
+  simp only [← Category.assoc]
+  congr 1
+  dsimp only [CochainComplex.isoHomologyπ₀, asIso_hom]
+  erw [Category.assoc, homologyπ_naturality]
+  rw [← Category.assoc]
+  congr 1
+  apply (cancel_mono (iCycles _ 0)).mp
+  simp only [Category.assoc, cyclesMap_i,
+    InjectiveResolution.toRightDerivedZero'_comp_iCycles,
+    InjectiveResolution.toRightDerivedZero'_comp_iCycles_assoc]
+  exact α.naturality ((injectiveResolution A).ι.f 0)
+end CategoryTheory.NatTrans

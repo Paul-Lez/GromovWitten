@@ -30,4 +30,18 @@ def moduleHigherBaseChangeNatTrans
     (Scheme.Modules.pushforward f).rightDerived n ⋙ Scheme.Modules.pullback b ⟶
       Scheme.Modules.pullback p ⋙ (Scheme.Modules.pushforward g).rightDerived n :=
   NatTrans.rightDerivedBaseChange (modulePushforwardBaseChangeNatTrans f b p g h) n
+
+/-- In degree zero, the higher comparison is the canonical Beck--Chevalley map. -/
+theorem moduleHigherBaseChange_zero
+    (f : X ⟶ S) (b : T ⟶ S) (p : Z ⟶ X) (g : Z ⟶ T)
+    (h : IsPullback p g f b)
+    [(Scheme.Modules.pullback b).PreservesHomology]
+    [(Scheme.Modules.pullback p).PreservesHomology] (M : X.Modules) :
+    (Scheme.Modules.pullback b).map
+        ((Scheme.Modules.pushforward f).rightDerivedZeroIsoSelf.inv.app M) ≫
+      (moduleHigherBaseChangeNatTrans f b p g h 0).app M ≫
+        (Scheme.Modules.pushforward g).rightDerivedZeroIsoSelf.hom.app
+          ((Scheme.Modules.pullback p).obj M) =
+      canonicalPushforwardBaseChangeComparison f M b p g h :=
+  NatTrans.rightDerivedBaseChange_zero (modulePushforwardBaseChangeNatTrans f b p g h) M
 end GromovWitten.AlgebraicGeometry.Curves

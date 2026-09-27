@@ -95,4 +95,46 @@ def rightDerivedPrecompComparison (n : ℕ) :
       (Functor.mapHomotopyCategoryCompIso (Iso.refl (L ⋙ F)) (.up ℕ))).inv ≫
         whiskerRight (resolutionPrecompComparison L) (F.mapHomotopyCategory (.up ℕ)))
     (HomotopyCategory.homologyFunctor E (.up ℕ) n)
+set_option backward.defeqAttrib.useBackward true in
+set_option backward.isDefEq.respectTransparency false in
+set_option backward.isDefEq.respectTransparency.types false in
+/-- The derived precomposition comparison agrees with the ordinary augmentation in degree zero. -/
+lemma rightDerivedPrecompComparison_zero_comp (A : C) :
+    (L ⋙ F).toRightDerivedZero.app A ≫ (rightDerivedPrecompComparison L F 0).app A =
+      F.toRightDerivedZero.app (L.obj A) := by
+  dsimp [rightDerivedPrecompComparison, resolutionPrecompComparison]
+  simp only [Functor.mapHomotopyCategoryCompIso, Quotient.natIsoLift,
+    Functor.mapHomologicalComplexCompIso]
+  simp only [Quotient.natTransLift, NatIso.mapHomologicalComplex,
+    Iso.refl_inv, Iso.refl_hom, NatTrans.mapHomologicalComplex_id]
+  dsimp
+  simp only [Functor.map_id, Category.id_comp]
+  dsimp only [Functor.toRightDerivedZero]
+  simp only [Category.assoc]
+  have hnat := (HomotopyCategory.homologyFunctorFactors E (.up ℕ) 0).inv.naturality
+    ((F.mapHomologicalComplex (.up ℕ)).map (resolutionComparison L A))
+  dsimp only [Functor.comp_map] at hnat
+  erw [← hnat]
+  simp only [← Category.assoc]
+  congr 1
+  change ((injectiveResolution A).toRightDerivedZero' (L ⋙ F) ≫ _) ≫
+    homologyMap ((F.mapHomologicalComplex (.up ℕ)).map (resolutionComparison L A)) 0 = _
+  dsimp only [CochainComplex.isoHomologyπ₀, asIso_hom]
+  erw [Category.assoc, homologyπ_naturality]
+  rw [← Category.assoc]
+  congr 1
+  apply (cancel_mono (iCycles _ 0)).mp
+  simp only [Category.assoc, cyclesMap_i, Functor.mapHomologicalComplex_map_f,
+    InjectiveResolution.toRightDerivedZero'_comp_iCycles,
+    InjectiveResolution.toRightDerivedZero'_comp_iCycles_assoc, Functor.comp_map,
+    ← F.map_comp]
+  apply congrArg F.map
+  have h := congrArg (fun t => t.f 0) (resolutionComparison_comm L A)
+  simp only [resolutionAug, HomologicalComplex.comp_f,
+    singleMapHomologicalComplex_inv_app_self, CochainComplex.single₀ObjXSelf,
+    Iso.refl_hom, Iso.refl_inv, Category.id_comp,
+    Functor.mapHomologicalComplex_map_f] at h
+  erw [L.map_id] at h
+  erw [Category.id_comp] at h
+  exact h
 end CategoryTheory.Functor
