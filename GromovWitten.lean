@@ -516,6 +516,7 @@ import GromovWitten.AlgebraicGeometry.Stacks.StrongTransOfDiscrete
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackAtlas
 import GromovWitten.AlgebraicGeometry.Cones.EtaleChartConeStack
 
-import GromovWitten.AlgebraicGeometry.Curves.AffineTensorBaseChange
+import GromovWitten.Algebra.ModuleCatBaseChange
 import GromovWitten.AlgebraicGeometry.MatrixRankLocus
 import GromovWitten.AlgebraicGeometry.Curves.ModuleBaseChangeMate
+import GromovWitten.AlgebraicGeometry.Curves.AffinePullbackGamma

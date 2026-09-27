@@ -45,3 +45,21 @@ lemma beckChevalley_unit_formula (σ : Lb ⋙ Lg ⟶ Lf ⋙ Lp) (M : B) :
   simp only [Functor.map_comp, ← Category.assoc, af.right_triangle_components]
   simp only [Functor.id_obj, Category.id_comp]
 end CategoryTheory
+
+namespace CategoryTheory.Adjunction
+variable {A : Type u₁} {B : Type u₂} {C : Type u₃}
+ [Category.{v₁} A] [Category.{v₂} B] [Category.{v₃} C]
+ {L : A ⥤ B} {R : B ⥤ A} {P : B ⥤ C} {Q : C ⥤ B}
+ (a : L ⊣ R) (b : P ⊣ Q)
+/-- Transposing the image of the first counit through a composite adjunction
+gives the image of the second unit. -/
+lemma comp_homEquiv_map_counit (M : B) :
+    (a.comp b).homEquiv _ _ (P.map (a.counit.app M)) = R.map (b.unit.app M) := by
+  rw [comp_homEquiv]
+  simp only [Equiv.trans_apply, homEquiv_unit]
+  have h := b.unit.naturality (a.counit.app M)
+  dsimp only [Functor.id_map, Functor.comp_map, Functor.id_obj, Functor.comp_obj] at h
+  rw [← h]
+  simp only [Functor.map_comp, ← Category.assoc, a.right_triangle_components]
+  simp only [Category.id_comp]
+end CategoryTheory.Adjunction
