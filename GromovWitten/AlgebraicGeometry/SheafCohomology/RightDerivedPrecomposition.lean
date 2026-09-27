@@ -138,3 +138,29 @@ lemma rightDerivedPrecompComparison_zero_comp (A : C) :
   erw [Category.id_comp] at h
   exact h
 end CategoryTheory.Functor
+
+namespace CategoryTheory.Functor
+variable {C D E : Type*} [Category C] [Category D] [Category E]
+ [Abelian C] [Abelian D] [Abelian E] [EnoughInjectives C] [EnoughInjectives D]
+ (L : C ⥤ D) (F : D ⥤ E) [L.Additive] [F.Additive] [L.PreservesHomology]
+set_option backward.isDefEq.respectTransparency false in
+/-- A resolution comparison makes derived precomposition invertible when its image
+under the derived functor is a quasi-isomorphism. -/
+lemma rightDerivedPrecompComparison_app_isIso_of_quasiIso (A : C)
+    (φ : (L.mapHomologicalComplex (.up ℕ)).obj (injectiveResolution A).cocomplex ⟶
+      (injectiveResolution (L.obj A)).cocomplex)
+    (hφ : (singleMapHomologicalComplex L (.up ℕ) 0).inv.app A ≫
+      (L.mapHomologicalComplex (.up ℕ)).map (injectiveResolution A).ι ≫ φ =
+        (injectiveResolution (L.obj A)).ι)
+    [QuasiIso ((F.mapHomologicalComplex (.up ℕ)).map φ)] (n : ℕ) :
+    IsIso ((rightDerivedPrecompComparison L F n).app A) := by
+  dsimp only [rightDerivedPrecompComparison, whiskerRight_app, NatTrans.comp_app]
+  rw [resolutionPrecompComparison_app_eq L A φ hφ]
+  rw [Functor.map_comp, Functor.mapHomotopyCategory_map]
+  have : IsIso ((HomotopyCategory.homologyFunctor E (.up ℕ) n).map
+      ((HomotopyCategory.quotient E (.up ℕ)).map
+        ((F.mapHomologicalComplex (.up ℕ)).map φ))) :=
+    (NatIso.isIso_map_iff (HomotopyCategory.homologyFunctorFactors E (.up ℕ) n) _).mpr
+      (inferInstanceAs (IsIso (homologyMap ((F.mapHomologicalComplex (.up ℕ)).map φ) n)))
+  infer_instance
+end CategoryTheory.Functor
