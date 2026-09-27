@@ -258,6 +258,7 @@ import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ReesBlowup
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ReesLocalization
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ReesBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ReesBlowupGlobal
+import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ReesGradedBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ModelBlowup
 import GromovWitten.AlgebraicGeometry.ProjBaseChange
 import GromovWitten.AlgebraicGeometry.RelativeProj
