@@ -525,3 +525,4 @@ import GromovWitten.AlgebraicGeometry.Curves.HigherOpenBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.CurveCohomologyDimension
 import GromovWitten.AlgebraicGeometry.SheafCohomology.FiniteSupport
 import GromovWitten.AlgebraicGeometry.FiniteFreeHomologyLocus
+import GromovWitten.AlgebraicGeometry.Curves.CurveHigherVanishing
