@@ -43,7 +43,7 @@ private theorem isQuasicoherent_of_isZero (N : Y.Modules) (hN : IsZero N) :
 
 /-- Affine pushforward is quasi-coherent in degree zero. -/
 theorem isQuasicoherent_higherDirectImageModule_affine_zero (f : X ⟶ Y)
-    [IsAffineHom f] [IsLocallyNoetherian X] (M : X.Modules) [M.IsQuasicoherent] :
+    [IsAffineHom f] (M : X.Modules) [M.IsQuasicoherent] :
     (higherDirectImageModule f M 0).IsQuasicoherent := by
   let _ : ((Scheme.Modules.pushforward f).obj M).IsQuasicoherent := inferInstance
   exact (SheafOfModules.isQuasicoherent Y.ringCatSheaf).prop_of_iso

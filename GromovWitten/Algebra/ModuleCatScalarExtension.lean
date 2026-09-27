@@ -70,4 +70,22 @@ lemma restrictScalarsAlgebraIso_hom_apply (M : ModuleCat.{u} C)
 lemma restrictScalarsAlgebraIso_inv_apply (M : ModuleCat.{u} C)
     [Module A M] [IsScalarTower A C M] (m : M) :
     (restrictScalarsAlgebraIso (A := A) M).inv m = m := rfl
+section
+variable {B C D : Type u} [CommRing B] [CommRing C] [CommRing D]
+  [Algebra B D] [Algebra C D] [SMulCommClass B C D]
+set_option backward.isDefEq.respectTransparency false in
+/-- Compare a tensor product with extension followed by restriction of scalars. -/
+def restrictExtendScalarsAlgebraIso (N : ModuleCat.{u} B) :
+    ModuleCat.of C (D ⊗[B] N) ≅
+      (restrictScalars (algebraMap C D)).obj ((extendScalars (algebraMap B D)).obj N) :=
+  (restrictScalarsAlgebraIso (A := C) (ModuleCat.of D (D ⊗[B] N))).symm ≪≫
+    ((restrictScalars (algebraMap C D)).mapIso (extendScalarsAlgebraIso (C := D) N)).symm
+
+set_option backward.isDefEq.respectTransparency false in
+@[simp]
+lemma restrictExtendScalarsAlgebraIso_hom_tmul (N : ModuleCat.{u} B) (d : D) (n : N) :
+    (restrictExtendScalarsAlgebraIso (C := C) (D := D) N).hom (d ⊗ₜ[B] n) =
+      d ⊗ₜ[B, algebraMap B D] n :=
+  extendScalarsAlgebraIso_inv_tmul N d n
+end
 end ModuleCat
