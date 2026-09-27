@@ -54,8 +54,7 @@ def ofRelativeProj (X : Scheme.{u}) (data : GradedAlgebraData X)
   finiteType := hfinite
   degreeZero := hzero
 
-/-- The positive homogeneous generation field follows from finite type, but is exposed by the
-projectivity witness so downstream constructions can use it without reconstructing generators. -/
+/-- Positive homogeneous generators are derived from the finite-type field when needed. -/
 theorem positiveGenerators_of_finiteType (U : X.affineOpens) :
     ∃ s : Finset (P.data.ring U),
       Algebra.adjoin (A := P.data.ring U) (P.data.grading U 0) s = ⊤ ∧
