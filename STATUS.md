@@ -274,6 +274,12 @@ Implemented APIs include:
   closure of an integral closed subscheme of an open subscheme (the scheme-theoretic image) and
   the restriction of cycles supported on a closed subscheme, conditional only on the gradedness
   of principal divisors;
+- refinements of presentation groupoids along open immersions of atlases, proved once for any groupoid
+  with Vistoli cycles and instantiated for open and étale presentation groupoids, with the induced maps
+  and, for mutually inverse refinements, linear equivalences of Vistoli Chow groups
+  (`IntersectionTheory/PresentationGroupoidRefinement.lean`, `EtaleAtlasRefinement.lean`), applied to a
+  Deligne--Mumford stack for the presentation with exchanged legs; a strictly smaller open atlas still
+  needs descent of rational equivalence along étale maps;
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
