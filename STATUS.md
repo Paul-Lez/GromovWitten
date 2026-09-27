@@ -283,6 +283,8 @@ Implemented APIs include:
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- chart-level refinement records with the induced map of self-overlaps, its source/target 2-cells and
+  unit compatibility, packaged as morphisms of presentation groupoid objects (`Stacks/ChartRefinement.lean`);
 - the dimension formula for flat morphisms between locally Noetherian schemes through going-down, and
   atlas independence of the stack dimension for every algebraic stack with non-empty locally Noetherian
   atlases, with a counterexample to the pure-dimension form over such bases
