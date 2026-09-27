@@ -422,3 +422,4 @@ import GromovWitten.AlgebraicGeometry.Stacks.EtaleSlice
 import GromovWitten.AlgebraicGeometry.Stacks.DeligneMumfordCriterion
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackAlgebraicAPI
 import GromovWitten.AlgebraicGeometry.Curves.Clutching.BranchContraction
+import GromovWitten.AlgebraicGeometry.Curves.Clutching.BranchContractionFibres
