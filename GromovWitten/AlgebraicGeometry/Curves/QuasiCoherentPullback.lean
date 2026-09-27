@@ -45,7 +45,8 @@ def modulePresentationPullback {M : Y.Modules} (P : M.Presentation) :
   exact P.map (Scheme.Modules.pullback f) (modulePullbackUnitIso f).symm
 
 set_option backward.isDefEq.respectTransparency false in
-private def modulePresentationOver {M : X.Modules} (U : X.Opens)
+/-- Transport a presentation on an open subscheme to the corresponding localized sheaf. -/
+def modulePresentationOver {M : X.Modules} (U : X.Opens)
     (P : (M.restrict U.ι).Presentation) : (M.over U).Presentation := by
   let e := Scheme.Modules.overEquiv U
   let i : e.inverse.obj ((Scheme.Modules.restrictFunctor U.ι).obj M) ≅ M.over U :=
@@ -55,7 +56,7 @@ private def modulePresentationOver {M : X.Modules} (U : X.Opens)
 
 open Scheme.Modules in
 /-- Module pullback commutes with restriction to the inverse image of an open set. -/
-def modulePullbackRestrictIso (U : Y.Opens) :
+def modulePullbackOpenRestrictIso (U : Y.Opens) :
     pullback f ⋙ restrictFunctor (f ⁻¹ᵁ U).ι ≅
       restrictFunctor U.ι ⋙ pullback (f.resLE U (f ⁻¹ᵁ U) le_rfl) :=
   Functor.isoWhiskerLeft _ (restrictFunctorIsoPullback _) ≪≫
@@ -81,7 +82,7 @@ instance modulePullback_isQuasicoherent (M : Y.Modules) [M.IsQuasicoherent] :
       coversTop := by simpa only [Opens.coversTop_iff] using hV
       presentation := fun i => modulePresentationOver (V i)
         ((modulePresentationPullback (f.resLE (U i) (V i) le_rfl) (P i)).ofIsIso
-          ((modulePullbackRestrictIso f (U i)).app M).inv) }
+          ((modulePullbackOpenRestrictIso f (U i)).app M).inv) }
   exact Q.isQuasicoherent
 
 end GromovWitten.AlgebraicGeometry.Curves
