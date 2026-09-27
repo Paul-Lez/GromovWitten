@@ -1,8 +1,22 @@
+/-
+Copyright (c) 2026 GromovWitten Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: OpenAI Codex
+-/
+
 import GromovWitten.AlgebraicGeometry.FittingIdealsSheaf
 import Mathlib.Algebra.Category.ModuleCat.Differentials.Presheaf
 import Mathlib.Algebra.Category.ModuleCat.Presheaf.Sheafification
 import Mathlib.AlgebraicGeometry.Modules.Sheaf
 import Mathlib.Topology.Sheaves.CommRingCat
+
+/-!
+# Relative differentials as a sheaf of modules
+
+Sheafifying the relative Kähler differentials of the structural map
+`f⁻¹𝒪_Y → 𝒪_X` gives a sheaf with its universal derivation, factorization,
+and uniqueness properties.
+-/
 
 open CategoryTheory Limits Topology
 open _root_.AlgebraicGeometry

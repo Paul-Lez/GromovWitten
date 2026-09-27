@@ -1,7 +1,21 @@
+/-
+Copyright (c) 2026 GromovWitten Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: OpenAI Codex
+-/
+
 import GromovWitten.AlgebraicGeometry.FittingIdealsSheaf
 import GromovWitten.AlgebraicGeometry.GlobalFittingIdeals
 import Mathlib.Algebra.Module.Presentation.Free
 import Mathlib.RingTheory.Smooth.StandardSmoothCotangent
+
+/-!
+# First differential Fitting ideals on smooth relative curves
+
+The standard smooth presentation makes the relative differentials free of rank one.
+Its first Fitting ideal is therefore the unit ideal. Affine charts give the corresponding
+statement for the global Fitting ideal on a smooth relative curve over any target.
+-/
 
 open CategoryTheory
 
@@ -102,17 +116,28 @@ theorem idealOn_one_eq_top_of_standardSmooth
 
 /-! The affine calculation gives the corresponding statement for the global ideal sheaf. -/
 
+omit [IsAffine Y] in
+/-- On a smooth relative curve, the global first Fitting support is empty locally at every
+point. The target need not be affine. -/
 theorem not_mem_globalIdealSheaf_support_one_of_smoothOfRelativeDimension
     [LocallyOfFinitePresentation f] [SmoothOfRelativeDimension 1 f] (x : X) :
     x ∉ (globalIdealSheaf f 1).support := by
-  rw [globalIdealSheaf_eq_idealSheaf]
   obtain ⟨U, hU, V, hV, hxV, e, hsm⟩ :=
     SmoothOfRelativeDimension.exists_isStandardSmoothOfRelativeDimension
       (n := 1) (f := f) x
+  have htop : idealOnPair f 1 ⟨U, hU⟩ ⟨V, hV⟩ e = ⊤ := by
+    let _ := pairAlgebra f ⟨U, hU⟩ ⟨V, hV⟩ e
+    let _ : Algebra.IsStandardSmoothOfRelativeDimension 1 Γ(Y, U) Γ(X, V) := hsm
+    change Algebra.differentialFittingIdeal Γ(Y, U) Γ(X, V) 1 = ⊤
+    by_cases hT : Nontrivial Γ(X, V)
+    · let _ := hT
+      exact differentialFittingIdeal_one_eq_top_of_standardSmooth
+    · let _ : Subsingleton Γ(X, V) := not_nontrivial_iff_subsingleton.mp hT
+      exact Subsingleton.elim _ _
   intro hx
   have hz := (Scheme.IdealSheafData.mem_support_iff_of_mem
-    (I := idealSheaf f 1) (U := ⟨V, hV⟩) hxV).mp hx
-  rw [idealSheaf_ideal, idealOn_one_eq_top_of_standardSmooth f hU hV e hsm] at hz
+    (I := globalIdealSheaf f 1) (U := ⟨V, hV⟩) hxV).mp hx
+  rw [globalIdealSheaf_ideal f 1 ⟨U, hU⟩ ⟨V, hV⟩ e, htop] at hz
   have hz' : x ∉ (V : Set X) := by simpa using hz
   exact hz' hxV
 
