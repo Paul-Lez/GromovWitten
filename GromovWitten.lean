@@ -541,3 +541,4 @@ import GromovWitten.AlgebraicGeometry.FiniteProjectiveComplexHomology
 import GromovWitten.AlgebraicGeometry.Curves.OpenImmersionBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.AffineFinitePresentation
 import GromovWitten.AlgebraicGeometry.Curves.FinitePresentationLocality
+import GromovWitten.AlgebraicGeometry.Curves.FiniteMorphismHigherDirectImage
