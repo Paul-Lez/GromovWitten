@@ -50,17 +50,18 @@ purely categorical lemmas with explicit data (`descent_cocycle_aux`, `descent_ke
 mentioning `D.obj i` for a descent datum `D` ("the target expression is not type-correct under
 the `implicit` transparency level").
 
-## Universes: why `FppfStack` does not apply
+## Universes: `FppfStack` and `[U/G]` now share the same fibre universe
 
 `GromovWitten.AlgebraicGeometry.FppfStack` of `Stacks/Algebraic.lean` is
-`StackInGroupoids.{u, u, u + 1, u} Scheme.{u} Scheme.fppfTopology`, i.e. its fibres are
-`Cat.{u, u}`-categories; this is what represented stacks need.  The fibres of `[U/G]` are the
-groupoids `ActionTorsor G U T`, which live one universe higher (`Cat.{u + 1, u + 1}`, as
-recorded in `ActionTorsor.pullbackPseudofunctor`), so `[U/G]` is *not* an `FppfStack` for
-purely size reasons.  `LargeFppfStack` below is the corresponding
-`StackInGroupoids.{u, u + 1, u + 1, u + 1}`, and this is where `quotientStack` and
-`classifyingStack` live.  Making `Stacks/Algebraic.lean` universe-polymorphic in the fibres
-would identify the two notions; that file is not modified here.
+`StackInGroupoids.{u, u + 1, u + 1, u + 1} Scheme.{u} Scheme.fppfTopology`, i.e. its fibres are
+`Cat.{u + 1, u + 1}`-categories, exactly matching the groupoids `ActionTorsor G U T` recorded in
+`ActionTorsor.pullbackPseudofunctor`.  Represented stacks (`representedStack`, and
+`Stacks/Scheme.lean`'s `FppfStack.ofSheaf`) reach the same universe by universe-lifting their
+defining `Type u`-valued fppf sheaf to `Type (u + 1)` along the fully faithful
+`uliftSheafFunctor`, so no mathematical content is lost.  `LargeFppfStack` below is accordingly
+just an alias for `FppfStack`, and `quotientStack`/`classifyingStack` are literally
+`FppfStack`-valued, so they inherit the full chart/diagonal/algebraicity API of
+`Stacks/Algebraic.lean` for free.
 
 ## Main declarations
 
@@ -520,12 +521,14 @@ theorem isStackFor_of_mem_fppfJ {G : AlgebraicSpaceGroup.{u}} {U : AlgebraicSpac
 
 end ActionTorsor
 
-/-- Groupoid-valued stacks on the big fppf site of schemes whose fibres are one universe larger
-than those allowed by `GromovWitten.AlgebraicGeometry.FppfStack`.  The fibres of the quotient
-stack `[U/G]` are the groupoids `ActionTorsor G U T`, which are `Cat.{u + 1, u + 1}`-categories,
-so this is the home of `ActionTorsor.quotientStack`; see the module docstring. -/
+/-- `GromovWitten.AlgebraicGeometry.FppfStack` now already has fibres in `Cat.{u + 1, u + 1}`
+(see `Stacks/Algebraic.lean`), exactly the universe needed for the quotient stack `[U/G]`, whose
+fibres are the groupoids `ActionTorsor G U T`.  `LargeFppfStack` is kept only as a
+backward-compatible alias for `FppfStack`, so that `ActionTorsor.quotientStack` and
+`ActionTorsor.classifyingStack` are literally `FppfStack`-valued and share the represented-scheme
+stack API (`StackChart`, `HasRepresentableDiagonal`, `AlgebraicStack`, ...). -/
 abbrev LargeFppfStack :=
-  StackInGroupoids.{u, u + 1, u + 1, u + 1} Scheme.{u} fppfJ.{u}
+  FppfStack.{u}
 
 namespace ActionTorsor
 

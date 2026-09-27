@@ -25,6 +25,16 @@ isomorphisms.
 The definitions are deliberately presentation-free.  An algebraic stack contains the existence
 of a smooth surjective chart, while a Deligne--Mumford stack contains an etale surjective chart;
 neither exposes a preferred chart through the public morphism type.
+
+## Universes
+
+`FppfStack.{u}` has fibres in `Cat.{u + 1, u + 1}`, one universe above the site `Scheme.{u}`, so
+that stacks whose fibres are groupoids of `Type u`-valued sheaf data — notably the quotient stacks
+`[U/G]` and `BG` of `Stacks/TorsorStackBundle.lean`, whose fibres are the groupoids
+`ActionTorsor G U T : Type (u + 1)` — are literally `FppfStack.{u}`-valued.  Represented stacks
+reach that universe through `uliftSheafFunctor` below, a fully faithful functor lifting a
+`Type u`-valued fppf sheaf to a `Type (u + 1)`-valued one, so the fibre of `representedStack X`
+over `T` is `Discrete (ULift (T ⟶ X))` rather than `Discrete (T ⟶ X)`.
 -/
 
 open CategoryTheory
@@ -38,9 +48,12 @@ universe u v
 
 abbrev Scheme := _root_.AlgebraicGeometry.Scheme
 
-/-- Groupoid-valued stacks on the big fppf site of schemes. -/
+/-- Groupoid-valued stacks on the big fppf site of schemes.  Fibres live in `Cat.{u + 1, u + 1}`
+so that quotient stacks `[U/G]` (whose fibres are groupoids of torsors, one universe above the
+base) are literally `FppfStack.{u}`-valued; see `GromovWitten.AlgebraicGeometry.LargeFppfStack`,
+which is now a plain alias for this same type. -/
 abbrev FppfStack :=
-  StackInGroupoids.{u, u, u + 1, u} Scheme.{u}
+  StackInGroupoids.{u, u + 1, u + 1, u + 1} Scheme.{u}
     (_root_.AlgebraicGeometry.Scheme.fppfTopology : GrothendieckTopology Scheme.{u})
 
 /-- The groupoid of objects of a stack over a scheme. -/
@@ -320,17 +333,65 @@ def appIso (e : StackIso2 f g) (T : Scheme.{u}) :
 
 end StackIso2
 
-/-- The represented fppf sheaf of a scheme as a discrete groupoid-valued stack. -/
+/-- Universe-lift a `Type u`-valued fppf sheaf to a `Type (u + 1)`-valued sheaf of the same
+presheaf, up to `ULift`.  This is the device that lets `FppfSheaf.{u}`-valued data (represented
+sheaves, torsor sheaves, ...) be promoted to `FppfStack.{u}`-valued stacks, whose fibres live in
+`Cat.{u + 1, u + 1}`.
+
+Deliberately built by hand from a bare anonymous-constructor sheaf and `whiskerRight`/
+`Functor.FullyFaithful.whiskeringRight` at the *presheaf* level, instead of through Mathlib's
+`sheafCompose`/`fullyFaithfulSheafCompose` (which factor through `ObjectProperty.lift` and
+`sheafToPresheaf`): the extra layers of that generic construction made later kernel checks in
+`Stacks/Scheme.lean` time out once fibres moved to `Cat.{u + 1, u + 1}`.  Downstream files should
+only use `.obj`, `.map` and `uliftSheafFunctor.fullyFaithful`, never the body. -/
+noncomputable def uliftSheafFunctor :
+    FppfSheaf.{u} ⥤
+      Sheaf (_root_.AlgebraicGeometry.Scheme.fppfTopology : GrothendieckTopology Scheme.{u})
+        (Type (u + 1)) where
+  obj P := ⟨P.obj ⋙ CategoryTheory.uliftFunctor.{u + 1},
+    (isSheaf_iff_isSheaf_of_type _ _).2 <|
+      Presieve.isSheaf_comp_uliftFunctor _ ((isSheaf_iff_isSheaf_of_type _ _).1 P.property)⟩
+  map η := ObjectProperty.homMk
+    (CategoryTheory.Functor.whiskerRight η.hom CategoryTheory.uliftFunctor.{u + 1})
+  map_id _ := by apply ObjectProperty.hom_ext; simp
+  map_comp _ _ := by apply ObjectProperty.hom_ext; simp
+
+/-- `uliftSheafFunctor` is fully faithful, because `uliftFunctor` is. -/
+noncomputable def uliftSheafFunctor.fullyFaithful : uliftSheafFunctor.{u}.FullyFaithful where
+  preimage {P Q} f := ObjectProperty.homMk
+    (((CategoryTheory.fullyFaithfulULiftFunctor.{u + 1, u}).whiskeringRight
+      Scheme.{u}ᵒᵖ).preimage f.hom)
+  map_preimage {P Q} f := by
+    apply ObjectProperty.hom_ext
+    exact ((CategoryTheory.fullyFaithfulULiftFunctor.{u + 1, u}).whiskeringRight
+      Scheme.{u}ᵒᵖ).map_preimage f.hom
+  preimage_map {P Q} f := by
+    apply ObjectProperty.hom_ext
+    exact ((CategoryTheory.fullyFaithfulULiftFunctor.{u + 1, u}).whiskeringRight
+      Scheme.{u}ᵒᵖ).preimage_map f.hom
+
+instance : uliftSheafFunctor.{u}.Faithful := uliftSheafFunctor.fullyFaithful.faithful
+
+/-- The `Type (u + 1)`-valued sheaf underlying `representedStack`: the fppf-sheaf Yoneda
+embedding of `X`, universe-lifted from `Type u` to `Type (u + 1)`. -/
+noncomputable def representedSheaf (X : Scheme.{u}) :
+    Sheaf (_root_.AlgebraicGeometry.Scheme.fppfTopology : GrothendieckTopology Scheme.{u})
+      (Type (u + 1)) :=
+  uliftSheafFunctor.obj (fppfYoneda.obj X)
+
+/-- The represented fppf sheaf of a scheme as a discrete groupoid-valued stack.  Its fibre over
+`T` is `Discrete (ULift (T ⟶ X))`: every object is `⟨⟨g⟩⟩` for a scheme morphism `g`, and
+`x.as.down` recovers `g` from an object `x`. -/
 noncomputable def representedStack (X : Scheme.{u}) : FppfStack.{u} :=
   StackInGroupoids.ofSheafOfTypes
     (_root_.AlgebraicGeometry.Scheme.fppfTopology : GrothendieckTopology Scheme.{u})
-    (fppfYoneda.obj X)
+    (representedSheaf X)
 
 /-- Reindexing an object of a represented stack is ordinary composition of scheme maps. -/
 @[simp]
 theorem representedStack_map_obj {R S T : Scheme.{u}} (f : R ⟶ S) (g : S ⟶ T) :
     ((representedStack T).toPseudofunctor.map ⟨f.op⟩).toFunctor.obj
-      (Discrete.mk g) = Discrete.mk (f ≫ g) :=
+      (Discrete.mk (ULift.up g)) = Discrete.mk (ULift.up (f ≫ g)) :=
   rfl
 
 /-- A scheme chart is an actual strong morphism from the represented scheme stack. -/
@@ -346,7 +407,7 @@ variable {X : FppfStack.{u}} (A : StackChart X)
 
 /-- A test-scheme map into the chart scheme gives an object of the target stack fibre. -/
 noncomputable def obj (T : Scheme.{u}) (g : T ⟶ A.scheme) : StackFiber X T :=
-  (A.map.appFunctor T).obj (Discrete.mk g)
+  (A.map.appFunctor T).obj (Discrete.mk (ULift.up g))
 
 /-- Equality of maps into the chart scheme induces the corresponding isomorphism between
 their chart objects. -/
@@ -359,16 +420,17 @@ noncomputable def objIsoOfEq {S : Scheme.{u}} {f g : S ⟶ A.scheme} (h : f = g)
 arrow of the represented discrete fibre. -/
 @[simp]
 theorem objIsoOfEq_hom {S : Scheme.{u}} {f g : S ⟶ A.scheme} (h : f = g) :
-    (A.objIsoOfEq h).hom = (A.map.appFunctor S).map (Discrete.eqToHom h) := by
+    (A.objIsoOfEq h).hom =
+      (A.map.appFunctor S).map (Discrete.eqToHom (congrArg ULift.up h)) := by
   subst g
-  exact ((A.map.appFunctor S).map_id (Discrete.mk f)).symm
+  exact ((A.map.appFunctor S).map_id (Discrete.mk (ULift.up f))).symm
 
 /-- Pseudonaturality of a chart identifies the object obtained from a composite scheme map with
 the pullback of the corresponding chart object. -/
 noncomputable def objPullbackIso {S T : Scheme.{u}} (g : S ⟶ T)
     (f : T ⟶ A.scheme) :
     A.obj S (g ≫ f) ≅ (stackPullback X g).obj (A.obj T f) :=
-  (Cat.Hom.toNatIso (A.map.naturality ⟨g.op⟩)).app (Discrete.mk f)
+  (Cat.Hom.toNatIso (A.map.naturality ⟨g.op⟩)).app (Discrete.mk (ULift.up f))
 
 /-- Pull the universal chart comparison back along a candidate scheme map, retaining the
 strong-transformation naturality and stack pseudofunctor coherence. -/
@@ -378,7 +440,7 @@ noncomputable def inducedComparison
     (universal : A.obj U snd ≅ (stackPullback X fst).obj x)
     {S : Scheme.{u}} (m : S ⟶ U) :
     A.obj S (m ≫ snd) ≅ (stackPullback X (m ≫ fst)).obj x :=
-  (((Cat.Hom.toNatIso (A.map.naturality ⟨m.op⟩)).app (Discrete.mk snd)).trans
+  (((Cat.Hom.toNatIso (A.map.naturality ⟨m.op⟩)).app (Discrete.mk (ULift.up snd))).trans
     ((stackPullback X m).mapIso universal)).trans
       (stackPullbackCompIso X m fst x)
 
@@ -445,13 +507,15 @@ theorem inducedComparison_identityObjectPullbackComparison
   apply Iso.ext
   let hf : f = f ≫ 𝟙 A.scheme := by simp
   let hmf : m ≫ f = (m ≫ f) ≫ 𝟙 A.scheme := by simp
-  let d : (Discrete.mk f : StackFiber (representedStack A.scheme) U) ≅
-      Discrete.mk (f ≫ 𝟙 A.scheme) := Discrete.eqToIso hf
+  let huf : ULift.up f = ULift.up (f ≫ 𝟙 A.scheme) := congrArg ULift.up hf
+  let humf : ULift.up (m ≫ f) = ULift.up ((m ≫ f) ≫ 𝟙 A.scheme) := congrArg ULift.up hmf
+  let d : (Discrete.mk (ULift.up f) : StackFiber (representedStack A.scheme) U) ≅
+      Discrete.mk (ULift.up (f ≫ 𝟙 A.scheme)) := Discrete.eqToIso huf
   let sourceComp := Cat.Hom.toNatIso
     ((representedStack A.scheme).toPseudofunctor.mapComp ⟨f.op⟩ ⟨m.op⟩)
   have hdisc :
-      (Discrete.eqToIso hmf).hom ≫
-          sourceComp.hom.app (Discrete.mk (𝟙 A.scheme)) =
+      (Discrete.eqToIso humf).hom ≫
+          sourceComp.hom.app (Discrete.mk (ULift.up (𝟙 A.scheme))) =
         ((stackPullback (representedStack A.scheme) m).mapIso d).hom := by
     change @Eq (ULift (PLift (_ = _))) _ _
     apply Subsingleton.elim
@@ -469,17 +533,17 @@ theorem inducedComparison_identityObjectPullbackComparison
   dsimp only [d] at hnat'
   have hnat'' :
       ((Cat.Hom.toNatIso (A.map.naturality ⟨m.op⟩)).app
-            (Discrete.mk f)).hom ≫
+            (Discrete.mk (ULift.up f))).hom ≫
           (stackPullback X m).map
-            ((A.map.appFunctor U).map (Discrete.eqToIso hf).hom) =
+            ((A.map.appFunctor U).map (Discrete.eqToIso huf).hom) =
         (A.map.appFunctor S).map
             (((stackPullback (representedStack A.scheme) m).mapIso
-              (Discrete.eqToIso hf)).hom) ≫
+              (Discrete.eqToIso huf)).hom) ≫
           ((Cat.Hom.toNatIso (A.map.naturality ⟨m.op⟩)).app
-            (Discrete.mk (f ≫ 𝟙 A.scheme))).hom := by
+            (Discrete.mk (ULift.up (f ≫ 𝟙 A.scheme)))).hom := by
     exact hnat'.symm
   have h := Pseudofunctor.StrongTrans.naturality_comp_hom_app
-    A.map ⟨f.op⟩ ⟨m.op⟩ (Discrete.mk (𝟙 A.scheme))
+    A.map ⟨f.op⟩ ⟨m.op⟩ (Discrete.mk (ULift.up (𝟙 A.scheme)))
   dsimp [representedStack, StackInGroupoids.ofSheafOfTypes,
     Pseudofunctor.ofPresheafOfTypes, Functor.toPseudofunctor',
     pseudofunctorOfIsLocallyDiscrete, typeToCat] at h
@@ -492,21 +556,20 @@ theorem inducedComparison_identityObjectPullbackComparison
   have hop : fop ≫ mop = mfop := by
     rfl
   change (A.map.naturality (fop ≫ mop)).hom.toNatTrans.app
-      (Discrete.mk (𝟙 A.scheme)) = _ at h
+      (Discrete.mk (ULift.up (𝟙 A.scheme))) = _ at h
   cases hop
   simp only [Functor.map_comp] at hsource
   simp only [identityObjectPullbackComparison, inducedComparison, Iso.trans_hom,
     Functor.mapIso, Functor.map_comp, Category.assoc]
   erw [A.objIsoOfEq_hom]
-  have hd_hom : Discrete.eqToHom hf = (Discrete.eqToIso hf).hom := by
+  have hd_hom : Discrete.eqToHom huf = (Discrete.eqToIso huf).hom := by
     apply Subsingleton.elim
   rw [hd_hom]
   rw [← Category.assoc]
   rw [hnat'']
   simp only [Category.assoc]
   rw [← hsource]
-  simp only [GrothendieckTopology.yoneda_obj_obj, yoneda_obj_obj,
-    Cat.Hom.comp_toFunctor, Functor.comp_obj, eqToIso_refl, Iso.refl_hom,
+  simp only [Cat.Hom.comp_toFunctor, Functor.comp_obj, eqToIso_refl, Iso.refl_hom,
     Discrete.functor_map_id, Category.comp_id, Iso.app_hom,
     Cat.Hom.toNatIso_hom, objIsoOfEq_hom, eqToHom_refl]
   convert h.symm using 1

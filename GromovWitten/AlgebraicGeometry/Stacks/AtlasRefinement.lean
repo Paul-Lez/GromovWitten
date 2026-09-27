@@ -387,7 +387,8 @@ end StackTwoPullback
 
 /-- The objects of the presentation groupoid of an atlas over a test scheme: the objects of the
 atlas fibre.  Arrows are recorded separately so that no arrow of the base stack is lost. -/
-def PresentationGroupoid {X U : FppfStack.{u}} (_f : StackHom U X) (T : Scheme.{u}) : Type u :=
+def PresentationGroupoid {X U : FppfStack.{u}} (_f : StackHom U X) (T : Scheme.{u}) :
+    Type (u + 1) :=
   StackFiber U T
 
 namespace PresentationGroupoid

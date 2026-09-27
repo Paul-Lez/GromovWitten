@@ -16,10 +16,13 @@ The action groupoid of points is only the prestack presentation of a quotient.  
 constructs the expected groupoid over a fixed test scheme: objects are torsors equipped with an
 equivariant map, and arrows are equivariant isomorphisms over the base.
 
-No quotient stack is exported here.  The former presentation records, which accepted
-stackification, fibre equivalences, algebraicity, and Deligne--Mumford conclusions as fields,
-are retained below only inside a block comment.  Constructing pullback of these torsors,
-fppf stackification, and the geometric properties of the result remains open.
+No quotient stack is exported *here*: `[U/G]` is assembled from these groupoids in
+`Stacks/QuotientStackPullback.lean` and bundled in `Stacks/TorsorStackBundle.lean`, where
+`ActionTorsor.quotientStack` is `FppfStack.{u}`-valued and hence already carries the whole
+chart/diagonal/algebraicity API of `Stacks/Algebraic.lean`.  The former presentation records,
+which accepted stackification, fibre equivalences, algebraicity, and Deligne--Mumford conclusions
+as fields, are retained below only inside a block comment.  The geometric properties of `[U/G]`
+(an explicit smooth atlas, a representable diagonal) remain open.
 -/
 
 open CategoryTheory CategoryTheory.Limits CartesianMonoidalCategory

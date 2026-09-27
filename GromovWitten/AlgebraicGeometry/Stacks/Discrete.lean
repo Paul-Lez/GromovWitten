@@ -171,6 +171,25 @@ theorem natTransOfStrongTrans_strongTransOfNatTrans {P Q : Cᵒᵖ ⥤ Type w}
   ext X x
   rfl
 
+/-- The identity strong transformation of a discrete pseudofunctor corresponds to the identity
+natural transformation of its underlying presheaf. -/
+@[simp]
+theorem natTransOfStrongTrans_id {P : Cᵒᵖ ⥤ Type w} :
+    natTransOfStrongTrans (StrongTrans.id (ofPresheafOfTypes P)) = 𝟙 P := by
+  ext X x
+  rfl
+
+/-- `natTransOfStrongTrans` turns vertical composition of strong transformations of discrete
+pseudofunctors into composition of the underlying natural transformations. -/
+@[simp]
+theorem natTransOfStrongTrans_vcomp {P Q R : Cᵒᵖ ⥤ Type w}
+    (η : StrongTrans (ofPresheafOfTypes P) (ofPresheafOfTypes Q))
+    (θ : StrongTrans (ofPresheafOfTypes Q) (ofPresheafOfTypes R)) :
+    natTransOfStrongTrans (StrongTrans.vcomp η θ) =
+      natTransOfStrongTrans η ≫ natTransOfStrongTrans θ := by
+  ext X x
+  rfl
+
 /-- The canonical modification from the discrete strong transformation reconstructed from
 `η` back to `η`.  Its components are identities after unwrapping the discrete categories. -/
 def discreteCounitHom
@@ -247,6 +266,23 @@ theorem natTransOfStrongTrans_eq_of_modification
   exact Discrete.eq_of_hom
     ((Γ.app ⟨X⟩).toNatTrans.app (Discrete.mk x))
 
+/-- Modifications between strong transformations of discrete pseudofunctors are unique, for any
+presheaves `P`, `Q` whatsoever.  Proved once here at abstract `P`, `Q` so that instantiating it
+at a concrete (possibly deeply-defined) presheaf downstream is a cheap type-check rather than a
+re-derivation of this argument through that presheaf's definition. -/
+theorem modification_subsingleton
+    {P Q : Cᵒᵖ ⥤ Type w}
+    {η θ : StrongTrans (ofPresheafOfTypes P) (ofPresheafOfTypes Q)} :
+    Subsingleton (StrongTrans.Modification η θ) :=
+  ⟨fun m n ↦ by
+    apply StrongTrans.Modification.ext
+    funext a
+    apply Cat.Hom₂.ext
+    apply NatTrans.ext
+    funext x
+    change @Eq (ULift (PLift (_ = _))) _ _
+    exact Subsingleton.elim _ _⟩
+
 end CategoryTheory.Pseudofunctor
 
 namespace GromovWitten.AlgebraicGeometry
@@ -269,3 +305,63 @@ theorem StackInGroupoids.ofSheafOfTypes_fiber
   rfl
 
 end GromovWitten.AlgebraicGeometry
+
+namespace CategoryTheory.Discrete
+
+variable {α : Type*}
+
+/-- `Discrete.eqToHom` for a `ULift`-shifted discrete category, stated directly in terms of an
+equality of the underlying (non-lifted) elements.  Used throughout the fppf stack API once its
+fibres were universe-lifted from `Discrete α` to `Discrete (ULift α)`. -/
+def eqToHomULift {a b : α} (h : a = b) :
+    (Discrete.mk (ULift.up a) : Discrete (ULift α)) ⟶ Discrete.mk (ULift.up b) :=
+  Discrete.eqToHom (congrArg ULift.up h)
+
+/-- `Discrete.eqToIso` for a `ULift`-shifted discrete category. -/
+def eqToIsoULift {a b : α} (h : a = b) :
+    (Discrete.mk (ULift.up a) : Discrete (ULift α)) ≅ Discrete.mk (ULift.up b) :=
+  Discrete.eqToIso (congrArg ULift.up h)
+
+/-- `Discrete.eq_of_hom` for a `ULift`-shifted discrete category, recovering an equality of the
+underlying (non-lifted) elements. -/
+theorem eq_of_hom_ulift {a b : α}
+    (f : (Discrete.mk (ULift.up a) : Discrete (ULift α)) ⟶ Discrete.mk (ULift.up b)) :
+    a = b :=
+  congrArg ULift.down (Discrete.eq_of_hom f)
+
+end CategoryTheory.Discrete
+
+namespace CategoryTheory
+
+/-- A functor out of a discrete category `Discrete α`, built from a map `o` on objects, in a
+category where all hom-types between objects in the image of `o` are subsingletons: the two
+functor laws then hold automatically.
+
+Stated generically (with `D`, `o`, `h` abstract) on purpose.  Instantiating it at a concrete,
+deeply-defined target category is a cheap type-check, whereas writing the same anonymous
+`Functor` structure directly at such a target forces the kernel to unfold that target while
+checking the `map_id`/`map_comp` fields. -/
+def discreteFunctorOfSubsingleton {α : Type*} {D : Type*} [Category D] (o : α → D)
+    (h : ∀ a b : α, Subsingleton (o a ⟶ o b)) : Discrete α ⥤ D where
+  obj a := o a.as
+  map m := eqToHom (congrArg o (Discrete.eq_of_hom m))
+  map_id _ := (h _ _).elim _ _
+  map_comp _ _ := (h _ _).elim _ _
+
+/-- `CategoryTheory.LocallyDiscrete.mkPseudofunctor` in the case where all the relevant
+2-morphism types of the target bicategory are subsingletons, so that the associator and the two
+unitor coherence laws hold automatically.  Stated generically for the same kernel-cost reason as
+`CategoryTheory.discreteFunctorOfSubsingleton`. -/
+def LocallyDiscrete.mkPseudofunctorOfSubsingleton {B₀ C : Type*} [Category B₀] [Bicategory C]
+    (obj : B₀ → C)
+    (map : ∀ {b b' : B₀}, (b ⟶ b') → (obj b ⟶ obj b'))
+    (mapId : ∀ b : B₀, map (𝟙 b) ≅ 𝟙 _)
+    (mapComp : ∀ {b₀ b₁ b₂ : B₀} (f : b₀ ⟶ b₁) (g : b₁ ⟶ b₂), map (f ≫ g) ≅ map f ≫ map g)
+    (hsub : ∀ {b b' : B₀} (u v : obj b ⟶ obj b'), Subsingleton (u ⟶ v)) :
+    LocallyDiscrete B₀ ⥤ᵖ C :=
+  LocallyDiscrete.mkPseudofunctor obj map mapId mapComp
+    (fun _ _ _ ↦ (hsub _ _).elim _ _)
+    (fun _ ↦ (hsub _ _).elim _ _)
+    (fun _ ↦ (hsub _ _).elim _ _)
+
+end CategoryTheory

@@ -39,13 +39,13 @@ noncomputable def ofAlgebraicSpaceObj (X : AlgebraicSpace.{u}) : FppfBicategory.
   asBicategory (ofAlgebraicSpace X)
 
 /-- A morphism of algebraic spaces induces a strong transformation of their discrete stacks. -/
-def mapOfAlgebraicSpaceHom {X Y : AlgebraicSpace.{u}} (f : X ⟶ Y) :
+noncomputable def mapOfAlgebraicSpaceHom {X Y : AlgebraicSpace.{u}} (f : X ⟶ Y) :
     StackHom (ofAlgebraicSpace X) (ofAlgebraicSpace Y) :=
   mapOfSheafHom f.hom
 
 /-- Extract the unique algebraic-space morphism underlying a strong transformation between
 discrete algebraic-space stacks. -/
-def algebraicSpaceHomOfMap {X Y : AlgebraicSpace.{u}}
+noncomputable def algebraicSpaceHomOfMap {X Y : AlgebraicSpace.{u}}
     (η : StackHom (ofAlgebraicSpace X) (ofAlgebraicSpace Y)) : X ⟶ Y :=
   AlgebraicSpace.homMk (sheafHomOfMap η)
 
@@ -56,8 +56,7 @@ theorem algebraicSpaceHomOfMap_mapOfAlgebraicSpaceHom
     {X Y : AlgebraicSpace.{u}} (f : X ⟶ Y) :
     algebraicSpaceHomOfMap (mapOfAlgebraicSpaceHom f) = f := by
   apply InducedCategory.hom_ext
-  apply ObjectProperty.hom_ext
-  exact Pseudofunctor.natTransOfStrongTrans_strongTransOfNatTrans _
+  exact sheafHomOfMap_mapOfSheafHom f.hom
 
 /-- Extracting the algebraic-space morphism underlying the identity strong transformation gives
 the identity morphism. -/
@@ -66,17 +65,18 @@ theorem algebraicSpaceHomOfMap_id (X : AlgebraicSpace.{u}) :
     algebraicSpaceHomOfMap
       (Pseudofunctor.StrongTrans.id (ofAlgebraicSpace X).toPseudofunctor) = 𝟙 X := by
   apply InducedCategory.hom_ext
-  apply ObjectProperty.hom_ext
-  ext T x
-  rfl
+  exact sheafHomOfMap_id X.toSheaf
 
 /-- Every strong transformation between discrete algebraic-space stacks is invertibly
 2-isomorphic to the promotion of its extracted algebraic-space morphism. -/
-def mapOfAlgebraicSpaceHom_algebraicSpaceHomOfMap_iso
+noncomputable def mapOfAlgebraicSpaceHom_algebraicSpaceHomOfMap_iso
     {X Y : AlgebraicSpace.{u}}
     (η : StackHom (ofAlgebraicSpace X) (ofAlgebraicSpace Y)) :
     StackIso2 (mapOfAlgebraicSpaceHom (algebraicSpaceHomOfMap η)) η := by
-  rw [mapOfAlgebraicSpaceHom, algebraicSpaceHomOfMap, mapOfSheafHom]
+  change StackIso2 (Pseudofunctor.strongTransOfNatTrans
+    (uliftSheafFunctor.map (uliftSheafFunctor.fullyFaithful.preimage
+      (ObjectProperty.homMk (Pseudofunctor.natTransOfStrongTrans η)))).hom) η
+  rw [uliftSheafFunctor.fullyFaithful.map_preimage]
   exact
     { hom := Pseudofunctor.discreteCounitHom η
       inv := Pseudofunctor.discreteCounitInv η
@@ -97,7 +97,7 @@ theorem mapOfAlgebraicSpaceHom_injective_up_to_iso
     {X Y : AlgebraicSpace.{u}} {f g : X ⟶ Y}
     (e : StackIso2 (mapOfAlgebraicSpaceHom f) (mapOfAlgebraicSpaceHom g)) : f = g := by
   apply InducedCategory.hom_ext
-  apply ObjectProperty.hom_ext
+  apply mapOfSheafHom_injective
   exact Pseudofunctor.natTransOfStrongTrans_eq_of_modification e.hom
 
 private theorem algebraicSpaceHom_vcomp_mapOfAlgebraicSpaceHom
@@ -106,9 +106,7 @@ private theorem algebraicSpaceHom_vcomp_mapOfAlgebraicSpaceHom
       (Pseudofunctor.StrongTrans.vcomp
         (mapOfAlgebraicSpaceHom f) (mapOfAlgebraicSpaceHom g)) = f ≫ g := by
   apply InducedCategory.hom_ext
-  apply ObjectProperty.hom_ext
-  ext T x
-  rfl
+  exact sheafHomOfMap_vcomp f.hom g.hom
 
 /-- Promotion respects composition through a constructed invertible modification. -/
 noncomputable def mapOfAlgebraicSpaceHom_comp_iso
@@ -132,28 +130,16 @@ theorem algebraicSpaceModification_subsingleton
     Subsingleton (f ⟶ g) :=
   ⟨fun m n ↦ by
     apply InducedBicategory.hom₂_ext
-    apply Pseudofunctor.StrongTrans.homCategory.ext
-    intro a
-    apply Cat.Hom₂.ext
-    apply NatTrans.ext
-    funext x
-    change @Eq (ULift (PLift (_ = _))) _ _
-    exact Subsingleton.elim _ _⟩
+    apply Pseudofunctor.StrongTrans.Hom.ext
+    exact Pseudofunctor.modification_subsingleton.elim m.hom.as n.hom.as⟩
 
 /-- On every pair of objects, promotion sends the discrete category of algebraic-space
 morphisms to the full hom-category of strong transformations and modifications. -/
 noncomputable def algebraicSpaceHomFunctor (X Y : AlgebraicSpace.{u}) :
-    Discrete (X ⟶ Y) ⥤ (ofAlgebraicSpaceObj X ⟶ ofAlgebraicSpaceObj Y) where
-  obj f := InducedBicategory.mkHom (mapOfAlgebraicSpaceHom f.as)
-  map {f g} m := by
-    exact eqToHom (InducedBicategory.hom_ext
-      (congrArg mapOfAlgebraicSpaceHom (Discrete.eq_of_hom m)))
-  map_id := by
-    intro f
-    apply (algebraicSpaceModification_subsingleton _ _).elim
-  map_comp := by
-    intro f g h m n
-    apply (algebraicSpaceModification_subsingleton _ _).elim
+    Discrete (X ⟶ Y) ⥤ (ofAlgebraicSpaceObj X ⟶ ofAlgebraicSpaceObj Y) :=
+  discreteFunctorOfSubsingleton
+    (fun f ↦ InducedBicategory.mkHom (mapOfAlgebraicSpaceHom f))
+    (fun _ _ ↦ algebraicSpaceModification_subsingleton _ _)
 
 /-- The local hom functor is fully faithful, including at the modification level.  A
 modification forces equality of the underlying sheaf maps, hence equality of the original
@@ -162,7 +148,7 @@ noncomputable def algebraicSpaceHomFunctorFullyFaithful (X Y : AlgebraicSpace.{u
     (algebraicSpaceHomFunctor X Y).FullyFaithful where
   preimage {f g} m := Discrete.eqToHom (by
     apply InducedCategory.hom_ext
-    apply ObjectProperty.hom_ext
+    apply mapOfSheafHom_injective
     exact Pseudofunctor.natTransOfStrongTrans_eq_of_modification m.hom.as)
   map_preimage {f g} m := (algebraicSpaceModification_subsingleton _ _).elim _ _
   preimage_map {f g} m := Subsingleton.elim _ _
@@ -190,20 +176,12 @@ compositor are the constructed invertible modifications above.  Their coherence 
 the proved uniqueness of modifications between maps of discrete stacks. -/
 noncomputable def algebraicSpaceEmbedding :
     LocallyDiscrete AlgebraicSpace.{u} ⥤ᵖ FppfBicategory.{u} :=
-  LocallyDiscrete.mkPseudofunctor
+  LocallyDiscrete.mkPseudofunctorOfSubsingleton
     ofAlgebraicSpaceObj
     (fun f ↦ InducedBicategory.mkHom (mapOfAlgebraicSpaceHom f))
     (fun X ↦ stackIso2ToBicategoryIso (mapOfAlgebraicSpaceHom_id_iso X))
     (fun f g ↦ stackIso2ToBicategoryIso (mapOfAlgebraicSpaceHom_comp_iso f g).symm)
-    (by
-      intro X Y Z W f g h
-      apply (algebraicSpaceModification_subsingleton _ _).elim)
-    (by
-      intro X Y f
-      apply (algebraicSpaceModification_subsingleton _ _).elim)
-    (by
-      intro X Y f
-      apply (algebraicSpaceModification_subsingleton _ _).elim)
+    (fun _ _ ↦ algebraicSpaceModification_subsingleton _ _)
 
 /-- An isomorphism of algebraic spaces induces an equivalence of their discrete fppf stacks.
 Both inverse 2-cells are derived from the actual inverse laws of the isomorphism. -/
@@ -233,14 +211,14 @@ private theorem sheafChart_pullback_eq
     (p : fppfYoneda.obj U ⟶ P) (hp : FppfSheaf.IsRepresentable p)
     (x : StackFiber (ofSheaf P) T) :
     p.hom.app (Opposite.op (hp.pullback
-        ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm x.as)))
-        (hp.fst' ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm x.as)) =
+        ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm x.as.down)))
+        (hp.fst' ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm x.as.down)) =
       P.obj.map
-        (hp.snd ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm x.as)).op
-        x.as := by
+        (hp.snd ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm x.as.down)).op
+        x.as.down := by
   let J := (_root_.AlgebraicGeometry.Scheme.fppfTopology :
     GrothendieckTopology Scheme.{u})
-  let g := J.yonedaEquiv.symm x.as
+  let g := J.yonedaEquiv.symm x.as.down
   have h := hp.w g
   rw [← hp.map_fst' g] at h
   have h' := congrArg J.yonedaEquiv h
@@ -250,7 +228,7 @@ private theorem sheafChart_pullback_eq
       (J.yonedaEquiv (J.yoneda.map (hp.snd g))) at h'
   rw [J.yonedaEquiv_yoneda_map, J.yonedaEquiv_yoneda_map] at h'
   change p.hom.app (Opposite.op (hp.pullback g)) (hp.fst' g) =
-    P.obj.map (hp.snd g).op x.as at h'
+    P.obj.map (hp.snd g).op x.as.down at h'
   exact h'
 
 /-- The base change of a representable scheme-to-sheaf chart is the actual representing scheme
@@ -263,11 +241,11 @@ noncomputable def sheafChartPullbackPresentation
     (sheafChart P U p).PullbackPresentation T x := by
   let J := (_root_.AlgebraicGeometry.Scheme.fppfTopology :
     GrothendieckTopology Scheme.{u})
-  let g := J.yonedaEquiv.symm x.as
+  let g := J.yonedaEquiv.symm x.as.down
   let comparison :
       (sheafChart P U p).obj (hp.pullback g) (hp.fst' g) ≅
         (stackPullback (ofSheaf P) (hp.snd g)).obj x :=
-    Discrete.eqToIso (sheafChart_pullback_eq P U T p hp x)
+    Discrete.eqToIsoULift (sheafChart_pullback_eq P U T p hp x)
   exact
     { space := hp.pullback g
       fst := hp.snd g
@@ -275,15 +253,15 @@ noncomputable def sheafChartPullbackPresentation
       comparison := comparison
       lift := fun {S} toBase toChart c ↦ by
         change S ⟶ U at toChart
-        have hc := Discrete.eq_of_hom c.hom
-        change p.hom.app _ toChart = P.obj.map toBase.op x.as at hc
+        have hc := Discrete.eq_of_hom_ulift c.hom
+        change p.hom.app _ toChart = P.obj.map toBase.op x.as.down at hc
         apply hp.lift' toChart toBase
         apply J.yonedaEquiv.injective
         change p.hom.app (Opposite.op S)
             (J.yonedaEquiv (J.yoneda.map toChart)) =
           g.hom.app (Opposite.op S) (J.yonedaEquiv (J.yoneda.map toBase))
         rw [J.yonedaEquiv_yoneda_map, J.yonedaEquiv_yoneda_map]
-        change p.hom.app _ toChart = P.obj.map toBase.op x.as
+        change p.hom.app _ toChart = P.obj.map toBase.op x.as.down
         exact hc
       lift_fst := by
         intro S toBase toChart c
@@ -368,7 +346,7 @@ theorem sheafChart_hasRepresentableProperty
   · intro T x r
     let J := (_root_.AlgebraicGeometry.Scheme.fppfTopology :
       GrothendieckTopology Scheme.{u})
-    let g := J.yonedaEquiv.symm x.as
+    let g := J.yonedaEquiv.symm x.as.down
     let q := sheafChartPullbackPresentation P U T p hp.rep x
     let e := sheafChartPullbackPresentationIso P U T p hp.rep x r
     have hq : Q q.fst := by
@@ -430,16 +408,18 @@ private theorem sheafDiagonal_pullback_eq
     (x y : StackFiber (ofSheaf P) T) :
     P.obj.map
         (hp.snd (prod.lift
-          ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm x.as)
-          ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm y.as))).op x.as =
+          ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm x.as.down)
+          ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm
+            y.as.down))).op x.as.down =
       P.obj.map
         (hp.snd (prod.lift
-          ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm x.as)
-          ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm y.as))).op y.as := by
+          ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm x.as.down)
+          ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm
+            y.as.down))).op y.as.down := by
   let J := (_root_.AlgebraicGeometry.Scheme.fppfTopology :
     GrothendieckTopology Scheme.{u})
-  let x0 : P.obj.obj (Opposite.op T) := x.as
-  let y0 : P.obj.obj (Opposite.op T) := y.as
+  let x0 : P.obj.obj (Opposite.op T) := x.as.down
+  let y0 : P.obj.obj (Opposite.op T) := y.as.down
   let xMap := J.yonedaEquiv.symm x0
   let yMap := J.yonedaEquiv.symm y0
   let h := prod.lift xMap yMap
@@ -461,14 +441,14 @@ private theorem sheafDiagonal_test_eq
     (e : (stackPullback (ofSheaf P) f).obj x ≅
       (stackPullback (ofSheaf P) f).obj y) :
     ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yoneda.map f) ≫
-        ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm x.as) =
+        ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm x.as.down) =
       ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yoneda.map f) ≫
-        ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm y.as) := by
+        ((_root_.AlgebraicGeometry.Scheme.fppfTopology).yonedaEquiv.symm y.as.down) := by
   let J := (_root_.AlgebraicGeometry.Scheme.fppfTopology :
     GrothendieckTopology Scheme.{u})
-  let x0 : P.obj.obj (Opposite.op T) := x.as
-  let y0 : P.obj.obj (Opposite.op T) := y.as
-  have he := Discrete.eq_of_hom e.hom
+  let x0 : P.obj.obj (Opposite.op T) := x.as.down
+  let y0 : P.obj.obj (Opposite.op T) := y.as.down
+  have he := Discrete.eq_of_hom_ulift e.hom
   change P.obj.map f.op x0 = P.obj.map f.op y0 at he
   apply J.yonedaEquiv.injective
   rw [J.yonedaEquiv_comp, J.yonedaEquiv_comp]
@@ -484,13 +464,13 @@ noncomputable def sheafDiagonalPresentation
     DiagonalPresentation (ofSheaf P) T x y := by
   let J := (_root_.AlgebraicGeometry.Scheme.fppfTopology :
     GrothendieckTopology Scheme.{u})
-  let xMap := J.yonedaEquiv.symm x.as
-  let yMap := J.yonedaEquiv.symm y.as
+  let xMap := J.yonedaEquiv.symm x.as.down
+  let yMap := J.yonedaEquiv.symm y.as.down
   let h := prod.lift xMap yMap
   exact
     { space := hp.pullback h
       map := hp.snd h
-      universalIso := Discrete.eqToIso (sheafDiagonal_pullback_eq P T hp x y)
+      universalIso := Discrete.eqToIsoULift (sheafDiagonal_pullback_eq P T hp x y)
       lift := fun {S} f e ↦ by
         apply hp.lift (J.yoneda.map f ≫ xMap) f
         apply prod.hom_ext
