@@ -42,68 +42,6 @@ def relativeDifferentialsSheaf {X Y : Scheme.{u}} (f : X ⟶ Y) : X.Modules :=
   (PresheafOfModules.sheafification (𝟙 X.ringCatSheaf.obj)).obj
     (relativeDifferentialsPresheaf f)
 
-/-- The Fitting ideal of the relative differential sections on an open of the source.
-
-This is the sectionwise ingredient for the global Fitting ideal sheaf; compatibility under
-restriction requires the usual finite-presentation and localization hypotheses. -/
-def relativeDifferentialsSectionFittingIdeal {X Y : Scheme.{u}} (f : X ⟶ Y)
-    (U : X.Opens) (i : ℕ) : Ideal Γ(X, U) :=
-  Module.fittingIdeal Γ(X, U) Γ(relativeDifferentialsSheaf f, U) i
-
-/-- The linear section map on relative differentials induced by a basic-open restriction. -/
-def relativeDifferentialsSectionRestrictionLinearMap {X Y : Scheme.{u}} (f : X ⟶ Y)
-    (U : X.Opens) (g : Γ(X, U)) := by
-  let a : Γ(X, U) →+* Γ(X, X.basicOpen g) :=
-    (X.presheaf.map (homOfLE (X.basicOpen_le g)).op).hom
-  letI : Module Γ(X, U) Γ(relativeDifferentialsSheaf f, X.basicOpen g) :=
-    Module.compHom _ a
-  exact (show Γ(relativeDifferentialsSheaf f, U) →ₗ[Γ(X, U)]
-      Γ(relativeDifferentialsSheaf f, X.basicOpen g) from
-    { toFun := (relativeDifferentialsSheaf f).presheaf.map
-          (homOfLE (X.basicOpen_le g)).op
-      map_add' := by intro x y; exact map_add _ _ _
-      map_smul' := by
-        intro r x
-        exact Scheme.Modules.map_smul (relativeDifferentialsSheaf f)
-          (homOfLE (X.basicOpen_le g)) r x })
-
-/-- The precise localizing condition needed for sectionwise Fitting ideals. -/
-def relativeDifferentialsSectionRestrictionIsBaseChange {X Y : Scheme.{u}}
-    (f : X ⟶ Y) (U : X.Opens) (g : Γ(X, U)) : Prop := by
-  let a : Γ(X, U) →+* Γ(X, X.basicOpen g) :=
-    (X.presheaf.map (homOfLE (X.basicOpen_le g)).op).hom
-  letI : Algebra Γ(X, U) Γ(X, X.basicOpen g) := a.toAlgebra
-  letI : Module Γ(X, U) Γ(relativeDifferentialsSheaf f, X.basicOpen g) :=
-    Module.compHom _ a
-  letI : IsScalarTower Γ(X, U) Γ(X, X.basicOpen g)
-      Γ(relativeDifferentialsSheaf f, X.basicOpen g) :=
-    IsScalarTower.of_algebraMap_smul fun _ _ ↦ rfl
-  exact @IsBaseChange Γ(X, U) Γ(relativeDifferentialsSheaf f, U)
-    Γ(relativeDifferentialsSheaf f, X.basicOpen g) Γ(X, X.basicOpen g)
-    _ _ inferInstance inferInstance inferInstance inferInstance
-    (Module.compHom _ a) inferInstance inferInstance
-    (relativeDifferentialsSectionRestrictionLinearMap f U g)
-
-/-- Under the localizing condition and finite presentation, the differential Fitting ideal
-restricts to a basic open by extension of ideals. -/
-theorem relativeDifferentialsSectionFittingIdeal_basicOpen_of_isBaseChange
-    {X Y : Scheme.{u}} (f : X ⟶ Y) (U : X.Opens) (g : Γ(X, U)) (i : ℕ)
-    [Module.FinitePresentation Γ(X, U) Γ(relativeDifferentialsSheaf f, U)]
-    (h : relativeDifferentialsSectionRestrictionIsBaseChange f U g) :
-    relativeDifferentialsSectionFittingIdeal f (X.basicOpen g) i =
-      (relativeDifferentialsSectionFittingIdeal f U i).map
-        (X.presheaf.map (homOfLE (X.basicOpen_le g)).op).hom := by
-  exact let a : Γ(X, U) →+* Γ(X, X.basicOpen g) :=
-      (X.presheaf.map (homOfLE (X.basicOpen_le g)).op).hom
-    letI : Algebra Γ(X, U) Γ(X, X.basicOpen g) := a.toAlgebra
-    letI : Module Γ(X, U) Γ(relativeDifferentialsSheaf f, X.basicOpen g) :=
-      Module.compHom _ a
-    letI : IsScalarTower Γ(X, U) Γ(X, X.basicOpen g)
-        Γ(relativeDifferentialsSheaf f, X.basicOpen g) :=
-      IsScalarTower.of_algebraMap_smul fun _ _ ↦ rfl
-    Module.fittingIdeal_baseChange
-      (relativeDifferentialsSectionRestrictionLinearMap f U g) h i
-
 /-- The sheaf-level map induced by the universal property of relative differentials.
 
 The input is a compatible presheaf derivation into a sheaf of source modules; the

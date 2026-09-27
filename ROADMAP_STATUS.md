@@ -18,6 +18,18 @@ Status labels:
 - **deferred**: the conclusion is a field of a supplier/engine structure;
 - **absent**: no implementation of the named target was found.
 
+## Issue #1 update (2026-09-27)
+
+The issue-1 portion of L0.1/L1.1 is now implemented. `GlobalFittingIdeals.lean` constructs the
+relative differential Fitting ideal sheaf for arbitrary targets from affine-pair stalk ideals,
+with independence of both affine neighborhoods; `GlobalFittingBaseChange.lean` proves arbitrary
+cartesian base change and étale source restriction. The arbitrary-target `globalLocus` closed
+subscheme and its support are exposed. `GeometricDualGraph.lean` identifies the global first
+Fitting support with the node set on nodal curves under the explicit local relative-dimension-one
+condition for smooth charts, and `FittingSmooth.lean` proves the smooth chart unit calculation.
+The broader L0.1/L1.1 roadmap entries remain partial for their unrelated normalization and
+AtWorstNodal-rewrite obligations.
+
 ## Requirement ledger
 
 ### Layer 0: relative curves and DVR extensions

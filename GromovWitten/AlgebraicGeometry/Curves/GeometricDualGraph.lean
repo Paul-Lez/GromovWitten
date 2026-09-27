@@ -8,6 +8,8 @@ import GromovWitten.AlgebraicGeometry.Curves.Prestable
 import GromovWitten.AlgebraicGeometry.Curves.DualGraph
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeBaseChange
 import GromovWitten.AlgebraicGeometry.GlobalFittingIdeals
+import GromovWitten.AlgebraicGeometry.GlobalFittingBaseChange
+import GromovWitten.AlgebraicGeometry.Curves.FittingSmooth
 
 /-!
 # The geometric dual graph of a nodal curve over a field
@@ -353,6 +355,50 @@ theorem NodeChartAt.mem_support_globalIdealSheaf_one_iff
       change StableReduction.LocalNode.y K 0 1 ∈
         RingHom.ker (StableReduction.LocalNode.nodeOrigin K 1 one_ne_zero).toRingHom
       simp
+
+/-! ### The global nodal criterion -/
+
+/-- On a nodal curve, the global first Fitting support is the node set, provided the smooth
+charts carry their natural relative-dimension-one structure. The latter is kept explicit because
+`SmoothChartAt` records smoothness but deliberately does not store a dimension witness. -/
+theorem globalIdealSheaf_support_one_eq_nodeSet
+    [LocallyOfFinitePresentation f]
+    (hnodal : IsNodalCurveOverField f)
+    (hchart : ∀ {x : X}, Nonempty (SmoothChartAt f x) →
+      ∀ c : SmoothChartAt f x, SmoothOfRelativeDimension 1 (c.toCurve ≫ f)) :
+    (RelativeFittingLocus.globalIdealSheaf f 1).support = nodeSet f := by
+  ext x
+  constructor
+  · intro hx
+    by_contra hnode
+    have hsmooth : Nonempty (SmoothChartAt f x) := not_not.mp hnode
+    obtain ⟨c⟩ := hsmooth
+    let _ : Etale c.toCurve := c.etale_toCurve
+    let _ : SmoothOfRelativeDimension 1 (c.toCurve ≫ f) := hchart ⟨c⟩ c
+    have hnot :=
+      RelativeFittingLocus.not_mem_globalIdealSheaf_support_one_of_smoothOfRelativeDimension
+        (f := c.toCurve ≫ f) c.point
+    have hpoint : c.point ∈
+        (RelativeFittingLocus.globalIdealSheaf (c.toCurve ≫ f) 1).support := by
+      rw [RelativeFittingLocus.globalIdealSheaf_comp_etale f c.toCurve 1]
+      rw [Scheme.IdealSheafData.support_comap]
+      change c.toCurve c.point ∈ (RelativeFittingLocus.globalIdealSheaf f 1).support
+      simpa [c.mapsToPoint] using hx
+    exact hnot hpoint
+  · intro hx
+    rcases hnodal x with hs | hn
+    · exact False.elim (hx hs)
+    · obtain ⟨c⟩ := hn
+      let _ : Etale c.toCurve := c.etale_toCurve
+      let _ : LocallyOfFinitePresentation (c.toCurve ≫ f) := inferInstance
+      have ho := nodeChart_toNode_point f hx c
+      have hpoint : c.point ∈
+          (RelativeFittingLocus.globalIdealSheaf (c.toCurve ≫ f) 1).support := by
+        exact (NodeChartAt.mem_support_globalIdealSheaf_one_iff c c.point).2 ho
+      rw [RelativeFittingLocus.globalIdealSheaf_comp_etale f c.toCurve 1] at hpoint
+      rw [Scheme.IdealSheafData.support_comap] at hpoint
+      change c.toCurve c.point ∈ (RelativeFittingLocus.globalIdealSheaf f 1).support at hpoint
+      simpa [c.mapsToPoint] using hpoint
 
 /-- The node set of a nodal curve is discrete. -/
 theorem nodeSet_isDiscrete (hf : IsNodalCurveOverField f) : _root_.IsDiscrete (nodeSet f) := by
