@@ -7,7 +7,7 @@ Authors: OpenAI Codex
 import Mathlib.AlgebraicGeometry.Morphisms.Etale
 import Mathlib.RingTheory.Flat.FaithfullyFlat.Algebra
 import GromovWitten.AlgebraicGeometry.Curves.RelativeDimension
-import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNode
+import GromovWitten.AlgebraicGeometry.Curves.StableReduction.LocalNodeBaseChange
 import GromovWitten.AlgebraicGeometry.FittingIdealsSheaf
 
 /-!
@@ -21,6 +21,14 @@ separately, so they are available without unpacking local charts.
 
 The geometric-fibre clause is stated for arbitrary pullback squares rather than only the chosen
 `pullback`.  This makes stability under arbitrary base change a direct pasting argument.
+
+`NodeChartAt` records, via `mapsToOrigin`, that its chart point is sent by `toNode` to the origin
+of the standard node: both node coordinates lie in the ideal of that image point.  This is phrased
+ideal-theoretically, with no reference to the dual-graph layer's named point
+`GeometricDualGraph.standardNodeOrigin`, so that this file stays independent of it; the
+identification with that named point is proved in `GeometricDualGraph.lean`.  Without this field a
+`NodeChartAt` could be manufactured at every point of a curve isomorphic to the standard node
+(post-composing the identity with the isomorphism), which is the bug this field repairs.
 
 ## Locality for surjective étale covers of the source
 
@@ -100,6 +108,10 @@ structure NodeChartAt {K : Type u} [Field K] (f : X ⟶ Spec (.of K)) (x : X) wh
   etale_toNode : Etale toNode
   mapsToPoint : toCurve point = x
   overBase : toCurve ≫ f = toNode ≫ standardNodeToSpec K
+  /-- The chart point maps, under `toNode`, to the origin of the standard node: both node
+  coordinates lie in the ideal of the image point. -/
+  mapsToOrigin : StableReduction.LocalNode.x K 0 1 ∈ (toNode point).asIdeal ∧
+      StableReduction.LocalNode.y K 0 1 ∈ (toNode point).asIdeal
 
 namespace NodeChartAt
 
@@ -121,8 +133,83 @@ def postcompIso {Y : Scheme.{u}} {K : Type u} [Field K]
     simp only [Scheme.Hom.comp_apply, c.mapsToPoint]
   overBase := by
     rw [Category.assoc, he, c.overBase]
+  mapsToOrigin := c.mapsToOrigin
 
 end NodeChartAt
+
+/-! ### Smooth charts away from the node coordinates
+
+These lemmas are stated for a bare étale pair `toCurve`/`toNode` over the standard node, rather
+than for a bundled `NodeChartAt`, so that `IsNodalCurveOverField.of_overIso_standardNode` can call
+them directly without first having a chart with the `mapsToOrigin` field it is trying to
+establish.  `GeometricDualGraph.smoothChart_of_xAway`/`smoothChart_of_yAway` are thin wrappers
+around them for a bundled chart. -/
+
+/-- The `x`-away chart of the standard node is smooth over the field. -/
+theorem smooth_xAwayToBaseSpec {K : Type u} [Field K] :
+    Smooth (StableReduction.LocalNode.xAwayToBaseSpec K 0 1) := by
+  rw [StableReduction.LocalNode.xAwayToBaseSpec, HasRingHomProperty.Spec_iff (P := @Smooth)]
+  exact RingHom.smooth_algebraMap.mpr (StableReduction.LocalNode.xAway_smooth K 0 1)
+
+/-- The `y`-away chart of the standard node is smooth over the field. -/
+theorem smooth_yAwayToBaseSpec {K : Type u} [Field K] :
+    Smooth (StableReduction.LocalNode.yAwayToBaseSpec K 0 1) := by
+  rw [StableReduction.LocalNode.yAwayToBaseSpec, HasRingHomProperty.Spec_iff (P := @Smooth)]
+  exact RingHom.smooth_algebraMap.mpr (StableReduction.LocalNode.yAway_smooth K 0 1)
+
+/-- A point reached by an étale pair over the standard node, lying over the locus where `x` is
+invertible, has a smooth étale chart on the ambient curve. -/
+theorem smoothChartAt_of_not_mem_asIdeal_x {K : Type u} [Field K] {f : X ⟶ Spec (.of K)}
+    {Y : Scheme.{u}} (toCurve : Y ⟶ X)
+    (toNode : Y ⟶ Spec (.of (StableReduction.LocalNode.Ring K 0 1)))
+    [Etale toCurve] [Etale toNode]
+    (hbase : toCurve ≫ f = toNode ≫ standardNodeToSpec K) (q : Y)
+    (hq : StableReduction.LocalNode.x K 0 1 ∉ (toNode q).asIdeal) :
+    Nonempty (SmoothChartAt f (toCurve q)) := by
+  have hmem : toNode q ∈ Set.range (StableReduction.LocalNode.xAwaySpec K 0 1) := by
+    rw [StableReduction.LocalNode.range_xAwaySpec]
+    exact hq
+  obtain ⟨r, hr⟩ := hmem
+  obtain ⟨z, hz1, hz2⟩ := Scheme.Pullback.exists_preimage_pullback (f := toNode)
+    (g := StableReduction.LocalNode.xAwaySpec K 0 1) q r hr.symm
+  have hsm := smooth_xAwayToBaseSpec (K := K)
+  refine ⟨{
+    source := pullback toNode (StableReduction.LocalNode.xAwaySpec K 0 1),
+    point := z,
+    toCurve := pullback.fst toNode (StableReduction.LocalNode.xAwaySpec K 0 1) ≫ toCurve,
+    etale_toCurve := inferInstance,
+    mapsToPoint := by rw [Scheme.Hom.comp_apply, hz1],
+    smooth_toBase := ?_ }⟩
+  rw [Category.assoc, hbase, ← Category.assoc, pullback.condition, Category.assoc,
+    StableReduction.LocalNode.xAwaySpec_toBaseSpec]
+  infer_instance
+
+/-- A point reached by an étale pair over the standard node, lying over the locus where `y` is
+invertible, has a smooth étale chart on the ambient curve. -/
+theorem smoothChartAt_of_not_mem_asIdeal_y {K : Type u} [Field K] {f : X ⟶ Spec (.of K)}
+    {Y : Scheme.{u}} (toCurve : Y ⟶ X)
+    (toNode : Y ⟶ Spec (.of (StableReduction.LocalNode.Ring K 0 1)))
+    [Etale toCurve] [Etale toNode]
+    (hbase : toCurve ≫ f = toNode ≫ standardNodeToSpec K) (q : Y)
+    (hq : StableReduction.LocalNode.y K 0 1 ∉ (toNode q).asIdeal) :
+    Nonempty (SmoothChartAt f (toCurve q)) := by
+  have hmem : toNode q ∈ Set.range (StableReduction.LocalNode.yAwaySpec K 0 1) := by
+    rw [StableReduction.LocalNode.range_yAwaySpec]
+    exact hq
+  obtain ⟨r, hr⟩ := hmem
+  obtain ⟨z, hz1, hz2⟩ := Scheme.Pullback.exists_preimage_pullback (f := toNode)
+    (g := StableReduction.LocalNode.yAwaySpec K 0 1) q r hr.symm
+  have hsm := smooth_yAwayToBaseSpec (K := K)
+  refine ⟨{
+    source := pullback toNode (StableReduction.LocalNode.yAwaySpec K 0 1),
+    point := z,
+    toCurve := pullback.fst toNode (StableReduction.LocalNode.yAwaySpec K 0 1) ≫ toCurve,
+    etale_toCurve := inferInstance,
+    mapsToPoint := by rw [Scheme.Hom.comp_apply, hz1],
+    smooth_toBase := ?_ }⟩
+  rw [Category.assoc, hbase, ← Category.assoc, pullback.condition, Category.assoc,
+    StableReduction.LocalNode.yAwaySpec_toBaseSpec]
+  infer_instance
 
 /-- A curve over a field is at worst nodal when every point has either a smooth étale chart
 or an étale chart over the standard node. -/
@@ -146,25 +233,37 @@ theorem of_smooth {K : Type u} [Field K] (f : X ⟶ Spec (.of K))
       mapsToPoint := rfl
       smooth_toBase := by simpa using h }⟩
 
-/-- A curve isomorphic over the field to the standard node is at worst nodal. -/
+/-- A curve isomorphic over the field to the standard node is at worst nodal: a point sent to
+the node's origin gets a node chart built from the isomorphism itself, and every other point gets
+a smooth chart pulled back from the `x`-away or `y`-away locus of the standard node along the
+isomorphism. -/
 theorem of_overIso_standardNode {K : Type u} [Field K]
     (f : X ⟶ Spec (.of K))
     (e : Over.mk f ≅ Over.mk (standardNodeToSpec K)) :
     IsNodalCurveOverField f := by
   intro x
-  right
   have hi : IsIso e.hom.left := by
     change IsIso ((Over.forget (Spec (.of K))).map e.hom)
     infer_instance
-  exact ⟨
-    { source := X
-      point := x
-      toCurve := 𝟙 X
-      toNode := e.hom.left
-      etale_toCurve := by infer_instance
-      etale_toNode := by infer_instance
-      mapsToPoint := rfl
-      overBase := by simpa using e.hom.w.symm }⟩
+  have hoverBase : (𝟙 X : X ⟶ X) ≫ f = e.hom.left ≫ standardNodeToSpec K := by
+    simpa using e.hom.w.symm
+  by_cases hx : StableReduction.LocalNode.x K 0 1 ∈ (e.hom.left x).asIdeal
+  · by_cases hy : StableReduction.LocalNode.y K 0 1 ∈ (e.hom.left x).asIdeal
+    · right
+      exact ⟨
+        { source := X
+          point := x
+          toCurve := 𝟙 X
+          toNode := e.hom.left
+          etale_toCurve := by infer_instance
+          etale_toNode := by infer_instance
+          mapsToPoint := rfl
+          overBase := hoverBase
+          mapsToOrigin := ⟨hx, hy⟩ }⟩
+    · left
+      exact smoothChartAt_of_not_mem_asIdeal_y (𝟙 X) e.hom.left hoverBase x hy
+  · left
+    exact smoothChartAt_of_not_mem_asIdeal_x (𝟙 X) e.hom.left hoverBase x hx
 
 /-- Nodal curve charts transport across an isomorphism of source schemes. -/
 theorem precomp_iso {Y : Scheme.{u}} {K : Type u} [Field K]
@@ -209,7 +308,8 @@ theorem precomp_iso {Y : Scheme.{u}} {K : Type u} [Field K]
           have hi' : e.inv (e.hom x) = (𝟙 X : X ⟶ X) x := by
             simpa only [Scheme.Hom.comp_apply] using hi
           exact hi'.trans hid
-        overBase := by simpa [Category.assoc] using hn.overBase }⟩
+        overBase := by simpa [Category.assoc] using hn.overBase
+        mapsToOrigin := hn.mapsToOrigin }⟩
 
 /-- Pulling a nodal curve back along an étale morphism of source schemes preserves its
 pointwise smooth-or-node charts. -/
@@ -245,7 +345,7 @@ theorem precomp_etale {Y : Scheme.{u}} {K : Type u} [Field K]
     rcases hn with ⟨hn⟩
     let _ : Etale hn.toCurve := hn.etale_toCurve
     let _ : Etale hn.toNode := hn.etale_toNode
-    obtain ⟨z, -, hzY⟩ :=
+    obtain ⟨z, hzX, hzY⟩ :=
       Scheme.Pullback.exists_preimage_pullback hn.point y hn.mapsToPoint
     let _ : Etale (pullback.fst hn.toCurve e) := by infer_instance
     let _ : Etale (pullback.snd hn.toCurve e) := by infer_instance
@@ -261,7 +361,12 @@ theorem precomp_etale {Y : Scheme.{u}} {K : Type u} [Field K]
           have heq : pullback.snd hn.toCurve e ≫ e =
               pullback.fst hn.toCurve e ≫ hn.toCurve := pullback.condition.symm
           rw [← Category.assoc, heq, Category.assoc, hn.overBase]
-          simp only [Category.assoc] }⟩
+          simp only [Category.assoc]
+        mapsToOrigin := by
+          have heq : (pullback.fst hn.toCurve e ≫ hn.toNode) z = hn.toNode hn.point := by
+            rw [Scheme.Hom.comp_apply, hzX]
+          rw [heq]
+          exact hn.mapsToOrigin }⟩
 
 /-- Pointwise nodality descends along a surjective étale cover of the source: a chart at a
 chosen lift of a point remains an étale chart after composition with the cover. -/
@@ -295,7 +400,8 @@ theorem of_comp_surjective_etale {Y : Scheme.{u}} {K : Type u} [Field K]
         etale_toCurve := by infer_instance
         etale_toNode := hn.etale_toNode
         mapsToPoint := by simpa only [Scheme.Hom.comp_apply, hn.mapsToPoint] using hy
-        overBase := by simpa only [Category.assoc] using hn.overBase }⟩
+        overBase := by simpa only [Category.assoc] using hn.overBase
+        mapsToOrigin := hn.mapsToOrigin }⟩
 
 /-- Pointwise nodality is local for a surjective étale cover of the source. -/
 theorem iff_precomp_surjective_etale {Y : Scheme.{u}} {K : Type u} [Field K]
