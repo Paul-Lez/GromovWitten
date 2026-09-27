@@ -45,6 +45,7 @@ lemma NodeChartAt.exists_affine {X : Scheme.{u}} {f : X ⟶ Spec (.of K)}
     etale_toNode := by dsimp [a]; infer_instance
     mapsToPoint := by simp [a, hq, c.mapsToPoint]
     overBase := by simp only [Category.assoc, c.overBase]
+    mapsToOrigin := by simpa [a, hq] using c.mapsToOrigin
   }, ?_⟩
   infer_instance
 
