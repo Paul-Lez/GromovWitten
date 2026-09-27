@@ -99,5 +99,22 @@ def moduleDerivedBaseChangeNatTrans {T Z : Scheme.{u}}
       (Scheme.Modules.pullback p ⋙ Scheme.Modules.pushforward g).rightDerived n :=
   NatTrans.rightDerived (modulePushforwardBaseChangeNatTrans f b p g h) n
 
+/-- A natural isomorphism of ordinary base-change functors induces an isomorphism of their
+right-derived functors.  This is the honest transfer step used once a geometric ordinary
+base-change theorem supplies the isomorphism `e`. -/
+def moduleDerivedBaseChangeIsoOfOrdinaryIso {T Z : Scheme.{u}}
+    (f : X ⟶ S) (b : T ⟶ S) (p : Z ⟶ X) (g : Z ⟶ T)
+    (_h : IsPullback p g f b)
+    (e : (Scheme.Modules.pushforward f ⋙ Scheme.Modules.pullback b) ≅
+      (Scheme.Modules.pullback p ⋙ Scheme.Modules.pushforward g)) (n : ℕ) :
+    (Scheme.Modules.pushforward f ⋙ Scheme.Modules.pullback b).rightDerived n ≅
+      (Scheme.Modules.pullback p ⋙ Scheme.Modules.pushforward g).rightDerived n where
+  hom := NatTrans.rightDerived e.hom n
+  inv := NatTrans.rightDerived e.inv n
+  hom_inv_id := by
+    rw [← NatTrans.rightDerived_comp, e.hom_inv_id, NatTrans.rightDerived_id]
+  inv_hom_id := by
+    rw [← NatTrans.rightDerived_comp, e.inv_hom_id, NatTrans.rightDerived_id]
+
 end
 end GromovWitten.AlgebraicGeometry.Curves
