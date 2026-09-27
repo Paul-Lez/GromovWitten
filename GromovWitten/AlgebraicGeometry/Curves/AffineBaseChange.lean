@@ -198,6 +198,11 @@ theorem affineTensorBaseChangeIso_tmul (b : B) (c : C) (m : M) :
     affineTensorBaseChangeIso M ((b ⊗ₜ[A] c) ⊗ₜ[B] m) = c ⊗ₜ[A] (b • m) := by
   rfl
 
+/-- The same affine tensor identity as an isomorphism in `ModuleCat C`. -/
+def affineTensorBaseChangeModuleIso :
+    ModuleCat.of C (P ⊗[B] M) ≅ ModuleCat.of C (C ⊗[A] M) :=
+  (affineTensorBaseChangeIso M).toModuleIso
+
 end TensorBaseChange
 
 end
