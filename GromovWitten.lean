@@ -535,3 +535,4 @@ import GromovWitten.AlgebraicGeometry.Curves.ModuleBaseChangeSections
 import GromovWitten.AlgebraicGeometry.Curves.FinitePushforward
 import GromovWitten.AlgebraicGeometry.Curves.AffineBaseChangeReduction
 import GromovWitten.AlgebraicGeometry.Curves.FiniteHigherDirectImage
+import GromovWitten.AlgebraicGeometry.FiniteProjectiveComplexHomology
