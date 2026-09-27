@@ -41,11 +41,13 @@ degree-one generator, i.e. the coordinate ring of the zero-section closed immers
 ## What is not done
 
 `topChern_rank_one = c1` (comparison with `IntersectionTheory/FirstChernClass.lean`) is not
-attempted: `c1` there is hard-wired to the canonical `chowSystem dim i` (built from
-`NoetherianSpace X`/`HomogeneityLocal.CovByDimension`), whereas `topChern` here is parametrised by
-an arbitrary `RationalEquivalenceSystem` together with explicit `hhom`/`hinj` witnesses; bridging
-the two needs a "the zero-section Gysin map does not depend on the choice of witnessing
-`RationalEquivalenceSystem`" lemma that is not in the repository.  The direct-sum
+attempted here; it is carried out in `VirtualFundamentalClass/TopChernRankOne.lean`, which also
+shows that no lemma making the zero-section Gysin map independent of the witnessing
+`RationalEquivalenceSystem` is needed (`eq_chowSystem`: that type has a single constructor, so
+every system is the canonical `chowSystem dim i` of `FirstChernClass.lean`).  There
+`topChern_eq_c1_trivial` identifies `topChern` in rank one with `c1` of the trivial line bundle,
+and `topChern_eq_zero_of_nonempty` shows both vanish, as they must: over an affine base a finite
+free `M` gives a *trivial* bundle.  The direct-sum
 multiplicativity of `topChern` is not attempted either, for the same reason `ChernClasses.lean`
 gives for not having Chern classes at all (no Whitney-sum-style comparison of `Sym(M₁ ⊕ M₂)`
 with `Sym(M₁) ⊗ Sym(M₂)` at the level of zero-section pushforwards is available).
