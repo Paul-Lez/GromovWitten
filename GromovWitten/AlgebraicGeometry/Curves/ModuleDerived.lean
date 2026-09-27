@@ -15,9 +15,8 @@ import GromovWitten.AlgebraicGeometry.SheafCohomology.FlasqueResolution
 
 The category of sheaves of modules on a scheme has enough injectives.  This file therefore
 constructs the module-valued right-derived pushforward itself.  The comparison with the
-right-derived pushforward of the underlying abelian sheaf is deliberately kept separate: it
-requires an exactness theorem for the scalar-forgetting functor, which is not an instance in the
-pinned Mathlib.
+right-derived pushforward of the underlying abelian sheaf is proved below after establishing
+exactness of the scalar-forgetting functor in `ModuleExact`.
 -/
 
 open CategoryTheory Limits
