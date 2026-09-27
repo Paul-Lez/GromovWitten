@@ -270,6 +270,29 @@ Implemented APIs include:
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- the scalar contraction of the cone quotient stack `[C/E]` on all torsors, without the triviality
+  hypothesis, through the functoriality of the relative torsor pushout, with its unit, multiplicativity
+  and base-change laws as natural isomorphisms and the vanishing and vertex laws on objects
+  (`Cones/QuotientTorsorContraction.lean`, `Cones/QuotientTorsorContractionCoherence.lean`);
+- the inclusion of the small-étale site of a Deligne--Mumford stack into its lisse-étale site is a
+  continuous, fully faithful morphism of ringed sites, with the concrete description of the covering
+  sieves of both stack sites and the restriction functor on module sheaves
+  (`Sites/StackSiteContinuity.lean`, `Sites/StackSiteMorphisms.lean`);
+- the presentation groupoid `U ×_X U ⇉ U` of an atlas as a groupoid object with its unit, inverse and
+  associativity laws as 2-cells, tied to the fibrewise groupoids (`Stacks/PresentationGroupoidObject.lean`,
+  `Stacks/PresentationGroupoidLaws.lean`), and common scheme atlases with fully faithful groupoid
+  comparison functors (`Stacks/SchemeAtlasRefinement*.lean`);
+- functoriality of the fppf torsor pushout `r_*` in the torsor, in the group homomorphism and under
+  base change (`Stacks/TorsorPushoutFunctoriality.lean`), and the quotient-stack maps `[U/G] → [V/H]`
+  induced by equivariant maps over a group homomorphism, with `[U/G] → BH` as a special case
+  (`Stacks/QuotientStackGroupMaps.lean`);
+- the Deligne--Mumford diagonal criterion in the direction étale atlas ⇒ unramified diagonal,
+  unconditionally (`Stacks/EtaleAtlasDiagonal.lean`), the comparison of the two encodings of the
+  diagonal and representability of the inertia projection (`Stacks/DiagonalComparison.lean`), the
+  global inertia map of a stack morphism with its identity and composition coherence and invariance
+  of inertia under stack equivalence (`Stacks/InertiaFunctoriality.lean`, `Stacks/InertiaCoherence.lean`),
+  and, for the converse, the ring-level étale slicing lemma (`Stacks/EtaleSlice.lean`) and the
+  chart-level slice infrastructure (`Stacks/DeligneMumfordCriterion.lean`);
 - coherent cohomology `Hⁿ(X, M)` of `𝒪_X`-modules as Mathlib's `Ext`-theoretic sheaf
   cohomology, with its `Γ(X, 𝒪_X)`- and `k`-module structure constructed from multiplication
   by global functions and additivity of the cohomology functor; the arithmetic genus
