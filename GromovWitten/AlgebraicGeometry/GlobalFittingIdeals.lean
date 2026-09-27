@@ -79,6 +79,19 @@ lemma stalkIdeal_locally_represented [LocallyOfFinitePresentation f] (i : ℕ) (
 def globalIdealSheaf [LocallyOfFinitePresentation f] (i : ℕ) : X.IdealSheafData :=
   X.idealSheafOfStalkIdeals (stalkIdeal f i) (stalkIdeal_locally_represented f i)
 
+/-- The global relative differential Fitting locus over an arbitrary target. -/
+abbrev globalLocus [LocallyOfFinitePresentation f] (i : ℕ) : Scheme.{u} :=
+  (globalIdealSheaf f i).subscheme
+
+/-- The canonical closed immersion of the global relative differential Fitting locus. -/
+abbrev globalLocusι [LocallyOfFinitePresentation f] (i : ℕ) : globalLocus f i ⟶ X :=
+  (globalIdealSheaf f i).subschemeι
+
+@[simp]
+lemma range_globalLocusι [LocallyOfFinitePresentation f] (i : ℕ) :
+    Set.range (globalLocusι f i) = ((globalIdealSheaf f i).support : Set X) :=
+  Scheme.IdealSheafData.range_subschemeι _
+
 /-- On every adapted affine pair, the global ideal is the usual differential Fitting ideal. -/
 lemma globalIdealSheaf_ideal [LocallyOfFinitePresentation f] (i : ℕ)
     (U : Y.affineOpens) (V : X.affineOpens) (h : V.1 ≤ f ⁻¹ᵁ U.1) :
