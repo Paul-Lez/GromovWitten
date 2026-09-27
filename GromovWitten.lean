@@ -268,6 +268,7 @@ import GromovWitten.AlgebraicGeometry.RelativeProj
 import GromovWitten.AlgebraicGeometry.PolynomialProjBaseChange
 import GromovWitten.AlgebraicGeometry.PolynomialRelativeProj
 import GromovWitten.AlgebraicGeometry.RelativeProjective
+import GromovWitten.AlgebraicGeometry.SchemeImageBaseChange
 import GromovWitten.AlgebraicGeometry.ProjectiveClosure
 import GromovWitten.AlgebraicGeometry.Veronese
 import GromovWitten.AlgebraicGeometry.VeroneseLocalization

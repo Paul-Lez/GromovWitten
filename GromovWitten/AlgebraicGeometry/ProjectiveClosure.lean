@@ -6,6 +6,7 @@ Authors: Codex
 
 import GromovWitten.AlgebraicGeometry.RelativeProjective
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ClosureModel
+import GromovWitten.AlgebraicGeometry.SchemeImageBaseChange
 
 /-!
 # Scheme-theoretic closures in a relative projective family
@@ -51,6 +52,25 @@ theorem closure_isProper_over_base (j : U ⟶ Y) :
     IsProper (closureι P j ≫ p) := by
   have h : IsProper p := P.isProper
   infer_instance
+
+/-! ### Flat base change of the image closure -/
+
+/-- The closure image commutes with a flat base change of its ambient scheme.
+
+The hypotheses are exactly those needed by scheme-theoretic image base change:
+the source map must be quasi-compact, and the ambient base-change morphism must
+be flat.  No flatness of the closure itself is asserted. -/
+def closureBaseChangeIso (j : U ⟶ Y) (b : Y' ⟶ Y) [QuasiCompact j] [Flat b] :
+    (pullback.fst b j).image ≅ pullback b (closureι P j) :=
+  Scheme.Hom.imageBaseChangeIso j b
+
+/-- The base-changed closure is the scheme-theoretic image of the base-changed map. -/
+lemma isPullback_closureBaseChange (j : U ⟶ Y) (b : Y' ⟶ Y)
+    [QuasiCompact j] [Flat b] :
+    IsPullback (pullback.fst b j).imageι
+      ((closureBaseChangeIso P j b).hom ≫ pullback.snd b (closureι P j)) b
+      (closureι P j) :=
+  Scheme.Hom.isPullback_imageBaseChange j b
 
 /-! ### The DVR closure theorem -/
 
