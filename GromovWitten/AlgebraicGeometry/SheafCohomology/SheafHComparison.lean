@@ -306,4 +306,12 @@ theorem isZero_sheafH_of_isZero_rightDerivedSections
     e.toAddCommGrpIso
   exact IsZero.of_iso h ei
 
+/-- Vanishing of positive Ext-based sheaf cohomology implies vanishing of the
+corresponding derived global sections. -/
+lemma isZero_rightDerivedSections_of_isZero_sheafH
+    {F : Sheaf (Opens.grothendieckTopology X) AddCommGrpCat.{u}} (n : ℕ)
+    (h : IsZero (AddCommGrpCat.of (F.H (n + 1)))) :
+    IsZero (((sections (⊤ : Opens X)).rightDerived (n + 1)).obj F) := by
+  exact IsZero.of_iso h (sheafHRightDerivedSectionsAddEquiv (F := F) n).toAddCommGrpIso.symm
+
 end GromovWitten.AlgebraicGeometry.SheafCohomology

@@ -522,3 +522,6 @@ import GromovWitten.AlgebraicGeometry.Curves.ModuleBaseChangeMate
 import GromovWitten.AlgebraicGeometry.Curves.AffinePullbackGamma
 import GromovWitten.AlgebraicGeometry.Curves.ModuleOpenBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.HigherOpenBaseChange
+import GromovWitten.AlgebraicGeometry.Curves.CurveCohomologyDimension
+import GromovWitten.AlgebraicGeometry.SheafCohomology.FiniteSupport
+import GromovWitten.AlgebraicGeometry.FiniteFreeHomologyLocus
