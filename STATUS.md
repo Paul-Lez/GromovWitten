@@ -288,6 +288,16 @@ Implemented APIs include:
   properties of a sliced chart are tested on the slice morphism, étale slices glue to an étale atlas, and
   the affine slicing step is proved (`Stacks/EtaleAtlasDiagonal.lean`, `Stacks/DeligneMumfordCriterionAssembly.lean`,
   `Stacks/EtaleSliceLocal.lean`, `Stacks/DeligneMumfordCriterionFinal.lean`);
+- the atlas map `U → [U/G]` as a stack morphism whose fibre over a torsor is the torsor, with a generic
+  componentwise constructor of strong transformations on locally discrete bicategories
+  (`Stacks/QuotientStackAtlas.lean`, `Stacks/StrongTransOfDiscrete.lean`);
+- `[C/E]` as a cone stack over `Spec R`: descent of the base point, projection, vertex, and five of the six
+  contraction laws, with all six contraction laws, so `coneQuotientStack` is an unconditional cone stack
+  (`Cones/ConeQuotientStack.lean`);
+- the scalar contraction of the cone quotient stack `[C/E]` on all torsors, without the triviality
+  hypothesis, through the functoriality of the relative torsor pushout, with its unit, multiplicativity
+  and base-change laws as natural isomorphisms and the vanishing and vertex laws on objects
+  (`Cones/QuotientTorsorContraction.lean`, `Cones/QuotientTorsorContractionCoherence.lean`);
 - the inclusion of the small-étale site of a Deligne--Mumford stack into its lisse-étale site is a
   continuous, fully faithful morphism of ringed sites, with the concrete description of the covering
   sieves of both stack sites and the restriction functor on module sheaves
@@ -343,6 +353,9 @@ Implemented APIs include:
 - the affine cone quotient `[C/E]` is realised as a torsor prestack (fully faithful comparison
   with the trivial torsors), base changes and fibre products of cone stacks are constructed on
   genuine two-pullbacks of stacks, unconditionally for coherent cone stacks;
+- the cone-stack structure of the affine cone quotient for every formally étale chart of the ambient
+  polynomial ring, through the étale cone action (`Cones/EtaleChartConeStack.lean`); gluing over all local
+  embeddings needs base change of cone stacks and remains open;
 - the tangent action on the affine normal cone is an honest `ConeAction` (Vistoli's lemma in
   cone-action form), with the lci specialisation `𝔠 = 𝔑` and the smooth specialisation
   `𝔠 = B T_M` fibrewise, invariance under scalar extension, and `dim C − rank T = 0`;
