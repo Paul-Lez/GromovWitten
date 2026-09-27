@@ -291,6 +291,15 @@ noncomputable def gradedMapSubmodule (I : Ideal A) (f : A →+* B) :
     change reesMap I f x ∈ grade (I.map f) n
     exact reesMap_mem_grade I f n x hx
 
+noncomputable def gradedMapSubmoduleOfEq (I : Ideal A) (f : A →+* B)
+    (J : Ideal B) (h : I.map f = J) :
+    gradeSubmodule I →+*ᵍ gradeSubmodule J where
+  toRingHom := ReesBlowupOfEq.reesMapOfEq I f J h
+  map_mem := by
+    intro n x hx
+    change ReesBlowupOfEq.reesMapOfEq I f J h x ∈ ReesBlowup.grade J n
+    exact ReesBlowupOfEq.reesMapOfEq_mem_grade I f J h n x hx
+
 noncomputable def gradedMapOver (I : Ideal A) :
     ProjBaseChange.GradedHomOver (gradeSubmodule I)
       (gradeSubmodule (I.map (algebraMap A B))) where
