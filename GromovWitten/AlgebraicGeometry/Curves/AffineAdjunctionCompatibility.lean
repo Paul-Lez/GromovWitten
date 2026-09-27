@@ -1,9 +1,17 @@
 /-
 Copyright (c) 2026 GromovWitten Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
+Authors: OpenAI Codex
 -/
 
 import GromovWitten.AlgebraicGeometry.Curves.AffineBaseChange
+
+/-!
+# Compatibility of affine adjunctions
+
+The comparison between pullback of an associated module sheaf and extension of
+scalars is compatible with the corresponding adjunction units and hom-equivalences.
+-/
 
 open CategoryTheory Limits Opposite TopologicalSpace AlgebraicGeometry
 open _root_.AlgebraicGeometry
