@@ -430,4 +430,6 @@ import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackAlgebraicAPI
 import GromovWitten.AlgebraicGeometry.Cones.QuotientTorsorContraction
 import GromovWitten.AlgebraicGeometry.Cones.QuotientTorsorContractionCoherence
 import GromovWitten.AlgebraicGeometry.Cones.ConeQuotientStack
+import GromovWitten.AlgebraicGeometry.Stacks.StrongTransOfDiscrete
+import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackAtlas
 import GromovWitten.AlgebraicGeometry.Cones.EtaleChartConeStack
