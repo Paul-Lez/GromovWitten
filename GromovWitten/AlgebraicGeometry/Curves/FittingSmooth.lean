@@ -54,6 +54,53 @@ theorem differentialFittingIdeal_one_eq_top_of_standardSmooth
     simpa [Q, Module.Presentation.ofLinearEquiv] using (Fintype.ofFinite (PEmpty.{1}))
   exact @standardSmoothFittingAux R S _ _ _ _ ι σ κ hσ hι P hP b Q rfl fκ fG fR
 
+namespace RelativeFittingLocus
+
+variable {X Y : Scheme.{u}} (f : X ⟶ Y) [IsAffine Y]
+
+/-- A standard-smooth relative-dimension-one affine chart has unit first Fitting ideal
+for the affine-target relative ideal on the same source open. -/
+theorem idealOn_one_eq_top_of_standardSmooth
+    [LocallyOfFinitePresentation f]
+    {U : Y.Opens} (hU : IsAffineOpen U)
+    {V : X.Opens} (hV : IsAffineOpen V) (e : V ≤ f ⁻¹ᵁ U)
+    (hsm : (f.appLE U V e).hom.IsStandardSmoothOfRelativeDimension 1) :
+    idealOn f 1 ⟨V, hV⟩ = ⊤ := by
+  let R := Γ(Y, (⊤ : Y.Opens))
+  let S := Γ(Y, U)
+  let T := Γ(X, V)
+  let iRS : Algebra R S :=
+    (Y.presheaf.map (homOfLE (show U ≤ (⊤ : Y.Opens) from le_top)).op).hom.toAlgebra
+  let iRT : Algebra R T := baseAlgebra f ⟨V, hV⟩
+  let iST : Algebra S T := (f.appLE U V e).hom.toAlgebra
+  let _instRS : Algebra R S := iRS
+  let _instRT : Algebra R T := iRT
+  let _instST : Algebra S T := iST
+  let _instSmooth : Algebra.IsStandardSmoothOfRelativeDimension 1 S T := hsm
+  have htower : IsScalarTower R S T := by
+    refine IsScalarTower.of_algebraMap_eq' ?_
+    exact congrArg CommRingCat.Hom.hom
+      (f.map_appLE e (homOfLE (show U ≤ (⊤ : Y.Opens) from le_top)).op).symm
+  let _instTower : IsScalarTower R S T := htower
+  have hEtale : _root_.Algebra.Etale R S := by
+    have h := Scheme.Hom.etale_appLE (𝟙 Y) (isAffineOpen_top Y) hU
+      (show U ≤ (𝟙 Y) ⁻¹ᵁ (⊤ : Y.Opens) by simp)
+    exact h
+  let _instEtale : _root_.Algebra.Etale R S := hEtale
+  have hfp : _root_.Algebra.FinitePresentation S T :=
+    f.finitePresentation_appLE hU hV e
+  have hbase := Algebra.differentialFittingIdeal_of_formallyUnramified_base R S T 1
+  have hstd : Algebra.differentialFittingIdeal S T 1 = ⊤ := by
+    by_cases hT : Nontrivial T
+    · let _instT : Nontrivial T := hT
+      exact differentialFittingIdeal_one_eq_top_of_standardSmooth
+    · let _instT : Subsingleton T := not_nontrivial_iff_subsingleton.mp hT
+      exact Subsingleton.elim _ _
+  change Algebra.differentialFittingIdeal R T 1 = ⊤
+  rw [← hbase, hstd]
+
+end RelativeFittingLocus
+
 end
 
 end GromovWitten.AlgebraicGeometry
