@@ -1,0 +1,33 @@
+/-
+Copyright (c) 2026 GromovWitten Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: OpenAI Codex
+-/
+
+import GromovWitten.AlgebraicGeometry.Curves.ModuleBaseChange
+import GromovWitten.AlgebraicGeometry.SheafCohomology.DerivedBaseChange
+
+/-!
+# Higher direct-image base-change maps
+
+When the two pullback functors in a Cartesian square are exact, the ordinary
+Beck--Chevalley map induces an actual comparison `b* Rⁿ f* M ⟶ Rⁿ g* (p* M)`.
+The source and target are higher direct images in the categories of modules.
+-/
+
+open CategoryTheory Limits
+open _root_.AlgebraicGeometry
+noncomputable section
+universe u
+namespace GromovWitten.AlgebraicGeometry.Curves
+variable {X S T Z : Scheme.{u}}
+/-- The higher direct-image comparison for a square with exact pullbacks. -/
+def moduleHigherBaseChangeNatTrans
+    (f : X ⟶ S) (b : T ⟶ S) (p : Z ⟶ X) (g : Z ⟶ T)
+    (h : IsPullback p g f b)
+    [(Scheme.Modules.pullback b).PreservesHomology]
+    [(Scheme.Modules.pullback p).PreservesHomology] (n : ℕ) :
+    (Scheme.Modules.pushforward f).rightDerived n ⋙ Scheme.Modules.pullback b ⟶
+      Scheme.Modules.pullback p ⋙ (Scheme.Modules.pushforward g).rightDerived n :=
+  NatTrans.rightDerivedBaseChange (modulePushforwardBaseChangeNatTrans f b p g h) n
+end GromovWitten.AlgebraicGeometry.Curves

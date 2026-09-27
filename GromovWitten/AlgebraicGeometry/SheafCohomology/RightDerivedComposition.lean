@@ -35,3 +35,36 @@ def rightDerivedIso (e : F ≅ G) (n : ℕ) : F.rightDerived n ≅ G.rightDerive
   hom_inv_id := by rw [← NatTrans.rightDerived_comp, e.hom_inv_id, NatTrans.rightDerived_id]
   inv_hom_id := by rw [← NatTrans.rightDerived_comp, e.inv_hom_id, NatTrans.rightDerived_id]
 end CategoryTheory.NatIso
+
+namespace CategoryTheory.Functor
+variable {D E : Type*} [Category D] [Category E] [Abelian D] [Abelian E]
+    (G : D ⥤ E) [G.Additive] [G.PreservesHomology]
+set_option backward.isDefEq.respectTransparency false in
+def mapComplexHomologyIso (n : ℕ) :
+    G.mapHomologicalComplex (.up ℕ) ⋙ HomologicalComplex.homologyFunctor E _ n ≅
+      HomologicalComplex.homologyFunctor D _ n ⋙ G :=
+  NatIso.ofComponents (fun K => ShortComplex.mapHomologyIso (K.sc n) G)
+    (fun f => ShortComplex.mapHomologyIso_hom_naturality
+      ((HomologicalComplex.shortComplexFunctor D (.up ℕ) n).map f) G)
+set_option backward.isDefEq.respectTransparency false in
+def mapHomotopyHomologyIso (n : ℕ) :
+    G.mapHomotopyCategory (.up ℕ) ⋙ HomotopyCategory.homologyFunctor E _ n ≅
+      HomotopyCategory.homologyFunctor D _ n ⋙ G :=
+  Quotient.natIsoLift _
+    (isoWhiskerRight (G.mapHomotopyCategoryFactors (.up ℕ)) _ ≪≫
+      Functor.associator _ _ _ ≪≫
+      isoWhiskerLeft (G.mapHomologicalComplex (.up ℕ))
+        (HomotopyCategory.homologyFunctorFactors E (.up ℕ) n) ≪≫
+      mapComplexHomologyIso G n ≪≫
+      isoWhiskerRight (HomotopyCategory.homologyFunctorFactors D (.up ℕ) n).symm G)
+
+variable {C : Type*} [Category C] [Abelian C] [EnoughInjectives C]
+    (F : C ⥤ D) [F.Additive]
+/-- Exact postcomposition commutes naturally with right derivation. -/
+def rightDerivedCompExactNatIso (n : ℕ) :
+    (F ⋙ G).rightDerived n ≅ F.rightDerived n ⋙ G :=
+  isoWhiskerRight
+    (isoWhiskerLeft (injectiveResolutions C)
+      (Functor.mapHomotopyCategoryCompIso (Iso.refl (F ⋙ G)) (.up ℕ)).symm) _ ≪≫
+    isoWhiskerLeft (F.rightDerivedToHomotopyCategory) (mapHomotopyHomologyIso G n)
+end CategoryTheory.Functor
