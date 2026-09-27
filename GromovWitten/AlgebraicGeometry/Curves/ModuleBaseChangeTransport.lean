@@ -104,5 +104,36 @@ lemma moduleBaseChange_vertical_paste_isIso_iff_of_isIso
   · intro h
     have := h
     exact moduleBaseChange_vertical_paste_isIso f a b p g q k h₁ h₂ M
+/-- Precomposing the original map by an isomorphism transports base-change invertibility
+along its pushforward on modules. -/
+lemma moduleBaseChange_vertical_paste_isIso_iff_of_isIso_first
+    (f : X ⟶ Y) (a : Y ⟶ S) (b : T ⟶ S) (p : Z ⟶ Y) (g : Z ⟶ T)
+    (q : W ⟶ X) (k : W ⟶ Z)
+    (h₁ : IsPullback q k f p) (h₂ : IsPullback p g a b) [IsIso f] (M : X.Modules) :
+    IsIso ((modulePushforwardBaseChangeNatTrans (f ≫ a) b q (k ≫ g)
+      (h₁.paste_vert h₂)).app M) ↔
+    IsIso ((modulePushforwardBaseChangeNatTrans a b p g h₂).app
+      ((Scheme.Modules.pushforward f).obj M)) := by
+  have := moduleBaseChange_isIso_of_isIso_map f p q k h₁ M
+  constructor
+  · intro h
+    let α := (Scheme.Modules.pullback b).map
+        ((Scheme.Modules.pushforwardComp f a).inv.app M)
+    let β := (modulePushforwardBaseChangeNatTrans a b p g h₂).app
+      ((Scheme.Modules.pushforward f).obj M)
+    let δ := (Scheme.Modules.pushforward g).map
+        ((modulePushforwardBaseChangeNatTrans f p q k h₁).app M) ≫
+      (Scheme.Modules.pushforwardComp k g).hom.app ((Scheme.Modules.pullback q).obj M)
+    have : IsIso α := by dsimp only [α]; infer_instance
+    have : IsIso δ := by dsimp only [δ]; infer_instance
+    have : IsIso (α ≫ β ≫ δ) := by
+      dsimp only [α, β, δ]
+      rw [← moduleBaseChange_vertical_pasting f a b p g q k h₁ h₂ M]
+      exact h
+    have : IsIso (β ≫ δ) := IsIso.of_isIso_comp_left α _
+    exact IsIso.of_isIso_comp_right β δ
+  · intro h
+    have := h
+    exact moduleBaseChange_vertical_paste_isIso f a b p g q k h₁ h₂ M
 end
 end GromovWitten.AlgebraicGeometry.Curves

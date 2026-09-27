@@ -529,3 +529,5 @@ import GromovWitten.AlgebraicGeometry.Curves.CurveHigherVanishing
 import GromovWitten.AlgebraicGeometry.Curves.ModuleBaseChangeIsomorphism
 import GromovWitten.AlgebraicGeometry.Curves.ModuleBaseChangeLocal
 import GromovWitten.AlgebraicGeometry.Curves.ModuleBaseChangeTransport
+import GromovWitten.AlgebraicGeometry.FiniteProjectiveHomologyLocus
+import GromovWitten.AlgebraicGeometry.Curves.HigherBaseChangeIsomorphism
