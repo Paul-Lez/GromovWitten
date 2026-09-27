@@ -6,6 +6,7 @@ Authors: OpenAI Codex
 
 import GromovWitten.AlgebraicGeometry.SheafCohomology.SectionsMayerVietoris
 import GromovWitten.AlgebraicGeometry.SheafCohomology.RightDerivedHomology
+import GromovWitten.AlgebraicGeometry.SheafCohomology.DerivedSectionsPair
 
 /-!
 # Derived sections in a two-open Mayer–Vietoris cover
@@ -267,5 +268,24 @@ lemma mvRightDerived_exact_at_next_union
       simp [eA, eB, f, Category.assoc])
   exact ShortComplex.exact_of_iso e.symm (hS.homology_exact₁ n (n + 1) hrel)
 
+
+/-- Vanishing on the two opens in consecutive degrees makes the connecting map
+an isomorphism from intersection cohomology to the next union cohomology. -/
+lemma isIso_mvRightDerivedConnecting
+    {F : TopCat.Sheaf AddCommGrpCat.{u} X} (U V : Opens X) (n : ℕ)
+    (hU : IsZero (((sections U).rightDerived n).obj F))
+    (hV : IsZero (((sections V).rightDerived n).obj F))
+    (hU' : IsZero (((sections U).rightDerived (n + 1)).obj F))
+    (hV' : IsZero (((sections V).rightDerived (n + 1)).obj F)) :
+    IsIso (mvRightDerivedConnecting (F := F) U V n) := by
+  have hn := ((biprod_isZero_iff _ _).mpr ⟨hU, hV⟩).of_iso
+    (sectionsPairRightDerivedIso U V F n)
+  have hsucc := ((biprod_isZero_iff _ _).mpr ⟨hU', hV'⟩).of_iso
+    (sectionsPairRightDerivedIso U V F (n + 1))
+  have : Mono (mvRightDerivedConnecting (F := F) U V n) :=
+    (mvRightDerived_exact_at_intersection (F := F) U V n).mono_g (hn.eq_of_src _ _)
+  have : Epi (mvRightDerivedConnecting (F := F) U V n) :=
+    (mvRightDerived_exact_at_next_union (F := F) U V n).epi_f (hsucc.eq_of_tgt _ _)
+  exact isIso_of_mono_of_epi _
 
 end GromovWitten.AlgebraicGeometry.SheafCohomology

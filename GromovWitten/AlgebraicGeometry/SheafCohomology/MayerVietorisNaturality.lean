@@ -75,4 +75,68 @@ noncomputable def mvRightDerivedConnectingNat (U V : Opens X) (n : ℕ) :
   app F := mvRightDerivedConnecting (F := F) U V n
   naturality _ _ f := mvRightDerivedConnecting_naturality f U V n
 
+/-- The mvRightDerivedConnecting map can be computed with any injective resolution. -/
+lemma mvRightDerivedConnecting_eq
+    {F : TopCat.Sheaf AddCommGrpCat.{u} X} (I : InjectiveResolution F)
+    (U V : Opens X) (n : ℕ) :
+    mvRightDerivedConnecting (F := F) U V n =
+      (I.isoRightDerivedHomologyObj (sections (U ⊓ V)) n).hom ≫
+        (sectionsComplexMV_shortExact I.cocomplex
+          (fun _ => TopCat.Sheaf.isFlasque_of_injective X _) U V).δ n (n + 1) (by rfl) ≫
+        (I.isoRightDerivedHomologyObj (sections (U ⊔ V)) (n + 1)).inv := by
+  let J := InjectiveResolution.of F
+  let φ := InjectiveResolution.desc (𝟙 F) J I
+  let φS := sectionsComplexMVMap φ U V
+  have hφ : I.ι ≫ φ = (CochainComplex.single₀ _).map (𝟙 F) ≫ J.ι := by
+    exact InjectiveResolution.desc_commutes (𝟙 F) J I
+  let hSI := sectionsComplexMV_shortExact I.cocomplex
+    (fun _ => TopCat.Sheaf.isFlasque_of_injective X _) U V
+  let hSJ := sectionsComplexMV_shortExact J.cocomplex
+    (fun _ => TopCat.Sheaf.isFlasque_of_injective X _) U V
+  dsimp [sectionsComplexMV] at hSI hSJ
+  let eI0 := I.isoRightDerivedHomologyObj (sections (U ⊓ V)) n
+  let eJ0 := J.isoRightDerivedHomologyObj (sections (U ⊓ V)) n
+  let eIn := I.isoRightDerivedHomologyObj (sections (U ⊔ V)) (n + 1)
+  let eJn := J.isoRightDerivedHomologyObj (sections (U ⊔ V)) (n + 1)
+  let p0 := HomologicalComplex.homologyMap
+    (((sections (U ⊓ V)).mapHomologicalComplex (.up ℕ)).map φ) n
+  let pn := HomologicalComplex.homologyMap
+    (((sections (U ⊔ V)).mapHomologicalComplex (.up ℕ)).map φ) (n + 1)
+  have hQ0 := I.rightDerived_map_eq_homologyMap J (𝟙 F) φ hφ
+    (sections (U ⊓ V)) n
+  have hQn := I.rightDerived_map_eq_homologyMap J (𝟙 F) φ hφ
+    (sections (U ⊔ V)) (n + 1)
+  have hQ0' : eI0.hom ≫ p0 ≫ eJ0.inv = 𝟙 _ := by
+    simpa [eI0, eJ0, p0] using hQ0.symm
+  have hQn' : eIn.hom ≫ pn ≫ eJn.inv = 𝟙 _ := by
+    simpa [eIn, eJn, pn] using hQn.symm
+  have hQ0_hom : eI0.hom ≫ p0 = eJ0.hom := by
+    calc
+      eI0.hom ≫ p0 = (eI0.hom ≫ p0 ≫ eJ0.inv) ≫ eJ0.hom := by simp
+      _ = (𝟙 _) ≫ eJ0.hom := by rw [hQ0']
+      _ = eJ0.hom := by simp
+  have hQn_inv : pn ≫ eJn.inv = eIn.inv := by
+    calc
+      pn ≫ eJn.inv = eIn.inv ≫ eIn.hom ≫ pn ≫ eJn.inv := by simp
+      _ = eIn.inv ≫ (eIn.hom ≫ pn ≫ eJn.inv) := by simp
+      _ = eIn.inv ≫ 𝟙 _ := by rw [hQn']
+      _ = eIn.inv := by simp
+  let hrel : (ComplexShape.up ℕ).Rel n (n + 1) := by rfl
+  have hδ := HomologicalComplex.HomologySequence.δ_naturality φS hSI hSJ n (n + 1) hrel
+  have hδ' : hSI.δ n (n + 1) hrel ≫ pn =
+      p0 ≫ hSJ.δ n (n + 1) hrel := by
+    simpa [φS, sectionsComplexMVMap, p0, pn, sectionsComplexMV] using hδ
+  dsimp [mvRightDerivedConnecting]
+  change eJ0.hom ≫ hSJ.δ n (n + 1) hrel ≫ eJn.inv =
+    eI0.hom ≫ hSI.δ n (n + 1) hrel ≫ eIn.inv
+  calc
+    eJ0.hom ≫ hSJ.δ n (n + 1) hrel ≫ eJn.inv =
+        eI0.hom ≫ p0 ≫ hSJ.δ n (n + 1) hrel ≫ eJn.inv := by
+          rw [← hQ0_hom]
+          simp [Category.assoc]
+    _ = eI0.hom ≫ (p0 ≫ hSJ.δ n (n + 1) hrel) ≫ eJn.inv := by simp [Category.assoc]
+    _ = eI0.hom ≫ (hSI.δ n (n + 1) hrel ≫ pn) ≫ eJn.inv := by rw [hδ']
+    _ = eI0.hom ≫ hSI.δ n (n + 1) hrel ≫ (pn ≫ eJn.inv) := by simp [Category.assoc]
+    _ = eI0.hom ≫ hSI.δ n (n + 1) hrel ≫ eIn.inv := by rw [hQn_inv]
+
 end GromovWitten.AlgebraicGeometry.SheafCohomology
