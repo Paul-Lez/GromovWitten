@@ -31,4 +31,14 @@ lemma ideal_map_comap_away
     IsLocalization.algebraMap_mem_map_algebraMap_iff (.powers (algebraMap R S r)) B]
   simp only [Submonoid.mem_powers_iff, exists_exists_eq_and, Ideal.mem_comap, map_mul,
     map_pow]
+
+/-- Localization preserves intersections of finitely many ideals. -/
+lemma ideal_map_iInf_finite
+    {R : Type u} [CommRing R] (S : Type v) [CommRing S] [Algebra R S]
+    (M : Submonoid R) [IsLocalization M S] {ι : Type w} [Finite ι]
+    (I : ι → Ideal R) :
+    (⨅ i, I i).map (algebraMap R S) = ⨅ i, (I i).map (algebraMap R S) := by
+  let := Fintype.ofFinite ι
+  simpa only [Finset.inf_univ_eq_iInf, IsLocalization.mapFrameHom_apply, Function.comp_def]
+    using map_finset_inf (IsLocalization.mapFrameHom M S) Finset.univ I
 end IsLocalization
