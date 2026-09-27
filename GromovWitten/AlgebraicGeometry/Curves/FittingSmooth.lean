@@ -1,4 +1,5 @@
 import GromovWitten.AlgebraicGeometry.FittingIdealsSheaf
+import GromovWitten.AlgebraicGeometry.GlobalFittingIdeals
 import Mathlib.Algebra.Module.Presentation.Free
 import Mathlib.RingTheory.Smooth.StandardSmoothCotangent
 
@@ -98,6 +99,22 @@ theorem idealOn_one_eq_top_of_standardSmooth
       exact Subsingleton.elim _ _
   change Algebra.differentialFittingIdeal R T 1 = ⊤
   rw [← hbase, hstd]
+
+/-! The affine calculation gives the corresponding statement for the global ideal sheaf. -/
+
+theorem not_mem_globalIdealSheaf_support_one_of_smoothOfRelativeDimension
+    [LocallyOfFinitePresentation f] [SmoothOfRelativeDimension 1 f] (x : X) :
+    x ∉ (globalIdealSheaf f 1).support := by
+  rw [globalIdealSheaf_eq_idealSheaf]
+  obtain ⟨U, hU, V, hV, hxV, e, hsm⟩ :=
+    SmoothOfRelativeDimension.exists_isStandardSmoothOfRelativeDimension
+      (n := 1) (f := f) x
+  intro hx
+  have hz := (Scheme.IdealSheafData.mem_support_iff_of_mem
+    (I := idealSheaf f 1) (U := ⟨V, hV⟩) hxV).mp hx
+  rw [idealSheaf_ideal, idealOn_one_eq_top_of_standardSmooth f hU hV e hsm] at hz
+  have hz' : x ∉ (V : Set X) := by simpa using hz
+  exact hz' hxV
 
 end RelativeFittingLocus
 
