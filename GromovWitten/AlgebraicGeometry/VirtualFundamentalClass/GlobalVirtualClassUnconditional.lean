@@ -42,12 +42,12 @@ user of the theory wants them.
   obstruction models on the charts of the bundle whose resolved-cone ideals agree over every
   affine open of every overlap — glues to a `GlobalCone.GlobalConeData`
   (`LocalConeData.toGlobalConeData`, `VirtualFundamentalClass/ConeGluingGlobal.lean`), and the
-  overlap hypothesis itself is a consequence of local embeddings into flat formally étale charts
-  (`ConeGluing.LocalEmbeddingData.toLocalConeData`,
+  overlap hypothesis is derived from compatible local embeddings into flat formally étale charts
+  (`ConeGluing.CompatibleLocalEmbeddingData.toLocalConeData`,
   `VirtualFundamentalClass/ConeGluingCompatible.lean`).  Composing, this file defines
-  `LocalConeData.virtualClassFT` and `LocalEmbeddingData.virtualClassFT`: **the virtual class of
-  a compact scheme locally of finite type over a field, built from local obstruction data
-  alone.**
+  `LocalConeData.virtualClassFT` and `CompatibleLocalEmbeddingData.virtualClassFT`: the virtual
+  class of a compact scheme locally of finite type over a field, built from compatible local
+  obstruction and refinement data.
 
 ## What is still missing
 
@@ -60,9 +60,11 @@ user of the theory wants them.
   `[Infinite F]` (a generic translate of the zero section has to exist).  For a finite base field
   the primed statements do not apply and the rank-one input
   `BundlePullbackGlobal.RankOneInjective F` has to be supplied by hand as `hrank1`.
-* The overlap comparison `LocalEmbeddingData.transition_ideal` is a field of
-  `LocalEmbeddingData`, not a theorem (it needs a transport of `LinearTwoTermComplex` and of
-  `ResolvedCone.ideal` along a ring isomorphism of the base).
+* `CompatibleLocalEmbeddingData.compat` now derives overlap compatibility from the direct or
+  common-refinement witness `CompatibleLocalEmbeddingData.transition_comparison`; the result-bearing
+  ideal equality is no longer a field.  Constructing this witness from arbitrary ambient
+  presentations can require a common smooth refinement or an acyclic stabilization, and remains
+  part of compatible local embedding data.
 
 ## Main declarations
 
@@ -73,7 +75,7 @@ user of the theory wants them.
   `ConeGluing.LocalConeData.bundlePullbackFT_virtualClassFT`,
   `ConeGluing.LocalConeData.virtualClassFT_unique_of_globalTrivialisation` and
   `ConeGluing.LocalConeData.existsUnique_virtualClassFT_of_globalTrivialisation`.
-* `ConeGluing.LocalEmbeddingData.virtualClassFT` and the same three statements.
+* `ConeGluing.CompatibleLocalEmbeddingData.virtualClassFT` and the same three statements.
 * The primed versions of all the uniqueness statements
   (`existsUnique_virtualClassFT'_of_globalTrivialisation'`, …), which take `[Infinite F]` in
   place of the hypothesis `hrank1`.
@@ -299,20 +301,22 @@ end LocalConeData
 
 /-! ## The virtual class from local embeddings -/
 
-namespace LocalEmbeddingData
+namespace CompatibleLocalEmbeddingData
 
 variable {F : Type u} [Field F] [IsLocallyNoetherian X]
   (f : X ⟶ Spec (CommRingCat.of F)) [LocallyOfFiniteType f] [CompactSpace X] [Finite ι]
-  [Finite 𝓔.J] (𝓛 : LocalEmbeddingData 𝓔 φ) (i : ℤ)
+  [Finite 𝓔.J] (𝓛 : CompatibleLocalEmbeddingData 𝓔 φ) (i : ℤ)
   (RX : RationalEquivalenceSystem X (dimensionFunction f) i)
   (RE : RationalEquivalenceSystem 𝓔.totalSpace (dimensionFunction (𝓔.proj ≫ f))
     (i + (Nat.card ι : ℤ)))
 
-/-- **The virtual fundamental class attached to local embeddings.**  A `LocalEmbeddingData`
+/-- **The virtual fundamental class attached to compatible local embeddings.**  A
+`CompatibleLocalEmbeddingData`
 presents, over every affine open of every chart, the sections of `X` as a quotient of a flat
 formally étale algebra and the bundle algebra as the corresponding base change of the local
-obstruction model; `LocalEmbeddingData.toLocalConeData` then *proves* the overlap compatibility
-of the resolved-cone ideals, so no ad-hoc gluing hypothesis is left. -/
+obstruction model and direct or common-refinement comparison;
+`CompatibleLocalEmbeddingData.toLocalConeData` then *proves* the overlap compatibility
+of the resolved-cone ideals from those comparisons; ideal equality is not supplied separately. -/
 def virtualClassFT : RX.ChowGroup :=
   𝓛.toLocalConeData.virtualClassFT f i RX RE
 
@@ -358,7 +362,7 @@ theorem existsUnique_virtualClassFT_of_globalTrivialisation' [Infinite F]
         (i + (Nat.card ι : ℤ)) RE :=
   𝓛.toLocalConeData.existsUnique_virtualClassFT_of_globalTrivialisation' f i RX RE t
 
-end LocalEmbeddingData
+end CompatibleLocalEmbeddingData
 
 end Glued
 

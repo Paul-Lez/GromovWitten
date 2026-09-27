@@ -25,6 +25,13 @@ Implemented APIs include:
   representative and compatible with scalar extension; and distinguished-triangle rank
   additivity for the globally finite-free model
   (`CotangentComplex/Projective*.lean`, `PerfectTriangles.lean`);
+- the identity laws of the restriction maps of the cotangent cohomology of étale charts and the resulting
+  presheaves of modules on the charts over an affine open of the base, with the universal derivation as a
+  morphism of presheaves (`CotangentComplex/AtlasDescentGlobal.lean`); gluing into sheaves remains open;
+- the derived tensor product of perfect objects over a ring from the chain-level tensor product of
+  strictly perfect representatives, with representative independence, multiplicative rank, and unit and
+  associativity isomorphisms (`CotangentComplex/PerfectTensor.lean`); the braiding and the internal Hom
+  remain open;
 - finite locally free direct sums with rank addition from independently chosen local bases,
   constructing a common cover from products of charts; finite-free tensor rank multiplication,
   tensor associativity with globally finite-free outer factors, and natural, involutive tensor
@@ -103,6 +110,15 @@ Implemented APIs include:
   components, the finite discrete set of points without a smooth étale chart, and the finite
   set of points lying on two distinct components, with connectivity derived from connectedness
   of the curve;
+- the affine-local contraction of one branch of a clutched curve: the morphism from the spectrum of the
+  pinching of two augmented algebras to the first factor which is the identity on the first branch,
+  collapses the second branch to the node with that branch as the exact fibre, and is an isomorphism off
+  that branch (`Curves/Clutching/BranchContraction.lean`); properness and the global gluing into stable-map
+  contraction remain open;
+- node charts now send their distinguished point to the origin of the standard node, with the chart
+  construction for curves isomorphic to the standard node producing smooth charts off the origin, so that
+  the standard node has node charts at its origin and is proved nodal directly (`Curves/Nodal.lean`,
+  `Curves/GeometricDualGraph.lean`); that an arbitrary node chart occurs only at the origin remains open;
 - weighted numerical Picard groups, their comparison with the raw intersection cokernel,
   parity and signed-genus formulae, connectedness criteria, the rank-one theorem, and
   finite prime-torsion calculations, together with specialization of genuine relative
@@ -219,6 +235,10 @@ Implemented APIs include:
   by the tangent bundle is isomorphic, over every test algebra and compatibly with reindexing and
   contraction, to the `h¹/h⁰` Picard groupoid of the dual of the presentation complex
   `[I/I² → Ω ⊗ R/I]`, with `Sym(M × N) ≃ Sym(M) ⊗ Sym(N)`;
+- the relative conormal complex and relative intrinsic normal sheaf of a tower of rings on the affine model,
+  with flat base change along a change of the base ring as an isomorphism of two-term complexes and an
+  equivalence of relative intrinsic normal sheaves (`Cones/RelativeIntrinsicNormalSheaf.lean`); purity over a
+  smooth base and the globalisation to stacks remain open;
 - invariance of the affine intrinsic normal sheaf under base change of the ground field: base change of
   two-term complexes commutes with the Picard groupoid of dual points, naturally in the test algebra
   (`Cones/PicardBaseChange.lean`), and the conormal complex of a polynomial presentation base-changes
@@ -261,6 +281,9 @@ Implemented APIs include:
   `C_{U/M} = N_{U/M}` and the affine intrinsic normal sheaf and cone of `U ⊆ 𝔸ⁿ` are `B T_U`: connected
   quotient groupoids with automorphisms `Derivation k S B` (`Cones/SmoothIntrinsicNormalSheaf.lean`,
   `Cones/SmoothFormula.lean`), together with the smooth case of the lci formula for the virtual class;
+- the intrinsic pullback sequence for a tower whose middle term is cut out by a quasi-regular ideal, from a
+  compatible pair of quasi-regular generating sequences and without smoothness
+  (`Cones/IntrinsicPullbackSequenceLci.lean`); the relative comparison with the abelian hull remains open;
 - the dual of a perfect complex is well defined up to canonical isomorphism, with biduality and
   full faithfulness of duality on strictly perfect complexes;
 - the underlying topological space of an algebraic stack is independent of the atlas: the point
@@ -274,9 +297,42 @@ Implemented APIs include:
   closure of an integral closed subscheme of an open subscheme (the scheme-theoretic image) and
   the restriction of cycles supported on a closed subscheme, conditional only on the gradedness
   of principal divisors;
+- refinements of presentation groupoids along open immersions of atlases, proved once for any groupoid
+  with Vistoli cycles and instantiated for open and étale presentation groupoids, with the induced maps
+  and, for mutually inverse refinements, linear equivalences of Vistoli Chow groups
+  (`IntersectionTheory/PresentationGroupoidRefinement.lean`, `EtaleAtlasRefinement.lean`), applied to a
+  Deligne--Mumford stack for the presentation with exchanged legs; a strictly smaller open atlas still
+  needs descent of rational equivalence along étale maps;
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- the relative Spec of a quasi-coherent algebra as a morphism of stacks, with the pullback of algebra
+  data along morphisms of schemes and its coherence, affineness as a representable property, the
+  universal property as an equivalence between lifts of a chart and algebra-data morphisms out of the
+  pulled-back algebra, and the comparison with the algebra of an affine morphism
+  (`Stacks/RelativeSpecStack.lean`); algebras given by descent data on an atlas and relative Proj on
+  stacks remain open;
+- chart-level refinement records with the induced map of self-overlaps, its source/target 2-cells and
+  unit compatibility, packaged as morphisms of presentation groupoid objects (`Stacks/ChartRefinement.lean`);
+- the dimension formula for flat morphisms between locally Noetherian schemes through going-down, and
+  atlas independence of the stack dimension for every algebraic stack with non-empty locally Noetherian
+  atlases, with a counterexample to the pure-dimension form over such bases
+  (`Curves/SmoothPureDimensionNoetherian.lean`, `Curves/FibreStalk.lean`);
+- the converse Deligne--Mumford criterion reduced to a single scheme-theoretic slicing statement: an
+  unramified diagonal gives an unramified self-overlap pair for every smooth chart, representable
+  properties of a sliced chart are tested on the slice morphism, étale slices glue to an étale atlas, and
+  the affine slicing step is proved (`Stacks/EtaleAtlasDiagonal.lean`, `Stacks/DeligneMumfordCriterionAssembly.lean`,
+  `Stacks/EtaleSliceLocal.lean`, `Stacks/DeligneMumfordCriterionFinal.lean`);
+- the atlas map `U → [U/G]` as a stack morphism whose fibre over a torsor is the torsor, with a generic
+  componentwise constructor of strong transformations on locally discrete bicategories
+  (`Stacks/QuotientStackAtlas.lean`, `Stacks/StrongTransOfDiscrete.lean`);
+- `[C/E]` as a cone stack over `Spec R`: descent of the base point, projection, vertex, and five of the six
+  contraction laws, with all six contraction laws, so `coneQuotientStack` is an unconditional cone stack
+  (`Cones/ConeQuotientStack.lean`);
+- the scalar contraction of the cone quotient stack `[C/E]` on all torsors, without the triviality
+  hypothesis, through the functoriality of the relative torsor pushout, with its unit, multiplicativity
+  and base-change laws as natural isomorphisms and the vanishing and vertex laws on objects
+  (`Cones/QuotientTorsorContraction.lean`, `Cones/QuotientTorsorContractionCoherence.lean`);
 - the inclusion of the small-étale site of a Deligne--Mumford stack into its lisse-étale site is a
   continuous, fully faithful morphism of ringed sites, with the concrete description of the covering
   sieves of both stack sites and the restriction functor on module sheaves
@@ -332,6 +388,9 @@ Implemented APIs include:
 - the affine cone quotient `[C/E]` is realised as a torsor prestack (fully faithful comparison
   with the trivial torsors), base changes and fibre products of cone stacks are constructed on
   genuine two-pullbacks of stacks, unconditionally for coherent cone stacks;
+- the cone-stack structure of the affine cone quotient for every formally étale chart of the ambient
+  polynomial ring, through the étale cone action (`Cones/EtaleChartConeStack.lean`); gluing over all local
+  embeddings needs base change of cone stacks and remains open;
 - the tangent action on the affine normal cone is an honest `ConeAction` (Vistoli's lemma in
   cone-action form), with the lci specialisation `𝔠 = 𝔑` and the smooth specialisation
   `𝔠 = B T_M` fibrewise, invariance under scalar extension, and `dim C − rank T = 0`;
@@ -497,6 +556,19 @@ Implemented APIs include:
   localisation case, and the relative conormal complex and comparison chain map for base change along a
   coordinate hyperplane of the base (`VirtualFundamentalClass/RelativeVirtualClassBaseChange.lean`:
   `hyperplaneConormalComplex`, `hyperplaneHom`);
+- the long exact cohomology sequence of a short exact sequence of sheaves of modules on a scheme, from
+  short exactness in the category of sheaves of modules alone (the forgetful functor to abelian sheaves
+  preserves finite limits and epimorphisms, the latter through a reflection criterion absent from Mathlib),
+  with a connecting homomorphism linear over the global sections, and the additivity of the Euler
+  characteristic under explicit finite-dimensionality and vanishing hypotheses
+  (`Curves/CohomologyExactSequence.lean`);
+- the multiplicity of an effective Cartier divisor at a point as the length of the stalk of its structure
+  sheaf, additive under sums of divisors and independent of the chart, the degree of an effective Cartier
+  divisor as the degree of its zero-cycle, finite on every regular one-dimensional integral Noetherian scheme,
+  the divisors of zeros and poles of a nonzero rational function on a regular proper curve with the pointwise
+  identity with the order of vanishing, hence the invariance of the degree of a formal difference of divisors
+  under linear equivalence, together with a first link between the component-degree labels of relative line
+  bundles and these degrees (`Curves/CartierDivisorDegree.lean`);
 - transfer of the obstruction-theory condition along the coordinate-hyperplane base change, with no
   regularity hypothesis, and the conormal splitting `I ∩ (y₀) = y₀·I` with the converse when `y₀` is a
   non-zero-divisor (`VirtualFundamentalClass/RelativeHyperplaneObstruction.lean`:
@@ -506,6 +578,27 @@ Implemented APIs include:
   relative virtual class `[X'/Y']^vir` of the hyperplane base change with virtual dimension one less, and the
   surjection of associated graded rings (`VirtualFundamentalClass/RelativeHyperplaneReindex.lean`:
   `hyperplaneReindexIso`, `relativeVirtualClass_hyperplane`, `surjective_grReindexHom`);
+- the base change of the relative conormal complex along the coordinate hyperplane as a quasi-isomorphism
+  when the hyperplane equation is a non-zero-divisor on the coordinate ring, through a comparison map
+  factoring every reindexed obstruction datum (`VirtualFundamentalClass/RelativeHyperplaneBaseChange.lean`);
+  the base change of the resolved cone and the Gysin comparison need Tor independence of the associated
+  graded ring in every degree and remain open;
+- Tor independence of the associated graded ring along the coordinate hyperplane when the hyperplane
+  equation is a non-zero-divisor on every power quotient, hence the normal cone of the hyperplane section
+  is the base change of the normal cone, with the hyperplane sections of the symmetric algebras of a
+  relative obstruction datum identified, and a counterexample showing that the resolved-cone identity
+  needs a transversality hypothesis on the resolved cone
+  (`VirtualFundamentalClass/RelativeHyperplaneCone.lean`);
+- the resolved-cone identity along the coordinate hyperplane under regularity on the power quotients and
+  transversality of the resolved cone to the hyperplane, which is shown to be necessary, with the geometric
+  form as the scheme-theoretic intersection of the resolved cone with the hyperplane
+  (`VirtualFundamentalClass/RelativeHyperplaneConeIdentity.lean`); the cycle-level and Gysin comparisons of the
+  relative virtual classes remain open;
+- the cycle-level form of that identity: pushforward of the cycle of a closed subscheme along a closed
+  immersion of affine Noetherian schemes is the cycle of the preimage ideal, so the resolved-cone cycle of
+  the hyperplane section pushes forward to the cycle of the intersection with the hyperplane, also on Chow
+  classes of the obstruction bundle (`VirtualFundamentalClass/RelativeHyperplaneConeCycle.lean`); the Gysin
+  comparison of the relative virtual classes needs a Chow-level divisor Gysin map and remains open;
 - functoriality under the smooth projection `X × 𝔸^τ → X` (Layer 8, affine model): the flat
   pullback along a trivialised bundle is transitive on Chow groups, commutes with pushforward along
   closed immersions and with the zero-section Gysin map
@@ -655,6 +748,11 @@ Implemented APIs include:
   formula holds with no hypothesis at all (`VirtualFundamentalClass/LciFormulaPure.lean`:
   `OverField.lci_formula_polynomial`, with the purity of `Spec (R⧸I)` from
   `height_eq_length_of_isWeaklyRegular` and the basis of `I/I²` from `QuasiregularGenerators.cotangentBasis`);
+- the zero-section formula for the virtual class (Layer 7): when the resolved cone is the zero section of
+  the obstruction bundle, the virtual class is the self-intersection of the zero section applied to the
+  fundamental class, packaged as the top Chern class of the obstruction bundle
+  (`VirtualFundamentalClass/ObstructionBundleFormula.lean`); the comparison of that top Chern class with the
+  first Chern class in rank one remains open;
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as

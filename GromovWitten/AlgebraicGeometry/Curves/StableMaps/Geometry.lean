@@ -6,7 +6,14 @@ Authors: OpenAI Codex
 
 import GromovWitten.AlgebraicGeometry.Curves.Prestable
 import GromovWitten.AlgebraicGeometry.Curves.RelativeLineBundles
+import GromovWitten.AlgebraicGeometry.Curves.GeometricDualGraph
+import GromovWitten.AlgebraicGeometry.Curves.GeometricGraphIso
+import GromovWitten.AlgebraicGeometry.Curves.NormalizedComponentIso
+import GromovWitten.AlgebraicGeometry.Curves.SchemeIsoGenus
+import GromovWitten.AlgebraicGeometry.Curves.SmoothComponents
+import GromovWitten.AlgebraicGeometry.Curves.StableReduction.NodeNormalization
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.DecoratedGraph
+import GromovWitten.AlgebraicGeometry.Curves.StableMaps.GraphTransport
 import GromovWitten.AlgebraicGeometry.Curves.StableMaps.Pushout
 
 /-!
@@ -543,106 +550,360 @@ def PolarizedDegree.postcomposeClosedImmersion
   D.postcomposeOfReflectsConstancy F H a ha
     (reflectsComponentConstancy_of_isClosedImmersion F a ha)
 
-/-- The decorated graph of one geometric fibre, tied to all of its actual geometric data. -/
-structure GeometricFiberGraph (F : MarkedMap q I) [Fintype I] [DecidableEq I]
+/-! ### The decorated graph forced by normalized fibre geometry -/
+
+/-- The component carrying a marked point of a geometric source fibre. -/
+noncomputable def normalizedMarkingVertex
+    {K : Type u} [Field K] (F : MarkedMap q I) (y : Spec (.of K) ⟶ S) (i : I) :
+    Component (F.sourceFiber y) :=
+  componentOf ((F.baseChange y).marking i (genericPoint (Spec (.of K))))
+
+/-- The decorated graph whose dual graph, genera, and endpoints are all read from the actual
+normalized component normalizations and their node branch fibres. -/
+noncomputable def normalizedVertexLift
+    (F : MarkedMap q I) {K : Type u} [Field K]
+    (y : Spec (.of K) ⟶ S) :
+    Component (F.sourceFiber y) ≃ ULift.{max u v} (Component (F.sourceFiber y)) :=
+  Equiv.ulift.symm
+
+noncomputable def normalizedEdgeLift
+    (F : MarkedMap q I) {K : Type u} [Field K]
+    (y : Spec (.of K) ⟶ S) :
+    Edge (f := pullback.snd F.toBase y) ≃
+      ULift.{max u v} (Edge (f := pullback.snd F.toBase y)) :=
+  Equiv.ulift.symm
+
+noncomputable def normalizedDecoratedGraph
+    (F : MarkedMap q I) [Fintype I] [DecidableEq I]
+    [PrestableFamily F.toBase]
     {H : LineBundle V} (D : PolarizedDegree F H)
-    (K : Type u) [Field K] (y : Spec (.of K) ⟶ S) where
-  graph : DecoratedGraph.{u}
-  componentEquiv : graph.toDualGraph.Vertex ≃
-    irreducibleComponents (F.sourceFiber y)
-  markingEquiv : graph.Leg ≃ I
-  marking_incidence : ∀ leg : graph.Leg,
-    (F.baseChange y).marking (markingEquiv leg) (genericPoint (Spec (.of K))) ∈
-      (componentEquiv (graph.legVertex leg) : Set (F.sourceFiber y))
-  nodePoint : graph.toDualGraph.Edge → F.sourceFiber y
-  nodePoint_injective : Function.Injective nodePoint
-  nodeChart : ∀ edge,
-    Nonempty (NodeChartAt (CategoryTheory.Limits.pullback.snd F.toBase y) (nodePoint edge))
-  nodes_complete : ∀ z : F.sourceFiber y,
-    Nonempty (NodeChartAt (CategoryTheory.Limits.pullback.snd F.toBase y) z) →
-      ∃ edge, nodePoint edge = z
-  endpoint_incidence : ∀ (edge : graph.toDualGraph.Edge) (j : Fin 2),
-    nodePoint edge ∈
-      (componentEquiv (graph.toDualGraph.endpoint edge j) : Set (F.sourceFiber y))
-  degree_eq : ∀ vertex : graph.toDualGraph.Vertex,
-    D.degreeLine.degree y (componentEquiv vertex) = graph.degree vertex
-  stable : graph.IsStable
+    (K : Type u) [Field K] (y : Spec (.of K) ⟶ S)
+    [PrestableFamily (pullback.snd F.toBase y)] : DecoratedGraph.{max u v} := by
+  let V := ULift.{max u v} (Component (F.sourceFiber y))
+  let E := ULift.{max u v} (Edge (f := pullback.snd F.toBase y))
+  let L := ULift.{max u v} I
+  let cv : Component (F.sourceFiber y) ≃ V := normalizedVertexLift F y
+  let ce : Edge (f := pullback.snd F.toBase y) ≃ E := normalizedEdgeLift F y
+  let base : DualGraph :=
+    geometricDualGraphOfNormalization (pullback.snd F.toBase y)
+  let cb := base.reindex cv ce
+  exact
+    { toDualGraph := cb
+      Leg := L
+      legVertex := fun i ↦ cv (normalizedMarkingVertex F y (Equiv.ulift i))
+      degree := fun C ↦ (D.degreeLine.degree y (cv.symm C)).toNat }
+
+@[simp]
+theorem normalizedDecoratedGraph_degree_eq
+    (F : MarkedMap q I) [Fintype I] [DecidableEq I]
+    [PrestableFamily F.toBase] {H : LineBundle V} (D : PolarizedDegree F H)
+    (K : Type u) [Field K] (y : Spec (.of K) ⟶ S)
+    [PrestableFamily (pullback.snd F.toBase y)]
+    (C : Component (F.sourceFiber y)) :
+    D.degreeLine.degree y C =
+      (normalizedDecoratedGraph F D K y).degree
+        ((normalizedVertexLift F y) C) := by
+  change D.degreeLine.degree y C = (D.degreeLine.degree y C).toNat
+  exact (Int.toNat_of_nonneg (D.nonnegative K y C)).symm
+
+@[simp]
+theorem normalizedDecoratedGraph_endpoint_pair_eq
+    (F : MarkedMap q I) [Fintype I] [DecidableEq I]
+    [PrestableFamily F.toBase] {H : LineBundle V} (D : PolarizedDegree F H)
+    (K : Type u) [Field K] [IsAlgClosed K] (y : Spec (.of K) ⟶ S)
+    [PrestableFamily (pullback.snd F.toBase y)]
+    (B : NormalizedBranchData (pullback.snd F.toBase y)) (e : Edge (f := pullback.snd F.toBase y)) :
+    s((normalizedDecoratedGraph F D K y).toDualGraph.endpoint
+        ((normalizedEdgeLift F y) e) 0,
+      (normalizedDecoratedGraph F D K y).toDualGraph.endpoint
+        ((normalizedEdgeLift F y) e) 1) =
+      s((normalizedVertexLift F y) ((B.point e 0).1),
+        (normalizedVertexLift F y) ((B.point e 1).1)) := by
+  simp only [normalizedDecoratedGraph, DualGraph.reindex]
+  change Sym2.map (normalizedVertexLift F y)
+      (s(endpoint (pullback.snd F.toBase y) e 0, endpoint (pullback.snd F.toBase y) e 1)) =
+    Sym2.map (normalizedVertexLift F y) (s((B.point e 0).1, (B.point e 1).1))
+  apply congrArg (Sym2.map (normalizedVertexLift F y))
+  exact NormalizedBranchData.endpoint_pair_of_normalized_fibre
+    (pullback.snd F.toBase y) e
+    (fun j ↦ B.point e j) (fun j ↦ B.point_to_node e j)
+    (fun q hq ↦ B.point_fibre_surjective e q hq)
+
+/-- The canonical decorated graph of a geometric fibre.  Its vertex genus and endpoint map come
+from `geometricDualGraphOfNormalization`; a branch witness is not part of this graph's data. -/
+noncomputable def normalizedDecoratedGraphOfNormalization
+    (F : MarkedMap q I) [Fintype I] [DecidableEq I]
+    [PrestableFamily F.toBase]
+    {H : LineBundle V} (D : PolarizedDegree F H)
+    (K : Type u) [Field K] (y : Spec (.of K) ⟶ S)
+    [PrestableFamily (pullback.snd F.toBase y)] : DecoratedGraph.{max u v} :=
+  normalizedDecoratedGraph F D K y
+
+@[simp]
+theorem normalizedDecoratedGraphOfNormalization_degree_eq
+    (F : MarkedMap q I) [Fintype I] [DecidableEq I]
+    [PrestableFamily F.toBase] {H : LineBundle V} (D : PolarizedDegree F H)
+    (K : Type u) [Field K] (y : Spec (.of K) ⟶ S)
+    [PrestableFamily (pullback.snd F.toBase y)]
+    (C : Component (F.sourceFiber y)) :
+    D.degreeLine.degree y C =
+      (normalizedDecoratedGraphOfNormalization F D K y).degree
+        ((normalizedVertexLift F y) C) := by
+  change D.degreeLine.degree y C = (D.degreeLine.degree y C).toNat
+  exact (Int.toNat_of_nonneg (D.nonnegative K y C)).symm
+
+/-- Numerical stability of the canonical normalized graph is exactly the geometric positivity
+condition on its contracted normalized components. -/
+theorem normalizedDecoratedGraphOfNormalization_isStable
+    (F : MarkedMap q I) [Fintype I] [DecidableEq I]
+    [PrestableFamily F.toBase] {H : LineBundle V} (D : PolarizedDegree F H)
+    (K : Type u) [Field K] (y : Spec (.of K) ⟶ S)
+    [PrestableFamily (pullback.snd F.toBase y)]
+    (hstable : ∀ C : Component (F.sourceFiber y),
+      D.degreeLine.degree y C = 0 →
+        0 < (normalizedDecoratedGraphOfNormalization F D K y).logCanonicalDegree
+          ((normalizedVertexLift F y) C)) :
+    (normalizedDecoratedGraphOfNormalization F D K y).IsStable := by
+  intro vertex hdegree
+  apply hstable ((normalizedVertexLift F y).symm vertex)
+  calc
+    D.degreeLine.degree y ((normalizedVertexLift F y).symm vertex) =
+        ((normalizedDecoratedGraphOfNormalization F D K y).degree vertex : ℤ) := by
+      rw [← (normalizedVertexLift F y).apply_symm_apply vertex]
+      exact normalizedDecoratedGraphOfNormalization_degree_eq F D K y
+        ((normalizedVertexLift F y).symm vertex)
+    _ = 0 := by simp [hdegree]
+
+/-! A geometric fibre graph is the canonical graph read from the normalized fibre.  In
+particular, callers cannot replace its vertices, edges, endpoint map, or genera by supplied
+data.  Stability is the numerical predicate on this canonical graph. -/
+def GeometricFiberGraph (F : MarkedMap q I) [Fintype I] [DecidableEq I]
+    [PrestableFamily F.toBase] {H : LineBundle V} (D : PolarizedDegree F H)
+    (K : Type u) [Field K] [IsAlgClosed K] (y : Spec (.of K) ⟶ S)
+    [PrestableFamily (pullback.snd F.toBase y)] : Prop :=
+  (normalizedDecoratedGraph F D K y).IsStable
+
+/-! Stability transports through the actual source-fibre isomorphism.  The only extra equation
+needed by the decorated graph transport is the component carrying each smooth marking; the shared
+smooth-point component lemma supplies this equation when constructing map-level transport. -/
+theorem normalizedDecoratedGraph_isStable_of_iso
+    {F G : MarkedMap q I} [Fintype I] [DecidableEq I]
+    {H : LineBundle V} (e : F ≅ G) (D : PolarizedDegree F H)
+    {K : Type u} [Field K] [IsAlgClosed K]
+    (y : Spec (.of K) ⟶ S)
+    [PrestableFamily F.toBase] [PrestableFamily G.toBase]
+    [PrestableFamily (pullback.snd F.toBase y)]
+    [PrestableFamily (pullback.snd G.toBase y)]
+    (hmark : ∀ i : I,
+      normalizedMarkingVertex G y i =
+        irreducibleComponentsEquivOfSchemeIso (baseChangeSourceIso e y)
+          (normalizedMarkingVertex F y i)) :
+    (normalizedDecoratedGraph G (D.ofIso e H) K y).IsStable ↔
+      (normalizedDecoratedGraph F D K y).IsStable := by
+  classical
+  let E := baseChangeSourceIso e y
+  let he' : E.inv ≫ pullback.snd F.toBase y = pullback.snd G.toBase y :=
+    baseChangeHom_snd e.inv y
+  let _ : LocallyOfFiniteType (pullback.snd F.toBase y) := inferInstance
+  let _ : LocallyOfFiniteType (pullback.snd G.toBase y) := inferInstance
+  let _ : QuasiCompact (pullback.snd F.toBase y) := inferInstance
+  let _ : QuasiCompact (pullback.snd G.toBase y) := inferInstance
+  let _ : IsNoetherian (pullback F.toBase y) :=
+    isNoetherian_of_quasiCompact (f := pullback.snd F.toBase y)
+  let _ : IsNoetherian (pullback G.toBase y) :=
+    isNoetherian_of_quasiCompact (f := pullback.snd G.toBase y)
+  let c := irreducibleComponentsEquivOfSchemeIso E
+  have hc : c.symm = irreducibleComponentsEquivOfSchemeIso E.symm := by
+    ext C x
+    change x ∈ (c.symm C : Set _) ↔
+      x ∈ (irreducibleComponentsEquivOfSchemeIso E.symm C : Set _)
+    change E.hom x ∈ (C : Set _) ↔
+      x ∈ (transportedComponent E.symm C : Set _)
+    have ht := transportedComponent_mem E.symm C (E.hom x)
+    have hx : E.symm.hom (E.hom x) = x := congrArg (fun k ↦ k x) E.hom_inv_id
+    rw [hx] at ht
+    exact ht
+  have hgenus : ∀ C : Component (G.sourceFiber y),
+      arithmeticGenus K
+          (normalizedComponentToBase (pullback.snd F.toBase y) (c.symm C)) =
+        arithmeticGenus K
+          (normalizedComponentToBase (pullback.snd G.toBase y) C) := by
+    intro C
+    let iso := normalizedComponentSchemeIso (f := pullback.snd G.toBase y)
+      (g := pullback.snd F.toBase y) E.symm C
+    have hgen := arithmeticGenus_eq_of_scheme_iso iso
+      (normalizedComponentToBase (pullback.snd F.toBase y)
+        (transportedComponent E.symm C))
+    rw [normalizedComponentSchemeIso_hom_toBase E.symm C he'] at hgen
+    have hce : c.symm C = irreducibleComponentsEquivOfSchemeIso E.symm C := by
+      ext x
+      change x ∈ (c.symm C : Set _) ↔
+        x ∈ (transportedComponent E.symm C : Set _)
+      exact (transportedComponent_mem E.symm C (E.hom x)).trans (by simp)
+    rw [hce]
+    exact hgen.symm
+  let cv : (normalizedDecoratedGraph G (D.ofIso e H) K y).toDualGraph.Vertex ≃
+      (normalizedDecoratedGraph F D K y).toDualGraph.Vertex :=
+    (normalizedVertexLift G y).symm.trans (c.symm.trans (normalizedVertexLift F y))
+  let ce : (normalizedDecoratedGraph G (D.ofIso e H) K y).toDualGraph.Edge ≃
+      (normalizedDecoratedGraph F D K y).toDualGraph.Edge :=
+    (normalizedEdgeLift G y).symm.trans
+      ((edgesEquivOfIso E.symm he').trans (normalizedEdgeLift F y))
+  let cl : (normalizedDecoratedGraph G (D.ofIso e H) K y).Leg ≃
+      (normalizedDecoratedGraph F D K y).Leg := Equiv.refl _
+  symm
+  apply StableMaps.DecoratedGraph.isStable_iff_of_endpoint_pairs
+    (normalizedDecoratedGraph G (D.ofIso e H) K y)
+    (normalizedDecoratedGraph F D K y) cv ce cl
+  · intro edge
+    let eg := (normalizedEdgeLift G y).symm edge
+    change Sym2.map (normalizedVertexLift F y)
+        (s(endpoint (pullback.snd F.toBase y) (edgesEquivOfIso E.symm he' eg) 0,
+          endpoint (pullback.snd F.toBase y) (edgesEquivOfIso E.symm he' eg) 1)) =
+      Sym2.map (normalizedVertexLift F y)
+        (s(c.symm (endpoint (pullback.snd G.toBase y) eg 0),
+          c.symm (endpoint (pullback.snd G.toBase y) eg 1)))
+    rw [hc]
+    exact congrArg (Sym2.map (normalizedVertexLift F y))
+      (endpoints_edgesEquivOfIso E.symm he' eg)
+  · intro leg
+    let i : I := Equiv.ulift leg
+    change (normalizedVertexLift F y) (normalizedMarkingVertex F y i) =
+      cv ((normalizedVertexLift G y) (normalizedMarkingVertex G y i))
+    have hm : c.symm (normalizedMarkingVertex G y i) =
+        normalizedMarkingVertex F y i := by
+      rw [hmark i, c.symm_apply_apply]
+    change (normalizedVertexLift F y) (normalizedMarkingVertex F y i) =
+      (normalizedVertexLift F y) (c.symm (normalizedMarkingVertex G y i))
+    exact congrArg (normalizedVertexLift F y) hm.symm
+  · intro vertex
+    let C : Component (G.sourceFiber y) := (normalizedVertexLift G y).symm vertex
+    let C' : Component (F.sourceFiber y) := c.symm C
+    change arithmeticGenus K (normalizedComponentToBase (pullback.snd F.toBase y) C') =
+      arithmeticGenus K (normalizedComponentToBase (pullback.snd G.toBase y) C)
+    exact hgenus C
+  · intro vertex
+    let C : Component (G.sourceFiber y) := (normalizedVertexLift G y).symm vertex
+    change (D.degreeLine.degree y (c.symm C)).toNat =
+      ((D.ofIso e H).degreeLine.degree y C).toNat
+    rfl
+
+theorem normalizedMarkingVertex_eq_of_iso
+    {F G : MarkedMap q I}
+    (e : F ≅ G) (hF : Prestable F)
+    [PrestableFamily F.toBase] [PrestableFamily G.toBase]
+    {K : Type u} [Field K] [IsAlgClosed K]
+    (y : Spec (.of K) ⟶ S)
+    [PrestableFamily (pullback.snd F.toBase y)]
+    [PrestableFamily (pullback.snd G.toBase y)] (i : I) :
+    normalizedMarkingVertex G y i =
+      irreducibleComponentsEquivOfSchemeIso (baseChangeSourceIso e y)
+        (normalizedMarkingVertex F y i) := by
+  let hGprestable : Prestable G := hF.of_iso e
+  let hGsource : PrestableFamily G.toBase := hGprestable.sourceFamily
+  let hFsource : PrestableFamily F.toBase := hF.sourceFamily
+  let _ : PrestableFamily F.toBase := hFsource
+  let _ : PrestableFamily G.toBase := hGsource
+  let hFy : PrestableFamily (pullback.snd F.toBase y) :=
+    PrestableFamily.pullback_snd F.toBase y
+  let _ : PrestableFamily (pullback.snd F.toBase y) := hFy
+  let hGy : PrestableFamily (pullback.snd G.toBase y) :=
+    PrestableFamily.pullback_snd G.toBase y
+  let _ : PrestableFamily (pullback.snd G.toBase y) := hGy
+  let E := baseChangeSourceIso e y
+  let pF : F.sourceFiber y :=
+    (F.baseChange y).marking i (genericPoint (Spec (.of K)))
+  let pG : G.sourceFiber y :=
+    (G.baseChange y).marking i (genericPoint (Spec (.of K)))
+  have hp : E.hom pF = pG := by
+    let eFiber := (baseChangeFunctor y).mapIso e
+    change eFiber.hom.hom pF = pG
+    exact congrArg
+      (fun k : Spec (.of K) ⟶ G.sourceFiber y ↦
+        k (genericPoint (Spec (.of K))))
+      (eFiber.hom.marking_comm i)
+  have hsm : pG ∈ (pullback.snd G.toBase y).smoothLocus := by
+    exact hGprestable.baseChange y |>.markings_smooth i (genericPoint (Spec (.of K)))
+  obtain ⟨hc⟩ : Nonempty (SmoothChartAt (pullback.snd G.toBase y) pG) := by
+    refine ⟨{ source := (pullback.snd G.toBase y).smoothLocus.toScheme
+              point := ⟨pG, hsm⟩
+              toCurve := (pullback.snd G.toBase y).smoothLocus.ι
+              etale_toCurve := inferInstance
+              mapsToPoint := rfl
+              smooth_toBase := ?_ }⟩
+    rw [← Scheme.Hom.smoothLocus_eq_top_iff, ← Scheme.Hom.preimage_smoothLocus_eq,
+      Scheme.Opens.ι_preimage_self]
+  apply components_eq_of_smoothChart hc
+  · exact mem_componentOf pG
+  · rw [← hp]
+    exact (transportedComponent_mem E (componentOf pF) pF).mp (mem_componentOf pF)
 
 /-- A geometric stable map: every geometric fibre has a fully anchored stable decorated graph. -/
 structure Stable (F : MarkedMap q I) [Fintype I] [DecidableEq I]
     (H : LineBundle V) : Type (max (u + 2) (v + 1)) where
   prestable : Prestable F
   polarizedDegree : PolarizedDegree F H
-  fiberGraph : ∀ (K : Type u) [Field K] (y : Spec (.of K) ⟶ S),
+  fiberGraph : ∀ (K : Type u) [Field K] [IsAlgClosed K] (y : Spec (.of K) ⟶ S),
+    letI := prestable.sourceFamily
+    letI := PrestableFamily.pullback_snd F.toBase y
     GeometricFiberGraph F polarizedDegree K y
 
-/-- Geometric stability is invariant under an isomorphism of marked maps with fixed target.  All
-incidence and node data are transported through the induced source-fibre isomorphism. -/
-def Stable.ofIso {F G : MarkedMap q I} [Fintype I] [DecidableEq I]
-    (e : F ≅ G) (H : LineBundle V) (hF : Stable F H) : Stable G H where
+/-! This intermediate transport theorem isolates the sole geometric fact needed to transport
+stability through a source isomorphism: a smooth marking has the component transported by the
+source-fibre isomorphism.  The smooth-point component lemma supplies this equation for the public
+map-level transport API. -/
+def Stable.ofIso_of_normalizedMarkingVertex_eq
+    {F G : MarkedMap q I} [Fintype I] [DecidableEq I]
+    (e : F ≅ G) (H : LineBundle V) (hF : Stable F H)
+    (hmark : ∀ (K : Type u) [Field K] [IsAlgClosed K]
+      (y : Spec (.of K) ⟶ S) (i : I),
+      normalizedMarkingVertex G y i =
+        irreducibleComponentsEquivOfSchemeIso (baseChangeSourceIso e y)
+          (normalizedMarkingVertex F y i)) :
+    Stable G H where
   prestable := hF.prestable.of_iso e
   polarizedDegree := hF.polarizedDegree.ofIso e H
   fiberGraph := by
-    intro K _ y
-    let A := hF.fiberGraph K y
-    let eFiber := (baseChangeFunctor y).mapIso e
-    let E := baseChangeSourceIso e y
-    let c := irreducibleComponentsEquivOfSchemeIso E
-    exact
-      { graph := A.graph
-        componentEquiv := A.componentEquiv.trans c
-        markingEquiv := A.markingEquiv
-        marking_incidence := by
-          intro leg
-          let oldPoint : F.sourceFiber y := (F.baseChange y).marking
-            (A.markingEquiv leg) (genericPoint (Spec (.of K)))
-          let newPoint : G.sourceFiber y := (G.baseChange y).marking
-            (A.markingEquiv leg) (genericPoint (Spec (.of K)))
-          change newPoint ∈ (c (A.componentEquiv (A.graph.legVertex leg)) : Set _)
-          change newPoint ∈ E.hom ''
-            (A.componentEquiv (A.graph.legVertex leg) : Set _)
-          refine ⟨oldPoint, A.marking_incidence leg, ?_⟩
-          exact congrArg
-            (fun k : Spec (.of K) ⟶ G.sourceFiber y ↦
-              k (genericPoint (Spec (.of K))))
-            (eFiber.hom.marking_comm (A.markingEquiv leg))
-        nodePoint := fun edge ↦ E.hom (A.nodePoint edge)
-        nodePoint_injective := fun edge edge' h ↦
-          A.nodePoint_injective (E.hom.injective h)
-        nodeChart := by
-          intro edge
-          obtain ⟨chart⟩ := A.nodeChart edge
-          exact ⟨chart.postcompIso E (baseChangeHom_snd e.hom y)⟩
-        nodes_complete := by
-          intro z hz
-          obtain ⟨chart⟩ := hz
-          have hinv : E.inv ≫ pullback.snd F.toBase y =
-              pullback.snd G.toBase y := baseChangeHom_snd e.inv y
-          obtain ⟨edge, hedge⟩ := A.nodes_complete (E.inv z)
-            ⟨chart.postcompIso E.symm hinv⟩
-          refine ⟨edge, ?_⟩
-          change E.hom (A.nodePoint edge) = z
-          rw [hedge]
-          exact congrArg (fun k : G.sourceFiber y ⟶ G.sourceFiber y ↦ k z)
-            E.inv_hom_id
-        endpoint_incidence := by
-          intro edge j
-          change E.hom (A.nodePoint edge) ∈
-            (c (A.componentEquiv (A.graph.toDualGraph.endpoint edge j)) : Set _)
-          change E.hom (A.nodePoint edge) ∈
-            E.hom '' (A.componentEquiv
-              (A.graph.toDualGraph.endpoint edge j) : Set _)
-          exact ⟨A.nodePoint edge, A.endpoint_incidence edge j, rfl⟩
-        degree_eq := by
-          intro vertex
-          change hF.polarizedDegree.degreeLine.degree y
-              (c.symm (c (A.componentEquiv vertex))) = A.graph.degree vertex
-          rw [c.symm_apply_apply]
-          exact A.degree_eq vertex
-        stable := A.stable }
+    intro K _ _ y
+    let hFsource : PrestableFamily F.toBase := hF.prestable.sourceFamily
+    let _ : PrestableFamily F.toBase := hFsource
+    let hGsource : PrestableFamily G.toBase := (hF.prestable.of_iso e).sourceFamily
+    let _ : PrestableFamily G.toBase := hGsource
+    let hFy : PrestableFamily (pullback.snd F.toBase y) :=
+      PrestableFamily.pullback_snd F.toBase y
+    let _ : PrestableFamily (pullback.snd F.toBase y) := hFy
+    let hGy : PrestableFamily (pullback.snd G.toBase y) :=
+      PrestableFamily.pullback_snd G.toBase y
+    let _ : PrestableFamily (pullback.snd G.toBase y) := hGy
+    apply (normalizedDecoratedGraph_isStable_of_iso e hF.polarizedDegree y
+      (fun i ↦ hmark K y i)).mpr
+    exact hF.fiberGraph K y
 
-/-- A target monomorphism preserves geometric stability whenever it reflects componentwise
-constancy. -/
+def Stable.ofIso {F G : MarkedMap q I} [Fintype I] [DecidableEq I]
+    (e : F ≅ G) (H : LineBundle V) (hF : Stable F H) : Stable G H := by
+  let hGprestable : Prestable G := hF.prestable.of_iso e
+  let hGsource : PrestableFamily G.toBase := hGprestable.sourceFamily
+  refine { prestable := hGprestable,
+            polarizedDegree := hF.polarizedDegree.ofIso e H,
+            fiberGraph := ?_ }
+  intro K _ _ y
+  let hFsource : PrestableFamily F.toBase := hF.prestable.sourceFamily
+  let _ : PrestableFamily F.toBase := hFsource
+  let _ : PrestableFamily G.toBase := hGsource
+  let hFy : PrestableFamily (pullback.snd F.toBase y) :=
+    PrestableFamily.pullback_snd F.toBase y
+  let _ : PrestableFamily (pullback.snd F.toBase y) := hFy
+  let hGy : PrestableFamily (pullback.snd G.toBase y) :=
+    PrestableFamily.pullback_snd G.toBase y
+  let _ : PrestableFamily (pullback.snd G.toBase y) := hGy
+  apply (normalizedDecoratedGraph_isStable_of_iso e hF.polarizedDegree y ?_).mpr
+    (hF.fiberGraph K y)
+  intro i
+  exact normalizedMarkingVertex_eq_of_iso e hF.prestable y i
+
+/-! Target postcomposition leaves the normalized source graph unchanged.  The polarization degree
+construction above carries the genuine constancy criterion to the new target, while its relative
+line is the same source line, so the canonical fibre-graph proposition is transported directly. -/
 def Stable.postcomposeOfReflectsConstancy
     {W : Scheme.{u}} {q' : W ⟶ S} [Fintype I] [DecidableEq I]
     (F : MarkedMap q I) (H : LineBundle W) (a : V ⟶ W) (ha : a ≫ q' = q)
@@ -653,24 +914,9 @@ def Stable.postcomposeOfReflectsConstancy
   polarizedDegree :=
     hF.polarizedDegree.postcomposeOfReflectsConstancy F H a ha hreflect
   fiberGraph := by
-    intro K _ y
-    let G := hF.fiberGraph K y
-    exact
-      { graph := G.graph
-        componentEquiv := G.componentEquiv
-        markingEquiv := G.markingEquiv
-        marking_incidence := G.marking_incidence
-        nodePoint := G.nodePoint
-        nodePoint_injective := G.nodePoint_injective
-        nodeChart := G.nodeChart
-        nodes_complete := G.nodes_complete
-        endpoint_incidence := G.endpoint_incidence
-        degree_eq := by
-          intro vertex
-          exact G.degree_eq vertex
-        stable := G.stable }
+    intro K _ _ y
+    exact hF.fiberGraph K y
 
-/-- A stable map remains stable after postcomposition by a closed immersion of targets. -/
 def Stable.postcomposeClosedImmersion
     {W : Scheme.{u}} {q' : W ⟶ S} [Fintype I] [DecidableEq I]
     (F : MarkedMap q I) (H : LineBundle W) (a : V ⟶ W) (ha : a ≫ q' = q)
@@ -679,8 +925,6 @@ def Stable.postcomposeClosedImmersion
   hF.postcomposeOfReflectsConstancy F H a ha
     (reflectsComponentConstancy_of_isClosedImmersion F a ha)
 
-/-- Geometric stability is preserved by an isomorphism of targets, after transporting the
-polarization along the inverse isomorphism. -/
 def Stable.postcomposeIso {W : Scheme.{u}} {q' : W ⟶ S}
     [Fintype I] [DecidableEq I] (F : MarkedMap q I) (H : LineBundle V)
     (hF : Stable F H) (e : V ≅ W) (he : e.hom ≫ q' = q) :
@@ -688,25 +932,9 @@ def Stable.postcomposeIso {W : Scheme.{u}} {q' : W ⟶ S}
   prestable := hF.prestable.postcompose e.hom he
   polarizedDegree := hF.polarizedDegree.postcomposeIso F H e he
   fiberGraph := by
-    intro K _ y
-    let G := hF.fiberGraph K y
-    exact
-      { graph := G.graph
-        componentEquiv := G.componentEquiv
-        markingEquiv := G.markingEquiv
-        marking_incidence := G.marking_incidence
-        nodePoint := G.nodePoint
-        nodePoint_injective := G.nodePoint_injective
-        nodeChart := G.nodeChart
-        nodes_complete := G.nodes_complete
-        endpoint_incidence := G.endpoint_incidence
-        degree_eq := by
-          intro vertex
-          exact G.degree_eq vertex
-        stable := G.stable }
+    intro K _ _ y
+    exact hF.fiberGraph K y
 
-/-- Full geometric stability is invariant under a target-changing isomorphism of marked maps,
-after transporting the polarization along the inverse target isomorphism. -/
 def Stable.ofTargetedIso {W : Scheme.{u}} {q' : W ⟶ S}
     {F : MarkedMap q I} {G : MarkedMap q' I} [Fintype I] [DecidableEq I]
     (e : TargetedIso F G) (H : LineBundle V) (hF : Stable F H) :
@@ -714,88 +942,135 @@ def Stable.ofTargetedIso {W : Scheme.{u}} {q' : W ⟶ S}
   Stable.ofIso e.toIso (H.pullback e.targetIso.inv)
     (hF.postcomposeIso F H e.targetIso e.targetIso_toBase)
 
-/-- Geometric stability is preserved by arbitrary base change.  The fibre graph over a
-field-valued point of the new base is the graph over the composite point, transported through
-the canonical isomorphism between iterated and direct chosen pullbacks. -/
-def Stable.baseChange (F : MarkedMap q I) [Fintype I] [DecidableEq I]
-    (H : LineBundle V) (hF : Stable F H) {T : Scheme.{u}} (b : T ⟶ S) :
-    Stable (F.baseChange b) (H.pullback (pullback.fst q b)) where
-  prestable := hF.prestable.baseChange b
-  polarizedDegree := hF.polarizedDegree.baseChange F H b
-  fiberGraph := by
-    intro K _ y
-    let A := hF.fiberGraph K (y ≫ b)
-    let E := iteratedBaseChangeComparison F b y
-    let ES := iteratedBaseChangeSourceIso F b y
-    let c := irreducibleComponentsEquivOfSchemeIso ES
-    exact
-      { graph := A.graph
-        componentEquiv := A.componentEquiv.trans c.symm
-        markingEquiv := A.markingEquiv
-        marking_incidence := by
-          intro leg
-          dsimp only
-            [GromovWitten.AlgebraicGeometry.Curves.StableMaps.MarkedMap.baseChange]
-          let newPoint :
-              (CategoryTheory.Limits.pullback (pullback.snd F.toBase b) y : Scheme.{u}) :=
-            ((F.baseChange b).baseChange y).marking (A.markingEquiv leg)
-              (genericPoint (Spec (.of K)))
-          let oldPoint :
-              (CategoryTheory.Limits.pullback F.toBase (y ≫ b) : Scheme.{u}) :=
-            (F.baseChange (y ≫ b)).marking (A.markingEquiv leg)
-              (genericPoint (Spec (.of K)))
-          change newPoint ∈
-            (c.symm (A.componentEquiv (A.graph.legVertex leg))).1
-          change ES.hom newPoint ∈
-            (A.componentEquiv (A.graph.legVertex leg) : Set _)
-          have hmark : ES.hom newPoint = oldPoint := congrArg
-            (fun k : Spec (.of K) ⟶ (F.baseChange (y ≫ b)).source ↦
-              k (genericPoint (Spec (.of K))))
-            (E.marking_comm (A.markingEquiv leg))
-          rw [hmark]
-          exact A.marking_incidence leg
-        nodePoint := fun edge ↦ ES.inv (A.nodePoint edge)
-        nodePoint_injective := fun edge edge' h ↦
-          A.nodePoint_injective (ES.inv.injective h)
-        nodeChart := by
-          intro edge
-          obtain ⟨chart⟩ := A.nodeChart edge
-          exact ⟨chart.postcompIso ES.symm
-            (pullbackLeftPullbackSndIso_inv_snd_snd F.toBase b y)⟩
-        nodes_complete := by
-          intro z hz
-          obtain ⟨chart⟩ := hz
-          obtain ⟨edge, hedge⟩ := A.nodes_complete (ES.hom z)
-            ⟨chart.postcompIso ES
-              (pullbackLeftPullbackSndIso_hom_snd F.toBase b y)⟩
-          refine ⟨edge, ?_⟩
-          change ES.inv (A.nodePoint edge) = z
-          rw [hedge]
-          exact congrArg
-            (fun k : ((F.baseChange b).baseChange y).source ⟶
-                ((F.baseChange b).baseChange y).source ↦ k z)
-            ES.hom_inv_id
-        endpoint_incidence := by
-          intro edge j
-          change ES.inv (A.nodePoint edge) ∈
-            (c.symm
-              (A.componentEquiv (A.graph.toDualGraph.endpoint edge j)) : Set _)
-          change ES.hom (ES.inv (A.nodePoint edge)) ∈
-            (A.componentEquiv (A.graph.toDualGraph.endpoint edge j) : Set _)
-          have heq : ES.hom (ES.inv (A.nodePoint edge)) =
-              A.nodePoint edge := congrArg
-            (fun k : (F.baseChange (y ≫ b)).source ⟶
-                (F.baseChange (y ≫ b)).source ↦ k (A.nodePoint edge))
-            ES.inv_hom_id
-          rw [heq]
-          exact A.endpoint_incidence edge j
-        degree_eq := by
-          intro vertex
-          change hF.polarizedDegree.degreeLine.degree (y ≫ b)
-              (c (c.symm (A.componentEquiv vertex))) = A.graph.degree vertex
-          rw [c.apply_symm_apply]
-          exact A.degree_eq vertex
-        stable := A.stable }
+/-! Base change transports the canonical normalized graph through the actual iterated-fibre
+isomorphism.  The component and marking comparisons below use the normalization geometry, so
+the resulting stability statement does not accept an independently supplied graph. -/
+def Stable.baseChange
+    {T : Scheme.{u}} (F : MarkedMap q I) (H : LineBundle V)
+    [Fintype I] [DecidableEq I]
+    (hF : Stable F H) (b : T ⟶ S) :
+    Stable (F.baseChange b) (H.pullback (pullback.fst q b)) := by
+  let hbase : PrestableFamily (F.baseChange b).toBase :=
+    (hF.prestable.baseChange b).sourceFamily
+  let hD := hF.polarizedDegree.baseChange F H b
+  refine { prestable := hF.prestable.baseChange b,
+            polarizedDegree := hD,
+            fiberGraph := ?_ }
+  intro K _ _ y
+  let hFsource : PrestableFamily F.toBase := hF.prestable.sourceFamily
+  let _ : PrestableFamily F.toBase := hFsource
+  let _ : PrestableFamily (F.baseChange b).toBase := hbase
+  let hdirect : PrestableFamily (pullback.snd F.toBase (y ≫ b)) :=
+    PrestableFamily.pullback_snd F.toBase (y ≫ b)
+  let _ : PrestableFamily (pullback.snd F.toBase (y ≫ b)) := hdirect
+  let hiter : PrestableFamily (pullback.snd (F.baseChange b).toBase y) :=
+    PrestableFamily.pullback_snd (F.baseChange b).toBase y
+  let _ : PrestableFamily (pullback.snd (F.baseChange b).toBase y) := hiter
+  let E : pullback (F.baseChange b).toBase y ≅ pullback F.toBase (y ≫ b) := by
+    dsimp only [MarkedMap.baseChange]
+    exact iteratedBaseChangeSourceIso F b y
+  let he : E.hom ≫ pullback.snd F.toBase (y ≫ b) =
+      pullback.snd (F.baseChange b).toBase y := by
+    dsimp only [E, MarkedMap.baseChange]
+    exact pullbackLeftPullbackSndIso_hom_snd F.toBase b y
+  let c := irreducibleComponentsEquivOfSchemeIso E
+  let A := normalizedDecoratedGraph F hF.polarizedDegree K (y ≫ b)
+  let B := normalizedDecoratedGraph (F.baseChange b) hD K y
+  let cv : B.toDualGraph.Vertex ≃ A.toDualGraph.Vertex :=
+    (normalizedVertexLift (F.baseChange b) y).symm.trans
+      (c.trans (normalizedVertexLift F (y ≫ b)))
+  let ce : B.toDualGraph.Edge ≃ A.toDualGraph.Edge :=
+    (normalizedEdgeLift (F.baseChange b) y).symm.trans
+      ((edgesEquivOfIso E he).trans (normalizedEdgeLift F (y ≫ b)))
+  let cl : B.Leg ≃ A.Leg := Equiv.refl _
+  have hgenus : ∀ C : Component (pullback (F.baseChange b).toBase y),
+      arithmeticGenus K (normalizedComponentToBase (pullback.snd (F.baseChange b).toBase y) C) =
+        arithmeticGenus K (normalizedComponentToBase (pullback.snd F.toBase (y ≫ b)) (c C)) := by
+    intro C
+    let _ : LocallyOfFiniteType (pullback.snd (F.baseChange b).toBase y) := inferInstance
+    let _ : LocallyOfFiniteType (pullback.snd F.toBase (y ≫ b)) := inferInstance
+    let _ : QuasiCompact (pullback.snd (F.baseChange b).toBase y) := inferInstance
+    let _ : QuasiCompact (pullback.snd F.toBase (y ≫ b)) := inferInstance
+    let _ : IsNoetherian (pullback (F.baseChange b).toBase y) :=
+      isNoetherian_of_quasiCompact (f := pullback.snd (F.baseChange b).toBase y)
+    let _ : IsNoetherian (pullback F.toBase (y ≫ b)) :=
+      isNoetherian_of_quasiCompact (f := pullback.snd F.toBase (y ≫ b))
+    let iso := normalizedComponentSchemeIso (f := pullback.snd (F.baseChange b).toBase y)
+      (g := pullback.snd F.toBase (y ≫ b)) E C
+    have hg := arithmeticGenus_eq_of_scheme_iso iso
+      (normalizedComponentToBase (pullback.snd F.toBase (y ≫ b)) (transportedComponent E C))
+    dsimp only [iso] at hg
+    rw [normalizedComponentSchemeIso_hom_toBase (f := pullback.snd (F.baseChange b).toBase y)
+      (g := pullback.snd F.toBase (y ≫ b)) E C he] at hg
+    simpa [c, transportedComponent] using hg
+  change B.IsStable
+  refine (StableMaps.DecoratedGraph.isStable_iff_of_endpoint_pairs B A cv ce cl
+    ?_ ?_ ?_ ?_).mp ?_
+  · intro edge
+    let eg := (normalizedEdgeLift (F.baseChange b) y).symm edge
+    change Sym2.map (normalizedVertexLift F (y ≫ b))
+        (s(endpoint (pullback.snd F.toBase (y ≫ b)) (edgesEquivOfIso E he eg) 0,
+          endpoint (pullback.snd F.toBase (y ≫ b)) (edgesEquivOfIso E he eg) 1)) =
+      Sym2.map (normalizedVertexLift F (y ≫ b))
+        (s(c (endpoint (pullback.snd (F.baseChange b).toBase y) eg 0),
+          c (endpoint (pullback.snd (F.baseChange b).toBase y) eg 1)))
+    exact congrArg (Sym2.map (normalizedVertexLift F (y ≫ b)))
+      (endpoints_edgesEquivOfIso E he eg)
+  · intro leg
+    let i : I := Equiv.ulift leg
+    let pnew : (F.baseChange b).sourceFiber y :=
+      ((F.baseChange b).baseChange y).marking i (genericPoint (Spec (.of K)))
+    let pold : F.sourceFiber (y ≫ b) :=
+      (F.baseChange (y ≫ b)).marking i (genericPoint (Spec (.of K)))
+    have hpoint : E.hom pnew = pold := by
+      let Cmp := iteratedBaseChangeComparison F b y
+      exact congrArg
+        (fun k : Spec (.of K) ⟶ (F.baseChange (y ≫ b)).source ↦
+          k (genericPoint (Spec (.of K))))
+        (Cmp.marking_comm i)
+    have hsm : pold ∈ (pullback.snd F.toBase (y ≫ b)).smoothLocus := by
+      exact hF.prestable.baseChange (y ≫ b) |>.markings_smooth i
+        (genericPoint (Spec (.of K)))
+    obtain ⟨hc⟩ : Nonempty (SmoothChartAt (pullback.snd F.toBase (y ≫ b)) pold) := by
+      refine ⟨{ source := (pullback.snd F.toBase (y ≫ b)).smoothLocus.toScheme
+                point := ⟨pold, hsm⟩
+                toCurve := (pullback.snd F.toBase (y ≫ b)).smoothLocus.ι
+                etale_toCurve := inferInstance
+                mapsToPoint := rfl
+                smooth_toBase := ?_ }⟩
+      rw [← Scheme.Hom.smoothLocus_eq_top_iff, ← Scheme.Hom.preimage_smoothLocus_eq,
+        Scheme.Opens.ι_preimage_self]
+    have hcomp : componentOf pold = c (componentOf pnew) := by
+      apply components_eq_of_smoothChart hc
+      · exact mem_componentOf pold
+      · rw [← hpoint]
+        exact (transportedComponent_mem E (componentOf pnew) pnew).mp
+          (mem_componentOf pnew)
+    change (normalizedVertexLift F (y ≫ b)) (normalizedMarkingVertex F (y ≫ b) i) =
+      cv ((normalizedVertexLift (F.baseChange b) y)
+        (normalizedMarkingVertex (F.baseChange b) y i))
+    change (normalizedVertexLift F (y ≫ b)) (componentOf pold) =
+      (normalizedVertexLift F (y ≫ b)) (c (componentOf pnew))
+    exact congrArg (normalizedVertexLift F (y ≫ b)) hcomp
+  · intro vertex
+    let C : Component (pullback (F.baseChange b).toBase y) :=
+      (normalizedVertexLift (F.baseChange b) y).symm vertex
+    simp only [A, B, normalizedDecoratedGraph, DualGraph.reindex]
+    dsimp only [geometricDualGraphOfNormalization, geometricDualGraph,
+      normalizedComponentGenus]
+    change arithmeticGenus K
+        (normalizedComponentToBase (pullback.snd F.toBase (y ≫ b)) (c C)) =
+      arithmeticGenus K
+        (normalizedComponentToBase (pullback.snd (F.baseChange b).toBase y) C)
+    exact (hgenus C).symm
+  · intro vertex
+    let C : Component (pullback (F.baseChange b).toBase y) :=
+      (normalizedVertexLift (F.baseChange b) y).symm vertex
+    change (hD.degreeLine.degree y C).toNat =
+      (hF.polarizedDegree.degreeLine.degree (y ≫ b) (c C)).toNat
+    rfl
+  · exact hF.fiberGraph K (y ≫ b)
+
 
 /-- A proper contraction between marked maps, with a genuine isomorphism on the complements of
 closed exceptional loci and connected point fibres. -/
