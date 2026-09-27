@@ -238,6 +238,7 @@ import GromovWitten.AlgebraicGeometry.Curves.LineBundles
 import GromovWitten.AlgebraicGeometry.Curves.CartierDivisors
 import GromovWitten.AlgebraicGeometry.Curves.MarkingDivisors
 import GromovWitten.AlgebraicGeometry.Curves.RelativeLineBundles
+import GromovWitten.AlgebraicGeometry.Curves.CohomologyBasic
 import GromovWitten.AlgebraicGeometry.Curves.CohomologyBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.ArithmeticGenus
 import GromovWitten.AlgebraicGeometry.Curves.ArithmeticGenusNormalization

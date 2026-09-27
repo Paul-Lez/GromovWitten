@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 
-import GromovWitten.AlgebraicGeometry.Curves.CohomologyBaseChange
+import GromovWitten.AlgebraicGeometry.Curves.CohomologyBasic
 import Mathlib.Algebra.Category.ModuleCat.Presheaf.Generator
 import Mathlib.CategoryTheory.Abelian.GrothendieckAxioms.FunctorCategory
 import Mathlib.Algebra.Category.ModuleCat.AB
