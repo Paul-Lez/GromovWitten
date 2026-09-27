@@ -517,6 +517,11 @@ Implemented APIs include:
   relative obstruction datum identified, and a counterexample showing that the resolved-cone identity
   needs a transversality hypothesis on the resolved cone
   (`VirtualFundamentalClass/RelativeHyperplaneCone.lean`);
+- the resolved-cone identity along the coordinate hyperplane under regularity on the power quotients and
+  transversality of the resolved cone to the hyperplane, which is shown to be necessary, with the geometric
+  form as the scheme-theoretic intersection of the resolved cone with the hyperplane
+  (`VirtualFundamentalClass/RelativeHyperplaneConeIdentity.lean`); the cycle-level and Gysin comparisons of the
+  relative virtual classes remain open;
 - functoriality under the smooth projection `X × 𝔸^τ → X` (Layer 8, affine model): the flat
   pullback along a trivialised bundle is transitive on Chow groups, commutes with pushforward along
   closed immersions and with the zero-section Gysin map
