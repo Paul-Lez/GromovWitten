@@ -518,3 +518,4 @@ import GromovWitten.AlgebraicGeometry.Cones.EtaleChartConeStack
 
 import GromovWitten.AlgebraicGeometry.Curves.AffineTensorBaseChange
 import GromovWitten.AlgebraicGeometry.MatrixRankLocus
+import GromovWitten.AlgebraicGeometry.Curves.ModuleBaseChangeMate
