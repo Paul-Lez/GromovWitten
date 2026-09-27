@@ -537,6 +537,12 @@ Implemented APIs include:
   localisation case, and the relative conormal complex and comparison chain map for base change along a
   coordinate hyperplane of the base (`VirtualFundamentalClass/RelativeVirtualClassBaseChange.lean`:
   `hyperplaneConormalComplex`, `hyperplaneHom`);
+- the long exact cohomology sequence of a short exact sequence of sheaves of modules on a scheme, from
+  short exactness in the category of sheaves of modules alone (the forgetful functor to abelian sheaves
+  preserves finite limits and epimorphisms, the latter through a reflection criterion absent from Mathlib),
+  with a connecting homomorphism linear over the global sections, and the additivity of the Euler
+  characteristic under explicit finite-dimensionality and vanishing hypotheses
+  (`Curves/CohomologyExactSequence.lean`);
 - the multiplicity of an effective Cartier divisor at a point as the length of the stalk of its structure
   sheaf, additive under sums of divisors and independent of the chart, the degree of an effective Cartier
   divisor as the degree of its zero-cycle, finite on every regular one-dimensional integral Noetherian scheme,
