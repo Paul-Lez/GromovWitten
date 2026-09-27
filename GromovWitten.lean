@@ -538,3 +538,4 @@ import GromovWitten.AlgebraicGeometry.Curves.AffineBaseChangeCompatibility
 import GromovWitten.AlgebraicGeometry.Curves.AffineBaseChangeIsomorphism
 import GromovWitten.AlgebraicGeometry.Curves.FiniteHigherDirectImage
 import GromovWitten.AlgebraicGeometry.FiniteProjectiveComplexHomology
+import GromovWitten.AlgebraicGeometry.Curves.OpenImmersionBaseChange

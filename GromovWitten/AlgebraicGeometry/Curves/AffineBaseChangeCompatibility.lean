@@ -55,33 +55,6 @@ def affineBaseChangeGammaMap :
         (canonicalPushforwardBaseChangeComparison (Spec.map φ) M
           (Spec.map ψ) (Spec.map δ) (Spec.map γ) h) ≫
         (affineGammaIso γ).hom.app ((Scheme.Modules.pullback (Spec.map δ)).obj M)
-private theorem eq_of_eq_apply {P Q : Type u} (F : P → Q) {x y : P} {a : Q}
-    (h : a = F x) (hxy : x = y) : a = F y :=
-  h.trans (congrArg F hxy)
-set_option backward.isDefEq.respectTransparency false in
-private lemma affineBaseChangeGammaMap_left
-    (x : (moduleSpecΓFunctor (R := B)).obj M) :
-    affinePullbackGammaMap ψ ((Scheme.Modules.pushforward (Spec.map φ)).obj M)
-        ((1 : C) ⊗ₜ[A,ψ.hom] ((affineGammaIso φ).inv.app M x)) =
-      ((moduleSpecΓFunctor (R := A)).map
-        ((Scheme.Modules.pullbackPushforwardAdjunction (Spec.map ψ)).unit.app
-          ((Scheme.Modules.pushforward (Spec.map φ)).obj M))) x := by
-  refine eq_of_eq_apply
-    (F := fun z => ((moduleSpecΓFunctor (R := A)).map
-      ((Scheme.Modules.pullbackPushforwardAdjunction (Spec.map ψ)).unit.app
-        ((Scheme.Modules.pushforward (Spec.map φ)).obj M))) z)
-    (x := ((affineGammaIso φ).inv.app M x)) (y := x) ?_ ?_
-  · exact affinePullbackGammaMap_one_tmul_unit ψ
-      ((Scheme.Modules.pushforward (Spec.map φ)).obj M) _
-  · exact affineGammaIso_inv_apply φ M x
-
-set_option backward.isDefEq.respectTransparency false in
-private lemma affineBaseChangeGammaMap_right
-    (x : (moduleSpecΓFunctor (R := B)).obj M) :
-    affinePullbackGammaMap δ M ((1 : D) ⊗ₜ[B,δ.hom] x) =
-      ((moduleSpecΓFunctor (R := B)).map
-        ((Scheme.Modules.pullbackPushforwardAdjunction (Spec.map δ)).unit.app M)) x := by
-  exact affinePullbackGammaMap_one_tmul_unit δ M x
 
 set_option backward.isDefEq.respectTransparency false in
 private lemma affineGamma_unit_abstract
@@ -158,7 +131,7 @@ private theorem iso_middle_of_iso_comp {C : Type u} [Category C]
   exact IsIso.of_isIso_comp_right γ δ
 
 private theorem affineBaseChange_isIso_of_gammaMap
-    (h : IsPullback p g f b) (M : (Spec (B)).Modules)
+    (h : IsPullback p g f b) (M : (Spec B).Modules)
     [M.IsQuasicoherent]
     (hΓcomp : IsIso ((ModuleCat.extendScalars ψ.hom).map
           ((affineGammaIso φ).inv.app M) ≫
@@ -173,21 +146,21 @@ private theorem affineBaseChange_isIso_of_gammaMap
   have : IsAffineHom g := by infer_instance
   have : ((Scheme.Modules.pushforward f).obj M).IsQuasicoherent := by infer_instance
   have : ((Scheme.Modules.pullback p).obj M).IsQuasicoherent := by infer_instance
-  have hN : IsIso (@Scheme.Modules.fromTildeΓ (C)
+  have hN : IsIso (@Scheme.Modules.fromTildeΓ C
       ((Scheme.Modules.pullback b).obj ((Scheme.Modules.pushforward f).obj M))) := by
     have : ((Scheme.Modules.pullback b).obj
         ((Scheme.Modules.pushforward f).obj M)).IsQuasicoherent := by
       infer_instance
     exact Scheme.Modules.isIso_fromTildeΓ_of_isQuasicoherent _
-  have hP : IsIso (@Scheme.Modules.fromTildeΓ (C)
+  have hP : IsIso (@Scheme.Modules.fromTildeΓ C
       ((Scheme.Modules.pushforward g).obj ((Scheme.Modules.pullback p).obj M))) := by
     have : ((Scheme.Modules.pushforward g).obj
         ((Scheme.Modules.pullback p).obj M)).IsQuasicoherent := by
       infer_instance
     exact Scheme.Modules.isIso_fromTildeΓ_of_isQuasicoherent _
-  have : IsIso (@Scheme.Modules.fromTildeΓ (C)
+  have : IsIso (@Scheme.Modules.fromTildeΓ C
       ((Scheme.Modules.pullback b).obj ((Scheme.Modules.pushforward f).obj M))) := hN
-  have : IsIso (@Scheme.Modules.fromTildeΓ (C)
+  have : IsIso (@Scheme.Modules.fromTildeΓ C
       ((Scheme.Modules.pushforward g).obj ((Scheme.Modules.pullback p).obj M))) := hP
   have hΓ : IsIso ((moduleSpecΓFunctor (R := C)).map
       (canonicalPushforwardBaseChangeComparison f M b p g h)) := by
