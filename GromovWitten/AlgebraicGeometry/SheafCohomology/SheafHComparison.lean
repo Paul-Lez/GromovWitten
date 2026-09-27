@@ -274,6 +274,26 @@ noncomputable def sheafHRightDerivedSectionsAddEquiv
   let h5 := isoToAddEquiv hD.symm
   exact h1.trans h2 |>.trans h3.symm |>.trans h4 |>.trans h5
 
+/-- In degree zero, `Sheaf.H.equiv₀` and the zero-th right-derived comparison
+identify Ext sheaf cohomology with ordinary global sections. -/
+noncomputable def sheafHRightDerivedSectionsAddEquiv_zero
+    {F : Sheaf (Opens.grothendieckTopology X) AddCommGrpCat.{u}} :
+    F.H 0 ≃+
+      (((sections (⊤ : Opens X)).rightDerived 0).obj F : Type u) := by
+  let _ : PreservesFiniteLimits (TopCat.Sheaf.forget AddCommGrpCat X) :=
+    inferInstanceAs (PreservesFiniteLimits
+      (sheafToPresheaf (Opens.grothendieckTopology X) AddCommGrpCat))
+  let _ : PreservesFiniteLimits
+      ((evaluation (Opens X)ᵒᵖ AddCommGrpCat).obj (op (⊤ : Opens X))) := by
+    infer_instance
+  let _ : PreservesFiniteLimits (sections (⊤ : Opens X)) := by
+    unfold sections
+    infer_instance
+  let e₀ := Sheaf.H.equiv₀ F isTerminalTop
+  let e₁ := isoToAddEquiv
+    ((Functor.rightDerivedZeroIsoSelf (sections (⊤ : Opens X))).app F).symm
+  exact e₀.trans e₁
+
 /-- Vanishing of actual derived global sections implies vanishing of `Sheaf.H` in
 positive degree. -/
 theorem isZero_sheafH_of_isZero_rightDerivedSections
