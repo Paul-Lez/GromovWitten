@@ -80,7 +80,7 @@ lemma sectionsMV_exact (F : TopCat.Sheaf AddCommGrpCat.{u} X) (U V : Opens X) :
   change F.obj.map _ x.1 - F.obj.map _ x.2 = 0 at hx
   have hx' := sub_eq_zero.mp hx
   let W : Fin 2 → Opens X := ![U, V]
-  let sf : (i : Fin 2) → F.obj.obj (op (W i)) 
+  let sf : (i : Fin 2) → F.obj.obj (op (W i))
     | 0 => x.1
     | 1 => x.2
   have hc : TopCat.Presheaf.IsCompatible F.obj W sf := by
