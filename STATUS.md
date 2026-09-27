@@ -25,6 +25,9 @@ Implemented APIs include:
   representative and compatible with scalar extension; and distinguished-triangle rank
   additivity for the globally finite-free model
   (`CotangentComplex/Projective*.lean`, `PerfectTriangles.lean`);
+- the identity laws of the restriction maps of the cotangent cohomology of étale charts and the resulting
+  presheaves of modules on the charts over an affine open of the base, with the universal derivation as a
+  morphism of presheaves (`CotangentComplex/AtlasDescentGlobal.lean`); gluing into sheaves remains open;
 - the derived tensor product of perfect objects over a ring from the chain-level tensor product of
   strictly perfect representatives, with representative independence, multiplicative rank, and unit and
   associativity isomorphisms (`CotangentComplex/PerfectTensor.lean`); the braiding and the internal Hom
