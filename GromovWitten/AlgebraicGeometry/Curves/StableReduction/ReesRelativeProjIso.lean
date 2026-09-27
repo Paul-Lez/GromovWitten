@@ -111,7 +111,88 @@ def affineRelativeProjIso (I : Ideal R) :
         congr 1
       _ = _ := Proj.map_id
 
+/-- The affine comparison respects the maps to the affine base. -/
+theorem affineRelativeProjIso_hom_projection (I : Ideal R) :
+    (affineRelativeProjIso I).hom ≫ ProjBaseChange.projection (gradeSubmodule I) =
+      ReesBlowup.projection I := by
+  refine (Proj.mapAffineOpenCover (submoduleToGrade I) (submoduleToGrade_irr I)).openCover.hom_ext
+    _ _ ?_
+  rintro ⟨⟨d, hd⟩, s, hs⟩
+  let _ : Algebra R (gradeSubmodule I 0) := inferInstance
+  let _ : Algebra R (HomogeneousLocalization.Away (gradeSubmodule I)
+      (s : reesAlgebra I)) := ProjBaseChange.awayAlgebra (s : reesAlgebra I)
+  let si : gradeSubmodule I d := ⟨s, hs⟩
+  let chartO : Spec (.of (HomogeneousLocalization.Away (ReesBlowup.grade I)
+      (submoduleToGrade I si))) ⟶ Proj (ReesBlowup.grade I) :=
+    Proj.awayι (ReesBlowup.grade I) (submoduleToGrade I si)
+      (show submoduleToGrade I si ∈ ReesBlowup.grade I d from si.property) hd
+  let chartN : Spec (.of (HomogeneousLocalization.Away (gradeSubmodule I)
+      (si : reesAlgebra I))) ⟶ Proj (gradeSubmodule I) :=
+    Proj.awayι (gradeSubmodule I) (si : reesAlgebra I) si.property hd
+  change chartO ≫ Proj.map (submoduleToGrade I) (submoduleToGrade_irr I) ≫
+      ProjBaseChange.projection (gradeSubmodule I) =
+    chartO ≫ ReesBlowup.projection I
+  have haway : chartO ≫ Proj.map (submoduleToGrade I) (submoduleToGrade_irr I) =
+      Spec.map (CommRingCat.ofHom (HomogeneousLocalization.Away.map
+        (submoduleToGrade I) (si : reesAlgebra I))) ≫ chartN := by
+    exact Proj.awayι_comp_map (f := submoduleToGrade I)
+      (hf := submoduleToGrade_irr I) (i := d) hd (si : reesAlgebra I) si.property
+  calc
+    _ = (chartO ≫ Proj.map (submoduleToGrade I) (submoduleToGrade_irr I)) ≫
+        ProjBaseChange.projection (gradeSubmodule I) := by
+      simp only [Category.assoc]
+    _ = (Spec.map (CommRingCat.ofHom (HomogeneousLocalization.Away.map
+        (submoduleToGrade I) (si : reesAlgebra I))) ≫ chartN) ≫
+        ProjBaseChange.projection (gradeSubmodule I) := by
+      rw [haway]
+    _ = _ := by
+      calc
+        _ = Spec.map (CommRingCat.ofHom (HomogeneousLocalization.Away.map
+            (submoduleToGrade I) (si : reesAlgebra I))) ≫
+              Spec.map (CommRingCat.ofHom (algebraMap R
+                (HomogeneousLocalization.Away (gradeSubmodule I)
+                  (si : reesAlgebra I)))) := by
+          simp only [Category.assoc]
+          rw [ProjBaseChange.awayι_projection]
+        _ = Spec.map (CommRingCat.ofHom ((HomogeneousLocalization.Away.map
+            (submoduleToGrade I) (si : reesAlgebra I)).comp (algebraMap R
+              (HomogeneousLocalization.Away (gradeSubmodule I)
+                (si : reesAlgebra I))))) := by
+          rw [← Spec.map_comp, ← CommRingCat.ofHom_comp]
+        _ = Spec.map (CommRingCat.ofHom
+            (ReesBlowup.awayBaseHom I (submoduleToGrade I si))) := by
+          congr 2
+          apply RingHom.ext
+          intro a
+          change (HomogeneousLocalization.Away.map (submoduleToGrade I)
+              (si : reesAlgebra I)
+              ((HomogeneousLocalization.fromZeroRingHom (gradeSubmodule I)
+                (Submonoid.powers (si : reesAlgebra I)))
+                (algebraMap R (gradeSubmodule I 0) a))) =
+            (HomogeneousLocalization.fromZeroRingHom (ReesBlowup.grade I)
+              (Submonoid.powers (submoduleToGrade I si)))
+              ((ReesBlowup.zeroEquiv I).symm.toRingHom a)
+          apply HomogeneousLocalization.val_injective
+          have h1 : ∀ y : gradeSubmodule I 0,
+              HomogeneousLocalization.fromZeroRingHom (gradeSubmodule I)
+                  (Submonoid.powers (si : reesAlgebra I)) y =
+                HomogeneousLocalization.mk ⟨0, y, 1, one_mem _⟩ := fun _ ↦ rfl
+          have h2 : ∀ y : ReesBlowup.grade I 0,
+              HomogeneousLocalization.fromZeroRingHom (ReesBlowup.grade I)
+                  (Submonoid.powers (submoduleToGrade I si)) y =
+                HomogeneousLocalization.mk ⟨0, y, 1, one_mem _⟩ := fun _ ↦ rfl
+          rw [HomogeneousLocalization.Away.map, h1, h2,
+            HomogeneousLocalization.map_mk, HomogeneousLocalization.val_mk,
+            HomogeneousLocalization.val_mk]
+          congr 1
+          apply Subtype.ext
+          simp [ReesBlowup.zeroEquiv, ReesBlowup.component, submoduleToGrade]
+        _ = chartO ≫ ReesBlowup.projection I := by
+          rw [ReesBlowup.awayι_comp_projection]
+
 section Global
+
+set_option backward.isDefEq.respectTransparency false
 
 variable {X : Scheme.{u}} (𝓘 : X.IdealSheafData)
 
@@ -142,6 +223,17 @@ private def functorIso (U : X.affineOpens) :
       (RelativeProj.gluingFunctor X (GlobalBlowup.gradedData X 𝓘)).obj U :=
   affineRelativeProjIso (𝓘.ideal U)
 
+private theorem functorIso_hom_gluingApp (U : X.affineOpens) :
+    (affineRelativeProjIso (𝓘.ideal U)).hom ≫
+        RelativeProj.gluingApp X (GlobalBlowup.gradedData X 𝓘) U =
+      GlobalBlowup.gluingApp X 𝓘 U := by
+  change (affineRelativeProjIso (𝓘.ideal U)).hom ≫
+      ProjBaseChange.projection (gradeSubmodule (𝓘.ideal U)) ≫
+        (GlobalBlowup.isAffineOpen X U).isoSpec.inv =
+    ReesBlowup.projection (𝓘.ideal U) ≫
+      (GlobalBlowup.isAffineOpen X U).isoSpec.inv
+  rw [← Category.assoc, affineRelativeProjIso_hom_projection]
+
 private theorem functorIso_naturality {U V : X.affineOpens} (h : U ⟶ V) :
     (GlobalBlowup.gluingFunctor X 𝓘).map h ≫ (functorIso 𝓘 V).hom =
       (functorIso 𝓘 U).hom ≫
@@ -171,6 +263,26 @@ construction based on the submodule-valued Rees grading. -/
 def relativeBlowupIso : GlobalBlowup.blowup X 𝓘 ≅
     GlobalBlowup.relativeBlowup X 𝓘 :=
   HasColimit.isoOfNatIso (gluingNatIso 𝓘)
+
+theorem relativeBlowupIso_hom_toBase :
+    (relativeBlowupIso 𝓘).hom ≫
+        RelativeProj.toBase X (GlobalBlowup.gradedData X 𝓘) =
+      GlobalBlowup.toBase X 𝓘 := by
+  apply colimit.hom_ext
+  intro U
+  unfold relativeBlowupIso
+  rw [← Category.assoc, HasColimit.isoOfNatIso_ι_hom]
+  rw [Category.assoc]
+  rw [RelativeProj.toBase, GlobalBlowup.toBase]
+  rw [(RelativeProj.gluingData X (GlobalBlowup.gradedData X 𝓘)).ι_toBase U,
+    (GlobalBlowup.gluingData X 𝓘).ι_toBase U]
+  change (affineRelativeProjIso (𝓘.ideal U)).hom ≫
+      RelativeProj.gluingApp X (GlobalBlowup.gradedData X 𝓘) U ≫
+        X.directedAffineCover.f U =
+    GlobalBlowup.gluingApp X 𝓘 U ≫ X.directedAffineCover.f U
+  rw [← Category.assoc]
+  have hlocal := functorIso_hom_gluingApp (𝓘 := 𝓘) (show X.affineOpens from U)
+  exact congrArg (fun q ↦ q ≫ X.directedAffineCover.f U) hlocal
 
 end Global
 
