@@ -427,6 +427,7 @@ import GromovWitten.AlgebraicGeometry.Stacks.InertiaCoherence
 import GromovWitten.AlgebraicGeometry.Stacks.EtaleSlice
 import GromovWitten.AlgebraicGeometry.Stacks.DeligneMumfordCriterion
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackAlgebraicAPI
+import GromovWitten.Algebra.ModuleCatScalarExtension
 import GromovWitten.AlgebraicGeometry.Curves.AffineBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.HigherBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.ModuleBaseChange
