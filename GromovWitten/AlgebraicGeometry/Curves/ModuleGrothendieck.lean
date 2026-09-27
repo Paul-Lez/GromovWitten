@@ -16,9 +16,9 @@ import Mathlib.Algebra.Category.Grp.AB
 The category of sheaves of modules over a scheme is presented as the reflective
 sheafification of presheaves of modules.  This file records the concrete free-Yoneda
 separator obtained by transporting the presheaf generator through that sheafification.
-It also proves the AB5 part for presheaves of modules.  The latter is kept separate:
-filtered colimits in sheaves still require a proof that sheafification preserves the
-relevant filtered exactness.
+It also proves the AB5 part for presheaves of modules. The sheaf-level Grothendieck
+instance is assembled downstream by `ModuleEnoughInjectives`, using the reflective
+sheafification adjunction and its finite-limit preservation.
 -/
 
 open CategoryTheory Limits Opposite
@@ -113,8 +113,8 @@ theorem presheafModulesSeparator_isSeparator {C : Type u} [SmallCategory C]
 
 /-- Presheaves of modules form a Grothendieck abelian category.
 
-This is an intermediate result for the sheaf-level derived-functor construction; it does not
-assert the corresponding sheaf category instance. -/
+This is the presheaf part of the derived-functor construction; the corresponding sheaf
+category instance is assembled in `ModuleEnoughInjectives`. -/
 noncomputable instance presheafModules_isGrothendieckAbelian
     {C : Type u} [SmallCategory C] (R : Cᵒᵖ ⥤ RingCat.{u}) :
     IsGrothendieckAbelian.{u} (PresheafOfModules.{u} R) where
