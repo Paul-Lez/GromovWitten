@@ -283,6 +283,10 @@ Implemented APIs include:
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- the dimension formula for flat morphisms between locally Noetherian schemes through going-down, and
+  atlas independence of the stack dimension for every algebraic stack with non-empty locally Noetherian
+  atlases, with a counterexample to the pure-dimension form over such bases
+  (`Curves/SmoothPureDimensionNoetherian.lean`, `Curves/FibreStalk.lean`);
 - the converse Deligne--Mumford criterion reduced to a single scheme-theoretic slicing statement: an
   unramified diagonal gives an unramified self-overlap pair for every smooth chart, representable
   properties of a sliced chart are tested on the slice morphism, étale slices glue to an étale atlas, and

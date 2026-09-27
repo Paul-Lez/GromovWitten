@@ -420,6 +420,8 @@ import GromovWitten.AlgebraicGeometry.Stacks.EtaleAtlasDiagonal
 import GromovWitten.AlgebraicGeometry.Stacks.InertiaCoherence
 import GromovWitten.AlgebraicGeometry.Stacks.EtaleSlice
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackAlgebraicAPI
+import GromovWitten.AlgebraicGeometry.Curves.SmoothPureDimensionNoetherian
+import GromovWitten.AlgebraicGeometry.Curves.FibreStalk
 import GromovWitten.AlgebraicGeometry.Stacks.EtaleSliceScheme
 import GromovWitten.AlgebraicGeometry.Stacks.DeligneMumfordCriterionAssembly
 import GromovWitten.AlgebraicGeometry.Stacks.EtaleSliceLocal
