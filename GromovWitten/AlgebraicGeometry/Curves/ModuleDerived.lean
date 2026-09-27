@@ -87,5 +87,15 @@ noncomputable def higherDirectImageModuleAbIso (f : X ⟶ S) (M : X.Modules) (n 
   exact
     (B.mapIso hmodule) ≪≫ hBhom ≪≫ hright.symm
 
+/-- The actual module structure carried by a module-valued higher direct image. -/
+noncomputable def higherDirectImageModuleStructure (f : X ⟶ S) (M : X.Modules) (n : ℕ) :
+    ModuleStructure S (higherDirectImageModuleAb f M n) where
+  toModule := higherDirectImageModule f M n
+  underlyingIso := higherDirectImageModuleAbIso f M n
+
+@[simp]
+theorem higherDirectImageModuleStructure_toModule (f : X ⟶ S) (M : X.Modules) (n : ℕ) :
+    (higherDirectImageModuleStructure f M n).toModule = higherDirectImageModule f M n := rfl
+
 end
 end GromovWitten.AlgebraicGeometry.Curves
