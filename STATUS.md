@@ -283,6 +283,12 @@ Implemented APIs include:
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- the relative Spec of a quasi-coherent algebra as a morphism of stacks, with the pullback of algebra
+  data along morphisms of schemes and its coherence, affineness as a representable property, the
+  universal property as an equivalence between lifts of a chart and algebra-data morphisms out of the
+  pulled-back algebra, and the comparison with the algebra of an affine morphism
+  (`Stacks/RelativeSpecStack.lean`); algebras given by descent data on an atlas and relative Proj on
+  stacks remain open;
 - chart-level refinement records with the induced map of self-overlaps, its source/target 2-cells and
   unit compatibility, packaged as morphisms of presentation groupoid objects (`Stacks/ChartRefinement.lean`);
 - the dimension formula for flat morphisms between locally Noetherian schemes through going-down, and
