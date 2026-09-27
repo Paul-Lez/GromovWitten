@@ -526,3 +526,5 @@ import GromovWitten.AlgebraicGeometry.Curves.CurveCohomologyDimension
 import GromovWitten.AlgebraicGeometry.SheafCohomology.FiniteSupport
 import GromovWitten.AlgebraicGeometry.FiniteFreeHomologyLocus
 import GromovWitten.AlgebraicGeometry.Curves.CurveHigherVanishing
+import GromovWitten.AlgebraicGeometry.Curves.ModuleBaseChangeIsomorphism
+import GromovWitten.AlgebraicGeometry.Curves.ModuleBaseChangeLocal
