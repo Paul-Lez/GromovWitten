@@ -563,6 +563,27 @@ Implemented APIs include:
   relative virtual class `[X'/Y']^vir` of the hyperplane base change with virtual dimension one less, and the
   surjection of associated graded rings (`VirtualFundamentalClass/RelativeHyperplaneReindex.lean`:
   `hyperplaneReindexIso`, `relativeVirtualClass_hyperplane`, `surjective_grReindexHom`);
+- the base change of the relative conormal complex along the coordinate hyperplane as a quasi-isomorphism
+  when the hyperplane equation is a non-zero-divisor on the coordinate ring, through a comparison map
+  factoring every reindexed obstruction datum (`VirtualFundamentalClass/RelativeHyperplaneBaseChange.lean`);
+  the base change of the resolved cone and the Gysin comparison need Tor independence of the associated
+  graded ring in every degree and remain open;
+- Tor independence of the associated graded ring along the coordinate hyperplane when the hyperplane
+  equation is a non-zero-divisor on every power quotient, hence the normal cone of the hyperplane section
+  is the base change of the normal cone, with the hyperplane sections of the symmetric algebras of a
+  relative obstruction datum identified, and a counterexample showing that the resolved-cone identity
+  needs a transversality hypothesis on the resolved cone
+  (`VirtualFundamentalClass/RelativeHyperplaneCone.lean`);
+- the resolved-cone identity along the coordinate hyperplane under regularity on the power quotients and
+  transversality of the resolved cone to the hyperplane, which is shown to be necessary, with the geometric
+  form as the scheme-theoretic intersection of the resolved cone with the hyperplane
+  (`VirtualFundamentalClass/RelativeHyperplaneConeIdentity.lean`); the cycle-level and Gysin comparisons of the
+  relative virtual classes remain open;
+- the cycle-level form of that identity: pushforward of the cycle of a closed subscheme along a closed
+  immersion of affine Noetherian schemes is the cycle of the preimage ideal, so the resolved-cone cycle of
+  the hyperplane section pushes forward to the cycle of the intersection with the hyperplane, also on Chow
+  classes of the obstruction bundle (`VirtualFundamentalClass/RelativeHyperplaneConeCycle.lean`); the Gysin
+  comparison of the relative virtual classes needs a Chow-level divisor Gysin map and remains open;
 - functoriality under the smooth projection `X × 𝔸^τ → X` (Layer 8, affine model): the flat
   pullback along a trivialised bundle is transitive on Chow groups, commutes with pushforward along
   closed immersions and with the zero-section Gysin map
