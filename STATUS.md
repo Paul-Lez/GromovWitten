@@ -274,6 +274,12 @@ Implemented APIs include:
   closure of an integral closed subscheme of an open subscheme (the scheme-theoretic image) and
   the restriction of cycles supported on a closed subscheme, conditional only on the gradedness
   of principal divisors;
+- refinements of presentation groupoids along open immersions of atlases, proved once for any groupoid
+  with Vistoli cycles and instantiated for open and étale presentation groupoids, with the induced maps
+  and, for mutually inverse refinements, linear equivalences of Vistoli Chow groups
+  (`IntersectionTheory/PresentationGroupoidRefinement.lean`, `EtaleAtlasRefinement.lean`), applied to a
+  Deligne--Mumford stack for the presentation with exchanged legs; a strictly smaller open atlas still
+  needs descent of rational equivalence along étale maps;
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
@@ -283,6 +289,27 @@ Implemented APIs include:
   pulled-back algebra, and the comparison with the algebra of an affine morphism
   (`Stacks/RelativeSpecStack.lean`); algebras given by descent data on an atlas and relative Proj on
   stacks remain open;
+- chart-level refinement records with the induced map of self-overlaps, its source/target 2-cells and
+  unit compatibility, packaged as morphisms of presentation groupoid objects (`Stacks/ChartRefinement.lean`);
+- the dimension formula for flat morphisms between locally Noetherian schemes through going-down, and
+  atlas independence of the stack dimension for every algebraic stack with non-empty locally Noetherian
+  atlases, with a counterexample to the pure-dimension form over such bases
+  (`Curves/SmoothPureDimensionNoetherian.lean`, `Curves/FibreStalk.lean`);
+- the converse Deligne--Mumford criterion reduced to a single scheme-theoretic slicing statement: an
+  unramified diagonal gives an unramified self-overlap pair for every smooth chart, representable
+  properties of a sliced chart are tested on the slice morphism, étale slices glue to an étale atlas, and
+  the affine slicing step is proved (`Stacks/EtaleAtlasDiagonal.lean`, `Stacks/DeligneMumfordCriterionAssembly.lean`,
+  `Stacks/EtaleSliceLocal.lean`, `Stacks/DeligneMumfordCriterionFinal.lean`);
+- the atlas map `U → [U/G]` as a stack morphism whose fibre over a torsor is the torsor, with a generic
+  componentwise constructor of strong transformations on locally discrete bicategories
+  (`Stacks/QuotientStackAtlas.lean`, `Stacks/StrongTransOfDiscrete.lean`);
+- `[C/E]` as a cone stack over `Spec R`: descent of the base point, projection, vertex, and five of the six
+  contraction laws, with all six contraction laws, so `coneQuotientStack` is an unconditional cone stack
+  (`Cones/ConeQuotientStack.lean`);
+- the scalar contraction of the cone quotient stack `[C/E]` on all torsors, without the triviality
+  hypothesis, through the functoriality of the relative torsor pushout, with its unit, multiplicativity
+  and base-change laws as natural isomorphisms and the vanishing and vertex laws on objects
+  (`Cones/QuotientTorsorContraction.lean`, `Cones/QuotientTorsorContractionCoherence.lean`);
 - the inclusion of the small-étale site of a Deligne--Mumford stack into its lisse-étale site is a
   continuous, fully faithful morphism of ringed sites, with the concrete description of the covering
   sieves of both stack sites and the restriction functor on module sheaves
@@ -338,6 +365,9 @@ Implemented APIs include:
 - the affine cone quotient `[C/E]` is realised as a torsor prestack (fully faithful comparison
   with the trivial torsors), base changes and fibre products of cone stacks are constructed on
   genuine two-pullbacks of stacks, unconditionally for coherent cone stacks;
+- the cone-stack structure of the affine cone quotient for every formally étale chart of the ambient
+  polynomial ring, through the étale cone action (`Cones/EtaleChartConeStack.lean`); gluing over all local
+  embeddings needs base change of cone stacks and remains open;
 - the tangent action on the affine normal cone is an honest `ConeAction` (Vistoli's lemma in
   cone-action form), with the lci specialisation `𝔠 = 𝔑` and the smooth specialisation
   `𝔠 = B T_M` fibrewise, invariance under scalar extension, and `dim C − rank T = 0`;
