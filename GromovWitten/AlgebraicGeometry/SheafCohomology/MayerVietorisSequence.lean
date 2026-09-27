@@ -5,6 +5,7 @@ Authors: OpenAI Codex
 -/
 
 import GromovWitten.AlgebraicGeometry.SheafCohomology.SectionsMayerVietoris
+import GromovWitten.AlgebraicGeometry.SheafCohomology.RightDerivedHomology
 
 /-!
 # Derived sections in a two-open Mayer–Vietoris cover
@@ -22,7 +23,7 @@ open CochainComplex
 
 noncomputable section
 universe u
-namespace GromovWitten.AlgebraicGeometry.Curves
+namespace GromovWitten.AlgebraicGeometry.SheafCohomology
 
 variable {X : TopCat.{u}}
 
@@ -63,6 +64,37 @@ lemma mvRightDerivedToPair_comp_mvRightDerivedFromPair
       ext i
       rfl)
   simp only [hz, Functor.map_zero, zero_comp, comp_zero]
+
+/-- The connecting morphism, computed from the fixed resolution of `F`.
+
+Mathlib does not expose the connecting component of the derived-functor long exact
+sequence as a natural transformation, so this definition uses its canonical
+`InjectiveResolution.of F` computation. -/
+noncomputable def mvRightDerivedConnecting
+    {F : TopCat.Sheaf AddCommGrpCat.{u} X} (U V : Opens X) (n : ℕ) :
+    ((sections (U ⊓ V)).rightDerived n).obj F ⟶
+      ((sections (U ⊔ V)).rightDerived (n + 1)).obj F := by
+  let I := InjectiveResolution.of F
+  let S := sectionsComplexMV I.cocomplex U V
+  let hS := sectionsComplexMV_shortExact I.cocomplex
+    (fun k => TopCat.Sheaf.isFlasque_of_injective X _) U V
+  let A :=
+    ((sections (U ⊔ V)).mapHomologicalComplex (.up ℕ)).obj I.cocomplex
+  let C :=
+    ((sections (U ⊓ V)).mapHomologicalComplex (.up ℕ)).obj I.cocomplex
+  let Hn := HomologicalComplex.homologyFunctor AddCommGrpCat (.up ℕ) n
+  let Hnext :=
+    HomologicalComplex.homologyFunctor AddCommGrpCat (.up ℕ) (n + 1)
+  let eA : Hnext.obj A ≅ A.homology (n + 1) :=
+    eqToIso (HomologicalComplex.homologyFunctor_obj
+      AddCommGrpCat (.up ℕ) (n + 1) A)
+  let eC : Hn.obj C ≅ C.homology n :=
+    eqToIso (HomologicalComplex.homologyFunctor_obj
+      AddCommGrpCat (.up ℕ) n C)
+  let hrel : (ComplexShape.up ℕ).Rel n (n + 1) := by rfl
+  exact (I.isoRightDerivedObj (sections (U ⊓ V)) n).hom ≫ eC.hom ≫
+    hS.δ n (n + 1) hrel ≫ eA.inv ≫
+    (I.isoRightDerivedObj (sections (U ⊔ V)) (n + 1)).inv
 
 /-- Degreewise exactness of the actual derived Mayer–Vietoris sequence.
 
@@ -160,4 +192,30 @@ theorem mvRightDerived_exact
       simp)
   exact ShortComplex.exact_of_iso e.symm hFun
 
-end GromovWitten.AlgebraicGeometry.Curves
+/-- The connecting map is followed by the union-to-pair map by zero. -/
+lemma mvRightDerivedConnecting_comp_mvRightDerivedToPair
+    {F : TopCat.Sheaf AddCommGrpCat.{u} X} (U V : Opens X) (n : ℕ) :
+    mvRightDerivedConnecting U V n ≫
+      mvRightDerivedToPair (F := F) U V (n + 1) = 0 := by
+  let I := InjectiveResolution.of F
+  let hS := sectionsComplexMV_shortExact I.cocomplex
+    (fun k => TopCat.Sheaf.isFlasque_of_injective X _) U V
+  dsimp [sectionsComplexMV] at hS
+  let eC := I.isoRightDerivedHomologyObj (sections (U ⊓ V)) n
+  let eA := I.isoRightDerivedHomologyObj (sections (U ⊔ V)) (n + 1)
+  let eB := I.isoRightDerivedHomologyObj (sectionsPairFunctor U V) (n + 1)
+  let f :=
+    (NatTrans.mapHomologicalComplex (sectionsToPairNat U V) (.up ℕ)).app
+      I.cocomplex
+  let hrel : (ComplexShape.up ℕ).Rel n (n + 1) := by rfl
+  dsimp [mvRightDerivedConnecting, mvRightDerivedToPair]
+  change eC.hom ≫ hS.δ n (n + 1) hrel ≫ eA.inv ≫
+      (NatTrans.rightDerived (sectionsToPairNat U V) (n + 1)).app F = 0
+  rw [I.rightDerived_app_eq_homologyMap (sectionsToPairNat U V) (n + 1)]
+  dsimp [eC, eA, eB, f, InjectiveResolution.isoRightDerivedHomologyObj]
+  simp only [Category.assoc, Iso.inv_hom_id_assoc, eqToHom_trans_assoc,
+    eqToHom_refl, Category.id_comp, Preadditive.IsIso.comp_left_eq_zero]
+  rw [← Category.assoc (hS.δ n (n + 1) hrel), hS.δ_comp]
+  simp
+
+end GromovWitten.AlgebraicGeometry.SheafCohomology
