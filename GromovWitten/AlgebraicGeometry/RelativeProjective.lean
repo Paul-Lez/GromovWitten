@@ -12,9 +12,9 @@ import Mathlib.RingTheory.GradedAlgebra.FiniteType
 
 `RelativeProj.relativeProj` is a construction from affine-local graded data.  This file records
 the data needed to use that construction as a projective morphism: an identification with the
-given morphism, degree-zero identification with the base, finite type over degree zero, and the
-resulting positive homogeneous generators.  The latter is kept in the public witness so an
-arbitrary graded algebra cannot be mistaken for a projective presentation.
+given morphism, degree-zero identification with the base, and finite type over degree zero.
+Positive homogeneous generators are derived from finite type when a downstream construction needs
+them, so an arbitrary graded algebra cannot be mistaken for a projective presentation.
 -/
 
 open CategoryTheory Limits AlgebraicGeometry
@@ -36,10 +36,6 @@ structure RelativeProjective {X Y : Scheme.{u}} (p : Y ⟶ X) where
   /-- The degree-zero algebra is the section ring of the affine open. -/
   degreeZero : ∀ U,
     Function.Bijective (algebraMap Γ(X, U.1) (data.grading U 0))
-  /-- Finite type supplies actual homogeneous generators in positive degree. -/
-  positiveGenerators : ∀ U, ∃ s : Finset (data.ring U),
-    Algebra.adjoin (A := data.ring U) (data.grading U 0) s = ⊤ ∧
-      ∀ a ∈ s, ∃ n ≠ 0, a ∈ data.grading U n
 
 namespace RelativeProjective
 
@@ -57,11 +53,6 @@ def ofRelativeProj (X : Scheme.{u}) (data : GradedAlgebraData X)
   iso_toBase := by simp
   finiteType := hfinite
   degreeZero := hzero
-  positiveGenerators := by
-    intro U
-    let _ : Algebra.FiniteType (data.grading U 0) (data.ring U) := hfinite U
-    exact GradedAlgebra.exists_finset_adjoin_eq_top_and_homogeneous_ne_zero
-      (data.grading U)
 
 /-- The positive homogeneous generation field follows from finite type, but is exposed by the
 projectivity witness so downstream constructions can use it without reconstructing generators. -/
@@ -90,7 +81,6 @@ def transportSource {Y' : Scheme.{u}} (e : Y' ≅ Y) :
     rw [P.iso_toBase]
   finiteType := P.finiteType
   degreeZero := P.degreeZero
-  positiveGenerators := P.positiveGenerators
 
 @[simp]
 theorem transportSource_iso_toBase {Y' : Scheme.{u}} (e : Y' ≅ Y) :

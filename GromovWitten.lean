@@ -261,6 +261,7 @@ import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ReesBlowupGlobal
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ModelBlowup
 import GromovWitten.AlgebraicGeometry.ProjBaseChange
 import GromovWitten.AlgebraicGeometry.RelativeProj
+import GromovWitten.AlgebraicGeometry.PolynomialProjBaseChange
 import GromovWitten.AlgebraicGeometry.RelativeProjective
 import GromovWitten.AlgebraicGeometry.ProjectiveClosure
 import GromovWitten.AlgebraicGeometry.Veronese
