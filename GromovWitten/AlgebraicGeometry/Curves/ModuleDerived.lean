@@ -6,6 +6,9 @@ Authors: OpenAI Codex
 
 import GromovWitten.AlgebraicGeometry.Curves.CohomologyBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.ModuleEnoughInjectives
+import GromovWitten.AlgebraicGeometry.Curves.ModuleExact
+import GromovWitten.AlgebraicGeometry.Curves.ModuleFlasque
+import GromovWitten.AlgebraicGeometry.SheafCohomology.FlasqueResolution
 
 /-!
 # Module-valued derived pushforward
@@ -42,6 +45,47 @@ theorem isZero_higherDirectImageModule_succ_of_injective (f : X ⟶ S) (M : X.Mo
     [Injective M] :
     IsZero (higherDirectImageModule f M (n + 1)) :=
   Functor.isZero_rightDerived_obj_injective_succ (Scheme.Modules.pushforward f) n M
+
+/-!
+### Comparison with the underlying abelian derived functor
+
+An injective module resolution is also a flasque resolution after forgetting the module
+structure.  The scalar-forgetting functor preserves homology by `ModuleExact`, so the two
+derived constructions are computed by the same pushed-forward complex.  This supplies the
+underlying abelian sheaf of the module-valued higher direct image, rather than a separately
+chosen module structure on an abelian derived object.
+-/
+
+noncomputable def higherDirectImageModuleAbIso (f : X ⟶ S) (M : X.Modules) (n : ℕ) :
+    (moduleToSheafAb S).obj (higherDirectImageModule f M n) ≅
+      higherDirectImageModuleAb f M n := by
+  let I : InjectiveResolution M := InjectiveResolution.of M
+  let A := moduleToSheafAb X
+  let B := moduleToSheafAb S
+  let Q := Scheme.Modules.pushforward f
+  let K := (A.mapHomologicalComplex (ComplexShape.up ℕ)).obj I.cocomplex
+  let eSingle := HomologicalComplex.singleMapHomologicalComplex A
+    (ComplexShape.up ℕ) 0
+  let a := (eSingle.inv.app M) ≫
+    (A.mapHomologicalComplex (ComplexShape.up ℕ)).map I.ι
+  have hK (k : ℕ) : TopCat.Sheaf.IsFlasque (K.X k) := by
+    exact module_isFlasque_of_injective _
+  haveI : QuasiIso a := by infer_instance
+  let hright := TopCat.Sheaf.flasqueResolutionRightDerivedIso
+    (f := f.base) a hK n
+  let hmodule := I.isoRightDerivedObj Q n
+  let hBhom :
+      B.obj ((HomologicalComplex.homologyFunctor S.Modules
+        (ComplexShape.up ℕ) n).obj
+        ((Q.mapHomologicalComplex (ComplexShape.up ℕ)).obj I.cocomplex)) ≅
+        (HomologicalComplex.homologyFunctor (TopCat.Sheaf Ab.{u} S)
+          (ComplexShape.up ℕ) n).obj
+          ((B.mapHomologicalComplex (ComplexShape.up ℕ)).obj
+            ((Q.mapHomologicalComplex (ComplexShape.up ℕ)).obj I.cocomplex)) := by
+    exact (ShortComplex.mapHomologyIso
+      (((Q.mapHomologicalComplex (ComplexShape.up ℕ)).obj I.cocomplex).sc n) B).symm
+  exact
+    (B.mapIso hmodule) ≪≫ hBhom ≪≫ hright.symm
 
 end
 end GromovWitten.AlgebraicGeometry.Curves
