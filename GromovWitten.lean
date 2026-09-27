@@ -426,3 +426,9 @@ import GromovWitten.AlgebraicGeometry.Stacks.EtaleSliceLocal
 import GromovWitten.AlgebraicGeometry.Stacks.DeligneMumfordCriterionFinal
 import GromovWitten.AlgebraicGeometry.Stacks.EtaleSliceLocalSlicing
 import GromovWitten.AlgebraicGeometry.Stacks.EtaleSliceGeneration
+import GromovWitten.AlgebraicGeometry.Cones.QuotientTorsorContraction
+import GromovWitten.AlgebraicGeometry.Cones.QuotientTorsorContractionCoherence
+import GromovWitten.AlgebraicGeometry.Cones.ConeQuotientStack
+import GromovWitten.AlgebraicGeometry.Stacks.StrongTransOfDiscrete
+import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackAtlas
+import GromovWitten.AlgebraicGeometry.Cones.EtaleChartConeStack
