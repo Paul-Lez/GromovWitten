@@ -11,7 +11,7 @@ import GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.OverField
 /-!
 # The global cone of an obstruction theory
 
-The affine model of the virtual fundamental class (`VirtualFundamentalClass/ResolvedCone.lean`,
+The affine model of the resolved cone (`VirtualFundamentalClass/ResolvedCone.lean`,
 `Construction.lean`) builds, for a closed subscheme `X = Spec (R ⧸ I) ⊆ Spec R` and a chain map
 `φ : E ⟶ conormalComplex k R I`, the resolved cone `C(E) ⊆ E₁ = Spec Sym(E⁻¹)` and the cycle
 `[C(E)] ∈ Z_*(E₁)`.  This file carries that picture over to a general scheme `X`.
@@ -45,8 +45,9 @@ with `Ideal.Quotient.mk (ResolvedCone.ideal (φ j))`.
   form, matching `VirtualClass.resolvedConeCycleAt` when the dimension functions correspond.
 * `GlobalConeData.coneCycleAt`, `GlobalConeData.coneClassAt` — the graded cone cycle and its
   class in a Chow group of the total space.
-* `GlobalConeData.virtualClassOf`, `pull_virtualClassOf`, `virtualClassOf_unique`,
-  `existsUnique_virtualClass` — the global virtual class, **modulo the global homotopy property
+* `GlobalConeData.gradedConeClassLiftOf`, `pull_gradedConeClassLiftOf`,
+  `gradedConeClassLiftOf_unique`, `existsUnique_gradedConeClassLiftOf` — the generic global
+  graded cone-class lift, **modulo the global homotopy property
   of Chow groups**: the flat pullback `pull : A_i(X) → A_d(E₁)`, its injectivity `hinj` and the
   surjectivity statement `hmem` are explicit hypotheses, not proved here.  For a non-affine base
   they are exactly the content of Fulton, Prop. 1.9/3.3, which the repository proves only for a
@@ -59,7 +60,7 @@ the chart identifications are data.  The compatibility of `chartBundle` with the
 trivialisations `𝓔.triv j` and `VirtualClass.trivialization (φ j)` is *not* imposed, because the
 chart comparison does not need it; a future wave that compares the global flat pullback with
 `VectorBundle.chowPullbackBundle` on charts will have to add it.  The global homotopy property
-of Chow groups is an explicit hypothesis of `virtualClassOf`, as described above.
+of Chow groups is an explicit hypothesis of `gradedConeClassLiftOf`, as described above.
 -/
 
 universe u
@@ -343,7 +344,7 @@ theorem pullbackOpen_bundleChartι_coneCycleOf [∀ j, IsNoetherianRing (R j)]
     𝒞.coneScheme.fundamentalCycle
   exact 𝒞.exists_coneChartι j z e he
 
-/-! ## The graded cone cycle, its class, and the global virtual class -/
+/-! ## The graded cone cycle and its generic class lift -/
 
 variable (dimE : DimensionFunction 𝓔.totalSpace)
 
@@ -380,36 +381,39 @@ variable (dimX : DimensionFunction X) (i d : ℤ)
   (RE : RationalEquivalenceSystem 𝓔.totalSpace dimE d)
   (pull : RX.ChowGroup →ₗ[ℚ] RE.ChowGroup)
 
-/-- **The global virtual class, modulo the global homotopy property of Chow groups.**
+/-- **A generic global graded cone-class lift, modulo the global homotopy property of Chow
+groups.**
 
 `pull` is the flat pullback `π^* : A_i(X) → A_d(E₁)` along the bundle projection, `hmem` says
-that the cone class is in its image and (in `virtualClassOf_unique`) `hinj` says that `π^*` is
+that the cone class is in its image and (in `gradedConeClassLiftOf_unique`) `hinj` says that
+`π^*` is
 injective.  These three are exactly the global homotopy property of Chow groups (Fulton,
 Prop. 1.9 and 3.3), which is **not** proved in this repository for a non-affine base: the
 available statement `VectorBundle.chowPullbackBundle` is for a trivialised affine bundle.  They
 are therefore explicit hypotheses here. -/
-def virtualClassOf (hmem : 𝒞.coneClassAt dimE d RE ∈ LinearMap.range pull) : RX.ChowGroup :=
+def gradedConeClassLiftOf (hmem : 𝒞.coneClassAt dimE d RE ∈ LinearMap.range pull) : RX.ChowGroup :=
   (LinearMap.mem_range.mp hmem).choose
 
-/-- The global virtual class pulls back to the global cone class. -/
-theorem pull_virtualClassOf (hmem : 𝒞.coneClassAt dimE d RE ∈ LinearMap.range pull) :
-    pull (𝒞.virtualClassOf dimE dimX i d RX RE pull hmem) = 𝒞.coneClassAt dimE d RE :=
+/-- The generic global lift pulls back to the global cone class. -/
+theorem pull_gradedConeClassLiftOf (hmem : 𝒞.coneClassAt dimE d RE ∈ LinearMap.range pull) :
+    pull (𝒞.gradedConeClassLiftOf dimE dimX i d RX RE pull hmem) =
+      𝒞.coneClassAt dimE d RE :=
   (LinearMap.mem_range.mp hmem).choose_spec
 
-/-- The global virtual class is the unique preimage of the cone class, if `π^*` is injective. -/
-theorem virtualClassOf_unique (hinj : Function.Injective pull)
+/-- The generic global lift is the unique preimage of the cone class, if `π^*` is injective. -/
+theorem gradedConeClassLiftOf_unique (hinj : Function.Injective pull)
     (hmem : 𝒞.coneClassAt dimE d RE ∈ LinearMap.range pull) (α : RX.ChowGroup)
     (hα : pull α = 𝒞.coneClassAt dimE d RE) :
-    α = 𝒞.virtualClassOf dimE dimX i d RX RE pull hmem :=
-  hinj (hα.trans (𝒞.pull_virtualClassOf dimE dimX i d RX RE pull hmem).symm)
+    α = 𝒞.gradedConeClassLiftOf dimE dimX i d RX RE pull hmem :=
+  hinj (hα.trans (𝒞.pull_gradedConeClassLiftOf dimE dimX i d RX RE pull hmem).symm)
 
-/-- Existence and uniqueness of the global virtual class under the global homotopy property. -/
-theorem existsUnique_virtualClass (hinj : Function.Injective pull)
+/-- Existence and uniqueness of the generic global lift under the global homotopy property. -/
+theorem existsUnique_gradedConeClassLiftOf (hinj : Function.Injective pull)
     (hmem : 𝒞.coneClassAt dimE d RE ∈ LinearMap.range pull) :
     ∃! α : RX.ChowGroup, pull α = 𝒞.coneClassAt dimE d RE :=
-  ⟨𝒞.virtualClassOf dimE dimX i d RX RE pull hmem,
-    𝒞.pull_virtualClassOf dimE dimX i d RX RE pull hmem,
-    fun α hα ↦ 𝒞.virtualClassOf_unique dimE dimX i d RX RE pull hinj hmem α hα⟩
+  ⟨𝒞.gradedConeClassLiftOf dimE dimX i d RX RE pull hmem,
+    𝒞.pull_gradedConeClassLiftOf dimE dimX i d RX RE pull hmem,
+    fun α hα ↦ 𝒞.gradedConeClassLiftOf_unique dimE dimX i d RX RE pull hinj hmem α hα⟩
 
 end GlobalConeData
 

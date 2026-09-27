@@ -30,18 +30,19 @@ where `vd = rk E⁰ - rk E⁻¹` is the expected dimension.
   point of `C(E)` has dimension `vd + a`, the conclusion of
   `VirtualFundamentalClass/ResolvedConeDimension.lean` — no truncation takes place: the cycle is
   the graded fundamental cycle of `C(E)` pushed forward.
-* `exists_virtualClass` produces a class on `X` pulling back to `resolvedConeClass`, from the
+* `exists_gradedConeClassLift` produces a class on `X` pulling back to `resolvedConeClass`, from
+  the
   surjectivity of the flat pullback (Fulton, Prop. 1.9) proved in
   `IntersectionTheory/BundleHomotopy.lean` and `IntersectionTheory/BundleHomotopyKey.lean`.
-* `virtualClassQuot` is the resulting canonical class in `A_{vd}(X) ⧸ ker π^*`, with no
+* `gradedConeClassLiftQuot` is the resulting canonical class in `A_{vd}(X) ⧸ ker π^*`, with no
   injectivity hypothesis at all.
-* `virtualClass hhom hinj : A_{vd}(X)` is the virtual fundamental class itself, characterised by
-  `pullback_virtualClass` and `virtualClass_unique`.
+* `virtualClass hpot hhom hinj : A_{vd}(X)` is the virtual fundamental class itself, characterised
+  by `pullback_virtualClass` and `virtualClass_unique`.
 
 ## The two explicit hypotheses
 
-`virtualClass` carries exactly two hypotheses beyond the geometric data, and neither is proved
-here:
+`virtualClass` carries the affine perfect-obstruction-theory witness, together with exactly two
+geometric hypotheses beyond the data, and neither of those two is proved here:
 
 * `hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE`, homogeneity of
   principal divisors on `E₁`, the hypothesis under which the localisation sequence of
@@ -85,6 +86,63 @@ open NormalSheafPicard.AffineIntrinsicNormalSheaf
 variable {k R : Type u} [CommRing k] [CommRing R] [Algebra k R] [IsNoetherianRing R] {I : Ideal R}
 variable {E : LinearTwoTermComplex (R ⧸ I)}
 variable [Module.Free (R ⧸ I) E.degreeZero] [Module.Finite (R ⧸ I) E.degreeZero]
+
+/-- The local data needed before a resolved-cone class can be called a virtual fundamental class.
+
+The resolved-cone and Chow operations below are also useful for an arbitrary chain map.  They are
+therefore exposed through the explicitly generic `gradedConeClassLift` operation.  The
+`virtualClass` wrapper additionally requires both the Behrend--Fantechi obstruction-theory
+condition, a formally smooth ambient algebra, and a finite-free two-term presentation. -/
+structure AffinePerfectObstructionTheory
+    (φ : LinearTwoTermComplex.Hom E (conormalComplex k R I)) : Prop where
+  /-- The ambient algebra is formally smooth, so the conormal model is the cotangent truncation. -/
+  ambientSmooth : Algebra.FormallySmooth k R
+  /-- Both terms of the chosen two-term presentation are finite free. -/
+  perfect : PicardCriteria.IsPerfectTwoTerm E
+  /-- The chain map satisfies the affine Behrend--Fantechi condition. -/
+  obstruction : PicardCriteria.IsObstructionTheory φ
+
+/-! ## A concrete non-POT regression datum -/
+
+section InvalidPOTRegression
+
+variable (A : Type u) [CommRing A]
+
+/-- A finite-free two-term complex whose zero map to any target is not an obstruction theory. -/
+private def invalidPOTSource : LinearTwoTermComplex A where
+  degreeZero := A
+  degreeOne := A
+  differential := 0
+
+private def invalidPOTMap (L : LinearTwoTermComplex A) :
+    LinearTwoTermComplex.Hom (invalidPOTSource A) L where
+  degreeZero := 0
+  degreeOne := 0
+  comm _ := by simp
+
+private theorem invalidPOTMap_not_obstructionTheory [Nontrivial A]
+    (L : LinearTwoTermComplex A) :
+    ¬ PicardCriteria.IsObstructionTheory (invalidPOTMap A L) := by
+  intro h
+  have he : PicardCriteria.h1mk (invalidPOTSource A) (1 : A) =
+      PicardCriteria.h1mk (invalidPOTSource A) (0 : A) :=
+    h.bijective_cokernelMap.1 rfl
+  have hm := (PicardCriteria.h1mk_eq_zero_iff
+    (E := invalidPOTSource A) (1 : A)).mp he
+  obtain ⟨a, ha⟩ := hm
+  change (0 : A) = 1 at ha
+  exact zero_ne_one ha
+
+variable (k R : Type u) [CommRing k] [CommRing R] [Algebra k R]
+  [IsNoetherianRing R] (I : Ideal R) [Nontrivial (R ⧸ I)]
+
+/-- The public affine gate rejects a concrete finite-free zero chain map. -/
+private example : ¬ AffinePerfectObstructionTheory
+    (invalidPOTMap (R ⧸ I) (conormalComplex k R I)) := by
+  intro h
+  exact invalidPOTMap_not_obstructionTheory (R ⧸ I) (conormalComplex k R I) h.obstruction
+
+end InvalidPOTRegression
 
 /-! ## Ranks, the expected dimension and the trivialisation of `E₁` -/
 
@@ -180,7 +238,7 @@ theorem resolvedConeCycle_eq_properPushforward_fundamental
       (dimensionY := dimE) (ResolvedCone.toBundle φ) (cyclesOfDimension.fundamental hpure))
   exact h
 
-/-! ## The virtual class -/
+/-! ## Generic graded cone-class lifts and the gated affine VFC -/
 
 variable (dimX : DimensionFunction (Spec (CommRingCat.of (R ⧸ I))))
   (dimE : DimensionFunction (ResolvedCone.bundleSpace φ))
@@ -196,81 +254,125 @@ noncomputable abbrev bundlePullback : RX.ChowGroup →ₗ[ℚ] RE.ChowGroup :=
 noncomputable def resolvedConeClass : RE.ChowGroup :=
   RE.quotientMap (resolvedConeCycle φ dimE)
 
-/-- **Existence of the virtual class.**  The resolved-cone class is a flat pullback from the
+/-- **Existence of a graded cone-class lift.**  The resolved-cone class is a flat pullback from the
 base, because `π^*` is surjective (Fulton, Prop. 1.9, proved in
 `IntersectionTheory/BundleHomotopy.lean` and `IntersectionTheory/BundleHomotopyKey.lean`).  The
 hypothesis `hhom` is exactly the one carried by
 `VectorBundle.chowPullbackBundle_surjective'`. -/
-theorem exists_virtualClass
+theorem exists_gradedConeClassLift
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE) :
     ∃ α : RX.ChowGroup, bundlePullback φ dimX dimE RX RE α = resolvedConeClass φ dimE RE :=
   VectorBundle.chowPullbackBundle_surjective' (trivialization φ) dimX dimE (virtualDimension φ)
     RX RE hhom (resolvedConeClass φ dimE RE)
 
-/-- **The canonical virtual class**, an element of `A_{vd}(X) ⧸ ker π^*`.  This is the virtual
-class without any injectivity hypothesis: it is the unique preimage of the resolved-cone class
+/-- **The canonical graded cone-class lift**, an element of `A_{vd}(X) ⧸ ker π^*`.  This is the
+generic lift without any injectivity hypothesis: it is the unique preimage of the resolved-cone
+class
 under the isomorphism `A_{vd}(X) ⧸ ker π^* ≃ A_{vd+a}(E₁)` of
 `VectorBundle.chowQuotientEquiv'`. -/
-noncomputable def virtualClassQuot
+noncomputable def gradedConeClassLiftQuot
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE) :
     RX.ChowGroup ⧸ LinearMap.ker (bundlePullback φ dimX dimE RX RE) :=
   (VectorBundle.chowQuotientEquiv' (trivialization φ) dimX dimE (virtualDimension φ)
     RX RE hhom).symm (resolvedConeClass φ dimE RE)
 
-/-- The canonical virtual class is characterised by mapping to the resolved-cone class. -/
+/-- The canonical graded cone-class lift is characterised by mapping to the resolved-cone class. -/
 @[simp]
-theorem chowQuotientEquiv_virtualClassQuot
+theorem chowQuotientEquiv_gradedConeClassLiftQuot
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE) :
     VectorBundle.chowQuotientEquiv' (trivialization φ) dimX dimE (virtualDimension φ) RX RE hhom
-        (virtualClassQuot φ dimX dimE RX RE hhom) =
+        (gradedConeClassLiftQuot φ dimX dimE RX RE hhom) =
       resolvedConeClass φ dimE RE :=
   (VectorBundle.chowQuotientEquiv' (trivialization φ) dimX dimE (virtualDimension φ)
     RX RE hhom).apply_symm_apply _
 
-/-- **The virtual fundamental class** `[X]^vir ∈ A_{vd}(X)` of the obstruction theory `φ`:
-the Gysin pullback `0^!_{E₁}[C(E)]` of the resolved-cone class along the zero section of `E₁`.
+/-- **A generic graded cone-class lift** of `φ`: the Gysin pullback `0^!_{E₁}[C(E)]` of the
+resolved-cone class along the zero section of `E₁`.  This operation is available for an arbitrary
+chain map; use `virtualClass` below when the map is equipped with an affine perfect obstruction
+theory.
 
 Two inputs are explicit hypotheses and are documented as such: `hhom` (homogeneity of principal
 divisors on `E₁`, the hypothesis of the localisation sequence) and `hinj` (injectivity of `π^*`,
 the remaining half of homotopy invariance; see `VectorBundle.zeroSectionGysin'`). -/
-noncomputable def virtualClass
+noncomputable def gradedConeClassLift
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (bundlePullback φ dimX dimE RX RE)) : RX.ChowGroup :=
   VectorBundle.zeroSectionGysin' (trivialization φ) dimX dimE (virtualDimension φ)
     RX RE hhom hinj (resolvedConeClass φ dimE RE)
 
-/-- **The defining property of the virtual class**: it pulls back to the resolved-cone class. -/
+/-- The public affine VFC gate.  The Chow grading is read from the finite-free complex `E` through
+`virtualDimension φ`; no caller-supplied grading occurs here. -/
+noncomputable def virtualClass
+    (hpot : AffinePerfectObstructionTheory φ)
+    (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
+    (hinj : Function.Injective (bundlePullback φ dimX dimE RX RE)) : RX.ChowGroup := by
+  have _ := hpot
+  exact gradedConeClassLift φ dimX dimE RX RE hhom hinj
+
+/-- **The defining property of the generic graded cone-class lift**: it pulls back to the
+resolved-cone class. -/
 @[simp]
-theorem pullback_virtualClass
+theorem pullback_gradedConeClassLift
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (bundlePullback φ dimX dimE RX RE)) :
-    bundlePullback φ dimX dimE RX RE (virtualClass φ dimX dimE RX RE hhom hinj) =
+    bundlePullback φ dimX dimE RX RE (gradedConeClassLift φ dimX dimE RX RE hhom hinj) =
       resolvedConeClass φ dimE RE :=
   VectorBundle.pullback_zeroSectionGysin' (trivialization φ) dimX dimE (virtualDimension φ)
     RX RE hhom hinj (resolvedConeClass φ dimE RE)
 
-/-- **Uniqueness of the virtual class**: any class pulling back to the resolved-cone class is
-the virtual class. -/
-theorem eq_virtualClass_of_pullback_eq
+/-- The defining property of the affine virtual fundamental class. -/
+@[simp]
+theorem pullback_virtualClass
+    (hpot : AffinePerfectObstructionTheory φ)
+    (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
+    (hinj : Function.Injective (bundlePullback φ dimX dimE RX RE)) :
+    bundlePullback φ dimX dimE RX RE (virtualClass φ dimX dimE RX RE hpot hhom hinj) =
+      resolvedConeClass φ dimE RE :=
+  pullback_gradedConeClassLift φ dimX dimE RX RE hhom hinj
+
+/-- **Uniqueness of the generic graded cone-class lift**: any class pulling back to the
+resolved-cone class
+is the selected lift. -/
+theorem eq_gradedConeClassLift_of_pullback_eq
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (bundlePullback φ dimX dimE RX RE)) (α : RX.ChowGroup)
     (hα : bundlePullback φ dimX dimE RX RE α = resolvedConeClass φ dimE RE) :
-    α = virtualClass φ dimX dimE RX RE hhom hinj :=
-  hinj (by rw [hα, pullback_virtualClass])
+    α = gradedConeClassLift φ dimX dimE RX RE hhom hinj :=
+  hinj (by rw [hα, pullback_gradedConeClassLift])
 
-/-- The virtual class is the unique class with the defining property. -/
-theorem virtualClass_unique
+/-- Any class with the defining pullback property is the affine VFC. -/
+theorem eq_virtualClass_of_pullback_eq
+    (hpot : AffinePerfectObstructionTheory φ)
+    (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
+    (hinj : Function.Injective (bundlePullback φ dimX dimE RX RE)) (α : RX.ChowGroup)
+    (hα : bundlePullback φ dimX dimE RX RE α = resolvedConeClass φ dimE RE) :
+    α = virtualClass φ dimX dimE RX RE hpot hhom hinj :=
+  eq_gradedConeClassLift_of_pullback_eq φ dimX dimE RX RE hhom hinj α hα
+
+/-- The affine VFC is the unique class with the defining property. -/
+theorem gradedConeClassLift_unique
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (bundlePullback φ dimX dimE RX RE)) :
     ∃! α : RX.ChowGroup, bundlePullback φ dimX dimE RX RE α = resolvedConeClass φ dimE RE :=
-  ⟨virtualClass φ dimX dimE RX RE hhom hinj, pullback_virtualClass φ dimX dimE RX RE hhom hinj,
-    fun α hα => eq_virtualClass_of_pullback_eq φ dimX dimE RX RE hhom hinj α hα⟩
+  ⟨gradedConeClassLift φ dimX dimE RX RE hhom hinj,
+    pullback_gradedConeClassLift φ dimX dimE RX RE hhom hinj,
+    fun α hα => eq_gradedConeClassLift_of_pullback_eq φ dimX dimE RX RE hhom hinj α hα⟩
+
+/-- The affine VFC is the unique class with the defining pullback property. -/
+theorem virtualClass_unique
+    (hpot : AffinePerfectObstructionTheory φ)
+    (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
+    (hinj : Function.Injective (bundlePullback φ dimX dimE RX RE)) :
+    ∃! α : RX.ChowGroup, bundlePullback φ dimX dimE RX RE α = resolvedConeClass φ dimE RE :=
+  ⟨virtualClass φ dimX dimE RX RE hpot hhom hinj,
+    pullback_virtualClass φ dimX dimE RX RE hpot hhom hinj,
+    fun α hα => eq_virtualClass_of_pullback_eq φ dimX dimE RX RE hpot hhom hinj α hα⟩
 
 /-! ## The expected dimension -/
 
 omit [IsNoetherianRing R] [Module.Free (R ⧸ I) E.degreeZero]
   [Module.Finite (R ⧸ I) E.degreeZero] in
-/-- **The expected dimension.**  The virtual class is by construction an element of
+/-- **The expected dimension.**  The affine VFC is by construction an element of
 `RX.ChowGroup` for a rational-equivalence system `RX` in degree `virtualDimension φ`, and the
 virtual dimension is `rk E⁰ - rk E⁻¹`. -/
 theorem virtualDimension_eq :
@@ -524,12 +626,13 @@ theorem flatPullbackBundle_fundamental_eq_resolvedConeCycle :
 `X = Spec (R ⧸ I)` — the resolved cone is `C(E) = E₁ = X`, the bundle `E₁` has rank zero and the
 expected dimension is zero — the virtual class is the class of the fundamental cycle of `X`. -/
 theorem virtualClass_eq_fundamental
+    (hpot : AffinePerfectObstructionTheory φ)
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (bundlePullback φ dimX dimE RX RE)) :
-    virtualClass φ dimX dimE RX RE hhom hinj =
+    virtualClass φ dimX dimE RX RE hpot hhom hinj =
       RX.quotientMap (cyclesOfDimension.fundamental (pure_base φ dimX)) := by
   symm
-  refine eq_virtualClass_of_pullback_eq φ dimX dimE RX RE hhom hinj _ ?_
+  refine eq_virtualClass_of_pullback_eq φ dimX dimE RX RE hpot hhom hinj _ ?_
   rw [bundlePullback, VectorBundle.chowPullbackBundle_quotientMap,
     flatPullbackBundle_fundamental_eq_resolvedConeCycle]
   rfl
@@ -566,11 +669,12 @@ variable {k : Type u} [CommRing k] [Algebra k F]
 `E` vanish).  Then `E₁ = C(E) = X` is a rank-zero bundle, the expected dimension is `0`, and the
 virtual fundamental class is the class of the fundamental cycle of the point. -/
 theorem virtualClass_point
+    (hpot : AffinePerfectObstructionTheory φ)
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (bundlePullback φ dimX dimE RX RE)) :
-    virtualClass φ dimX dimE RX RE hhom hinj =
+    virtualClass φ dimX dimE RX RE hpot hhom hinj =
       RX.quotientMap (cyclesOfDimension.fundamental (pure_base φ dimX)) :=
-  virtualClass_eq_fundamental φ dimX dimE RX RE hhom hinj
+  virtualClass_eq_fundamental φ dimX dimE RX RE hpot hhom hinj
 
 end ReducedPoint
 

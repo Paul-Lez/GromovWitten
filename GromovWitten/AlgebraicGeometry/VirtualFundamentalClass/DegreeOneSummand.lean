@@ -30,8 +30,9 @@ the same bundle, so the two virtual classes differ only by the degree shift `rk 
 * `DegreeOneSummand.productInclusion φ j`, `DegreeOneSummand.productProjection φ j`: the algebra
   map `gr_I(R) ⊗ Sym(E⁰) → gr_I(R) ⊗ Sym(E⁰ × W)` induced by `LinearMap.inl` and its retraction
   induced by `LinearMap.fst`.
-* `DegreeOneSummand.relativeVirtualClassAt φ e dimX dimE d RX RE hhom hinj`: the virtual class of
-  `φ` placed in the degree `virtualDimension φ + d`, the degree in which the virtual class of an
+* `DegreeOneSummand.relativeGradedConeClassLiftAt φ e dimX dimE d RX RE hhom hinj`: the graded
+  cone-class lift of `φ` placed in the degree `virtualDimension φ + d`, the degree in which the
+  virtual class of an
   obstruction theory relative to a smooth base of dimension `d` lives.
 
 ## Main results
@@ -42,15 +43,16 @@ the same bundle, so the two virtual classes differ only by the degree shift `rk 
   `Sym(E⁻¹)`, hence are the same closed subscheme of the same bundle `E₁`.
 * `DegreeOneSummand.resolvedConeCycleAt_addDegreeOne`,
   `DegreeOneSummand.resolvedConeClassAt_addDegreeOne`,
-  `DegreeOneSummand.virtualClassAt_addDegreeOne`: the resolved-cone cycle, the resolved-cone
+  `DegreeOneSummand.gradedConeClassLiftAt_addDegreeOne`: the resolved-cone cycle, the resolved-cone
   class and the degree-generic virtual class are unchanged.
 * `DegreeOneSummand.virtualDimension_addDegreeOne`,
   `DegreeOneSummand.coneDegree_addDegreeOne`: the virtual dimension and the cone degree go up by
   `rk W`, while `DegreeOneSummand.bundleRank_addDegreeOne` and
   `DegreeOneSummand.trivialization_addDegreeOne` say that the bundle and its trivialisation are
   literally the same.
-* `DegreeOneSummand.virtualClassAt_addDegreeOne_eq_relativeVirtualClassAt` and
-  `DegreeOneSummand.virtualClass_addDegreeOne_eq_relativeVirtualClassAt`: the comparison in the
+* `DegreeOneSummand.gradedConeClassLiftAt_addDegreeOne_eq_relativeGradedConeClassLiftAt` and
+  `DegreeOneSummand.gradedConeClassLift_addDegreeOne_eq_relativeGradedConeClassLiftAt`: the
+  comparison in the
   form "absolute class = relative class", for the degree-generic and for the unconditional
   virtual class of `VirtualFundamentalClass/Unconditional.lean`.
 * Obstruction-theory bookkeeping: `DegreeOneSummand.cokernelMap_comp_inclusionQ`,
@@ -425,13 +427,13 @@ variable (dimE : DimensionFunction (ResolvedCone.bundleSpace φ))
 /-- **The degree-generic virtual class is unchanged by a degree-one summand.**  Both sides are
 computed in the same trivialisation `e` of the same bundle `E₁` and in the same degree `i`; only
 the *canonical* degree of the two data differs, by `virtualDimension_addDegreeOne`. -/
-theorem virtualClassAt_addDegreeOne (i : ℤ)
+theorem gradedConeClassLiftAt_addDegreeOne (i : ℤ)
     (RX : RationalEquivalenceSystem (Spec (CommRingCat.of (R ⧸ I))) dimX i)
     (RE : RationalEquivalenceSystem (ResolvedCone.bundleSpace φ) dimE (i + (Nat.card ι : ℤ)))
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (VectorBundle.chowPullbackBundle e dimX dimE i RX RE)) :
-    VirtualClass.virtualClassAt (φ.addDegreeOne j) e dimX dimE i RX RE hhom hinj =
-      VirtualClass.virtualClassAt φ e dimX dimE i RX RE hhom hinj :=
+    VirtualClass.gradedConeClassLiftAt (φ.addDegreeOne j) e dimX dimE i RX RE hhom hinj =
+      VirtualClass.gradedConeClassLiftAt φ e dimX dimE i RX RE hhom hinj :=
   congrArg (VectorBundle.zeroSectionGysin' e dimX dimE i RX RE hhom hinj)
     (resolvedConeClassAt_addDegreeOne φ j dimE i RE)
 
@@ -444,8 +446,8 @@ degree-one term `E⁰` of `E` computes the *relative* cotangent complex, so the 
 `C(E) ⊆ E₁` has dimension `rk E⁰ + d` rather than `rk E⁰` (Behrend–Fantechi §7: the relative
 intrinsic normal cone has the dimension of the base added to it).  Its class therefore lives in
 the degree `virtualDimension φ + d` after the Gysin pullback, and this definition is exactly the
-degree-generic virtual class `virtualClassAt` in that degree. -/
-noncomputable def relativeVirtualClassAt (d : ℕ)
+degree-generic virtual class `gradedConeClassLiftAt` in that degree. -/
+noncomputable def relativeGradedConeClassLiftAt (d : ℕ)
     (RX : RationalEquivalenceSystem (Spec (CommRingCat.of (R ⧸ I))) dimX
       (VirtualClass.virtualDimension φ + (d : ℤ)))
     (RE : RationalEquivalenceSystem (ResolvedCone.bundleSpace φ) dimE
@@ -453,13 +455,14 @@ noncomputable def relativeVirtualClassAt (d : ℕ)
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (VectorBundle.chowPullbackBundle e dimX dimE
       (VirtualClass.virtualDimension φ + (d : ℤ)) RX RE)) : RX.ChowGroup :=
-  VirtualClass.virtualClassAt φ e dimX dimE (VirtualClass.virtualDimension φ + (d : ℤ)) RX RE
+  VirtualClass.gradedConeClassLiftAt φ e dimX dimE (VirtualClass.virtualDimension φ + (d : ℤ)) RX
+    RE
     hhom hinj
 
 /-- **The absolute virtual class of `φ.addDegreeOne j` is the relative virtual class of `φ` in
 relative dimension `rk W`.**  The common degree is `virtualDimension φ + rk W`, which is
 `virtualDimension (φ.addDegreeOne j)` by `virtualDimension_addDegreeOne`. -/
-theorem virtualClassAt_addDegreeOne_eq_relativeVirtualClassAt
+theorem gradedConeClassLiftAt_addDegreeOne_eq_relativeGradedConeClassLiftAt
     (RX : RationalEquivalenceSystem (Spec (CommRingCat.of (R ⧸ I))) dimX
       (VirtualClass.virtualDimension φ + (Module.finrank (R ⧸ I) W : ℤ)))
     (RE : RationalEquivalenceSystem (ResolvedCone.bundleSpace φ) dimE
@@ -467,10 +470,10 @@ theorem virtualClassAt_addDegreeOne_eq_relativeVirtualClassAt
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (VectorBundle.chowPullbackBundle e dimX dimE
       (VirtualClass.virtualDimension φ + (Module.finrank (R ⧸ I) W : ℤ)) RX RE)) :
-    VirtualClass.virtualClassAt (φ.addDegreeOne j) e dimX dimE
+    VirtualClass.gradedConeClassLiftAt (φ.addDegreeOne j) e dimX dimE
         (VirtualClass.virtualDimension φ + (Module.finrank (R ⧸ I) W : ℤ)) RX RE hhom hinj =
-      relativeVirtualClassAt φ e dimX dimE (Module.finrank (R ⧸ I) W) RX RE hhom hinj :=
-  virtualClassAt_addDegreeOne φ j e dimX dimE _ RX RE hhom hinj
+      relativeGradedConeClassLiftAt φ e dimX dimE (Module.finrank (R ⧸ I) W) RX RE hhom hinj :=
+  gradedConeClassLiftAt_addDegreeOne φ j e dimX dimE _ RX RE hhom hinj
 
 end Cycle
 
@@ -493,27 +496,27 @@ variable (dimE : DimensionFunction (ResolvedCone.bundleSpace φ))
 `φ`.**  Here the degree is the canonical one of `φ.addDegreeOne j`; by
 `virtualDimension_addDegreeOne` it equals `virtualDimension φ + rk W` whenever `R ⧸ I` is
 nontrivial and `E⁰` and `W` are finite free, and then the right-hand side is
-`relativeVirtualClassAt φ … (rk W) …`. -/
-theorem virtualClass_addDegreeOne_eq_virtualClassAt
+`relativeGradedConeClassLiftAt φ … (rk W) …`. -/
+theorem gradedConeClassLift_addDegreeOne_eq_gradedConeClassLiftAt
     (RX : RationalEquivalenceSystem (Spec (CommRingCat.of (R ⧸ I))) dimX
       (VirtualClass.virtualDimension (φ.addDegreeOne j)))
     (RE : RationalEquivalenceSystem (ResolvedCone.bundleSpace φ) dimE
       (VirtualClass.coneDegree (φ.addDegreeOne j)))
     (hdim : VectorBundle.HasUniversalDimensionFormula (R ⧸ I))
     (hunit : VectorBundle.UnitDifferences (R ⧸ I)) :
-    Unconditional.virtualClass (φ.addDegreeOne j) dimX dimE RX RE hdim hunit =
-      VirtualClass.virtualClassAt φ (VirtualClass.trivialization φ) dimX dimE
+    Unconditional.gradedConeClassLift (φ.addDegreeOne j) dimX dimE RX RE hdim hunit =
+      VirtualClass.gradedConeClassLiftAt φ (VirtualClass.trivialization φ) dimX dimE
         (VirtualClass.virtualDimension (φ.addDegreeOne j)) RX RE
         (Unconditional.hhomOf φ dimE hdim)
         (Unconditional.hinjAt φ dimX dimE (VirtualClass.virtualDimension (φ.addDegreeOne j))
           RX RE hdim hunit) :=
-  virtualClassAt_addDegreeOne φ j (VirtualClass.trivialization φ) dimX dimE _ RX RE _ _
+  gradedConeClassLiftAt_addDegreeOne φ j (VirtualClass.trivialization φ) dimX dimE _ RX RE _ _
 
 /-- **The unconditional comparison**: the absolute virtual class of `φ.addDegreeOne j` equals
 the relative virtual class of `φ` in relative dimension `rk W`, both read in the degree
 `virtualDimension φ + rk W` (which is the canonical degree of `φ.addDegreeOne j` whenever
 `R ⧸ I` is nontrivial and `E⁰`, `W` are finite free, by `virtualDimension_addDegreeOne`). -/
-theorem virtualClass_addDegreeOne_eq_relativeVirtualClassAt
+theorem gradedConeClassLift_addDegreeOne_eq_relativeGradedConeClassLiftAt
     (RX : RationalEquivalenceSystem (Spec (CommRingCat.of (R ⧸ I))) dimX
       (VirtualClass.virtualDimension φ + (Module.finrank (R ⧸ I) W : ℤ)))
     (RE : RationalEquivalenceSystem (ResolvedCone.bundleSpace φ) dimE
@@ -521,17 +524,17 @@ theorem virtualClass_addDegreeOne_eq_relativeVirtualClassAt
         (VirtualClass.bundleRank φ : ℤ)))
     (hdim : VectorBundle.HasUniversalDimensionFormula (R ⧸ I))
     (hunit : VectorBundle.UnitDifferences (R ⧸ I)) :
-    VirtualClass.virtualClassAt (φ.addDegreeOne j)
+    VirtualClass.gradedConeClassLiftAt (φ.addDegreeOne j)
         (VirtualClass.trivialization (φ.addDegreeOne j)) dimX dimE
         (VirtualClass.virtualDimension φ + (Module.finrank (R ⧸ I) W : ℤ)) RX RE
         (Unconditional.hhomOf φ dimE hdim)
         (Unconditional.hinjAt φ dimX dimE
           (VirtualClass.virtualDimension φ + (Module.finrank (R ⧸ I) W : ℤ)) RX RE hdim hunit) =
-      relativeVirtualClassAt φ (VirtualClass.trivialization φ) dimX dimE
+      relativeGradedConeClassLiftAt φ (VirtualClass.trivialization φ) dimX dimE
         (Module.finrank (R ⧸ I) W) RX RE (Unconditional.hhomOf φ dimE hdim)
         (Unconditional.hinjAt φ dimX dimE
           (VirtualClass.virtualDimension φ + (Module.finrank (R ⧸ I) W : ℤ)) RX RE hdim hunit) :=
-  virtualClassAt_addDegreeOne φ j (VirtualClass.trivialization φ) dimX dimE _ RX RE _ _
+  gradedConeClassLiftAt_addDegreeOne φ j (VirtualClass.trivialization φ) dimX dimE _ RX RE _ _
 
 end Unconditional
 

@@ -31,9 +31,11 @@ class, hence (for a globally trivialised bundle) the same virtual class.
 * `coneCycle_eq` — the glued cone cycles of `𝒞` and `𝒞'` agree.
 * `coneClassAt_eq` — hence the cone *classes* agree, for any grading `dimE`, `d` and any
   `RationalEquivalenceSystem RE`.
-* `virtualClassFT'_eq` — the corollary for the unconditional virtual class of a compact scheme
+* `gradedConeClassLiftFT'_eq` — the corollary for the unconditional virtual class of a compact
+  scheme
   locally of finite type over an infinite field with a globally trivialised bundle
-  (`existsUnique_virtualClassFT'_of_globalTrivialisation'`): the virtual classes attached to `𝒞`
+  (`existsUnique_gradedConeClassLiftFT'_of_globalTrivialisation'`): the graded cone-class lifts
+  attached to `𝒞`
   and `𝒞'` agree.
 
 ## What is not proved here
@@ -72,6 +74,8 @@ open VirtualClass.GlobalCone
 noncomputable section
 
 namespace VirtualClass.ConeGluingIndependence
+
+open VirtualClass.GlobalVirtualClass
 
 /-! ## A cycle is determined by its restrictions along a cover by open immersions -/
 
@@ -237,7 +241,8 @@ theorem pullbackOpen_bundleChartι_coneCycle_eq (H : ChartIso 𝒞 𝒞') (j : �
         (VirtualClass.coneDimension (φ j) dimAff) dimAff
         (ResolvedCone.scheme (φ j)).fundamentalCycle :=
     𝒞.pullbackOpen_bundleChartι_coneCycleOf j (dimE : 𝓔.totalSpace → ℤ) dimAff
-  have hB : IntersectionTheory.AlgebraicCycle.pullbackOpen (𝒞'.bundleChartι j) (𝒞'.coneCycle dimE) =
+  have hB : IntersectionTheory.AlgebraicCycle.pullbackOpen (𝒞'.bundleChartι j)
+      (𝒞'.coneCycle dimE) =
       _root_.AlgebraicGeometry.AlgebraicCycle.map (ResolvedCone.toBundle (φ' j))
         (VirtualClass.coneDimension (φ' j) dimAff') dimAff'
         (ResolvedCone.scheme (φ' j)).fundamentalCycle :=
@@ -302,24 +307,25 @@ variable {F : Type u} [Field F] [Infinite F]
 obstruction bundle.**
 
 For `X` compact and locally of finite type over an infinite field `F`, with a
-`GlobalTrivialisation t` of `𝓔`, the unconditional virtual class `virtualClassFT'` of
+`GlobalTrivialisation t` of `𝓔`, the unconditional graded cone-class lift
+`gradedConeClassLiftFT'` of
 `GlobalVirtualClassUnconditional.lean` — which exists and is unique with no further hypothesis —
 agrees for the two chart-isomorphic cone data `𝒞`, `𝒞'`: the hypothesis is exactly `ChartIso H`,
 with no extra assumption beyond those of
-`existsUnique_virtualClassFT'_of_globalTrivialisation'`. The per-chart certified dimension
+`existsUnique_gradedConeClassLiftFT'_of_globalTrivialisation'`. The per-chart certified dimension
 function needed by `coneClassAt_eq` is taken to be the canonical
 `FiniteTypeDimension.dimensionFunction` of the composite `𝒞.bundleChartι j ≫ (𝓔.proj ≫ f)`
 (locally of finite type since `𝒞.bundleChartι j` is an open immersion and `𝓔.proj ≫ f` is
 locally of finite type), so no additional hypothesis is needed for its existence either. -/
-theorem virtualClassFT'_eq (H : ChartIso 𝒞 𝒞')
+theorem gradedConeClassLiftFT'_eq (H : ChartIso 𝒞 𝒞')
     (t : GlobalTrivialisation 𝓔) :
-    VirtualClass.GlobalVirtualClass.virtualClassFT' f 𝒞 i RX RE =
-      VirtualClass.GlobalVirtualClass.virtualClassFT' f 𝒞' i RX RE := by
+    VirtualClass.GlobalVirtualClass.gradedConeClassLiftFT' f 𝒞 i RX RE =
+      VirtualClass.GlobalVirtualClass.gradedConeClassLiftFT' f 𝒞' i RX RE := by
   have hdimAff : ∀ j, DimensionFunction (ResolvedCone.bundleSpace (φ j)) :=
     fun j ↦ dimensionFunction (𝒞.bundleChartι j ≫ (𝓔.proj ≫ f))
-  refine (VirtualClass.GlobalVirtualClass.eq_virtualClassFT'_of_pullback_eq_of_globalTrivialisation'
-    f 𝒞' i RX RE t (VirtualClass.GlobalVirtualClass.virtualClassFT' f 𝒞 i RX RE) ?_).symm
-  rw [VirtualClass.GlobalVirtualClass.bundlePullbackFT_virtualClassFT']
+  refine (eq_gradedConeClassLiftFT'_of_pullback_eq_of_globalTrivialisation'
+    f 𝒞' i RX RE t (VirtualClass.GlobalVirtualClass.gradedConeClassLiftFT' f 𝒞 i RX RE) ?_).symm
+  rw [VirtualClass.GlobalVirtualClass.bundlePullbackFT_gradedConeClassLiftFT']
   exact coneClassAt_eq H hdimAff (dimensionFunction (𝓔.proj ≫ f)) (i + (Nat.card ι : ℤ)) RE
 
 end FiniteType

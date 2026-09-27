@@ -10,9 +10,9 @@ import GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.GlobalConeAffine
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.FiniteTypeDimension
 
 /-!
-# The virtual fundamental class of a general scheme
+# Generic graded cone-class lifts on a general scheme
 
-This file defines the virtual fundamental class of a scheme `X` carrying a global cone datum
+This file defines a generic graded cone-class lift for a scheme `X` carrying a global cone datum
 `𝒞 : GlobalCone.GlobalConeData 𝓔 φ` (a global vector bundle `𝓔` with a closed subcone `C ⊆ E₁`
 which over every trivialising chart is the affine resolved cone of an obstruction datum `φ j`),
 using the *genuine* global flat pullback
@@ -27,10 +27,11 @@ of `IntersectionTheory/BundlePullbackGlobalChow.lean`, rather than an abstract h
 * `bundlePullback 𝓔 dimX dimE hshift i RX RE`: the flat pullback along the bundle projection on
   dimension-graded rational Chow groups.  It is `BundleOverSubscheme.chowPullbackBundleGlobal`,
   named here for readability.
-* `virtualClass 𝒞 dimX dimE hshift i RX RE hmem`: **the global virtual fundamental class**
-  `[X]^vir ∈ A_i(X)`, the preimage of the global cone class under the bundle pullback.
-* `bundlePullback_virtualClass`: `π^*[X]^vir = [C(E)]`, the defining property.
-* `virtualClass_unique`, `eq_virtualClass_of_pullback_eq`, `existsUnique_virtualClass`: the class
+* `gradedConeClassLift 𝒞 dimX dimE hshift i RX RE hmem`: a generic graded cone-class lift
+  `A_i(X)`, the preimage of the global cone class under the bundle pullback.
+* `bundlePullback_gradedConeClassLift`: the bundle pullback is the global cone class.
+* `gradedConeClassLift_unique`, `eq_gradedConeClassLift_of_pullback_eq`,
+  `existsUnique_gradedConeClassLift`: the class
   is the unique such preimage when `π^*` is injective.
 * `bundleChartι_eq`: the affine chart of the total space used by `GlobalConeData`
   (`bundleChartι`, built from `GlobalConeData.chartBundle`) and the one used by `BundleData`
@@ -40,30 +41,33 @@ of `IntersectionTheory/BundlePullbackGlobalChow.lean`, rather than an abstract h
   open item 1 of the report on `GlobalCone.lean`.
 * `chartPullback`: the affine bundle pullback of a chart, read on the affine model
   `ResolvedCone.bundleSpace (φ j)` of the chart.
-* `chartPullback_chartRestrict_virtualClass`: **the chart comparison.**  On every chart, the
-  restriction of the global virtual class satisfies exactly the equation that defines the affine
-  virtual class `VirtualClass.virtualClassAt (φ j)`, namely `π_j^* (α|_{U_j}) = [C(E)|_{U_j}]`,
+* `chartPullback_chartRestrict_gradedConeClassLift`: **the chart comparison.**  On every chart, the
+  restriction of the generic global lift satisfies exactly the equation that defines the affine
+  graded cone-class lift `VirtualClass.gradedConeClassLiftAt (φ j)`, namely
+  `π_j^* (α|_{U_j}) = [C(E)|_{U_j}]`,
   where the right-hand side is the affine resolved-cone class
   `VirtualClass.resolvedConeClassAt (φ j)`.
-* `chartRestrict_virtualClass_unique`: consequently, if the chart pullback is injective, the
-  restriction of the global virtual class to a chart is the unique class with that property, i.e.
-  it is the affine virtual class of the chart model.
-* `bundlePullbackFT`, `virtualClassFT`, `bundlePullbackFT_virtualClassFT`,
-  `existsUnique_virtualClassFT`: the same for a scheme locally of finite type over a field, at the
+* `chartRestrict_gradedConeClassLift_unique`: consequently, if the chart pullback is injective, the
+  restriction of the global lift to a chart is the unique class with that property, i.e. it is
+  the affine graded cone-class lift of the chart model.
+* `bundlePullbackFT`, `gradedConeClassLiftFT`, `bundlePullbackFT_gradedConeClassLiftFT`,
+  `existsUnique_gradedConeClassLiftFT`: the same for a scheme locally of finite type over a
+  field, at the
   canonical dimension functions of `IntersectionTheory/FiniteTypeDimension.lean`.  There the
   dimension-shift hypothesis `hshift` disappears (it is
   `FiniteTypeDimension.dimensionFunction_bundlePoint`), so `hmem` is the only hypothesis left.
-* `virtualClass_eq_of_pullback_eq`: if the global bundle pullback agrees with another injective
+* `gradedConeClassLift_eq_of_pullback_eq`: if the global bundle pullback agrees with another
+  injective
   pullback (for instance the transported affine pullback `GlobalConeAffine.chowPullback` of the
-  acceptance test), the two virtual classes agree.  Its specialisation
-  `virtualClass_eq_overFieldVirtualClass` is the consistency statement with
+  acceptance test), the two generic lifts agree.  Its specialisation
+  `gradedConeClassLift_eq_overFieldVirtualClass` is the consistency statement with
   `OverField.virtualClass` for the single-chart datum `GlobalConeAffine.globalConeData φ`; it is
   conditional on the agreement `hmatch` of the two pullbacks, which is not proved here.
 
 ## What is still hypothetical
 
 Two facts about the global bundle pullback `π^* : A_i(X) → A_{i+r}(E₁)` remain **hypotheses**
-of `virtualClass` and its characterisation:
+of `gradedConeClassLift` and its characterisation:
 
 * `hmem`: the global cone class lies in the range of `π^*`;
 * `hinj` (only for the uniqueness statements): `π^*` is injective.
@@ -118,7 +122,7 @@ variable {X : Scheme.{u}} {ι : Type u} [Finite ι] (𝓔 : BundleData X ι)
 /-- **The flat pullback along the projection of the total space of a global vector bundle**, on
 dimension-graded rational Chow groups: `π^* : A_i(X) →ₗ[ℚ] A_{i+r}(E₁)`.  This is
 `BundleOverSubscheme.chowPullbackBundleGlobal`, given a short name for use in the construction of
-the virtual class. -/
+the generic lift. -/
 def bundlePullback : RX.ChowGroup →ₗ[ℚ] RE.ChowGroup :=
   BundleOverSubscheme.chowPullbackBundleGlobal 𝓔 dimX dimE hshift i RX RE
 
@@ -136,7 +140,7 @@ theorem bundlePullback_quotientMap (z : cyclesOfDimension X dimX i) :
 
 end Pullback
 
-/-! ## The global virtual fundamental class -/
+/-! ## The generic global graded cone-class lift -/
 
 section VirtualClass
 
@@ -150,9 +154,9 @@ variable {k : Type u} [CommRing k] {X : Scheme.{u}} {ι : Type u} [Finite ι]
   (i : ℤ) (RX : RationalEquivalenceSystem X dimX i)
   (RE : RationalEquivalenceSystem 𝓔.totalSpace dimE (i + (Nat.card ι : ℤ)))
 
-/-- **The global virtual fundamental class** `[X]^vir ∈ A_i(X)` of a scheme carrying a global
-cone datum: the preimage of the global cone class `[C(E)] ∈ A_{i+r}(E₁)` under the global flat
-pullback `π^*` along the bundle projection.
+/-- **A generic global graded cone-class lift** in `A_i(X)` of a scheme carrying a global cone
+datum: the preimage of the global cone class `[C(E)] ∈ A_{i+r}(E₁)` under the global flat pullback
+`π^*` along the bundle projection.
 
 The hypothesis `hmem` — that the cone class is in the image of `π^*` — is **not** proved in this
 repository for a general base; it is one half of the global homotopy property of Chow groups
@@ -161,51 +165,51 @@ over an affine base with a trivialised bundle.  The other half, injectivity of `
 hypothesis `hinj` of `virtualClass_unique`; it is needed only to characterise the class, not to
 define it.  The dimension-shift hypothesis `hshift` is inherited from the construction of the
 pullback. -/
-def virtualClass
+def gradedConeClassLift
     (hmem : 𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE ∈
       LinearMap.range (bundlePullback 𝓔 dimX dimE hshift i RX RE)) : RX.ChowGroup :=
-  𝒞.virtualClassOf dimE dimX i (i + (Nat.card ι : ℤ)) RX RE
+  𝒞.gradedConeClassLiftOf dimE dimX i (i + (Nat.card ι : ℤ)) RX RE
     (bundlePullback 𝓔 dimX dimE hshift i RX RE) hmem
 
-/-- **The defining property of the global virtual class**: `π^*[X]^vir = [C(E)]`. -/
+/-- **The defining property of the generic global lift**: `π^*` is the global cone class. -/
 @[simp]
-theorem bundlePullback_virtualClass
+theorem bundlePullback_gradedConeClassLift
     (hmem : 𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE ∈
       LinearMap.range (bundlePullback 𝓔 dimX dimE hshift i RX RE)) :
     bundlePullback 𝓔 dimX dimE hshift i RX RE
-        (virtualClass 𝒞 dimX dimE hshift i RX RE hmem) =
+        (gradedConeClassLift 𝒞 dimX dimE hshift i RX RE hmem) =
       𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE :=
-  𝒞.pull_virtualClassOf dimE dimX i (i + (Nat.card ι : ℤ)) RX RE _ hmem
+  𝒞.pull_gradedConeClassLiftOf dimE dimX i (i + (Nat.card ι : ℤ)) RX RE _ hmem
 
-/-- **Uniqueness of the global virtual class**: any class pulling back to the cone class is the
-virtual class, provided the global bundle pullback is injective (the second half of the global
+/-- **Uniqueness of the generic global lift**: any class pulling back to the cone class is the
+selected lift, provided the global bundle pullback is injective (the second half of the global
 homotopy property of Chow groups, an explicit hypothesis). -/
-theorem virtualClass_unique
+theorem gradedConeClassLift_unique
     (hinj : Function.Injective (bundlePullback 𝓔 dimX dimE hshift i RX RE))
     (hmem : 𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE ∈
       LinearMap.range (bundlePullback 𝓔 dimX dimE hshift i RX RE))
     (α : RX.ChowGroup)
     (hα : bundlePullback 𝓔 dimX dimE hshift i RX RE α =
       𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE) :
-    α = virtualClass 𝒞 dimX dimE hshift i RX RE hmem :=
-  𝒞.virtualClassOf_unique dimE dimX i (i + (Nat.card ι : ℤ)) RX RE _ hinj hmem α hα
+    α = gradedConeClassLift 𝒞 dimX dimE hshift i RX RE hmem :=
+  𝒞.gradedConeClassLiftOf_unique dimE dimX i (i + (Nat.card ι : ℤ)) RX RE _ hinj hmem α hα
 
-/-- The symmetric form of `virtualClass_unique`, convenient for rewriting. -/
-theorem eq_virtualClass_of_pullback_eq
+/-- The symmetric form of the generic-lift uniqueness theorem, convenient for rewriting. -/
+theorem eq_gradedConeClassLift_of_pullback_eq
     (hinj : Function.Injective (bundlePullback 𝓔 dimX dimE hshift i RX RE))
     (hmem : 𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE ∈
       LinearMap.range (bundlePullback 𝓔 dimX dimE hshift i RX RE))
     (α : RX.ChowGroup)
     (hα : bundlePullback 𝓔 dimX dimE hshift i RX RE α =
       𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE) :
-    virtualClass 𝒞 dimX dimE hshift i RX RE hmem = α :=
-  (virtualClass_unique 𝒞 dimX dimE hshift i RX RE hinj hmem α hα).symm
+    gradedConeClassLift 𝒞 dimX dimE hshift i RX RE hmem = α :=
+  (gradedConeClassLift_unique 𝒞 dimX dimE hshift i RX RE hinj hmem α hα).symm
 
 /-- If the global bundle pullback coincides with another (injective) pullback `pull`, the global
-virtual class is the preimage of the cone class under `pull`.  This is the form in which the
-global class is compared with a class built from a different presentation of the same pullback,
+generic lift is the preimage of the cone class under `pull`.  This is the form in which the
+global lift is compared with a class built from a different presentation of the same pullback,
 for instance the transported affine pullback `GlobalConeAffine.chowPullback`. -/
-theorem virtualClass_eq_of_pullback_eq
+theorem gradedConeClassLift_eq_of_pullback_eq
     (pull : RX.ChowGroup →ₗ[ℚ] RE.ChowGroup)
     (hpull : bundlePullback 𝓔 dimX dimE hshift i RX RE = pull)
     (hinj : Function.Injective pull)
@@ -213,19 +217,19 @@ theorem virtualClass_eq_of_pullback_eq
       LinearMap.range (bundlePullback 𝓔 dimX dimE hshift i RX RE))
     (α : RX.ChowGroup)
     (hα : pull α = 𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE) :
-    virtualClass 𝒞 dimX dimE hshift i RX RE hmem = α := by
+    gradedConeClassLift 𝒞 dimX dimE hshift i RX RE hmem = α := by
   subst hpull
-  exact eq_virtualClass_of_pullback_eq 𝒞 dimX dimE hshift i RX RE hinj hmem α hα
+  exact eq_gradedConeClassLift_of_pullback_eq 𝒞 dimX dimE hshift i RX RE hinj hmem α hα
 
-/-- **Existence and uniqueness of the global virtual class**, under the global homotopy property
+/-- **Existence and uniqueness of the generic global lift**, under the global homotopy property
 of Chow groups (the hypotheses `hinj` and `hmem`). -/
-theorem existsUnique_virtualClass
+theorem existsUnique_gradedConeClassLift
     (hinj : Function.Injective (bundlePullback 𝓔 dimX dimE hshift i RX RE))
     (hmem : 𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE ∈
       LinearMap.range (bundlePullback 𝓔 dimX dimE hshift i RX RE)) :
     ∃! α : RX.ChowGroup, bundlePullback 𝓔 dimX dimE hshift i RX RE α =
       𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE :=
-  𝒞.existsUnique_virtualClass dimE dimX i (i + (Nat.card ι : ℤ)) RX RE _ hinj hmem
+  𝒞.existsUnique_gradedConeClassLiftOf dimE dimX i (i + (Nat.card ι : ℤ)) RX RE _ hinj hmem
 
 end VirtualClass
 
@@ -294,7 +298,7 @@ theorem openImmersionPullback_congr (RV : RationalEquivalenceSystem V dV i)
 
 end Congr
 
-/-! ## The chart comparison of the global virtual class -/
+/-! ## Chart comparison of the generic global lift -/
 
 section ChartComparison
 
@@ -385,29 +389,30 @@ theorem openImmersionPullback_comp_chartι :
     RationalEquivalenceSystem.DescendingMap.openImmersionPullback_comp RE RP RC _ _ hC hP]
 
 include hP in
-/-- **The chart comparison of the global virtual class.**  On every trivialising chart `j`, the
-restriction of the global virtual class to the chart satisfies exactly the equation that defines
-the affine virtual class of the obstruction datum `φ j`: its affine bundle pullback is the affine
+/-- **The chart comparison of the generic global lift.**  On every trivialising chart `j`, the
+restriction of the global lift to the chart satisfies exactly the equation that defines the
+affine graded cone-class lift of the obstruction datum `φ j`: its affine bundle pullback is the
+affine
 resolved-cone class `VirtualClass.resolvedConeClassAt (φ j)` (compare
-`VirtualClass.chowPullbackBundle_virtualClassAt`). -/
-theorem chartPullback_chartRestrict_virtualClass
+`VirtualClass.chowPullbackBundle_gradedConeClassLiftAt`). -/
+theorem chartPullback_chartRestrict_gradedConeClassLift
     (hmem : 𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE ∈
       LinearMap.range (bundlePullback 𝓔 dimX dimE hshift i RX RE)) :
     chartPullback 𝒞 i j dimU dimP dimC hC RU RP RC
         (chartRestrictBase dimX i RX j dimU hU RU
-          (virtualClass 𝒞 dimX dimE hshift i RX RE hmem)) =
+          (gradedConeClassLift 𝒞 dimX dimE hshift i RX RE hmem)) =
       VirtualClass.resolvedConeClassAt (φ j) dimC i RC := by
   have hchart := BundleOverSubscheme.openImmersionPullback_chowPullbackBundleGlobal
     𝓔 dimX dimE hshift i j dimU dimP hU hP RX RE RU RP
   have hpull : BundleOverSubscheme.chowPullbackBundleGlobal 𝓔 dimX dimE hshift i RX RE
-      (virtualClass 𝒞 dimX dimE hshift i RX RE hmem) =
+      (gradedConeClassLift 𝒞 dimX dimE hshift i RX RE hmem) =
       𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE :=
-    bundlePullback_virtualClass 𝒞 dimX dimE hshift i RX RE hmem
+    bundlePullback_gradedConeClassLift 𝒞 dimX dimE hshift i RX RE hmem
   have key : (VectorBundle.chowPullbackBundle
         (AlgEquiv.refl (A₁ := MvPolynomial ι Γ(X, (𝓔.chart j).1))) dimU dimP i RU RP).comp
         (openImmersionPullback RX
           ((isAffineOpen X (𝓔.chart j)).isoSpec.inv ≫ (𝓔.chart j).1.ι) hU RU)
-        (virtualClass 𝒞 dimX dimE hshift i RX RE hmem) =
+        (gradedConeClassLift 𝒞 dimX dimE hshift i RX RE hmem) =
       openImmersionPullback RE (𝓔.chartι j) hP RP
         (𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE) := by
     rw [← hpull]
@@ -422,10 +427,10 @@ theorem chartPullback_chartRestrict_virtualClass
 include hP in
 /-- **Uniqueness of the chart restriction.**  If the affine bundle pullback of the chart is
 injective — which over a field with an infinite residue field is
-`VirtualClass.hinj`/`OverField.hinjOf` — the restriction of the global virtual class to the chart
-is the unique class whose affine bundle pullback is the affine resolved-cone class, that is, it
-is the affine virtual class of `φ j`. -/
-theorem chartRestrict_virtualClass_unique
+`VirtualClass.hinj`/`OverField.hinjOf` — the restriction of the global lift to the chart is the
+unique class whose affine bundle pullback is the affine resolved-cone class, that is, it is the
+affine graded cone-class lift of `φ j`. -/
+theorem chartRestrict_gradedConeClassLift_unique
     (hinjC : Function.Injective (chartPullback 𝒞 i j dimU dimP dimC hC RU RP RC))
     (hmem : 𝒞.coneClassAt dimE (i + (Nat.card ι : ℤ)) RE ∈
       LinearMap.range (bundlePullback 𝓔 dimX dimE hshift i RX RE))
@@ -433,9 +438,10 @@ theorem chartRestrict_virtualClass_unique
     (hβ : chartPullback 𝒞 i j dimU dimP dimC hC RU RP RC β =
       VirtualClass.resolvedConeClassAt (φ j) dimC i RC) :
     β = chartRestrictBase dimX i RX j dimU hU RU
-      (virtualClass 𝒞 dimX dimE hshift i RX RE hmem) :=
+      (gradedConeClassLift 𝒞 dimX dimE hshift i RX RE hmem) :=
   hinjC (hβ.trans
-    (chartPullback_chartRestrict_virtualClass 𝒞 dimX dimE hshift i RX RE j dimU dimP dimC hU hP
+    (chartPullback_chartRestrict_gradedConeClassLift 𝒞 dimX dimE hshift i RX RE j dimU dimP dimC
+      hU hP
       hC RU RP RC hmem).symm)
 
 end ChartComparison
@@ -464,8 +470,10 @@ def bundlePullbackFT : RX.ChowGroup →ₗ[ℚ] RE.ChowGroup :=
   bundlePullback 𝓔 (dimensionFunction f) (dimensionFunction (𝓔.proj ≫ f))
     (dimensionFunction_bundlePoint f 𝓔) i RX RE
 
-/-- **The virtual fundamental class of a scheme locally of finite type over a field.**  Compared
-with `virtualClass`, no dimension hypothesis is left: the certified dimension gradings of `X` and
+/-- **A generic graded cone-class lift for a scheme locally of finite type over a field.**
+Compared
+with `gradedConeClassLift`, no dimension hypothesis is left: the certified dimension gradings of
+`X` and
 of the total space are `FiniteTypeDimension.dimensionFunction f` and
 `FiniteTypeDimension.dimensionFunction (𝓔.proj ≫ f)`, and the shift `hshift` is
 `FiniteTypeDimension.dimensionFunction_bundlePoint`.  The only remaining hypothesis is `hmem`,
@@ -477,36 +485,37 @@ induction would need are available at these dimension functions as well:
 `FiniteTypeDimension.principalDivisorsHomogeneous` on `X`,
 `FiniteTypeDimension.principalDivisorsHomogeneous_totalSpace` on `𝓔.totalSpace` and
 `FiniteTypeDimension.flatPullbackBundleFiniteType_injective` on cycles. -/
-def virtualClassFT
+def gradedConeClassLiftFT
     (hmem : 𝒞.coneClassAt (dimensionFunction (𝓔.proj ≫ f)) (i + (Nat.card ι : ℤ)) RE ∈
       LinearMap.range (bundlePullbackFT f i RX RE)) : RX.ChowGroup :=
-  virtualClass 𝒞 (dimensionFunction f) (dimensionFunction (𝓔.proj ≫ f))
+  gradedConeClassLift 𝒞 (dimensionFunction f) (dimensionFunction (𝓔.proj ≫ f))
     (dimensionFunction_bundlePoint f 𝓔) i RX RE hmem
 
-/-- The defining property of the finite-type virtual class: `π^*[X]^vir = [C(E)]`. -/
+/-- The defining property of the finite-type generic lift: the bundle pullback is the global cone
+class. -/
 @[simp]
-theorem bundlePullbackFT_virtualClassFT
+theorem bundlePullbackFT_gradedConeClassLiftFT
     (hmem : 𝒞.coneClassAt (dimensionFunction (𝓔.proj ≫ f)) (i + (Nat.card ι : ℤ)) RE ∈
       LinearMap.range (bundlePullbackFT f i RX RE)) :
-    bundlePullbackFT f i RX RE (virtualClassFT f 𝒞 i RX RE hmem) =
+    bundlePullbackFT f i RX RE (gradedConeClassLiftFT f 𝒞 i RX RE hmem) =
       𝒞.coneClassAt (dimensionFunction (𝓔.proj ≫ f)) (i + (Nat.card ι : ℤ)) RE :=
-  bundlePullback_virtualClass 𝒞 (dimensionFunction f) (dimensionFunction (𝓔.proj ≫ f))
+  bundlePullback_gradedConeClassLift 𝒞 (dimensionFunction f) (dimensionFunction (𝓔.proj ≫ f))
     (dimensionFunction_bundlePoint f 𝓔) i RX RE hmem
 
-/-- Existence and uniqueness of the finite-type virtual class, given injectivity of the bundle
+/-- Existence and uniqueness of the finite-type generic lift, given injectivity of the bundle
 pullback. -/
-theorem existsUnique_virtualClassFT
+theorem existsUnique_gradedConeClassLiftFT
     (hinj : Function.Injective (bundlePullbackFT f i RX RE))
     (hmem : 𝒞.coneClassAt (dimensionFunction (𝓔.proj ≫ f)) (i + (Nat.card ι : ℤ)) RE ∈
       LinearMap.range (bundlePullbackFT f i RX RE)) :
     ∃! α : RX.ChowGroup, bundlePullbackFT f i RX RE α =
       𝒞.coneClassAt (dimensionFunction (𝓔.proj ≫ f)) (i + (Nat.card ι : ℤ)) RE :=
-  existsUnique_virtualClass 𝒞 (dimensionFunction f) (dimensionFunction (𝓔.proj ≫ f))
+  existsUnique_gradedConeClassLift 𝒞 (dimensionFunction f) (dimensionFunction (𝓔.proj ≫ f))
     (dimensionFunction_bundlePoint f 𝓔) i RX RE hinj hmem
 
 end FiniteType
 
-/-! ## Consistency with the affine virtual class -/
+/-! ## Consistency with the affine VFC -/
 
 section AffineConsistency
 
@@ -517,6 +526,7 @@ variable {k R : Type u} [Field k] [Infinite k] [CommRing R] [Algebra k R]
   {E : LinearTwoTermComplex (R ⧸ I)} [Module.Free (R ⧸ I) E.degreeZero]
   [Module.Finite (R ⧸ I) E.degreeZero]
   (φ : LinearTwoTermComplex.Hom E (conormalComplex k R I))
+  (hpot : VirtualClass.AffinePerfectObstructionTheory φ)
   (dimX : DimensionFunction (Spec (CommRingCat.of (R ⧸ I))))
   (dimE : DimensionFunction (bundleData φ).totalSpace)
   (dimC : DimensionFunction (ResolvedCone.bundleSpace φ))
@@ -528,9 +538,9 @@ variable {k R : Type u} [Field k] [Infinite k] [CommRing R] [Algebra k R]
   (RE : RationalEquivalenceSystem (bundleData φ).totalSpace dimE (VirtualClass.coneDegree φ))
   (RC : RationalEquivalenceSystem (ResolvedCone.bundleSpace φ) dimC (VirtualClass.coneDegree φ))
 
-/-- **Consistency with the affine virtual class.**  For the single-chart global cone datum
+/-- **Consistency with the affine VFC.**  For the single-chart global cone datum
 `GlobalConeAffine.globalConeData φ` attached to an affine obstruction datum over a field, the
-global virtual class of this file is the affine virtual class `OverField.virtualClass φ`, as soon
+the generic lift of this file is the affine VFC `OverField.virtualClass φ`, as soon
 as the genuine global bundle pullback `bundlePullback` agrees with the transported affine
 pullback `GlobalConeAffine.chowPullback` of the acceptance test.
 
@@ -541,19 +551,19 @@ pullback along the base isomorphism `Spec Γ(Spec (R ⧸ I), ⊤) ≅ Spec (R �
 repository does not provide.  Everything else — injectivity of the pullback and membership of
 the cone class in its range — is discharged from report J
 (`GlobalConeAffine.chowPullback_injective`, `GlobalConeAffine.chowPullback_virtualClass`). -/
-theorem virtualClass_eq_overFieldVirtualClass
+theorem gradedConeClassLift_eq_overFieldVirtualClass
     (hmatch : bundlePullback (bundleData φ) dimX dimE hshift
         (VirtualClass.virtualDimension φ) RX RE = chowPullback φ dimX dimE dimC hdim RX RE RC)
     (hmem : (globalConeData φ).coneClassAt dimE (VirtualClass.coneDegree φ) RE ∈
       LinearMap.range (bundlePullback (bundleData φ) dimX dimE hshift
         (VirtualClass.virtualDimension φ) RX RE)) :
-    virtualClass (globalConeData φ) dimX dimE hshift (VirtualClass.virtualDimension φ)
+    gradedConeClassLift (globalConeData φ) dimX dimE hshift (VirtualClass.virtualDimension φ)
         RX RE hmem =
-      OverField.virtualClass φ dimX dimC RX RC :=
-  virtualClass_eq_of_pullback_eq (globalConeData φ) dimX dimE hshift
+      OverField.virtualClass φ dimX dimC RX RC hpot :=
+  gradedConeClassLift_eq_of_pullback_eq (globalConeData φ) dimX dimE hshift
     (VirtualClass.virtualDimension φ) RX RE _ hmatch
     (chowPullback_injective φ dimX dimE dimC hdim RX RE RC) hmem _
-    (chowPullback_virtualClass φ dimX dimE dimC hdim RX RE RC)
+    (chowPullback_virtualClass φ hpot dimX dimE dimC hdim RX RE RC)
 
 end AffineConsistency
 

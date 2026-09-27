@@ -16,7 +16,8 @@ to be an obstruction theory, the base change `hyperplaneHom φ` of a relative ob
 target `hyperplaneConormalComplex I` is built from the ideal `I' = I + (y₀)` of the *unchanged*
 ambient ring `R` together with the quotient `hyperplaneCotangent I = (I'/I'²) ⧸ ⟨[y₀]⟩`, so none of
 the machinery of `RelativeAbsolute.lean` (`absHom`, `Gr`, `relProductMap`, `ResolvedCone.ideal`,
-`relativeVirtualClass`) — all of which is stated for a target `relConormalComplex J` of an honest
+`relativeGradedConeClassLift`) — all of which is stated for a target `relConormalComplex J` of
+an honest
 ideal `J` of the ambient polynomial ring — applies to it.
 
 This file removes that obstacle.  Write `R' = k[x_σ, y_{τ'}]` for the coordinate ring of
@@ -56,9 +57,9 @@ This file removes that obstacle.  Write `R' = k[x_σ, y_{τ'}]` for the coordina
   exactly when `hyperplaneHom φ` is, resp. exactly when the plain degreewise base change of `φ` is.
 * `virtualDimension_absHom_reindexHom`: the virtual dimension drops by exactly one,
   `vdim [X'/Y'] + 1 = vdim [X/Y]`.
-* `relativeVirtualClass_hyperplane`, the resulting definition of `[X'/Y']^vir` as
-  `RelativeAbsolute.relativeVirtualClass (reindexHom I φ)`, and
-  `virtualClassAt_absHom_reindexHom` identifying it with the virtual class of the associated
+* `relativeGradedConeClassLift_hyperplane`, the resulting definition of `[X'/Y']^vir` as
+  `RelativeAbsolute.relativeGradedConeClassLift (reindexHom I φ)`, and
+  `gradedConeClassLiftAt_absHom_reindexHom` identifying it with the virtual class of the associated
   absolute obstruction theory.
 
 ## The comparison of normal cones
@@ -76,7 +77,8 @@ along `X' ↪ X`.
 
 The **identity of resolved-cone ideals**, `RelativeAbsolute.ideal' (reindexHom I φ) =
 (RelativeAbsolute.ideal' φ).map (…)`, and hence the **Gysin comparison**
-`relativeVirtualClass_hyperplane = i^! [X/Y]^vir` for the regular embedding `i : Y' ↪ Y`, are not
+`relativeGradedConeClassLift_hyperplane = i^! [X/Y]^vir` for the regular embedding `i : Y' ↪ Y`,
+are not
 proved here.  Both sides are now at least *statable* (which was the point of this file; for
 instance `RelativeAbsolute.ideal' (reindexHom I φ)` is an ideal of
 `SymmetricAlgebra (Base J) (Base J ⊗[Base I] E⁰)`), but the identity needs the converse of
@@ -868,7 +870,7 @@ noncomputable def reindexBaseChangeOne
 reindexing isomorphism `hyperplaneReindexIso`.  Its target is now the relative conormal complex of
 an honest ideal `J` of the polynomial ring `k[x_σ, y_{τ'}]` of `𝔸^σ × Y'`, so that all the
 machinery of `RelativeAbsolute.lean` (`absHom`, `Gr`, `relProductMap`, `ideal'`,
-`relativeVirtualClass`) applies to it verbatim. -/
+`relativeGradedConeClassLift`) applies to it verbatim. -/
 noncomputable def reindexHom (φ : Hom E (RelativeAbsolute.relConormalComplex I)) :
     Hom (E.baseChange (Base (reindexIdeal I)))
       (RelativeAbsolute.relConormalComplex (reindexIdeal I)) where
@@ -1012,31 +1014,34 @@ variable (RE : RationalEquivalenceSystem
 `isObstructionTheory_reindexed_hyperplaneHom` the reindexed datum `reindexHom I φ` is a relative
 obstruction theory for `X' = X ×_Y Y' → Y' = 𝔸^{τ'}` with target the relative conormal complex of
 the ideal `J = reindexIdeal I` of the polynomial ring of `𝔸^σ × Y'`; this is therefore
-`RelativeAbsolute.relativeVirtualClass` of that datum, i.e. the Gysin image of the class of its
+`RelativeAbsolute.relativeGradedConeClassLift` of that datum, i.e. the Gysin image of the class of
+its
 resolved cone.  The identification of this class with the Gysin pullback `i^![X/Y]^vir` along the
 regular embedding `i : Y' ↪ Y` is *not* proved here: it requires the identity of resolved-cone
 ideals `ResolvedCone.ideal (reindexHom I φ) = (ResolvedCone.ideal φ).map …`, which is a separate
 `BaseChangeConeIdeal`-style ring comparison. -/
-noncomputable def relativeVirtualClass_hyperplane
+noncomputable def relativeGradedConeClassLift_hyperplane
     (hhom : PrincipalDivisorsHomogeneous
       (ResolvedCone.bundleSpace (RelativeAbsolute.absHom (reindexHom I φ))) dimE)
     (hinj : Function.Injective
       (VectorBundle.chowPullbackBundle bundleChart dimX dimE i RX RE)) :
     RX.ChowGroup :=
-  RelativeAbsolute.relativeVirtualClass (reindexHom I φ) bundleChart dimX dimE i RX RE hhom hinj
+  RelativeAbsolute.relativeGradedConeClassLift (reindexHom I φ) bundleChart dimX dimE i RX RE hhom
+    hinj
 
 /-- **The relative virtual class of the hyperplane base change is the virtual class of the
-associated absolute obstruction theory**, by `RelativeAbsolute.virtualClassAt_absHom` applied to
-the reindexed datum. -/
-theorem virtualClassAt_absHom_reindexHom
+associated absolute obstruction theory**, by
+`RelativeAbsolute.gradedConeClassLiftAt_absHom` applied to the reindexed datum. -/
+theorem gradedConeClassLiftAt_absHom_reindexHom
     (hhom : PrincipalDivisorsHomogeneous
       (ResolvedCone.bundleSpace (RelativeAbsolute.absHom (reindexHom I φ))) dimE)
     (hinj : Function.Injective
       (VectorBundle.chowPullbackBundle bundleChart dimX dimE i RX RE)) :
-    VirtualClass.virtualClassAt (RelativeAbsolute.absHom (reindexHom I φ)) bundleChart dimX dimE i
-        RX RE hhom hinj =
-      relativeVirtualClass_hyperplane I φ bundleChart dimX dimE i RX RE hhom hinj :=
-  RelativeAbsolute.virtualClassAt_absHom (reindexHom I φ) bundleChart dimX dimE i RX RE hhom hinj
+    VirtualClass.gradedConeClassLiftAt (RelativeAbsolute.absHom (reindexHom I φ)) bundleChart dimX
+      dimE i RX RE hhom hinj =
+      relativeGradedConeClassLift_hyperplane I φ bundleChart dimX dimE i RX RE hhom hinj :=
+  RelativeAbsolute.gradedConeClassLiftAt_absHom (reindexHom I φ) bundleChart dimX dimE i RX RE hhom
+    hinj
 
 end VirtualClass
 

@@ -45,8 +45,9 @@ the translation by `-h`) and it intertwines the two coordinate-ring maps
 * `ideal_congr`, `ideal_congr_chainHomotopy`: the ideal of the resolved cone is unchanged.
 * `resolvedConeCycle_congr`, `resolvedConeCycleAt_congr`, `resolvedConeClass_congr`,
   `resolvedConeClassAt_congr`: the resolved-cone cycle and class are unchanged.
-* `virtualClass_congr`, `virtualClassAt_congr`, `virtualDimension_congr`: the virtual class and
-  the virtual dimension are unchanged, for the canonical and for an arbitrary trivialisation.
+* `gradedConeClassLift_congr`, `gradedConeClassLiftAt_congr`, `virtualDimension_congr`: the
+  graded cone-class lift and virtual dimension are unchanged, for the canonical and arbitrary
+  trivialisations.
 * `isObstructionTheory_of_chainHomotopy`: being an obstruction theory is a chain-homotopy
   invariant condition.
 -/
@@ -359,9 +360,9 @@ theorem virtualDimension_congr :
     VirtualClass.virtualDimension φ' = VirtualClass.virtualDimension φ :=
   rfl
 
-/-- **The virtual class computed in an arbitrary trivialisation `e` and degree `i` is unchanged
-by a degree `-1` chain homotopy.** -/
-theorem virtualClassAt_congr
+/-- **The graded cone-class lift computed in an arbitrary trivialisation `e` and degree `i` is
+unchanged by a degree `-1` chain homotopy.** -/
+theorem gradedConeClassLiftAt_congr
     (hφ : φ'.degreeZero = φ.degreeZero + h.comp E.differential)
     {ι : Type u} [Finite ι] (e : ResolvedCone.bundleRing φ ≃ₐ[R ⧸ I] MvPolynomial ι (R ⧸ I))
     (dimX : DimensionFunction (Spec (CommRingCat.of (R ⧸ I))))
@@ -370,15 +371,15 @@ theorem virtualClassAt_congr
     (RE : RationalEquivalenceSystem (ResolvedCone.bundleSpace φ) dimE (i + (Nat.card ι : ℤ)))
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (VectorBundle.chowPullbackBundle e dimX dimE i RX RE)) :
-    VirtualClass.virtualClassAt φ' e dimX dimE i RX RE hhom hinj =
-      VirtualClass.virtualClassAt φ e dimX dimE i RX RE hhom hinj :=
+    VirtualClass.gradedConeClassLiftAt φ' e dimX dimE i RX RE hhom hinj =
+      VirtualClass.gradedConeClassLiftAt φ e dimX dimE i RX RE hhom hinj :=
   congrArg (VectorBundle.zeroSectionGysin' e dimX dimE i RX RE hhom hinj)
     (resolvedConeClassAt_congr φ φ' h hφ dimE i RE)
 
-/-- **The virtual fundamental class is unchanged by a degree `-1` chain homotopy.**  The
+/-- **The graded cone-class lift is unchanged by a degree `-1` chain homotopy.**  The
 hypotheses `hhom` and `hinj` only mention the complex `E`, so the same pair serves for `φ` and
 for `φ'`. -/
-theorem virtualClass_congr
+theorem gradedConeClassLift_congr
     (hφ : φ'.degreeZero = φ.degreeZero + h.comp E.differential)
     (dimX : DimensionFunction (Spec (CommRingCat.of (R ⧸ I))))
     (dimE : DimensionFunction (ResolvedCone.bundleSpace φ))
@@ -388,8 +389,8 @@ theorem virtualClass_congr
       (VirtualClass.coneDegree φ))
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (VirtualClass.bundlePullback φ dimX dimE RX RE)) :
-    VirtualClass.virtualClass φ' dimX dimE RX RE hhom hinj =
-      VirtualClass.virtualClass φ dimX dimE RX RE hhom hinj :=
+    VirtualClass.gradedConeClassLift φ' dimX dimE RX RE hhom hinj =
+      VirtualClass.gradedConeClassLift φ dimX dimE RX RE hhom hinj :=
   congrArg
     (VectorBundle.zeroSectionGysin' (VirtualClass.trivialization φ) dimX dimE
       (VirtualClass.virtualDimension φ) RX RE hhom hinj)
@@ -412,8 +413,8 @@ theorem resolvedConeCycle_congr_chainHomotopy (H : LinearTwoTermComplex.ChainHom
     VirtualClass.resolvedConeCycle φ' dimE = VirtualClass.resolvedConeCycle φ dimE :=
   resolvedConeCycle_congr φ φ' H.homotopy (degreeZero_eq_of_chainHomotopy H) dimE
 
-/-- **Chain-homotopic obstruction theories have the same virtual fundamental class.** -/
-theorem virtualClass_congr_chainHomotopy (H : LinearTwoTermComplex.ChainHomotopy φ φ')
+/-- **Chain-homotopic obstruction data have the same graded cone-class lift.** -/
+theorem gradedConeClassLift_congr_chainHomotopy (H : LinearTwoTermComplex.ChainHomotopy φ φ')
     (dimX : DimensionFunction (Spec (CommRingCat.of (R ⧸ I))))
     (dimE : DimensionFunction (ResolvedCone.bundleSpace φ))
     (RX : RationalEquivalenceSystem (Spec (CommRingCat.of (R ⧸ I))) dimX
@@ -422,13 +423,14 @@ theorem virtualClass_congr_chainHomotopy (H : LinearTwoTermComplex.ChainHomotopy
       (VirtualClass.coneDegree φ))
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (VirtualClass.bundlePullback φ dimX dimE RX RE)) :
-    VirtualClass.virtualClass φ' dimX dimE RX RE hhom hinj =
-      VirtualClass.virtualClass φ dimX dimE RX RE hhom hinj :=
-  virtualClass_congr φ φ' H.homotopy (degreeZero_eq_of_chainHomotopy H) dimX dimE RX RE hhom hinj
+    VirtualClass.gradedConeClassLift φ' dimX dimE RX RE hhom hinj =
+      VirtualClass.gradedConeClassLift φ dimX dimE RX RE hhom hinj :=
+  gradedConeClassLift_congr φ φ' H.homotopy (degreeZero_eq_of_chainHomotopy H) dimX dimE RX RE
+    hhom hinj
 
-/-- **Chain-homotopic obstruction theories have the same virtual class in every
+/-- **Chain-homotopic obstruction data have the same graded cone-class lift in every
 trivialisation.** -/
-theorem virtualClassAt_congr_chainHomotopy (H : LinearTwoTermComplex.ChainHomotopy φ φ')
+theorem gradedConeClassLiftAt_congr_chainHomotopy (H : LinearTwoTermComplex.ChainHomotopy φ φ')
     {ι : Type u} [Finite ι] (e : ResolvedCone.bundleRing φ ≃ₐ[R ⧸ I] MvPolynomial ι (R ⧸ I))
     (dimX : DimensionFunction (Spec (CommRingCat.of (R ⧸ I))))
     (dimE : DimensionFunction (ResolvedCone.bundleSpace φ)) (i : ℤ)
@@ -436,9 +438,10 @@ theorem virtualClassAt_congr_chainHomotopy (H : LinearTwoTermComplex.ChainHomoto
     (RE : RationalEquivalenceSystem (ResolvedCone.bundleSpace φ) dimE (i + (Nat.card ι : ℤ)))
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (VectorBundle.chowPullbackBundle e dimX dimE i RX RE)) :
-    VirtualClass.virtualClassAt φ' e dimX dimE i RX RE hhom hinj =
-      VirtualClass.virtualClassAt φ e dimX dimE i RX RE hhom hinj :=
-  virtualClassAt_congr φ φ' H.homotopy (degreeZero_eq_of_chainHomotopy H) e dimX dimE i RX RE
+    VirtualClass.gradedConeClassLiftAt φ' e dimX dimE i RX RE hhom hinj =
+      VirtualClass.gradedConeClassLiftAt φ e dimX dimE i RX RE hhom hinj :=
+  gradedConeClassLiftAt_congr φ φ' H.homotopy (degreeZero_eq_of_chainHomotopy H) e dimX dimE i RX
+    RE
     hhom hinj
 
 end ChainHomotopyClass

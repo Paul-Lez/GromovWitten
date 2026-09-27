@@ -36,8 +36,8 @@ so the `σ`- and `τ`-blocks of `H⁰` and `H⁻¹` can be compared one at a tim
   the three conditions for `absHom φ`, deduced from the relative ones.
 * `isObstructionTheory_absHom`, `isObstructionTheory_of_absHom`, `isObstructionTheory_absHom_iff`:
   the two directions and the equivalence.
-* `isObstructionTheory_absHom_and_virtualClassAt`: the Chow-level corollary, combining the
-  equivalence with `virtualClassAt_absHom` of `RelativeAbsolute.lean`.
+* `isObstructionTheory_absHom_and_gradedConeClassLiftAt`: the Chow-level corollary, combining the
+  equivalence with `gradedConeClassLiftAt_absHom` of `RelativeAbsolute.lean`.
 -/
 
 universe u
@@ -380,15 +380,15 @@ variable (RE : RationalEquivalenceSystem (ResolvedCone.bundleSpace (absHom φ)) 
 
 /-- **A relative obstruction theory produces an absolute obstruction theory whose virtual class is
 the relative virtual class.**  This combines `isObstructionTheory_absHom` with
-`virtualClassAt_absHom` of `VirtualFundamentalClass/RelativeAbsolute.lean`. -/
-theorem isObstructionTheory_absHom_and_virtualClassAt
+`gradedConeClassLiftAt_absHom` of `VirtualFundamentalClass/RelativeAbsolute.lean`. -/
+theorem isObstructionTheory_absHom_and_gradedConeClassLiftAt
     (h : PicardCriteria.IsObstructionTheory φ)
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace (absHom φ)) dimE)
     (hinj : Function.Injective (VectorBundle.chowPullbackBundle e dimX dimE i RX RE)) :
     PicardCriteria.IsObstructionTheory (absHom φ) ∧
-      VirtualClass.virtualClassAt (absHom φ) e dimX dimE i RX RE hhom hinj =
-        relativeVirtualClass φ e dimX dimE i RX RE hhom hinj :=
-  ⟨isObstructionTheory_absHom φ h, virtualClassAt_absHom φ e dimX dimE i RX RE hhom hinj⟩
+      VirtualClass.gradedConeClassLiftAt (absHom φ) e dimX dimE i RX RE hhom hinj =
+        relativeGradedConeClassLift φ e dimX dimE i RX RE hhom hinj :=
+  ⟨isObstructionTheory_absHom φ h, gradedConeClassLiftAt_absHom φ e dimX dimE i RX RE hhom hinj⟩
 
 end Cycle
 

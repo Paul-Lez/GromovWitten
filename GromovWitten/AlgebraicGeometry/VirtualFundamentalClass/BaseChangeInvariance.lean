@@ -35,17 +35,20 @@ an obstruction datum over `A'` on `X' = Spec B' = X × 𝔸^τ`.
 * **Cycle level** (`flatPullbackOpen_flatPullbackBundle_resolvedConeCycleAt`): the resolved-cone
   cycle of `ψ` is, through `bundleSpaceIsoPoly`, the flat pullback of the resolved-cone cycle of
   `φ` along the trivial bundle `E₁ × 𝔸^τ → E₁`.
-* **Chow level** (`chowPullbackBundle_baseChange_square`): flat pullback along the bundle `E₁' → X'`
+* **Chow level** (`chowPullbackBundle_baseChange_square`): flat pullback along the bundle
+  `E₁' → X'`
   composed with flat pullback along `X' → X` agrees with flat pullback along `E₁ × 𝔸^τ → E₁`
   composed with flat pullback along `E₁ → X`, transported by `bundleSpaceIsoPoly`.
-* **Main theorem** `virtualClassAt_baseChangeHom`: for every degree `i` and compatible
+* **Main theorem** `gradedConeClassLiftAt_baseChangeHom`: for every degree `i` and compatible
   rational-equivalence systems,
-  `virtualClassAt ψ (trivializationBaseChange τ I φ e) dimX' dimE' (i + rk τ) RX' RE' hhom' hinj'
+  `gradedConeClassLiftAt ψ (trivializationBaseChange τ I φ e) dimX' dimE'
+  (i + rk τ) RX' RE' hhom' hinj'
   = chowPullbackBundle (baseAlgEquiv τ I) dimX dimX' i RX RX'
-  (virtualClassAt φ e dimX dimE i RX RE hhom hinj)`,
-  and its relative form `relativeVirtualClassAt_baseChangeHom`, which reads the left-hand side as
-  the relative virtual class of `ψ` in relative dimension `Nat.card τ`
-  (`DegreeOneSummand.relativeVirtualClassAt`); by `virtualDimension_baseChangeHom` the degree
+  (gradedConeClassLiftAt φ e dimX dimE i RX RE hhom hinj)`,
+  and its relative form `relativeGradedConeClassLiftAt_baseChangeHom`, which reads the left-hand
+  side as the relative graded cone-class lift of `ψ` in relative dimension `Nat.card τ`
+  (`DegreeOneSummand.relativeGradedConeClassLiftAt`); by
+  `virtualDimension_baseChangeHom` the degree
   `virtualDimension ψ` occurring there is `virtualDimension φ`.
 
 All the dimension functions are arbitrary (certified dimension gradings on isomorphic affine
@@ -406,37 +409,37 @@ theorem chowDegreeCongr_chowEquivOfAlgEquiv_resolvedConeClassAt :
 model): the virtual class of the base-changed obstruction datum `ψ = baseChangeHom τ I φ`,
 computed in the induced trivialisation and in the degree `i + rk τ`, is the flat pullback of the
 virtual class of `φ` along the trivial bundle `X' = X × 𝔸^τ → X`. -/
-theorem virtualClassAt_baseChangeHom
+theorem gradedConeClassLiftAt_baseChangeHom
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace φ) dimE)
     (hinj : Function.Injective (chowPullbackBundle e dimX dimE i RX RE))
     (hhom' : PrincipalDivisorsHomogeneous
       (ResolvedCone.bundleSpace (baseChangeHom τ I φ)) dimE')
     (hinj' : Function.Injective (chowPullbackBundle (trivializationBaseChange τ I φ e)
       dimX' dimE' (i + (Nat.card τ : ℤ)) RX' RE')) :
-    virtualClassAt (baseChangeHom τ I φ) (trivializationBaseChange τ I φ e) dimX' dimE'
+    gradedConeClassLiftAt (baseChangeHom τ I φ) (trivializationBaseChange τ I φ e) dimX' dimE'
         (i + (Nat.card τ : ℤ)) RX' RE' hhom' hinj' =
       chowPullbackBundle (R := MvPolynomial σ k ⧸ I) (A := baseExt τ I) (baseAlgEquiv τ I)
-        dimX dimX' i RX RX' (virtualClassAt φ e dimX dimE i RX RE hhom hinj) := by
+        dimX dimX' i RX RX' (gradedConeClassLiftAt φ e dimX dimE i RX RE hhom hinj) := by
   have dimEq : DimensionFunction
       (Spec (CommRingCat.of (MvPolynomial τ (ResolvedCone.bundleRing φ)))) :=
     DimensionFunction.comapClosedImmersion (bundleSpaceIsoPoly τ I φ).inv dimE'
   apply hinj'
-  rw [chowPullbackBundle_virtualClassAt,
+  rw [chowPullbackBundle_gradedConeClassLiftAt,
     chowPullbackBundle_baseChange_square (dimEp := dimEq)
       (REp := RationalEquivalenceSystem.canonical)
       (RE₂ := RationalEquivalenceSystem.canonical),
-    chowPullbackBundle_virtualClassAt]
+    chowPullbackBundle_gradedConeClassLiftAt]
   exact (chowDegreeCongr_chowEquivOfAlgEquiv_resolvedConeClassAt (τ := τ) (I := I) (φ := φ)
     (dimE' := dimE') (dimEp := dimEq) (dimE := dimE) (i := i) (RE := RE) (RE' := RE')
     (REp := RationalEquivalenceSystem.canonical)
     (RE₂ := RationalEquivalenceSystem.canonical)).symm
 
-/-- **The relative form of `virtualClassAt_baseChangeHom`**: in the canonical degree
-`virtualDimension ψ` the left-hand side is the relative virtual class of `ψ` in relative
-dimension `Nat.card τ` in the sense of `DegreeOneSummand.relativeVirtualClassAt`.  By
+/-- **The relative form of `gradedConeClassLiftAt_baseChangeHom`**: in the canonical degree
+`virtualDimension ψ` the left-hand side is the relative graded cone-class lift of `ψ` in relative
+dimension `Nat.card τ` in the sense of `DegreeOneSummand.relativeGradedConeClassLiftAt`.  By
 `virtualDimension_baseChangeHom` the degree `virtualDimension ψ` is `virtualDimension φ`, so the
 right-hand side is the flat pullback of the virtual class of `φ` in its own canonical degree. -/
-theorem relativeVirtualClassAt_baseChangeHom
+theorem relativeGradedConeClassLiftAt_baseChangeHom
     (RXv : RationalEquivalenceSystem (Spec (CommRingCat.of (MvPolynomial σ k ⧸ I))) dimX
       (virtualDimension (baseChangeHom τ I φ)))
     (RXv' : RationalEquivalenceSystem (Spec (CommRingCat.of (baseExt τ I))) dimX'
@@ -452,13 +455,13 @@ theorem relativeVirtualClassAt_baseChangeHom
       (ResolvedCone.bundleSpace (baseChangeHom τ I φ)) dimE')
     (hinj' : Function.Injective (chowPullbackBundle (trivializationBaseChange τ I φ e)
       dimX' dimE' (virtualDimension (baseChangeHom τ I φ) + (Nat.card τ : ℤ)) RXv' REv')) :
-    DegreeOneSummand.relativeVirtualClassAt (baseChangeHom τ I φ)
+    DegreeOneSummand.relativeGradedConeClassLiftAt (baseChangeHom τ I φ)
         (trivializationBaseChange τ I φ e) dimX' dimE' (Nat.card τ) RXv' REv' hhom' hinj' =
       chowPullbackBundle (R := MvPolynomial σ k ⧸ I) (A := baseExt τ I) (baseAlgEquiv τ I)
         dimX dimX' (virtualDimension (baseChangeHom τ I φ)) RXv RXv'
-        (virtualClassAt φ e dimX dimE (virtualDimension (baseChangeHom τ I φ)) RXv REv
+        (gradedConeClassLiftAt φ e dimX dimE (virtualDimension (baseChangeHom τ I φ)) RXv REv
           hhom hinj) :=
-  virtualClassAt_baseChangeHom τ I φ e dimE' dimX dimX' dimE _ RXv RXv' REv REv'
+  gradedConeClassLiftAt_baseChangeHom τ I φ e dimE' dimX dimX' dimE _ RXv RXv' REv REv'
     hhom hinj hhom' hinj'
 
 end GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.BaseChangeInvariance

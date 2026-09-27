@@ -11,11 +11,11 @@ import GromovWitten.AlgebraicGeometry.IntersectionTheory.BundlePullbackGlobal
 # The affine obstruction datum as a global cone datum
 
 `VirtualFundamentalClass/GlobalCone.lean` defines a `GlobalConeData` on an arbitrary scheme and
-the associated global virtual class, and the affine model of rounds 14–16 defines
+the associated generic graded cone-class lift, and the affine model of rounds 14–16 defines
 `OverField.virtualClass φ` for a closed subscheme `X = Spec (R ⧸ I) ⊆ Spec R` and a chain map
 `φ : E ⟶ conormalComplex k R I`.  This file is the acceptance test relating the two: the affine
 datum `φ` is turned into a global datum on `X = Spec (R ⧸ I)` with the single chart `⊤`, and the
-resulting global virtual class is proved to be the affine one.
+resulting generic lift is proved to agree with the affine VFC.
 
 The quasi-coherent algebras are obtained by base change of a fixed `(R ⧸ I)`-algebra `S`: the
 ring over an affine open `U` is `Γ(X, U) ⊗_{R ⧸ I} S` (`constData`).  This requires an algebra
@@ -40,9 +40,10 @@ restriction).  The base-change squares of `constData` are `Algebra.TensorProduct
 * `chowPullback` — the flat pullback along the bundle projection, obtained by transporting
   `VirtualClass.bundlePullback φ` along the chart isomorphism; it is injective
   (`chowPullback_injective`) and hits the global cone class (`coneClassAt_mem_range`), so it
-  discharges the three hypotheses `pull`, `hinj`, `hmem` of `GlobalCone.virtualClassOf` in this
-  case.
-* `virtualClassOf_eq_virtualClass` — **the acceptance test**: the global virtual class of
+  discharges the three hypotheses `pull`, `hinj`, `hmem` of
+  `GlobalCone.gradedConeClassLiftOf` in this case.
+* `gradedConeClassLiftOf_eq_virtualClass` — **the acceptance test**: the global graded cone-class
+  lift of
   `globalConeData φ` for this pullback is `OverField.virtualClass φ`.
 
 ## What is not proved here
@@ -275,6 +276,7 @@ variable {k R : Type u} [CommRing k] [CommRing R] [Algebra k R] [IsNoetherianRin
   {I : Ideal R} {E : LinearTwoTermComplex (R ⧸ I)}
   [Module.Free (R ⧸ I) E.degreeZero] [Module.Finite (R ⧸ I) E.degreeZero]
   (φ : LinearTwoTermComplex.Hom E (conormalComplex k R I))
+  (hpot : VirtualClass.AffinePerfectObstructionTheory φ)
 
 /-- Evaluating a polynomial with coefficients extended along `A → C` at the origin is the image
 of the evaluation at the origin. -/
@@ -429,7 +431,7 @@ theorem openImmersionPullback_comp_eq_self
 
 end ChartIso
 
-/-! ## The global virtual class of an affine obstruction datum -/
+/-! ## The generic global lift of an affine obstruction datum -/
 
 section Comparison
 
@@ -441,6 +443,7 @@ variable {k R : Type u} [Field k] [Infinite k] [CommRing R] [Algebra k R]
   {E : LinearTwoTermComplex (R ⧸ I)}
   [Module.Free (R ⧸ I) E.degreeZero] [Module.Finite (R ⧸ I) E.degreeZero]
   (φ : LinearTwoTermComplex.Hom E (conormalComplex k R I))
+  (hpot : VirtualClass.AffinePerfectObstructionTheory φ)
 
 /-- The unique chart index of the global bundle datum of an affine obstruction datum. -/
 def chartPoint : (bundleData φ).J := PUnit.unit
@@ -540,34 +543,35 @@ theorem chowPullback_injective :
   rw [← chartRestrict_chowPullback φ dimX dimE dimC hdim RX RE RC a,
     ← chartRestrict_chowPullback φ dimX dimE dimC hdim RX RE RC b, hab]
 
-/-- **The affine virtual class pulls back to the global cone class.** -/
+/-- **The affine VFC pulls back to the global cone class.** -/
 theorem chowPullback_virtualClass :
-    chowPullback φ dimX dimE dimC hdim RX RE RC (OverField.virtualClass φ dimX dimC RX RC) =
+    chowPullback φ dimX dimE dimC hdim RX RE RC (OverField.virtualClass φ dimX dimC RX RC hpot) =
       (globalConeData φ).coneClassAt dimE (VirtualClass.coneDegree φ) RE := by
   change chartExtend φ dimE dimC hdim RE RC (VirtualClass.bundlePullback φ dimX dimC RX RC
-    (OverField.virtualClass φ dimX dimC RX RC)) = _
+    (OverField.virtualClass φ dimX dimC RX RC hpot)) = _
   rw [OverField.pullback_virtualClass, ← chartRestrict_coneClassAt φ dimE dimC hdim RE RC,
     chartExtend_chartRestrict]
 
 /-- The global cone class lies in the image of the flat pullback. -/
-theorem coneClassAt_mem_range :
+theorem coneClassAt_mem_range (hpot : VirtualClass.AffinePerfectObstructionTheory φ) :
     (globalConeData φ).coneClassAt dimE (VirtualClass.coneDegree φ) RE ∈
       LinearMap.range (chowPullback φ dimX dimE dimC hdim RX RE RC) :=
-  ⟨_, chowPullback_virtualClass φ dimX dimE dimC hdim RX RE RC⟩
+  ⟨_, chowPullback_virtualClass φ hpot dimX dimE dimC hdim RX RE RC⟩
 
-/-- **The acceptance test: the global virtual class of an affine obstruction datum is the
-affine virtual class.** -/
-theorem virtualClassOf_eq_virtualClass :
-    (globalConeData φ).virtualClassOf dimE dimX (VirtualClass.virtualDimension φ)
+/-- **The acceptance test: the generic global lift of an affine obstruction datum agrees with the
+affine VFC.** -/
+theorem gradedConeClassLiftOf_eq_virtualClass
+    (hpot : VirtualClass.AffinePerfectObstructionTheory φ) :
+    (globalConeData φ).gradedConeClassLiftOf dimE dimX (VirtualClass.virtualDimension φ)
         (VirtualClass.coneDegree φ) RX RE (chowPullback φ dimX dimE dimC hdim RX RE RC)
-        (coneClassAt_mem_range φ dimX dimE dimC hdim RX RE RC) =
-      OverField.virtualClass φ dimX dimC RX RC :=
-  ((globalConeData φ).virtualClassOf_unique dimE dimX (VirtualClass.virtualDimension φ)
+        (coneClassAt_mem_range φ dimX dimE dimC hdim RX RE RC hpot) =
+      OverField.virtualClass φ dimX dimC RX RC hpot :=
+  ((globalConeData φ).gradedConeClassLiftOf_unique dimE dimX (VirtualClass.virtualDimension φ)
     (VirtualClass.coneDegree φ) RX RE (chowPullback φ dimX dimE dimC hdim RX RE RC)
     (chowPullback_injective φ dimX dimE dimC hdim RX RE RC)
-    (coneClassAt_mem_range φ dimX dimE dimC hdim RX RE RC)
-    (OverField.virtualClass φ dimX dimC RX RC)
-    (chowPullback_virtualClass φ dimX dimE dimC hdim RX RE RC)).symm
+    (coneClassAt_mem_range φ dimX dimE dimC hdim RX RE RC hpot)
+    (OverField.virtualClass φ dimX dimC RX RC hpot)
+    (chowPullback_virtualClass φ hpot dimX dimE dimC hdim RX RE RC)).symm
 
 end Comparison
 

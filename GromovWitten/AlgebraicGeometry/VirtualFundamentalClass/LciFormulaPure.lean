@@ -352,7 +352,9 @@ theorem lci_formula_polynomial (x : RegularGenerators (MvPolynomial σ k) I) :
         (VirtualClass.virtualDimension (VirtualClass.lciHom k I)))
       (RE : RationalEquivalenceSystem (ResolvedCone.bundleSpace (VirtualClass.lciHom k I)) dimE
         (VirtualClass.coneDegree (VirtualClass.lciHom k I))),
-      virtualClass (VirtualClass.lciHom k I) dimX dimE RX RE =
+      VirtualClass.gradedConeClassLift (VirtualClass.lciHom k I) dimX dimE RX RE
+          (OverField.hhomOf (VirtualClass.lciHom k I) dimE)
+          (OverField.hinjOf (VirtualClass.lciHom k I) dimX dimE RX RE) =
         RX.quotientMap (cyclesOfDimension.fundamental
           (show ∀ p, IsMax p → dimX p = VirtualClass.virtualDimension (VirtualClass.lciHom k I)
             from

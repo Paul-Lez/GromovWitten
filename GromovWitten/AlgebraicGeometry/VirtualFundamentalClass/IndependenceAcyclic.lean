@@ -42,15 +42,16 @@ projection `p : E'₁ ⟶ E₁` and the two inclusions `C(E') ⊆ p⁻¹(C(E))` 
 * Classes: `pullbackBundle_resolvedConeCycleAt`,
   **`chowPullbackBundle_eq_resolvedConeClassAt_sumAcyclic`**,
   `injective_chowPullbackBundle_of_sumAcyclic`, `principalDivisorsHomogeneous_of_sumAcyclic`,
-  **`virtualClassAt_sumAcyclic`** and, for the canonical trivialisations,
-  **`virtualClass_eq_virtualClassAt_sumAcyclic`**: adding an acyclic summand does not change
+  **`gradedConeClassLiftAt_sumAcyclic`** and, for the canonical trivialisations,
+  **`gradedConeClassLift_eq_gradedConeClassLiftAt_sumAcyclic`**: adding an acyclic summand does not
+  change
   the virtual fundamental class.
 
 ## Hypotheses
 
 Besides the homogeneity and injectivity hypotheses inherited from
 `VirtualFundamentalClass/Construction.lean` (which are *descended* from the larger bundle `E'₁`
-to `E₁` rather than assumed twice), `virtualClassAt_sumAcyclic` carries one numerical
+to `E₁` rather than assumed twice), `gradedConeClassLiftAt_sumAcyclic` carries one numerical
 hypothesis `hcard`, saying that the rank of the trivialisation of `E'₁` is the rank of the
 trivialisation of `E₁` plus the rank of `F`; it is discharged for the canonical trivialisations
 by `card_chooseBasisIndex_sumAcyclic`.
@@ -1149,20 +1150,20 @@ theorem chowPullbackBundle_eq_resolvedConeClassAt_sumAcyclic
 homogeneity and injectivity hypotheses are those of `VirtualFundamentalClass/Construction.lean`
 for the larger bundle `E'₁`; they are *descended* to `E₁` rather than assumed twice.  The
 hypothesis `hcard` says that the two trivialisations have the expected ranks. -/
-theorem virtualClassAt_sumAcyclic
+theorem gradedConeClassLiftAt_sumAcyclic
     (hcard : (Nat.card ι' : ℤ) =
       (Nat.card κ : ℤ) + (Nat.card (Module.Free.ChooseBasisIndex (R ⧸ I) F) : ℤ))
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace (sumAcyclic φ F)) dimE')
     (hinj : Function.Injective (VectorBundle.chowPullbackBundle e' dimX dimE' i RX RE')) :
-    virtualClassAt (sumAcyclic φ F) e' dimX dimE' i RX RE' hhom hinj =
-      virtualClassAt φ e dimX dimE i RX RE
+    gradedConeClassLiftAt (sumAcyclic φ F) e' dimX dimE' i RX RE' hhom hinj =
+      gradedConeClassLiftAt φ e dimX dimE i RX RE
         (principalDivisorsHomogeneous_of_sumAcyclic φ F dimE dimE' hhom)
         (injective_chowPullbackBundle_of_sumAcyclic φ F e e' dimX dimE dimE' i RX RE RE'
           hinj) := by
   symm
-  apply eq_virtualClassAt_of_pullback_eq
+  apply eq_gradedConeClassLiftAt_of_pullback_eq
   exact chowPullbackBundle_eq_resolvedConeClassAt_sumAcyclic φ F e e' dimX dimE dimE' i RX RE RE'
-    hcard _ (chowPullbackBundle_virtualClassAt φ e dimX dimE i RX RE
+    hcard _ (chowPullbackBundle_gradedConeClassLiftAt φ e dimX dimE i RX RE
       (principalDivisorsHomogeneous_of_sumAcyclic φ F dimE dimE' hhom)
       (injective_chowPullbackBundle_of_sumAcyclic φ F e e' dimX dimE dimE' i RX RE RE' hinj))
 
@@ -1210,20 +1211,20 @@ variable (RE' : RationalEquivalenceSystem (ResolvedCone.bundleSpace (sumAcyclic 
 /-- **Behrend–Fantechi, Proposition 5.3 (acyclic summands), for the canonical
 trivialisations.**  The virtual class of `E ⊕ [F = F]`, computed in the canonical
 trivialisation of `E'₁` and in the degree `vd = virtualDimension φ`, is the virtual class
-`VirtualClass.virtualClass φ` of `VirtualFundamentalClass/Construction.lean`. -/
-theorem virtualClass_eq_virtualClassAt_sumAcyclic
+`VirtualClass.gradedConeClassLift φ` of `VirtualFundamentalClass/Construction.lean`. -/
+theorem gradedConeClassLift_eq_gradedConeClassLiftAt_sumAcyclic
     (hhom : PrincipalDivisorsHomogeneous (ResolvedCone.bundleSpace (sumAcyclic φ F)) dimE')
     (hinj : Function.Injective (VectorBundle.chowPullbackBundle
       (trivialization (sumAcyclic φ F)) dimX dimE' (virtualDimension φ) RX RE')) :
-    virtualClassAt (sumAcyclic φ F) (trivialization (sumAcyclic φ F)) dimX dimE'
+    gradedConeClassLiftAt (sumAcyclic φ F) (trivialization (sumAcyclic φ F)) dimX dimE'
         (virtualDimension φ) RX RE' hhom hinj =
-      virtualClass φ dimX dimE RX RE
+      gradedConeClassLift φ dimX dimE RX RE
         (principalDivisorsHomogeneous_of_sumAcyclic φ F dimE dimE' hhom)
         (injective_chowPullbackBundle_of_sumAcyclic φ F (trivialization φ)
           (trivialization (sumAcyclic φ F)) dimX dimE dimE' (virtualDimension φ) RX RE RE'
           hinj) := by
-  rw [← virtualClassAt_trivialization]
-  exact virtualClassAt_sumAcyclic φ F (trivialization φ) (trivialization (sumAcyclic φ F))
+  rw [← gradedConeClassLiftAt_trivialization]
+  exact gradedConeClassLiftAt_sumAcyclic φ F (trivialization φ) (trivialization (sumAcyclic φ F))
     dimX dimE dimE' (virtualDimension φ) RX RE RE' (card_chooseBasisIndex_sumAcyclic (E := E) F)
     hhom hinj
 
