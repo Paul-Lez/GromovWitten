@@ -4,13 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 
-import GromovWitten.AlgebraicGeometry.Curves.ModuleBaseChange
-import GromovWitten.AlgebraicGeometry.SheafCohomology.OpenRestriction
+import GromovWitten.AlgebraicGeometry.Curves.ModulePullbackStalk
+import Mathlib.AlgebraicGeometry.Morphisms.Flat
 import Mathlib.Algebra.Category.ModuleCat.Descent
 import Mathlib.CategoryTheory.Abelian.Exact
 import Mathlib.Algebra.Homology.ShortComplex.ExactFunctor
 
-/-! # Exactness of scalar extension and open pullback -/
+/-! # Exactness of scalar extension and flat pullback -/
 
 open CategoryTheory Limits
 open _root_.AlgebraicGeometry
@@ -29,9 +29,6 @@ lemma moduleExtendScalars_preservesHomology_of_flat
   let _ := ModuleCat.preservesFiniteLimits_extendScalars_of_flat hf
   infer_instance
 
-/- The finite-limit argument above is the categorical affine shadow of the
-stalkwise argument needed for scheme pullback.  The colimit half is supplied
-by the fact that extension of scalars is a left adjoint. -/
 
 /-- In the affine flat case, extension of scalars carries monomorphisms to
 monomorphisms. -/
@@ -49,20 +46,25 @@ lemma moduleExtendScalars_map_mono_of_flat
     Mono ((ModuleCat.extendScalars.{u,u,u} f).map φ) :=
   (moduleExtendScalars_preservesMonomorphisms_of_flat f hf).preserves φ
 
-variable {X Y : Scheme.{u}} (f : X ⟶ Y) [IsOpenImmersion f]
-instance moduleRestriction_preservesMonomorphisms :
-    (Scheme.Modules.restrictFunctor f).PreservesMonomorphisms where
+variable {X Y : Scheme.{u}}
+
+/-- Pullback along a flat scheme morphism preserves monomorphisms. -/
+instance moduleFlatPullback_preservesMonomorphisms (f : X ⟶ Y) [Flat f] :
+    (Scheme.Modules.pullback f).PreservesMonomorphisms where
   preserves {M N} φ hφ := by
-    apply (moduleToSheafAb X).mono_of_mono_map
-    change Mono ((f.isOpenEmbedding.sheafPullback AddCommGrpCat.{u}).map
-      ((moduleToSheafAb Y).map φ))
-    infer_instance
-instance moduleOpenPullback_preservesMonomorphisms :
-    (Scheme.Modules.pullback f).PreservesMonomorphisms :=
-  CategoryTheory.Functor.PreservesMonomorphisms.of_iso (Scheme.Modules.restrictFunctorIsoPullback f)
-instance moduleOpenPullback_preservesHomology :
+    apply mono_of_moduleStalk_mono
+    intro x
+    let _ := moduleExtendScalars_preservesMonomorphisms_of_flat
+      (f.stalkMap x).hom (Flat.stalkMap f x)
+    let _ : (Scheme.Modules.pullback f ⋙ moduleStalk X x).PreservesMonomorphisms :=
+      CategoryTheory.Functor.PreservesMonomorphisms.of_iso (modulePullbackStalkIso f x).symm
+    exact inferInstanceAs (Mono ((Scheme.Modules.pullback f ⋙ moduleStalk X x).map φ))
+
+/-- Pullback along a flat scheme morphism is exact on sheaves of modules. -/
+instance moduleFlatPullback_preservesHomology (f : X ⟶ Y) [Flat f] :
     (Scheme.Modules.pullback f).PreservesHomology :=
   CategoryTheory.Functor.preservesHomology_of_preservesMonos_and_cokernels _
+
 
 end
 end GromovWitten.AlgebraicGeometry.Curves

@@ -13,9 +13,8 @@ import Mathlib.Topology.Sheaves.Skyscraper
 This file equips Mathlib's additive-group-valued skyscraper presheaf with the
 module structure obtained by evaluating coefficient sections at a germ.  The
 underlying additive presheaf is kept literally equal to `skyscraperPresheaf`.
-The restriction-map semilinearity law is exposed as a small characteristic
-input, so later constructions can use the object without unfolding its
-module structures.
+Restriction maps are proved semilinear because germs commute with restriction.
+The section-action formula is exposed for later constructions.
 -/
 
 open CategoryTheory Limits Opposite TopologicalSpace
@@ -67,7 +66,7 @@ def skyscraperModuleAt (U : (Opens X)ᵒᵖ) :
     exact e.symm ▸ hmodule
 
 set_option backward.isDefEq.respectTransparency false in
-lemma skyscraperModuleAt_eq (U : (Opens X)ᵒᵖ) (h : x ∈ U.unop) :
+private lemma skyscraperModuleAt_eq (U : (Opens X)ᵒᵖ) (h : x ∈ U.unop) :
     skyscraperModuleAt R x M U =
       @castModule (R.obj U) _ ((skyscraperModuleUnderlying R x M).obj U)
         (AddCommGrpCat.of M)
