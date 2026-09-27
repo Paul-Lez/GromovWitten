@@ -11,9 +11,10 @@ import GromovWitten.AlgebraicGeometry.SheafCohomology.RightDerivedHomology
 # Derived sections in a two-open Mayer–Vietoris cover
 
 The maps below are the maps induced on actual right-derived sections by the
-restriction difference sequence.  The exactness theorem is obtained from the
-short exact sequence of section complexes on an injective resolution; it does
-not assume an exact sequence for derived sections.
+restriction difference sequence. Exactness at every position and the initial
+monomorphism are obtained from the short exact sequence of section complexes
+on an injective resolution. The connecting map is natural in the sheaf, as
+proved in `MayerVietorisNaturality`.
 -/
 
 open CategoryTheory CategoryTheory.Abelian CategoryTheory.Limits
@@ -96,101 +97,40 @@ noncomputable def mvRightDerivedConnecting
     hS.δ n (n + 1) hrel ≫ eA.inv ≫
     (I.isoRightDerivedObj (sections (U ⊔ V)) (n + 1)).inv
 
+set_option backward.isDefEq.respectTransparency false in
 /-- Degreewise exactness of the actual derived Mayer–Vietoris sequence.
 
-The pair term is the product of derived sections on the two opens, and its
-map to the intersection is the difference of the two restriction maps. -/
+The pair term is canonically isomorphic to the biproduct of derived sections
+on the two opens, via `sectionsPairRightDerivedIso`; its map to the
+intersection is induced by the difference of the two restriction maps. -/
 theorem mvRightDerived_exact
     {F : TopCat.Sheaf AddCommGrpCat.{u} X}
     (I : InjectiveResolution F) (U V : Opens X) (n : ℕ) :
     (ShortComplex.mk (mvRightDerivedToPair (F := F) U V n)
       (mvRightDerivedFromPair (F := F) U V n)
       (mvRightDerivedToPair_comp_mvRightDerivedFromPair (F := F) U V n)).Exact := by
-  let S := sectionsComplexMV I.cocomplex U V
   let hS := sectionsComplexMV_shortExact I.cocomplex
     (fun k => TopCat.Sheaf.isFlasque_of_injective X _) U V
-  let f :=
-    (NatTrans.mapHomologicalComplex (sectionsToPairNat U V) (.up ℕ)).app
-      I.cocomplex
-  let g :=
-    (NatTrans.mapHomologicalComplex (sectionsFromPairNat U V) (.up ℕ)).app
-      I.cocomplex
-  let Hfun := HomologicalComplex.homologyFunctor AddCommGrpCat (.up ℕ) n
-  have hfg : f ≫ g = 0 := by
-    change ((NatTrans.mapHomologicalComplex (sectionsToPairNat U V) (.up ℕ) ≫
-      NatTrans.mapHomologicalComplex (sectionsFromPairNat U V) (.up ℕ)).app
-        I.cocomplex) = 0
-    rw [← NatTrans.mapHomologicalComplex_comp,
-      sectionsToPairNat_comp_zero]
-    rfl
-  have htemp := hS.homology_exact₂ n
-  dsimp [sectionsComplexMV] at htemp
-  let hLocal :
-      (ShortComplex.mk (HomologicalComplex.homologyMap f n)
-        (HomologicalComplex.homologyMap g n) (by
-          rw [← HomologicalComplex.homologyMap_comp, hfg,
-            HomologicalComplex.homologyMap_zero])).Exact := by
-    simpa [S, f, g] using htemp
-  let A :=
-    ((sections (U ⊔ V)).mapHomologicalComplex (.up ℕ)).obj I.cocomplex
-  let B :=
-    ((sectionsPairFunctor U V).mapHomologicalComplex (.up ℕ)).obj I.cocomplex
-  let C :=
-    ((sections (U ⊓ V)).mapHomologicalComplex (.up ℕ)).obj I.cocomplex
-  let eA : Hfun.obj A ≅ A.homology n :=
-    eqToIso (HomologicalComplex.homologyFunctor_obj
-      AddCommGrpCat (.up ℕ) n A)
-  let eB : Hfun.obj B ≅ B.homology n :=
-    eqToIso (HomologicalComplex.homologyFunctor_obj
-      AddCommGrpCat (.up ℕ) n B)
-  let eC : Hfun.obj C ≅ C.homology n :=
-    eqToIso (HomologicalComplex.homologyFunctor_obj
-      AddCommGrpCat (.up ℕ) n C)
-  let Hlocal :=
-    ShortComplex.mk (HomologicalComplex.homologyMap f n)
-      (HomologicalComplex.homologyMap g n) (by
-        rw [← HomologicalComplex.homologyMap_comp, hfg,
-          HomologicalComplex.homologyMap_zero])
-  let HfunC := ShortComplex.mk (Hfun.map f) (Hfun.map g) (by
-    rw [← Hfun.map_comp, hfg, Functor.map_zero])
-  let E : Hlocal ≅ HfunC := ShortComplex.isoMk eA.symm eB.symm eC.symm
-    (by
-      dsimp [eA, eB, Hfun]
-      cases HomologicalComplex.homologyFunctor_obj
-        AddCommGrpCat (.up ℕ) n A
-      cases HomologicalComplex.homologyFunctor_obj
-        AddCommGrpCat (.up ℕ) n B
-      rfl)
-    (by
-      dsimp [eB, eC, Hfun]
-      cases HomologicalComplex.homologyFunctor_obj
-        AddCommGrpCat (.up ℕ) n B
-      cases HomologicalComplex.homologyFunctor_obj
-        AddCommGrpCat (.up ℕ) n C
-      rfl)
-  let hFun : HfunC.Exact := ShortComplex.exact_of_iso E.symm hLocal
-  let e₁ := I.isoRightDerivedObj (sections (U ⊔ V)) n
-  let e₂ := I.isoRightDerivedObj (sectionsPairFunctor U V) n
-  let e₃ := I.isoRightDerivedObj (sections (U ⊓ V)) n
+  let eA := I.isoRightDerivedHomologyObj (sections (U ⊔ V)) n
+  let eB := I.isoRightDerivedHomologyObj (sectionsPairFunctor U V) n
+  let eC := I.isoRightDerivedHomologyObj (sections (U ⊓ V)) n
   let R := ShortComplex.mk (mvRightDerivedToPair (F := F) U V n)
     (mvRightDerivedFromPair (F := F) U V n)
     (mvRightDerivedToPair_comp_mvRightDerivedFromPair (F := F) U V n)
-  let e : R ≅ HfunC := ShortComplex.isoMk e₁ e₂ e₃
+  let S := sectionsComplexMV I.cocomplex U V
+  let H := ShortComplex.mk (HomologicalComplex.homologyMap S.f n)
+    (HomologicalComplex.homologyMap S.g n) (by
+      rw [← HomologicalComplex.homologyMap_comp, S.zero, HomologicalComplex.homologyMap_zero])
+  let e : R ≅ H := ShortComplex.isoMk eA eB eC
     (by
-      change e₁.hom ≫ Hfun.map f =
-        (NatTrans.rightDerived (sectionsToPairNat U V) n).app F ≫ e₂.hom
-      rw [InjectiveResolution.rightDerived_app_eq (P := I)]
-      change e₁.hom ≫ Hfun.map f =
-        e₁.hom ≫ Hfun.map f ≫ e₂.inv ≫ e₂.hom
-      simp)
+      dsimp only [R, H, mvRightDerivedToPair]
+      rw [I.rightDerived_app_eq_homologyMap (sectionsToPairNat U V) n]
+      simp [Category.assoc, eA, eB, S, sectionsComplexMV])
     (by
-      change e₂.hom ≫ Hfun.map g =
-        (NatTrans.rightDerived (sectionsFromPairNat U V) n).app F ≫ e₃.hom
-      rw [InjectiveResolution.rightDerived_app_eq (P := I)]
-      change e₂.hom ≫ Hfun.map g =
-        e₂.hom ≫ Hfun.map g ≫ e₃.inv ≫ e₃.hom
-      simp)
-  exact ShortComplex.exact_of_iso e.symm hFun
+      dsimp only [R, H, mvRightDerivedFromPair]
+      rw [I.rightDerived_app_eq_homologyMap (sectionsFromPairNat U V) n]
+      simp [Category.assoc, eB, eC, S, sectionsComplexMV])
+  exact ShortComplex.exact_of_iso e.symm (hS.homology_exact₂ n)
 
 /-- The connecting map is followed by the union-to-pair map by zero. -/
 lemma mvRightDerivedConnecting_comp_mvRightDerivedToPair
@@ -217,5 +157,115 @@ lemma mvRightDerivedConnecting_comp_mvRightDerivedToPair
     eqToHom_refl, Category.id_comp, Preadditive.IsIso.comp_left_eq_zero]
   rw [← Category.assoc (hS.δ n (n + 1) hrel), hS.δ_comp]
   simp
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The derived Mayer–Vietoris sequence starts with a monomorphism in degree zero. -/
+lemma mono_mvRightDerivedToPair_zero
+    (F : TopCat.Sheaf AddCommGrpCat.{u} X) (U V : Opens X) :
+    Mono (mvRightDerivedToPair (F := F) U V 0) := by
+  let I := InjectiveResolution.of F
+  let φ := (NatTrans.mapHomologicalComplex (sectionsToPairNat U V) (.up ℕ)).app I.cocomplex
+  have : Mono (φ.f 0) := (AddCommGrpCat.mono_iff_injective _).mpr
+    (sectionsToPair_injective (I.cocomplex.X 0) U V)
+  have : Mono (HomologicalComplex.homologyMap φ 0) :=
+    HomologicalComplex.mono_homologyMap_of_mono_of_not_rel φ 0
+      (fun i => Nat.succ_ne_zero i)
+  dsimp only [mvRightDerivedToPair]
+  rw [I.rightDerived_app_eq_homologyMap (sectionsToPairNat U V) 0]
+  infer_instance
+
+/-- The restriction-difference map followed by the connecting map is zero. -/
+lemma mvRightDerivedFromPair_comp_mvRightDerivedConnecting
+    {F : TopCat.Sheaf AddCommGrpCat.{u} X} (U V : Opens X) (n : ℕ) :
+    mvRightDerivedFromPair (F := F) U V n ≫ mvRightDerivedConnecting (F := F) U V n = 0 := by
+  let I := InjectiveResolution.of F
+  let hS := sectionsComplexMV_shortExact I.cocomplex
+    (fun k => TopCat.Sheaf.isFlasque_of_injective X _) U V
+  dsimp [sectionsComplexMV] at hS
+  let eB := I.isoRightDerivedHomologyObj (sectionsPairFunctor U V) n
+  let eC := I.isoRightDerivedHomologyObj (sections (U ⊓ V)) n
+  let eA := I.isoRightDerivedHomologyObj (sections (U ⊔ V)) (n + 1)
+  let g := (NatTrans.mapHomologicalComplex (sectionsFromPairNat U V) (.up ℕ)).app
+    I.cocomplex
+  let hrel : (ComplexShape.up ℕ).Rel n (n + 1) := by rfl
+  dsimp [mvRightDerivedFromPair, mvRightDerivedConnecting]
+  rw [I.rightDerived_app_eq_homologyMap (sectionsFromPairNat U V) n]
+  change eB.hom ≫ HomologicalComplex.homologyMap g n ≫ eC.inv ≫ eC.hom ≫
+    hS.δ n (n + 1) hrel ≫ eA.inv = 0
+  simp only [Iso.inv_hom_id_assoc, Preadditive.IsIso.comp_left_eq_zero]
+  have hz : HomologicalComplex.homologyMap g n ≫ hS.δ n (n + 1) hrel = 0 := by
+    simpa [g] using hS.comp_δ n (n + 1) hrel
+  rw [← Category.assoc, hz, zero_comp]
+
+/-- Exactness of the derived Mayer–Vietoris sequence at the intersection term. -/
+lemma mvRightDerived_exact_at_intersection
+    {F : TopCat.Sheaf AddCommGrpCat.{u} X} (U V : Opens X) (n : ℕ) :
+    (ShortComplex.mk (mvRightDerivedFromPair (F := F) U V n)
+      (mvRightDerivedConnecting (F := F) U V n)
+      (mvRightDerivedFromPair_comp_mvRightDerivedConnecting (F := F) U V n)).Exact := by
+  let I := InjectiveResolution.of F
+  let S := sectionsComplexMV I.cocomplex U V
+  let hS := sectionsComplexMV_shortExact I.cocomplex
+    (fun k => TopCat.Sheaf.isFlasque_of_injective X _) U V
+  dsimp [sectionsComplexMV] at hS
+  let eA := I.isoRightDerivedHomologyObj (sections (U ⊔ V)) n
+  let eB := I.isoRightDerivedHomologyObj (sectionsPairFunctor U V) n
+  let eC := I.isoRightDerivedHomologyObj (sections (U ⊓ V)) n
+  let g := (NatTrans.mapHomologicalComplex (sectionsFromPairNat U V) (.up ℕ)).app
+    I.cocomplex
+  let hrel : (ComplexShape.up ℕ).Rel n (n + 1) := by rfl
+  let R := ShortComplex.mk (mvRightDerivedFromPair (F := F) U V n)
+    (mvRightDerivedConnecting (F := F) U V n)
+    (mvRightDerivedFromPair_comp_mvRightDerivedConnecting (F := F) U V n)
+  let H := ShortComplex.mk (HomologicalComplex.homologyMap g n)
+    (hS.δ n (n + 1) hrel)
+    (hS.comp_δ n (n + 1) hrel)
+  let e : R ≅ H := ShortComplex.isoMk eB eC
+    (I.isoRightDerivedHomologyObj (sections (U ⊔ V)) (n + 1)) (by
+      change eB.hom ≫ HomologicalComplex.homologyMap g n =
+        (NatTrans.rightDerived (sectionsFromPairNat U V) n).app F ≫ eC.hom
+      rw [I.rightDerived_app_eq_homologyMap (sectionsFromPairNat U V) n]
+      simp [eB, eC, g, Category.assoc]) (by
+      change eC.hom ≫ hS.δ n (n + 1) hrel =
+        mvRightDerivedConnecting (F := F) U V n ≫
+          (I.isoRightDerivedHomologyObj (sections (U ⊔ V)) (n + 1)).hom
+      simp [I, mvRightDerivedConnecting, eC, sectionsComplexMV,
+        InjectiveResolution.isoRightDerivedHomologyObj, Category.assoc])
+  exact ShortComplex.exact_of_iso e.symm (hS.homology_exact₃ n (n + 1) hrel)
+
+/-- Exactness of the derived Mayer–Vietoris sequence at the next union term. -/
+lemma mvRightDerived_exact_at_next_union
+    {F : TopCat.Sheaf AddCommGrpCat.{u} X} (U V : Opens X) (n : ℕ) :
+    (ShortComplex.mk (mvRightDerivedConnecting (F := F) U V n)
+      (mvRightDerivedToPair (F := F) U V (n + 1))
+      (mvRightDerivedConnecting_comp_mvRightDerivedToPair (F := F) U V n)).Exact := by
+  let I := InjectiveResolution.of F
+  let S := sectionsComplexMV I.cocomplex U V
+  let hS := sectionsComplexMV_shortExact I.cocomplex
+    (fun k => TopCat.Sheaf.isFlasque_of_injective X _) U V
+  dsimp [sectionsComplexMV] at hS
+  let eC := I.isoRightDerivedHomologyObj (sections (U ⊓ V)) n
+  let eA := I.isoRightDerivedHomologyObj (sections (U ⊔ V)) (n + 1)
+  let eB := I.isoRightDerivedHomologyObj (sectionsPairFunctor U V) (n + 1)
+  let f := (NatTrans.mapHomologicalComplex (sectionsToPairNat U V) (.up ℕ)).app
+    I.cocomplex
+  let hrel : (ComplexShape.up ℕ).Rel n (n + 1) := by rfl
+  let R := ShortComplex.mk (mvRightDerivedConnecting (F := F) U V n)
+    (mvRightDerivedToPair (F := F) U V (n + 1))
+    (mvRightDerivedConnecting_comp_mvRightDerivedToPair (F := F) U V n)
+  let H := ShortComplex.mk (hS.δ n (n + 1) hrel)
+    (HomologicalComplex.homologyMap f (n + 1))
+    (hS.δ_comp n (n + 1) hrel)
+  let e : R ≅ H := ShortComplex.isoMk eC eA eB (by
+      change eC.hom ≫ hS.δ n (n + 1) hrel =
+        mvRightDerivedConnecting (F := F) U V n ≫ eA.hom
+      simp [I, mvRightDerivedConnecting, eA, eC, sectionsComplexMV,
+        InjectiveResolution.isoRightDerivedHomologyObj, Category.assoc]) (by
+      change eA.hom ≫ HomologicalComplex.homologyMap f (n + 1) =
+        (NatTrans.rightDerived (sectionsToPairNat U V) (n + 1)).app F ≫ eB.hom
+      rw [I.rightDerived_app_eq_homologyMap (sectionsToPairNat U V) (n + 1)]
+      simp [eA, eB, f, Category.assoc])
+  exact ShortComplex.exact_of_iso e.symm (hS.homology_exact₁ n (n + 1) hrel)
+
 
 end GromovWitten.AlgebraicGeometry.SheafCohomology

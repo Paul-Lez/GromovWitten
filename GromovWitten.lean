@@ -473,3 +473,4 @@ import GromovWitten.AlgebraicGeometry.SheafCohomology.DerivedSectionsPair
 import GromovWitten.AlgebraicGeometry.Curves.FinitePresentationPullback
 import GromovWitten.AlgebraicGeometry.Curves.AffineAdjunctionCompatibility
 import GromovWitten.AlgebraicGeometry.SheafCohomology.MayerVietorisSequence
+import GromovWitten.AlgebraicGeometry.SheafCohomology.MayerVietorisNaturality

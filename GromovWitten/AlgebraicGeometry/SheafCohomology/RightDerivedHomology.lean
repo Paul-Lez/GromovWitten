@@ -44,4 +44,21 @@ lemma rightDerived_app_eq_homologyMap {F G : C ⥤ D} [F.Additive] [G.Additive]
   simp only [eqToIso_refl, Iso.refl_hom, Category.comp_id, Iso.refl_inv,
     Iso.cancel_iso_hom_left]
   erw [Category.id_comp]
+set_option backward.isDefEq.respectTransparency false in
+/-- Compute a derived morphism as the homology map of a lift to injective resolutions. -/
+lemma rightDerived_map_eq_homologyMap {Y : C} (J : InjectiveResolution Y)
+    (f : X ⟶ Y) (φ : I.cocomplex ⟶ J.cocomplex)
+    (w : I.ι ≫ φ = (CochainComplex.single₀ C).map f ≫ J.ι)
+    (F : C ⥤ D) [F.Additive] (n : ℕ) :
+    (F.rightDerived n).map f =
+      (I.isoRightDerivedHomologyObj F n).hom ≫
+        HomologicalComplex.homologyMap ((F.mapHomologicalComplex (.up ℕ)).map φ) n ≫
+        (J.isoRightDerivedHomologyObj F n).inv := by
+  rw [F.rightDerived_map_eq n f φ w]
+  dsimp only [isoRightDerivedHomologyObj]
+  simp only [Iso.trans_hom, Iso.trans_inv, Functor.comp_map]
+  rw [HomologicalComplex.homologyFunctor_map]
+  simp only [eqToIso_refl, Iso.refl_hom, Category.comp_id, Iso.refl_inv,
+    Iso.cancel_iso_hom_left]
+  erw [Category.id_comp]
 end CategoryTheory.InjectiveResolution
