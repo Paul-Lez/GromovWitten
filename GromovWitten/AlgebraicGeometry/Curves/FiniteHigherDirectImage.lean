@@ -23,7 +23,8 @@ namespace GromovWitten.AlgebraicGeometry.Curves
 universe u
 noncomputable section
 
-private lemma isFinitePresentation_of_isZero {Y : Scheme.{u}} (N : Y.Modules)
+/-- A zero sheaf of modules is finitely presented on any scheme. -/
+lemma module_isFinitePresentation_of_isZero {Y : Scheme.{u}} (N : Y.Modules)
     (hN : IsZero N) : N.IsFinitePresentation := by
   let R : CommRingCat := Γ(Y, ⊤)
   let A : ModuleCat R := 0
@@ -55,7 +56,7 @@ theorem isFinitePresentation_higherDirectImageModule_spec_tilde
         (higherDirectImageModuleZeroIso (Spec.map φ) ((tilde.functor (R := S)).obj N)).symm
         (modulePushforward_spec_tilde_isFinitePresentation φ N hφ)
   | succ n =>
-      exact isFinitePresentation_of_isZero _
+      exact module_isFinitePresentation_of_isZero _
         (isZero_higherDirectImageModule_affine_succ (Spec.map φ)
           ((tilde.functor (R := S)).obj N) n)
 
@@ -76,7 +77,7 @@ theorem isFinitePresentation_higherDirectImageModule_spec
         (higherDirectImageModuleZeroIso (Spec.map φ) M).symm
         (modulePushforward_spec_isFinitePresentation φ M hφ)
   | succ n =>
-      exact isFinitePresentation_of_isZero _
+      exact module_isFinitePresentation_of_isZero _
         (isZero_higherDirectImageModule_affine_succ (Spec.map φ) M n)
 
 end
