@@ -8,6 +8,7 @@ import GromovWitten.AlgebraicGeometry.PolynomialProjBaseChange
 import GromovWitten.AlgebraicGeometry.GradedBaseChangeAlong
 import GromovWitten.AlgebraicGeometry.RelativeProjBaseChange
 import GromovWitten.AlgebraicGeometry.RelativeProjective
+import Mathlib.AlgebraicGeometry.Limits
 
 /-!
 # Polynomial relative Proj over an arbitrary scheme
@@ -15,7 +16,8 @@ import GromovWitten.AlgebraicGeometry.RelativeProjective
 Polynomial coefficient restriction supplies the affine-local graded data for relative Proj.
 For finitely many variables the resulting morphism has a relative-projective presentation
 and is proper. The degreewise polynomial tensor theorem supplies the graded base-change
-witnesses, giving a scheme-level pullback square over every affine original base.
+witnesses. Descent from the integral model then gives a scheme-level pullback square over
+arbitrary original and new bases.
 -/
 
 open CategoryTheory Limits AlgebraicGeometry
@@ -137,5 +139,69 @@ lemma isPullback_baseChangeMap {X X' : Scheme.{u}} [IsAffine X] (b : X' ⟶ X) :
 def baseChangeIso {X X' : Scheme.{u}} [IsAffine X] (b : X' ⟶ X) :
     scheme σ X' ≅ pullback (toBase σ X) b :=
   (baseChangeData σ b).pullbackIso
+
+/-! ### Arbitrary bases
+
+Every base maps to the affine terminal scheme `Spec ℤ`. Applying the affine-base theorem to
+these maps identifies polynomial relative Proj with base change of one integral model. The
+universal property then gives functoriality and base change over arbitrary schemes.
+-/
+
+private abbrev integralBase : Scheme.{u} := Spec (.of (ULift.{u} ℤ))
+private def toIntegralBase (X : Scheme.{u}) : X ⟶ integralBase :=
+  specULiftZIsTerminal.from X
+
+private lemma comp_toIntegralBase {X Y : Scheme.{u}} (b : X ⟶ Y) :
+    b ≫ toIntegralBase Y = toIntegralBase X :=
+  specULiftZIsTerminal.hom_ext _ _
+
+private def absoluteMap (X : Scheme.{u}) : scheme σ X ⟶ scheme σ integralBase :=
+  baseChangeMap σ (toIntegralBase X)
+
+private lemma absoluteIsPullback (X : Scheme.{u}) :
+    IsPullback (absoluteMap σ X) (toBase σ X) (toBase σ integralBase) (toIntegralBase X) :=
+  isPullback_baseChangeMap σ (toIntegralBase X)
+
+/-- The polynomial relative-Proj morphism induced by any base morphism. -/
+def map {X Y : Scheme.{u}} (b : X ⟶ Y) : scheme σ X ⟶ scheme σ Y :=
+  (absoluteIsPullback σ Y).lift (absoluteMap σ X) (toBase σ X ≫ b)
+    (specULiftZIsTerminal.hom_ext _ _)
+
+@[reassoc (attr := simp)]
+lemma map_toBase {X Y : Scheme.{u}} (b : X ⟶ Y) :
+    map σ b ≫ toBase σ Y = toBase σ X ≫ b :=
+  (absoluteIsPullback σ Y).lift_snd _ _ _
+
+@[reassoc (attr := simp)]
+private lemma map_absoluteMap {X Y : Scheme.{u}} (b : X ⟶ Y) :
+    map σ b ≫ absoluteMap σ Y = absoluteMap σ X :=
+  (absoluteIsPullback σ Y).lift_fst _ _ _
+
+/-- Polynomial relative Proj commutes with arbitrary scheme base change. -/
+lemma isPullback_map {X Y : Scheme.{u}} (b : X ⟶ Y) :
+    IsPullback (map σ b) (toBase σ X) (toBase σ Y) b := by
+  apply IsPullback.of_right _ (map_toBase σ b) (absoluteIsPullback σ Y)
+  simpa only [map_absoluteMap, comp_toIntegralBase] using absoluteIsPullback σ X
+
+@[simp]
+lemma map_id (X : Scheme.{u}) : map σ (𝟙 X) = 𝟙 _ := by
+  apply (absoluteIsPullback σ X).hom_ext <;> simp
+
+@[reassoc (attr := simp)]
+lemma map_comp {X Y Z : Scheme.{u}} (b : X ⟶ Y) (c : Y ⟶ Z) :
+    map σ (b ≫ c) = map σ b ≫ map σ c := by
+  apply (absoluteIsPullback σ Z).hom_ext <;> simp [Category.assoc]
+
+/-- The canonical base-change isomorphism over an arbitrary original base. -/
+def pullbackIso {X Y : Scheme.{u}} (b : X ⟶ Y) :
+    scheme σ X ≅ pullback (toBase σ Y) b :=
+  (isPullback_map σ b).isoPullback
+
+/-- Polynomial relative Proj is functorial in the base scheme. -/
+def functor : Scheme.{u} ⥤ Scheme.{u} where
+  obj := scheme σ
+  map := map σ
+  map_id := map_id σ
+  map_comp := map_comp σ
 
 end GromovWitten.AlgebraicGeometry.PolynomialRelativeProj
