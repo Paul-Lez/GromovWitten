@@ -88,4 +88,57 @@ lemma restrictExtendScalarsAlgebraIso_hom_tmul (N : ModuleCat.{u} B) (d : D) (n 
       d ⊗ₜ[B, algebraMap B D] n :=
   extendScalarsAlgebraIso_inv_tmul N d n
 end
+
+section
+variable {A B C D : Type u} [CommRing A] [CommRing B] [CommRing C] [CommRing D]
+  [Algebra A B] [Algebra A C] [Algebra B D] [Algebra C D] [SMulCommClass B C D]
+local instance (N : ModuleCat.{u} B) : Module A N := Module.compHom N (algebraMap A B)
+
+set_option backward.isDefEq.respectTransparency false in
+/-- Restriction of scalars has the original carrier with its induced module structure. -/
+def restrictScalarsNativeIso (N : ModuleCat.{u} B) :
+    (restrictScalars (algebraMap A B)).obj N ≅ ModuleCat.of A N := Iso.refl _
+
+lemma restrictScalarsNativeIso_hom_apply (N : ModuleCat.{u} B) (n : N) :
+    (restrictScalarsNativeIso (A := A) N).hom n = n := rfl
+
+set_option backward.isDefEq.respectTransparency false in
+/-- Transport a tensor-product isomorphism to extension and restriction of scalars. -/
+def extendRestrictScalarsAlgebraIso (N : ModuleCat.{u} B)
+    (e : ModuleCat.of C (C ⊗[A] N) ≅ ModuleCat.of C (D ⊗[B] N)) :
+    (extendScalars (algebraMap A C)).obj ((restrictScalars (algebraMap A B)).obj N) ≅
+      (restrictScalars (algebraMap C D)).obj ((extendScalars (algebraMap B D)).obj N) :=
+  (extendScalars (algebraMap A C)).mapIso (restrictScalarsNativeIso (A := A) N) ≪≫
+    extendScalarsAlgebraIso (ModuleCat.of A N) ≪≫ e ≪≫
+    restrictExtendScalarsAlgebraIso (C := C) (D := D) N
+
+set_option backward.isDefEq.respectTransparency false in
+lemma extendRestrictScalarsAlgebraIso_hom_tmul (N : ModuleCat.{u} B)
+    (e : ModuleCat.of C (C ⊗[A] N) ≅ ModuleCat.of C (D ⊗[B] N))
+    (c : C) (d : D) (n : N) (he : e.hom (c ⊗ₜ[A] n) = d ⊗ₜ[B] n) :
+    (extendRestrictScalarsAlgebraIso N e).hom (c ⊗ₜ[A, algebraMap A C] n) =
+      d ⊗ₜ[B, algebraMap B D] n := by
+  dsimp only [extendRestrictScalarsAlgebraIso, Iso.trans_hom]
+  simp only [ConcreteCategory.comp_apply, Functor.mapIso_hom]
+  rw [ExtendScalars.map_tmul, restrictScalarsNativeIso_hom_apply,
+    extendScalarsAlgebraIso_hom_tmul, he]
+  exact restrictExtendScalarsAlgebraIso_hom_tmul N d n
+
+set_option backward.isDefEq.respectTransparency false in
+/-- A scalar-extension map is invertible if it agrees on generators with a tensor-product
+isomorphism. -/
+lemma isIso_of_tensorProduct_iso (N : ModuleCat.{u} B)
+    (f : (extendScalars (algebraMap A C)).obj ((restrictScalars (algebraMap A B)).obj N) ⟶
+      (restrictScalars (algebraMap C D)).obj ((extendScalars (algebraMap B D)).obj N))
+    (e : ModuleCat.of C (C ⊗[A] N) ≅ ModuleCat.of C (D ⊗[B] N))
+    (he : ∀ n : N, e.hom ((1 : C) ⊗ₜ[A] n) = (1 : D) ⊗ₜ[B] n)
+    (hf : ∀ n : N, f ((1 : C) ⊗ₜ[A, algebraMap A C] n) =
+      (1 : D) ⊗ₜ[B, algebraMap B D] n) : IsIso f := by
+  have h : f = (extendRestrictScalarsAlgebraIso N e).hom := by
+    apply ExtendScalars.hom_ext
+    intro n
+    exact (hf n).trans (extendRestrictScalarsAlgebraIso_hom_tmul N e 1 1 n (he n)).symm
+  rw [h]
+  infer_instance
+end
 end ModuleCat
