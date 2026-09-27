@@ -5,6 +5,7 @@ Authors: OpenAI Codex
 -/
 
 import GromovWitten.AlgebraicGeometry.Curves.StableReduction.ReesBlowupGlobal
+import GromovWitten.AlgebraicGeometry.GradedBaseChangeAlong
 import GromovWitten.AlgebraicGeometry.ProjBaseChange
 
 /-!
@@ -419,6 +420,31 @@ theorem isBaseChange (I : Ideal A) [Module.Flat A B] :
         simpa [gradeCoeffEquiv] using hcoeff
       refine ⟨z, ?_⟩
       exact congrArg Subtype.val hgrade
+
+/-- The Rees graded base-change witness with an explicitly identified target ideal.
+
+This packages `isBaseChange` after replacing the canonical target ideal
+`I.map (algebraMap A B)` by an equal ideal.  The equality is kept in the
+graded map, so callers can use the theorem with the ideal appearing in their
+geometric chart data. -/
+theorem isBaseChangeOfEq (I : Ideal A) (J : Ideal B)
+    (h : I.map (algebraMap A B) = J) [Module.Flat A B] :
+    ProjBaseChange.IsGradedBaseChangeAlong (algebraMap A B) (gradeSubmodule I)
+      (gradeSubmodule J) (gradedMapSubmoduleOfEq I (algebraMap A B) J h) := by
+  subst J
+  have hb := ProjBaseChange.IsGradedBaseChangeAlong.of_isBaseChange
+    (ψ := gradedMapOver (A := A) (B := B) I)
+    (isBaseChange (A := A) (B := B) I)
+  have hmap : gradedMapSubmoduleOfEq I (algebraMap A B)
+      (I.map (algebraMap A B)) rfl =
+      (gradedMapOver (A := A) (B := B) I).toGradedRingHom := by
+    apply GradedRingHom.ext
+    intro x
+    apply Subtype.ext
+    exact ReesBlowupOfEq.reesMapOfEq_coe I (algebraMap A B)
+      (I.map (algebraMap A B)) rfl x
+  rw [hmap]
+  exact hb
 
 end
 end GromovWitten.AlgebraicGeometry.ReesGradedBaseChange
