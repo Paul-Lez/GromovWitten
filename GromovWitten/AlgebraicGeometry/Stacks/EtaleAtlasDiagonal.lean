@@ -23,9 +23,9 @@ The construction avoids the stack-bicategorical route considered in the docstrin
 new bicategorical bilimit).  Instead it stays entirely at the level of
 `StackChart.PullbackPresentation`, i.e. honest scheme pullbacks:
 
-* `A.IsEtaleSurjective` applied to `A`'s own tautological object over `A.scheme` produces an
-  honest scheme `P.space` representing the self-overlap of `A` with itself, with an étale
-  (hence unramified) first projection `P.fst : P.space ⟶ A.scheme`.
+* `A.IsRepresentable` applied to `A`'s own tautological object over `A.scheme` produces an
+  honest scheme `P.space` representing the self-overlap of `A` with itself; if `A` is étale
+  surjective its first projection `P.fst : P.space ⟶ A.scheme` is étale, hence unramified.
 * For arbitrary `a b : S ⟶ A.scheme`, the ordinary scheme pullback of `(a, b) : S ⟶ A.scheme ⨯
   A.scheme` against `(P.fst, P.snd) : P.space ⟶ A.scheme ⨯ A.scheme` is a `DiagonalPresentation`
   of `stackDiagonal X` at `(A.obj S a, A.obj S b)`, whose structure map to `S` is unramified
@@ -36,6 +36,15 @@ This gives `StackChart.hasUnramifiedIsom_of_isEtaleSurjective`, hence the uncond
 direction of the Deligne--Mumford diagonal criterion,
 `DeligneMumfordStack.stackDiagonal_unramified'` and
 `AlgebraicStack.stackDiagonal_unramified_of_etaleChart`.
+
+All the constructions of this file are parameterised by `hA : A.IsRepresentable` only (étale
+surjectivity is used solely in `selfOverlapScheme_fst_prop` and its consequences), which makes
+them available for the **converse** criterion, where the chart is merely smooth:
+`StackChart.selfOverlapPair_unramified_of_stackDiagonal_unramified` deduces, from
+`(stackDiagonal X).Unramified`, that `(P.fst, P.snd) : P.space ⟶ A.scheme ⨯ A.scheme` is
+unramified, by identifying `P.space` with the isomorphism scheme of the pair
+`(prod.fst, prod.snd)` over `A.scheme ⨯ A.scheme` and using that unramifiedness of the diagonal
+does not depend on the chosen presentation.
 -/
 
 open CategoryTheory CategoryTheory.Limits
@@ -206,25 +215,28 @@ theorem objIsoOfEq_pullback_hom_assoc {V V' : Scheme.{u}} {r s : V ⟶ A.scheme}
 /-- The tautological object of a chart over its own scheme. -/
 noncomputable abbrev tautObj : StackFiber X A.scheme := A.obj A.scheme (𝟙 A.scheme)
 
-variable (hA : A.IsEtaleSurjective)
+variable (hA : A.IsRepresentable)
 
-/-- **The self-overlap of an étale surjective chart, represented by an honest scheme.**
-Applying étale-surjectivity to the chart's own tautological object gives a scheme whose two
-projections to `A.scheme` are both `A.scheme`-valued, the first one étale surjective. -/
+/-- **The self-overlap of a representable chart, represented by an honest scheme.**
+Applying representability to the chart's own tautological object gives a scheme whose two
+projections to `A.scheme` are both `A.scheme`-valued; for an étale surjective chart the first
+one is étale surjective (`selfOverlapScheme_fst_prop`). -/
 noncomputable def selfOverlapScheme : A.PullbackPresentation A.scheme A.tautObj :=
   (hA.1 A.scheme A.tautObj).some
 
-/-- The first projection of the self-overlap scheme is étale and surjective. -/
-theorem selfOverlapScheme_fst_prop :
+/-- The first projection of the self-overlap scheme of an étale surjective chart is étale and
+surjective. -/
+theorem selfOverlapScheme_fst_prop (hAe : A.IsEtaleSurjective) :
     (_root_.AlgebraicGeometry.Etale ⊓ _root_.AlgebraicGeometry.Surjective)
       (A.selfOverlapScheme hA).fst :=
-  hA.2 A.scheme A.tautObj (A.selfOverlapScheme hA)
+  hAe.2 A.scheme A.tautObj (A.selfOverlapScheme hA)
 
-/-- The first projection of the self-overlap scheme is unramified. -/
-theorem selfOverlapScheme_fst_unramified :
+/-- The first projection of the self-overlap scheme of an étale surjective chart is
+unramified. -/
+theorem selfOverlapScheme_fst_unramified (hAe : A.IsEtaleSurjective) :
     Unramified (A.selfOverlapScheme hA).fst := by
   have he : _root_.AlgebraicGeometry.Etale (A.selfOverlapScheme hA).fst :=
-    (A.selfOverlapScheme_fst_prop hA).1
+    (A.selfOverlapScheme_fst_prop hA hAe).1
   exact unramified_of_etale _
 
 /-- The canonical isomorphism between the chart objects at the two self-overlap projections. -/
@@ -684,10 +696,12 @@ noncomputable def isomDiagonalPresentation : DiagonalPresentation X S (A.obj S a
 /-- The pairing of the self-overlap scheme's two projections is unramified: its postcomposition
 with the first product projection is the (étale, hence unramified) first leg of the
 self-overlap scheme. -/
-theorem selfOverlapPair_unramified : Unramified (A.selfOverlapPair hA) := by
+theorem selfOverlapPair_unramified (hAe : A.IsEtaleSurjective) :
+    Unramified (A.selfOverlapPair hA) := by
   have h : A.selfOverlapPair hA ≫ (Limits.prod.fst : A.scheme ⨯ A.scheme ⟶ A.scheme) =
       (A.selfOverlapScheme hA).fst := prod.lift_fst _ _
-  have hfst : Unramified (A.selfOverlapScheme hA).fst := A.selfOverlapScheme_fst_unramified hA
+  have hfst : Unramified (A.selfOverlapScheme hA).fst :=
+    A.selfOverlapScheme_fst_unramified hA hAe
   have : Unramified (A.selfOverlapPair hA ≫ (Limits.prod.fst : A.scheme ⨯ A.scheme ⟶ A.scheme)) :=
     h ▸ hfst
   exact Unramified.of_comp (A.selfOverlapPair hA)
@@ -695,18 +709,76 @@ theorem selfOverlapPair_unramified : Unramified (A.selfOverlapPair hA) := by
 
 /-- **The structure map of the isomorphism scheme is unramified.**  It is a base change of the
 unramified pairing `selfOverlapPair`. -/
-theorem isomScheme_map_unramified : Unramified (A.isomScheme_map hA a b) := by
-  have := A.selfOverlapPair_unramified hA
+theorem isomScheme_map_unramified (hAe : A.IsEtaleSurjective) :
+    Unramified (A.isomScheme_map hA a b) := by
+  have := A.selfOverlapPair_unramified hA hAe
   exact inferInstance
 
-include hA in
+/-! ## The converse: an unramified diagonal makes the self-overlap pairing unramified -/
+
+/-- The isomorphism scheme of the pair `(prod.fst, prod.snd)` over `A.scheme ⨯ A.scheme` is the
+self-overlap scheme itself: its comparison map to the self-overlap is an isomorphism, because it
+is a base change of the identity `prod.lift prod.fst prod.snd = 𝟙`. -/
+theorem isIso_isomScheme_toOverlap_prod :
+    IsIso (A.isomScheme_toOverlap hA (prod.fst : A.scheme ⨯ A.scheme ⟶ A.scheme) prod.snd) := by
+  have hid : A.isomPair (prod.fst : A.scheme ⨯ A.scheme ⟶ A.scheme) prod.snd =
+      𝟙 (A.scheme ⨯ A.scheme) := prod.lift_fst_snd
+  have hsq := IsPullback.of_hasPullback
+    (A.isomPair (prod.fst : A.scheme ⨯ A.scheme ⟶ A.scheme) prod.snd) (A.selfOverlapPair hA)
+  have : IsIso (A.isomPair (prod.fst : A.scheme ⨯ A.scheme ⟶ A.scheme) prod.snd) := by
+    rw [hid]; infer_instance
+  exact hsq.isIso_snd_of_isIso
+
+/-- The structure map of the isomorphism scheme of `(prod.fst, prod.snd)` factors as the
+(invertible) comparison map followed by the self-overlap pairing. -/
+theorem isomScheme_map_prod_eq :
+    A.isomScheme_map hA (prod.fst : A.scheme ⨯ A.scheme ⟶ A.scheme) prod.snd =
+      A.isomScheme_toOverlap hA (prod.fst : A.scheme ⨯ A.scheme ⟶ A.scheme) prod.snd ≫
+        A.selfOverlapPair hA := by
+  have h := A.isomScheme_condition hA (prod.fst : A.scheme ⨯ A.scheme ⟶ A.scheme) prod.snd
+  rw [show A.isomPair (prod.fst : A.scheme ⨯ A.scheme ⟶ A.scheme) prod.snd =
+    𝟙 (A.scheme ⨯ A.scheme) from prod.lift_fst_snd, Category.comp_id] at h
+  exact h
+
+/-- **The converse direction of the Deligne--Mumford diagonal criterion, at the level of the
+self-overlap pairing.**  If the diagonal of `X` is representably unramified, then the pairing
+`(P.fst, P.snd) : P.space ⟶ A.scheme ⨯ A.scheme` of the two projections of the self-overlap of
+*any* representable chart `A` is unramified.
+
+The proof identifies the self-overlap scheme with the isomorphism scheme of the pair
+`(prod.fst, prod.snd)` over `A.scheme ⨯ A.scheme`, whose structure map is unramified because the
+isomorphism scheme is a presentation of `stackDiagonal X` there
+(`isomDiagonalPresentation`) and unramifiedness of the diagonal is independent of the chosen
+presentation (`StackMorphismPresentation.property_iff_of_presentation`).  In contrast to
+`selfOverlapPair_unramified` no étaleness of the chart is used. -/
+theorem selfOverlapPair_unramified_of_stackDiagonal_unramified
+    (h : (stackDiagonal X).Unramified) : Unramified (A.selfOverlapPair hA) := by
+  have hrespects : MorphismProperty.RespectsIso (@Unramified : MorphismProperty Scheme.{u}) :=
+    MorphismProperty.IsStableUnderBaseChange.respectsIso
+  obtain ⟨⟨q, hq⟩⟩ := (StackHom.hasRepresentableProperty_iff_raw
+    (@Unramified : MorphismProperty Scheme.{u})).1 h (A.scheme ⨯ A.scheme)
+    (selfProdObj (A.obj (A.scheme ⨯ A.scheme) prod.fst)
+      (A.obj (A.scheme ⨯ A.scheme) prod.snd))
+  have key : Unramified (A.isomScheme_map hA
+      (prod.fst : A.scheme ⨯ A.scheme ⟶ A.scheme) prod.snd) :=
+    (q.property_iff_of_presentation (@Unramified : MorphismProperty Scheme.{u})
+      (A.isomDiagonalPresentation hA (prod.fst : A.scheme ⨯ A.scheme ⟶ A.scheme)
+        prod.snd).toStackMorphismPresentation).1 hq
+  rw [A.isomScheme_map_prod_eq hA] at key
+  have := A.isIso_isomScheme_toOverlap_prod hA
+  exact (MorphismProperty.cancel_left_of_respectsIso
+    (@Unramified : MorphismProperty Scheme.{u}) _ _).1 key
+
 /-- **An étale surjective chart's isomorphism schemes are unramified over the base,
 unconditionally.**  This removes the hypothesis `HasUnramifiedIsom` from
 `stackDiagonal_unramified_of_etaleAtlas`. -/
-theorem hasUnramifiedIsom_of_isEtaleSurjective : A.HasUnramifiedIsom := by
+theorem hasUnramifiedIsom_of_isEtaleSurjective (hAe : A.IsEtaleSurjective) :
+    A.HasUnramifiedIsom := by
   intro S a b
-  refine ⟨(A.isomDiagonalPresentation hA a b).toStackMorphismPresentation, ?_⟩
-  exact A.isomScheme_map_unramified hA a b
+  have hrep : A.IsRepresentable :=
+    A.isRepresentable_of_hasRepresentableProperty _ hAe
+  exact ⟨(A.isomDiagonalPresentation hrep a b).toStackMorphismPresentation,
+    A.isomScheme_map_unramified hrep a b hAe⟩
 
 end StackChart
 
