@@ -25,6 +25,10 @@ Implemented APIs include:
   representative and compatible with scalar extension; and distinguished-triangle rank
   additivity for the globally finite-free model
   (`CotangentComplex/Projective*.lean`, `PerfectTriangles.lean`);
+- the derived tensor product of perfect objects over a ring from the chain-level tensor product of
+  strictly perfect representatives, with representative independence, multiplicative rank, and unit and
+  associativity isomorphisms (`CotangentComplex/PerfectTensor.lean`); the braiding and the internal Hom
+  remain open;
 - finite locally free direct sums with rank addition from independently chosen local bases,
   constructing a common cover from products of charts; finite-free tensor rank multiplication,
   tensor associativity with globally finite-free outer factors, and natural, involutive tensor
@@ -103,6 +107,10 @@ Implemented APIs include:
   components, the finite discrete set of points without a smooth étale chart, and the finite
   set of points lying on two distinct components, with connectivity derived from connectedness
   of the curve;
+- node charts now send their distinguished point to the origin of the standard node, with the chart
+  construction for curves isomorphic to the standard node producing smooth charts off the origin, so that
+  the standard node has node charts at its origin and is proved nodal directly (`Curves/Nodal.lean`,
+  `Curves/GeometricDualGraph.lean`); that an arbitrary node chart occurs only at the origin remains open;
 - weighted numerical Picard groups, their comparison with the raw intersection cokernel,
   parity and signed-genus formulae, connectedness criteria, the rank-one theorem, and
   finite prime-torsion calculations, together with specialization of genuine relative
@@ -274,9 +282,42 @@ Implemented APIs include:
   closure of an integral closed subscheme of an open subscheme (the scheme-theoretic image) and
   the restriction of cycles supported on a closed subscheme, conditional only on the gradedness
   of principal divisors;
+- refinements of presentation groupoids along open immersions of atlases, proved once for any groupoid
+  with Vistoli cycles and instantiated for open and étale presentation groupoids, with the induced maps
+  and, for mutually inverse refinements, linear equivalences of Vistoli Chow groups
+  (`IntersectionTheory/PresentationGroupoidRefinement.lean`, `EtaleAtlasRefinement.lean`), applied to a
+  Deligne--Mumford stack for the presentation with exchanged legs; a strictly smaller open atlas still
+  needs descent of rational equivalence along étale maps;
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
+- the relative Spec of a quasi-coherent algebra as a morphism of stacks, with the pullback of algebra
+  data along morphisms of schemes and its coherence, affineness as a representable property, the
+  universal property as an equivalence between lifts of a chart and algebra-data morphisms out of the
+  pulled-back algebra, and the comparison with the algebra of an affine morphism
+  (`Stacks/RelativeSpecStack.lean`); algebras given by descent data on an atlas and relative Proj on
+  stacks remain open;
+- chart-level refinement records with the induced map of self-overlaps, its source/target 2-cells and
+  unit compatibility, packaged as morphisms of presentation groupoid objects (`Stacks/ChartRefinement.lean`);
+- the dimension formula for flat morphisms between locally Noetherian schemes through going-down, and
+  atlas independence of the stack dimension for every algebraic stack with non-empty locally Noetherian
+  atlases, with a counterexample to the pure-dimension form over such bases
+  (`Curves/SmoothPureDimensionNoetherian.lean`, `Curves/FibreStalk.lean`);
+- the converse Deligne--Mumford criterion reduced to a single scheme-theoretic slicing statement: an
+  unramified diagonal gives an unramified self-overlap pair for every smooth chart, representable
+  properties of a sliced chart are tested on the slice morphism, étale slices glue to an étale atlas, and
+  the affine slicing step is proved (`Stacks/EtaleAtlasDiagonal.lean`, `Stacks/DeligneMumfordCriterionAssembly.lean`,
+  `Stacks/EtaleSliceLocal.lean`, `Stacks/DeligneMumfordCriterionFinal.lean`);
+- the atlas map `U → [U/G]` as a stack morphism whose fibre over a torsor is the torsor, with a generic
+  componentwise constructor of strong transformations on locally discrete bicategories
+  (`Stacks/QuotientStackAtlas.lean`, `Stacks/StrongTransOfDiscrete.lean`);
+- `[C/E]` as a cone stack over `Spec R`: descent of the base point, projection, vertex, and five of the six
+  contraction laws, with all six contraction laws, so `coneQuotientStack` is an unconditional cone stack
+  (`Cones/ConeQuotientStack.lean`);
+- the scalar contraction of the cone quotient stack `[C/E]` on all torsors, without the triviality
+  hypothesis, through the functoriality of the relative torsor pushout, with its unit, multiplicativity
+  and base-change laws as natural isomorphisms and the vanishing and vertex laws on objects
+  (`Cones/QuotientTorsorContraction.lean`, `Cones/QuotientTorsorContractionCoherence.lean`);
 - the inclusion of the small-étale site of a Deligne--Mumford stack into its lisse-étale site is a
   continuous, fully faithful morphism of ringed sites, with the concrete description of the covering
   sieves of both stack sites and the restriction functor on module sheaves
@@ -332,6 +373,9 @@ Implemented APIs include:
 - the affine cone quotient `[C/E]` is realised as a torsor prestack (fully faithful comparison
   with the trivial torsors), base changes and fibre products of cone stacks are constructed on
   genuine two-pullbacks of stacks, unconditionally for coherent cone stacks;
+- the cone-stack structure of the affine cone quotient for every formally étale chart of the ambient
+  polynomial ring, through the étale cone action (`Cones/EtaleChartConeStack.lean`); gluing over all local
+  embeddings needs base change of cone stacks and remains open;
 - the tangent action on the affine normal cone is an honest `ConeAction` (Vistoli's lemma in
   cone-action form), with the lci specialisation `𝔠 = 𝔑` and the smooth specialisation
   `𝔠 = B T_M` fibrewise, invariance under scalar extension, and `dim C − rank T = 0`;
@@ -497,6 +541,19 @@ Implemented APIs include:
   localisation case, and the relative conormal complex and comparison chain map for base change along a
   coordinate hyperplane of the base (`VirtualFundamentalClass/RelativeVirtualClassBaseChange.lean`:
   `hyperplaneConormalComplex`, `hyperplaneHom`);
+- the long exact cohomology sequence of a short exact sequence of sheaves of modules on a scheme, from
+  short exactness in the category of sheaves of modules alone (the forgetful functor to abelian sheaves
+  preserves finite limits and epimorphisms, the latter through a reflection criterion absent from Mathlib),
+  with a connecting homomorphism linear over the global sections, and the additivity of the Euler
+  characteristic under explicit finite-dimensionality and vanishing hypotheses
+  (`Curves/CohomologyExactSequence.lean`);
+- the multiplicity of an effective Cartier divisor at a point as the length of the stalk of its structure
+  sheaf, additive under sums of divisors and independent of the chart, the degree of an effective Cartier
+  divisor as the degree of its zero-cycle, finite on every regular one-dimensional integral Noetherian scheme,
+  the divisors of zeros and poles of a nonzero rational function on a regular proper curve with the pointwise
+  identity with the order of vanishing, hence the invariance of the degree of a formal difference of divisors
+  under linear equivalence, together with a first link between the component-degree labels of relative line
+  bundles and these degrees (`Curves/CartierDivisorDegree.lean`);
 - transfer of the obstruction-theory condition along the coordinate-hyperplane base change, with no
   regularity hypothesis, and the conormal splitting `I ∩ (y₀) = y₀·I` with the converse when `y₀` is a
   non-zero-divisor (`VirtualFundamentalClass/RelativeHyperplaneObstruction.lean`:
