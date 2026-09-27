@@ -1,6 +1,7 @@
 /-
 Copyright (c) 2026 GromovWitten Contributors. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
+Authors: OpenAI Codex
 -/
 
 import GromovWitten.AlgebraicGeometry.SheafCohomology.OpenRestriction
@@ -42,6 +43,7 @@ private noncomputable def integerSectionsChainIso
       (((sheafSections (Opens.grothendieckTopology X) AddCommGrpCat).obj
         (op (⊤ : Opens X))).mapHomologicalComplex (.up ℤ)).obj I.cochainComplex := by
   let A := AddCommGrpCat.of (ULift ℤ)
+  let adj := constantSheafAdj (Opens.grothendieckTopology X) AddCommGrpCat isTerminalTop
   let C := Sheaf (Opens.grothendieckTopology X) AddCommGrpCat
   let cA : C := (constantSheaf (Opens.grothendieckTopology X) AddCommGrpCat).obj A
   let K := (CochainComplex.singleFunctor C 0).obj cA
@@ -53,7 +55,8 @@ private noncomputable def integerSectionsChainIso
   let eEquiv (n : ℤ) : Cochain K L n ≃+ S.obj (L.X n) := by
     let h : (0 : ℤ) + n = n := by simp
     let e₁ := CochainComplex.HomComplex.Cochain.fromSingleEquiv (X := cA) (K := L) h
-    let e₂ := (constantSheafAdj (Opens.grothendieckTopology X) AddCommGrpCat isTerminalTop).homAddEquiv A (L.X n)
+    let e₂ :=
+      adj.homAddEquiv A (L.X n)
     let e₃ := AddCommGrpCat.uliftZMultiplesAddEquiv (S.obj (L.X n))
     exact (e₁.trans e₂).trans e₃
   let eComponent (n : ℤ) : (K.HomComplex L).X n ≅ Q.X n := (eEquiv n).toAddCommGrpIso
@@ -84,12 +87,12 @@ private noncomputable def integerSectionsChainIso
     have hfrom (y : S.obj (L.X j)) :
         (Cochain.fromSingleEquiv (X := cA) (K := L)
           (show (0 : ℤ) + j = j by simp)) ((eEquiv j).symm y) =
-          ((constantSheafAdj (Opens.grothendieckTopology X) AddCommGrpCat isTerminalTop).homEquiv A (L.X j)).symm
+          (adj.homEquiv A (L.X j)).symm
             ((AddCommGrpCat.uliftZMultiplesAddEquiv (S.obj (L.X j))).symm y) := by
       let h : (0 : ℤ) + j = j := by simp
       let a := CochainComplex.HomComplex.Cochain.fromSingleEquiv (X := cA) (K := L) h
       let b : (cA ⟶ L.X j) ≃+ (A ⟶ S.obj (L.X j)) :=
-        (constantSheafAdj (Opens.grothendieckTopology X) AddCommGrpCat isTerminalTop).homAddEquiv A (L.X j)
+        adj.homAddEquiv A (L.X j)
       let c := AddCommGrpCat.uliftZMultiplesAddEquiv (S.obj (L.X j))
       change a (((a.trans b).trans c).symm y) = b.symm (c.symm y)
       rw [show ((a.trans b).trans c).symm y = a.symm (b.symm (c.symm y)) by rfl]
@@ -105,48 +108,47 @@ private noncomputable def integerSectionsChainIso
               (show (0 : ℤ) + i = i by simp))) = f ≫ L.d i j
       rw [CochainComplex.HomComplex.Cochain.δ_fromSingleMk f
         (show (0 : ℤ) + i = i by simp) j j (show (0 : ℤ) + j = j by simp)]
-      exact (Cochain.fromSingleEquiv (X := cA) (K := L) (show (0 : ℤ) + j = j by simp)).apply_symm_apply (f ≫ L.d i j)
+      exact (Cochain.fromSingleEquiv (X := cA) (K := L)
+        (show (0 : ℤ) + j = j by simp)).apply_symm_apply (f ≫ L.d i j)
     rw [hdelta]
     have hi : eEquiv i x =
         (AddCommGrpCat.uliftZMultiplesAddEquiv (S.obj (L.X i)))
-          ((constantSheafAdj (Opens.grothendieckTopology X) AddCommGrpCat isTerminalTop).homEquiv A (L.X i) f) := by
+          (adj.homEquiv A (L.X i) f) := by
       let h : (0 : ℤ) + i = i := by simp
       let a := CochainComplex.HomComplex.Cochain.fromSingleEquiv (X := cA) (K := L) h
       let b : (cA ⟶ L.X i) ≃+ (A ⟶ S.obj (L.X i)) :=
-        (constantSheafAdj (Opens.grothendieckTopology X) AddCommGrpCat isTerminalTop).homAddEquiv A (L.X i)
+        adj.homAddEquiv A (L.X i)
       let c := AddCommGrpCat.uliftZMultiplesAddEquiv (S.obj (L.X i))
       change ((a.trans b).trans c) (a.symm f) = c (b f)
       rw [AddEquiv.trans_apply, AddEquiv.trans_apply, a.apply_symm_apply]
     rw [hi]
-    change ((constantSheafAdj (Opens.grothendieckTopology X) AddCommGrpCat isTerminalTop).homEquiv A (L.X j)).symm
+    change (adj.homEquiv A (L.X j)).symm
       ((AddCommGrpCat.uliftZMultiplesAddEquiv (S.obj (L.X j))).symm
         (S.map (L.d i j)
           ((AddCommGrpCat.uliftZMultiplesAddEquiv (S.obj (L.X i)))
-            ((constantSheafAdj (Opens.grothendieckTopology X) AddCommGrpCat isTerminalTop).homEquiv A (L.X i) f)))) =
+            (adj.homEquiv A (L.X i) f)))) =
       f ≫ L.d i j
     have hc :
         (AddCommGrpCat.uliftZMultiplesAddEquiv (S.obj (L.X j))).symm
           (S.map (L.d i j)
             ((AddCommGrpCat.uliftZMultiplesAddEquiv (S.obj (L.X i)))
-              ((constantSheafAdj (Opens.grothendieckTopology X) AddCommGrpCat isTerminalTop).homEquiv A (L.X i) f))) =
-          ((constantSheafAdj (Opens.grothendieckTopology X) AddCommGrpCat isTerminalTop).homEquiv A (L.X i) f) ≫
+              (adj.homEquiv A (L.X i) f))) =
+          (adj.homEquiv A (L.X i) f) ≫
             S.map (L.d i j) := by
       apply (AddCommGrpCat.uliftZMultiplesAddEquiv (S.obj (L.X j))).injective
       simp only [AddEquiv.apply_symm_apply]
       change
         (S.map (L.d i j))
             ((AddCommGrpCat.uliftZMultiplesAddEquiv (S.obj (L.X i)))
-              ((constantSheafAdj (Opens.grothendieckTopology X) AddCommGrpCat isTerminalTop).homEquiv A (L.X i) f)) =
+              (adj.homEquiv A (L.X i) f)) =
           (AddCommGrpCat.uliftZMultiplesAddEquiv (S.obj (L.X j)))
-            (((constantSheafAdj (Opens.grothendieckTopology X) AddCommGrpCat isTerminalTop).homEquiv A (L.X i) f) ≫ S.map (L.d i j))
+            ((adj.homEquiv A (L.X i) f) ≫ S.map (L.d i j))
       exact ConcreteCategory.congr_hom
         ((AddCommGrpCat.coyonedaObjIsoForget.hom.naturality (S.map (L.d i j))).symm) _
     rw [hc]
     have hnat :=
-      (constantSheafAdj (Opens.grothendieckTopology X) AddCommGrpCat isTerminalTop).homEquiv_naturality_right_symm
-        ((constantSheafAdj (Opens.grothendieckTopology X) AddCommGrpCat isTerminalTop).homEquiv A (L.X i) f) (L.d i j)
-    rw [((constantSheafAdj (Opens.grothendieckTopology X) AddCommGrpCat isTerminalTop).homEquiv A
-      (L.X i)).symm_apply_apply f] at hnat
+      adj.homEquiv_naturality_right_symm (adj.homEquiv A (L.X i) f) (L.d i j)
+    rw [(adj.homEquiv A (L.X i)).symm_apply_apply f] at hnat
     exact hnat)
 
 noncomputable def natSectionsRestrictionIso
@@ -198,7 +200,8 @@ noncomputable def sheafHInjectiveResolutionAddEquiv
     (I : InjectiveResolution F) (n : ℕ) :
     Sheaf.H F n ≃+
       ((((sheafSections (Opens.grothendieckTopology X) AddCommGrpCat).obj
-        (op (⊤ : Opens X))).mapHomologicalComplex (.up ℤ)).obj I.cochainComplex).homology (n : ℤ) := by
+        (op (⊤ : Opens X))).mapHomologicalComplex (.up ℤ)).obj I.cochainComplex).homology
+        (n : ℤ) := by
   let A := (constantSheaf (Opens.grothendieckTopology X) AddCommGrpCat).obj
     (AddCommGrpCat.of (ULift ℤ))
   let C := Sheaf (Opens.grothendieckTopology X) AddCommGrpCat
