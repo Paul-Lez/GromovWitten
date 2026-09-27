@@ -193,6 +193,11 @@ def affineTensorBaseChangeIso (M : ModuleCat (CommRingCat.of B)) :
       ((affineTensorBaseChange_cancel M).bijective.comp
         (affineTensorBaseChange_reorder₁ M).bijective))
 
+@[simp]
+theorem affineTensorBaseChangeIso_tmul (b : B) (c : C) (m : M) :
+    affineTensorBaseChangeIso M ((b ⊗ₜ[A] c) ⊗ₜ[B] m) = c ⊗ₜ[A] (b • m) := by
+  rfl
+
 end TensorBaseChange
 
 end
