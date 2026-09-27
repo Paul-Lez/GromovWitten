@@ -420,6 +420,8 @@ import GromovWitten.AlgebraicGeometry.Stacks.EtaleAtlasDiagonal
 import GromovWitten.AlgebraicGeometry.Stacks.InertiaCoherence
 import GromovWitten.AlgebraicGeometry.Stacks.EtaleSlice
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackAlgebraicAPI
+import GromovWitten.AlgebraicGeometry.Curves.CartierDivisorDegree
+import GromovWitten.AlgebraicGeometry.Curves.CartierDivisorDegreeAlgebraic
 import GromovWitten.AlgebraicGeometry.CotangentComplex.PerfectTensor
 import GromovWitten.AlgebraicGeometry.CotangentComplex.PerfectTensorFunctoriality
 import GromovWitten.AlgebraicGeometry.Stacks.RelativeSpecStack
