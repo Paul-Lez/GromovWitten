@@ -436,6 +436,7 @@ import GromovWitten.AlgebraicGeometry.Curves.ModuleExact
 import GromovWitten.AlgebraicGeometry.Curves.ModuleFlasque
 import GromovWitten.AlgebraicGeometry.Curves.ModuleGrothendieck
 import GromovWitten.AlgebraicGeometry.Curves.ModulePullbackExact
+import GromovWitten.AlgebraicGeometry.Curves.QuasiCoherentPullback
 import GromovWitten.AlgebraicGeometry.Curves.ModuleStalk
 import GromovWitten.AlgebraicGeometry.Curves.ModuleSkyscraper
 import GromovWitten.AlgebraicGeometry.Curves.ModuleSkyscraperAdjunction
