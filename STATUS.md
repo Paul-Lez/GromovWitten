@@ -737,6 +737,11 @@ Implemented APIs include:
   formula holds with no hypothesis at all (`VirtualFundamentalClass/LciFormulaPure.lean`:
   `OverField.lci_formula_polynomial`, with the purity of `Spec (R⧸I)` from
   `height_eq_length_of_isWeaklyRegular` and the basis of `I/I²` from `QuasiregularGenerators.cotangentBasis`);
+- the zero-section formula for the virtual class (Layer 7): when the resolved cone is the zero section of
+  the obstruction bundle, the virtual class is the self-intersection of the zero section applied to the
+  fundamental class, packaged as the top Chern class of the obstruction bundle
+  (`VirtualFundamentalClass/ObstructionBundleFormula.lean`); the comparison of that top Chern class with the
+  first Chern class in rank one remains open;
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
