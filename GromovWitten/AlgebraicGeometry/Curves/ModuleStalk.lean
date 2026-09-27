@@ -76,6 +76,26 @@ lemma stalkFunctorComm_map_germ {M N : PresheafOfModules.{u}
   TopCat.Presheaf.stalkFunctor_map_germ_apply U x hx
     ((toPresheaf (R ⋙ forget₂ CommRingCat RingCat)).map φ) m
 
+set_option backward.isDefEq.respectTransparency false in
+/-- Germwise linearity suffices to make an additive stalk map linear. -/
+def stalkHomOfGermLinear
+    (M : PresheafOfModules.{u} (R ⋙ forget₂ CommRingCat RingCat))
+    (N : ModuleCat.{u} (R.stalk x))
+    (φ : TopCat.Presheaf.stalk M.presheaf x ⟶ AddCommGrpCat.of N)
+    (hφ : ∀ (U : Opens X) (hx : x ∈ U) (r : R.obj (op U)) (m : M.obj (op U)),
+      φ (TopCat.Presheaf.germ M.presheaf U x hx (r • m)) =
+        R.germ U x hx r • φ (TopCat.Presheaf.germ M.presheaf U x hx m)) :
+    stalkObjComm R x M ⟶ N :=
+  ModuleCat.ofHom
+    { __ := φ.hom
+      map_smul' := by
+        intro r m
+        obtain ⟨U, hx, s, rfl⟩ := TopCat.Presheaf.exists_germ_eq M.presheaf m
+        obtain ⟨V, hVU, hy, t, rfl⟩ := R.exists_le_germ_eq r hx
+        rw [← TopCat.Presheaf.germ_res_apply M.presheaf (homOfLE hVU) x hy s]
+        rw [← M.germ_smul x V hy]
+        exact hφ V hy t (M.map (homOfLE hVU).op s) }
+
 end PresheafOfModules
 namespace GromovWitten.AlgebraicGeometry.Curves
 open _root_.AlgebraicGeometry
