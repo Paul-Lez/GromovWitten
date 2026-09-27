@@ -174,4 +174,13 @@ lemma idealSheafOfStalkIdeals_ideal
     (X.idealSheafOfStalkIdeals Z hZ).ideal U = I :=
   X.representsStalkIdeals_unique
     (X.exists_ideal_of_locally_represented_stalkIdeals Z hZ U).choose_spec hI
+
+/-- Equality of ideal sheaves can be checked on an affine neighborhood of each point. -/
+lemma IdealSheafData.ext_of_locally_eq {I J : X.IdealSheafData}
+    (h : ∀ x : X, ∃ U : X.affineOpens, x ∈ U.1 ∧ I.ideal U = J.ideal U) : I = J := by
+  choose U hx hIJ using h
+  apply IdealSheafData.ext_of_iSup_eq_top U _ hIJ
+  apply top_unique
+  intro x _
+  exact TopologicalSpace.Opens.mem_iSup.mpr ⟨x, hx x⟩
 end AlgebraicGeometry.Scheme
