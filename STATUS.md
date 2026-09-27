@@ -522,6 +522,11 @@ Implemented APIs include:
   form as the scheme-theoretic intersection of the resolved cone with the hyperplane
   (`VirtualFundamentalClass/RelativeHyperplaneConeIdentity.lean`); the cycle-level and Gysin comparisons of the
   relative virtual classes remain open;
+- the cycle-level form of that identity: pushforward of the cycle of a closed subscheme along a closed
+  immersion of affine Noetherian schemes is the cycle of the preimage ideal, so the resolved-cone cycle of
+  the hyperplane section pushes forward to the cycle of the intersection with the hyperplane, also on Chow
+  classes of the obstruction bundle (`VirtualFundamentalClass/RelativeHyperplaneConeCycle.lean`); the Gysin
+  comparison of the relative virtual classes needs a Chow-level divisor Gysin map and remains open;
 - functoriality under the smooth projection `X × 𝔸^τ → X` (Layer 8, affine model): the flat
   pullback along a trivialised bundle is transitive on Chow groups, commutes with pushforward along
   closed immersions and with the zero-section Gysin map
