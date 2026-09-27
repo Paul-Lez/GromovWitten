@@ -281,6 +281,9 @@ Implemented APIs include:
   `C_{U/M} = N_{U/M}` and the affine intrinsic normal sheaf and cone of `U ⊆ 𝔸ⁿ` are `B T_U`: connected
   quotient groupoids with automorphisms `Derivation k S B` (`Cones/SmoothIntrinsicNormalSheaf.lean`,
   `Cones/SmoothFormula.lean`), together with the smooth case of the lci formula for the virtual class;
+- the intrinsic pullback sequence for a tower whose middle term is cut out by a quasi-regular ideal, from a
+  compatible pair of quasi-regular generating sequences and without smoothness
+  (`Cones/IntrinsicPullbackSequenceLci.lean`); the relative comparison with the abelian hull remains open;
 - the dual of a perfect complex is well defined up to canonical isomorphism, with biduality and
   full faithfulness of duality on strictly perfect complexes;
 - the underlying topological space of an algebraic stack is independent of the atlas: the point

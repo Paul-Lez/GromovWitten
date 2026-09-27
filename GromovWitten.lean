@@ -420,6 +420,7 @@ import GromovWitten.AlgebraicGeometry.Stacks.EtaleAtlasDiagonal
 import GromovWitten.AlgebraicGeometry.Stacks.InertiaCoherence
 import GromovWitten.AlgebraicGeometry.Stacks.EtaleSlice
 import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackAlgebraicAPI
+import GromovWitten.AlgebraicGeometry.Cones.IntrinsicPullbackSequenceLci
 import GromovWitten.AlgebraicGeometry.Curves.Clutching.BranchContraction
 import GromovWitten.AlgebraicGeometry.Curves.Clutching.BranchContractionFibres
 import GromovWitten.AlgebraicGeometry.VirtualFundamentalClass.ObstructionBundleFormula
