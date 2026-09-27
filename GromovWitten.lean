@@ -456,3 +456,4 @@ import GromovWitten.AlgebraicGeometry.SheafCohomology.SectionsMayerVietoris
 import GromovWitten.AlgebraicGeometry.SheafCohomology.TildeExact
 import GromovWitten.AlgebraicGeometry.SheafCohomology.AffineQuasiCoherent
 import GromovWitten.AlgebraicGeometry.SheafCohomology.AffineCoverVanishing
+import GromovWitten.AlgebraicGeometry.Curves.AffineHigherDirectImage

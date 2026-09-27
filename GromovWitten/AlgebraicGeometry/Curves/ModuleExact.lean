@@ -126,5 +126,17 @@ noncomputable instance moduleToSheafAb_preservesFiniteColimits :
 noncomputable instance moduleToSheafAb_preservesHomology :
     (moduleToSheafAb X).PreservesHomology := by infer_instance
 
+instance moduleToSheafAb_faithful (X : Scheme.{u}) : (moduleToSheafAb X).Faithful where
+  map_injective h := by
+    ext U m
+    exact congrArg (fun t => t.hom.app (.op U) m) h
+/-- Forgetting scalar multiplication detects zero module sheaves. -/
+lemma module_isZero_of_underlying {X : Scheme.{u}} (M : X.Modules)
+    (hM : IsZero ((moduleToSheafAb X).obj M)) : IsZero M := by
+  apply (IsZero.iff_id_eq_zero M).mpr
+  apply (moduleToSheafAb X).map_injective
+  rw [(moduleToSheafAb X).map_id, (moduleToSheafAb X).map_zero]
+  exact hM.eq_of_src _ _
+
 end
 end GromovWitten.AlgebraicGeometry.Curves

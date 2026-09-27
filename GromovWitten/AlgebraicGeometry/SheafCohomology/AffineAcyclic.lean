@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2026 GromovWitten Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: OpenAI Codex
+-/
+
 import GromovWitten.AlgebraicGeometry.SheafCohomology.AffineFlasque
 import GromovWitten.AlgebraicGeometry.SheafCohomology.Flasque
 import GromovWitten.AlgebraicGeometry.Curves.CohomologyBaseChange
@@ -6,6 +12,14 @@ import GromovWitten.AlgebraicGeometry.Curves.ModuleEnoughInjectives
 import GromovWitten.AlgebraicGeometry.SheafCohomology.FlasqueResolution
 import GromovWitten.AlgebraicGeometry.SheafCohomology.PointSheaves
 import GromovWitten.AlgebraicGeometry.SheafCohomology.TildeExact
+
+/-!
+# Acyclicity of associated modules on a Noetherian affine scheme
+
+An injective module resolution becomes a flasque resolution after applying the exact tilde
+functor. Global sections identify its terms with the original modules, so all positive
+cohomology of the associated sheaf vanishes.
+-/
 
 open CategoryTheory Limits Opposite TopologicalSpace AlgebraicGeometry
 open _root_.AlgebraicGeometry
