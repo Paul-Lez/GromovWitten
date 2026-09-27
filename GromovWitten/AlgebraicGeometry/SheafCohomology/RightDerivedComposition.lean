@@ -24,3 +24,14 @@ def rightDerivedCompExactIso (A : C) (n : ℕ) :
     ShortComplex.mapHomologyIso (((F.mapHomologicalComplex (.up ℕ)).obj I.cocomplex).sc n) G ≪≫
     G.mapIso (I.isoRightDerivedObj F n).symm
 end CategoryTheory.Functor
+
+
+namespace CategoryTheory.NatIso
+variable {C D : Type*} [Category C] [Category D] [Abelian C] [Abelian D]
+    [EnoughInjectives C] {F G : C ⥤ D} [F.Additive] [G.Additive]
+def rightDerivedIso (e : F ≅ G) (n : ℕ) : F.rightDerived n ≅ G.rightDerived n where
+  hom := NatTrans.rightDerived e.hom n
+  inv := NatTrans.rightDerived e.inv n
+  hom_inv_id := by rw [← NatTrans.rightDerived_comp, e.hom_inv_id, NatTrans.rightDerived_id]
+  inv_hom_id := by rw [← NatTrans.rightDerived_comp, e.inv_hom_id, NatTrans.rightDerived_id]
+end CategoryTheory.NatIso
