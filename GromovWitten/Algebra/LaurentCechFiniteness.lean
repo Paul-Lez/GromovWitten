@@ -5,8 +5,11 @@ Authors: OpenAI Codex
 -/
 
 import Mathlib.Algebra.Polynomial.Laurent
+import Mathlib.RingTheory.Localization.Submodule
+import Mathlib.RingTheory.Polynomial.Basic
 import Mathlib.RingTheory.Finiteness.Basic
 import Mathlib.Data.Int.Interval
+import GromovWitten.Algebra.SubmoduleIntersection
 
 /-!
 # Finiteness for a Laurent Čech quotient
@@ -24,7 +27,7 @@ noncomputable section
 
 namespace GromovWitten.Algebra
 
-universe u v
+universe u v w
 
 variable {R : Type u} {N : Type v} [CommRing R] [AddCommGroup N]
 variable [Module R[T;T⁻¹] N] [Module R N] [IsScalarTower R R[T;T⁻¹] N]
@@ -122,5 +125,45 @@ theorem finiteLaurentCechQuotient [Module.Finite R[T;T⁻¹] N] (A B : Submodule
     simpa only [T_zero, one_smul] using hx
   rw [Module.finite_def, ← htop]
   exact Submodule.fg_span hG
+
+/-!
+The next result is the image-intersection step used when a Laurent module maps
+to a larger module: the finite Laurent quotient controls the kernel part of
+the connecting difference map, while `Submodule.finite_inf_map_of...` lifts
+this to the intersection of the two image lattices.
+-/
+
+theorem finiteLaurentCechIntersectionImage
+    {R : Type u} [CommRing R] [IsNoetherianRing R]
+    {S : Type v} [AddCommGroup S] [Module R[T;T⁻¹] S] [Module R S]
+    [IsScalarTower R R[T;T⁻¹] S] [Module.Finite R[T;T⁻¹] S]
+    {N' : Type w} [AddCommGroup N'] [Module R[T;T⁻¹] N'] [Module R N']
+    [IsScalarTower R R[T;T⁻¹] N']
+    (q : S →ₗ[R[T;T⁻¹]] N') (A B : Submodule R S)
+    [Module.Finite R (A ⊓ B : Submodule R S)]
+    (hA : ∀ x ∈ A, (T 1 : R[T;T⁻¹]) • x ∈ A)
+    (hB : ∀ x ∈ B, (T (-1) : R[T;T⁻¹]) • x ∈ B)
+    (hpos : ∀ x : S, ∃ n : ℕ, (T (n : ℤ) : R[T;T⁻¹]) • x ∈ A)
+    (hneg : ∀ x : S, ∃ n : ℕ, (T (-(n : ℤ)) : R[T;T⁻¹]) • x ∈ B) :
+    Module.Finite R
+      (A.map (q.restrictScalars R) ⊓ B.map (q.restrictScalars R) : Submodule R N') := by
+  let K := q.ker
+  let i : K →ₗ[R] S := K.subtype.restrictScalars R
+  let AK := A.comap i
+  let BK := B.comap i
+  have : IsNoetherianRing R[T;T⁻¹] :=
+    IsLocalization.isNoetherianRing (.powers (Polynomial.X : Polynomial R)) _ inferInstance
+  have : Module.Finite R[T;T⁻¹] K := inferInstance
+  have hfin : Module.Finite R (K ⧸ (AK ⊔ BK)) :=
+    finiteLaurentCechQuotient AK BK
+      (fun x hx => hA x hx) (fun x hx => hB x hx)
+      (fun x => hpos x) (fun x => hneg x)
+  have : Module.Finite R ((q.restrictScalars R).ker ⧸
+      (A.comap (q.restrictScalars R).ker.subtype ⊔
+        B.comap (q.restrictScalars R).ker.subtype)) := by
+    change Module.Finite R (K ⧸ (AK ⊔ BK))
+    exact hfin
+  exact Submodule.finite_inf_map_of_finite_inf_of_finite_ker_quotient
+    (q.restrictScalars R) A B
 
 end GromovWitten.Algebra

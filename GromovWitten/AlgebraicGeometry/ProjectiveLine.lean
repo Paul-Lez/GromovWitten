@@ -8,12 +8,14 @@ import Mathlib.AlgebraicGeometry.Gluing
 import Mathlib.AlgebraicGeometry.Morphisms.FiniteType
 import Mathlib.AlgebraicGeometry.Noetherian
 import Mathlib.RingTheory.Localization.Away.Basic
+import Mathlib.RingTheory.Polynomial.Nilpotent
 import Mathlib.Algebra.Polynomial.Eval.Defs
 
 /-!
-# The projective line over a field
+# The projective line over a commutative ring
 
-placeholder
+This file constructs the two standard affine charts, their Laurent overlap, and their gluing
+along the transition `t ↦ t⁻¹`, together with the structure morphism to `Spec k`.
 -/
 
 open CategoryTheory Limits AlgebraicGeometry
@@ -24,12 +26,12 @@ namespace GromovWitten.AlgebraicGeometry.ProjectiveLine
 
 noncomputable section
 
-variable (k : Type u) [Field k]
+variable (k : Type u) [CommRing k]
 
 /-- The coordinate ring `k[t, t⁻¹]` of the overlap of the two standard charts of `ℙ¹_k`. -/
 abbrev overlapRing : Type u := Localization.Away (Polynomial.X : Polynomial k)
 
-instance : IsDomain (overlapRing k) :=
+instance [IsDomain k] : IsDomain (overlapRing k) :=
   IsLocalization.isDomain_localization (M := Submonoid.powers (Polynomial.X : Polynomial k))
     (powers_le_nonZeroDivisors_of_noZeroDivisors Polynomial.X_ne_zero)
 
@@ -198,20 +200,24 @@ instance : CompactSpace (scheme k) := by
   refine IsCompact.union ?_ ?_ <;>
     exact Set.image_univ (f := _) ▸ (CompactSpace.isCompact_univ).image (by continuity)
 
-instance instIsReducedObj (i : WidePushoutShape (Fin 2)) : IsReduced ((diagram k).obj i) := by
+private instance polynomial_isReduced [IsReduced k] : IsReduced (Polynomial k) :=
+  ⟨fun p hp => by
+    rw [Polynomial.isNilpotent_iff] at hp
+    ext i
+    exact isNilpotent_iff_eq_zero.mp (hp i)⟩
+
+instance instIsReducedObj [IsReduced k] (i : WidePushoutShape (Fin 2)) :
+    IsReduced ((diagram k).obj i) := by
   match i with
   | none => exact inferInstanceAs (IsReduced (overlap k))
   | some _ => exact inferInstanceAs (IsReduced (chart k))
 
-instance : IsReduced (scheme k) := by
+instance [IsReduced k] : IsReduced (scheme k) := by
   have h : ∀ i, IsReduced ((Scheme.IsLocallyDirected.openCover (diagram k)).X i) := fun i =>
     instIsReducedObj k i
   exact IsReduced.of_openCover _ (Scheme.IsLocallyDirected.openCover (diagram k))
 
-/-! ## Integrality -/
-
-/-- The image in `ℙ¹_k` of the generic point of the first chart; the generic point of `ℙ¹_k`. -/
-def genericPt : scheme k := (chartZero k).base (genericPoint (chart k))
+/-! ## Chart gluing -/
 
 lemma map_init_zero :
     (diagram k).map (WidePushoutShape.Hom.init (0 : Fin 2)) = overlapToChartZero k := rfl
@@ -230,6 +236,15 @@ lemma overlapToChartOne_comp :
     overlapToChartOne k ≫ chartOne k = overlapι k := by
   rw [← map_init_one k]
   exact colimit.w (diagram k) _
+
+/-! ## Integrality -/
+
+section Domain
+
+variable [IsDomain k]
+
+/-- The image in `ℙ¹_k` of the generic point of the first chart; the generic point of `ℙ¹_k`. -/
+def genericPt : scheme k := (chartZero k).base (genericPoint (chart k))
 
 /-- Both charts send the generic point of `𝔸¹_k` to the generic point of `ℙ¹_k`. -/
 lemma chartOne_genericPoint :
@@ -274,6 +289,8 @@ instance : IrreducibleSpace (scheme k) := by
   exact h
 
 instance : IsIntegral (scheme k) := isIntegral_of_irreducibleSpace_of_isReduced _
+
+end Domain
 
 /-! ## The structure morphism to `Spec k` -/
 
@@ -363,11 +380,20 @@ instance : LocallyOfFiniteType (structureMap k) := by
     exact inferInstanceAs (LocallyOfFiniteType (Spec.map (CommRingCat.ofHom (kToOverlapRing k))))
   | some _ => exact inferInstanceAs (LocallyOfFiniteType (chartToSpecK k))
 
-instance : IsLocallyNoetherian (scheme k) :=
+instance [IsNoetherianRing k] : IsLocallyNoetherian (scheme k) :=
   LocallyOfFiniteType.isLocallyNoetherian (structureMap k)
 
-instance instNonemptyDiagramObj (i : WidePushoutShape (Fin 2)) :
+instance instNonemptyDiagramObj [Nontrivial k] (i : WidePushoutShape (Fin 2)) :
     Nonempty ((diagram k).obj i) := by
+  have hpow : ∀ n : ℕ, (Polynomial.X : Polynomial k) ^ n ≠ 0 := by
+    intro n hn
+    exact one_ne_zero (Polynomial.mul_X_pow_eq_zero (p := (1 : Polynomial k)) (by simpa using hn))
+  let _ : Nontrivial (overlapRing k) :=
+    Submonoid.LocalizationMap.nontrivial
+      (IsLocalization.toLocalizationMap (Submonoid.powers (Polynomial.X : Polynomial k))
+        (overlapRing k)) (by
+          rintro ⟨n, hn⟩
+          exact hpow n hn)
   match i with
   | none => exact inferInstanceAs (Nonempty (overlap k))
   | some _ => exact inferInstanceAs (Nonempty (chart k))
@@ -387,6 +413,10 @@ instance instIsOpenImmersionOverlapι : IsOpenImmersion (overlapι k) :=
 
 /-! ## The point at infinity -/
 
+section Domain
+
+variable [IsDomain k]
+
 /-- `t` generates a prime ideal of `k[t]`. -/
 instance : (Ideal.span {(Polynomial.X : Polynomial k)}).IsPrime :=
   (Ideal.span_singleton_prime Polynomial.X_ne_zero).mpr Polynomial.prime_X
@@ -397,6 +427,8 @@ def origin : chart k := ⟨Ideal.span {(Polynomial.X : Polynomial k)}, inferInst
 /-- **The point at infinity of `ℙ¹_k`**: the origin of the second chart. -/
 def infty : scheme k := (chartOne k).base (origin k)
 
+end Domain
+
 /-- The image of the overlap in the first chart is the basic open set `D(t)`. -/
 lemma range_overlapToChartZero :
     Set.range (overlapToChartZero k).base =
@@ -406,12 +438,28 @@ lemma range_overlapToChartZero :
     (Polynomial.X : Polynomial k)
   exact congrArg (fun U : (chart k).Opens => (U : Set (chart k))) h
 
+section Domain
+
+variable [IsDomain k]
+
 /-- The origin does not lie in the overlap. -/
 lemma origin_notMem_range_overlapToChartZero :
     origin k ∉ Set.range (overlapToChartZero k).base := by
   rw [range_overlapToChartZero]
   intro h
   exact (PrimeSpectrum.mem_basicOpen _ _).mp h (Ideal.mem_span_singleton_self _)
+
+end Domain
+
+/-- The gluing map of the overlap factors through the first chart. -/
+lemma mem_range_chartZero_of_mem_range_overlap (z : overlap k) :
+    (overlapι k).base z ∈ Set.range (chartZero k).base := by
+  refine ⟨(overlapToChartZero k).base z, ?_⟩
+  rw [← Scheme.Hom.comp_apply, overlapToChartZero_comp]
+
+section Field
+
+variable (k : Type u) [Field k]
 
 /-- Points of a chart other than the origin lie in the overlap. -/
 lemma mem_range_overlapToChartZero_of_ne (y : chart k) (hy : y ≠ origin k) :
@@ -430,12 +478,6 @@ lemma mem_range_overlapToChartOne_of_ne (y : chart k) (hy : y ≠ origin k) :
     y ∈ Set.range (overlapToChartOne k).base := by
   rw [range_overlapToChartOne]
   exact mem_range_overlapToChartZero_of_ne k y hy
-
-/-- The gluing map of the overlap factors through the first chart. -/
-lemma mem_range_chartZero_of_mem_range_overlap (z : overlap k) :
-    (overlapι k).base z ∈ Set.range (chartZero k).base := by
-  refine ⟨(overlapToChartZero k).base z, ?_⟩
-  rw [← Scheme.Hom.comp_apply, overlapToChartZero_comp]
 
 /-- **The first chart of `ℙ¹_k` is exactly the complement of the point at infinity.** -/
 lemma range_chartZero_eq_compl_infty :
@@ -470,6 +512,8 @@ lemma range_chartZero_eq_compl_infty :
       have h2 : (overlapι k).base z = x := by rw [← h1, hz, hy]
       rw [← h2]
       exact mem_range_chartZero_of_mem_range_overlap k z
+
+end Field
 
 end
 
