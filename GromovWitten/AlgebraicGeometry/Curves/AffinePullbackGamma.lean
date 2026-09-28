@@ -6,6 +6,7 @@ Authors: OpenAI Codex
 
 import GromovWitten.AlgebraicGeometry.Curves.AffineAdjunctionCompatibility
 import GromovWitten.Algebra.ModuleCatScalarExtension
+import GromovWitten.Algebra.LocalizedScalarExtension
 import GromovWitten.CategoryTheory.BeckChevalley
 import Mathlib.RingTheory.Localization.BaseChange
 /-!
@@ -154,45 +155,20 @@ theorem affinePullbackGammaUnit_isLocalizedModule
       ((affinePullbackGammaUnit (CommRingCat.ofHom (algebraMap R S)) M).hom) := by
   let φ : CommRingCat.of R ⟶ CommRingCat.of S :=
     CommRingCat.ofHom (algebraMap R S)
-  let N := (moduleSpecΓFunctor (R := CommRingCat.of R)).obj M
-  let P := (moduleSpecΓFunctor (R := CommRingCat.of S)).obj
-    ((Scheme.Modules.pullback (Spec.map φ)).obj M)
-  let T := (ModuleCat.restrictScalars φ.hom).obj P
+  let N : ModuleCat.{u} R := (moduleSpecΓFunctor (R := CommRingCat.of R)).obj M
+  let P : ModuleCat.{u} S :=
+    (moduleSpecΓFunctor (R := CommRingCat.of S)).obj
+      ((Scheme.Modules.pullback (Spec.map φ)).obj M)
   let : IsIso (affinePullbackGammaMap φ M) := affinePullbackGammaMap_isIso φ M
-  let f : N →ₗ[R] T :=
-    (affinePullbackGammaUnit φ M).hom
-  let Tsrc := (ModuleCat.restrictScalars φ.hom).obj
-      ((ModuleCat.extendScalars φ.hom).obj N)
-  let mk' : N →ₗ[R] Tsrc :=
-    ((ModuleCat.extendRestrictScalarsAdj φ.hom).unit.app N).hom
-  let e0 : ModuleCat.of R (S ⊗[R] N) ≅ Tsrc :=
-    ModuleCat.restrictExtendScalarsAlgebraIso (C := R) (D := S) N
-  have hmk_eq : mk' = e0.toLinearEquiv.toLinearMap.comp
-      (TensorProduct.mk R S N 1) := by
-    ext x
-    dsimp [mk', e0]
-    change (1 : S) ⊗ₜ[R, φ.hom] x =
-      (ModuleCat.restrictExtendScalarsAlgebraIso (C := R) (D := S) N).hom
-        ((1 : S) ⊗ₜ[R] x)
-    rw [ModuleCat.restrictExtendScalarsAlgebraIso_hom_tmul]
-  let eR : Tsrc ≃ₗ[R] T :=
-    ((ModuleCat.restrictScalars φ.hom).mapIso
-      (asIso (affinePullbackGammaMap φ M))).toLinearEquiv
-  have hmk : IsLocalizedModule p mk' := by
-    rw [hmk_eq]
-    exact IsLocalizedModule.of_linearEquiv p (TensorProduct.mk R S N 1)
-      e0.toLinearEquiv
-  have he : IsLocalizedModule p (eR.toLinearMap.comp mk') := by
-    exact IsLocalizedModule.of_linearEquiv p mk' eR
-  have hfe : f = eR.toLinearMap.comp mk' := by
-    ext x
-    change ((moduleSpecΓFunctor (R := CommRingCat.of R)).map
-        ((Scheme.Modules.pullbackPushforwardAdjunction (Spec.map φ)).unit.app M)) x =
-      affinePullbackGammaMap φ M ((1 : S) ⊗ₜ[R] x)
-    exact (affinePullbackGammaMap_one_tmul_unit φ M x).symm
-  change IsLocalizedModule p f
-  rw [hfe]
-  exact he
+  let e : (ModuleCat.extendScalars φ.hom).obj N ⟶ P :=
+    affinePullbackGammaMap φ M
+  have hloc := ModuleCat.isLocalizedModule_adjunct_of_isIso p N P e
+  change IsLocalizedModule p
+    (((ModuleCat.extendRestrictScalarsAdj φ.hom).homEquiv _ _
+      (affinePullbackGammaMap φ M)).hom) at hloc
+  rw [affinePullbackGammaMap_homEquiv] at hloc
+  change IsLocalizedModule p (affinePullbackGammaUnit φ M).hom at hloc
+  exact hloc
 
 end
 end GromovWitten.AlgebraicGeometry.Curves
