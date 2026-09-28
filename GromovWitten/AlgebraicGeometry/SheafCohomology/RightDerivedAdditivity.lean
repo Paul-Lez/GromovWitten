@@ -10,6 +10,43 @@ import GromovWitten.AlgebraicGeometry.SheafCohomology.RightDerivedHomology
 open CategoryTheory CategoryTheory.Abelian
 noncomputable section
 universe v₁ v₂ u₁ u₂
+
+namespace CategoryTheory.Functor
+variable {C : Type u₁} [Category.{v₁} C] [Abelian C] [EnoughInjectives C]
+  {D : Type u₂} [Category.{v₂} D] [Abelian D]
+
+/-! Right-derived functors inherit additivity from the injective-resolution construction. -/
+noncomputable instance rightDerived_additive (F : C ⥤ D) [F.Additive] (n : ℕ) :
+    (F.rightDerived n).Additive := by
+  constructor
+  intro Y Z f g
+  let I := injectiveResolution Y
+  let J := injectiveResolution Z
+  let φf := InjectiveResolution.desc f J I
+  let φg := InjectiveResolution.desc g J I
+  let φsum := InjectiveResolution.desc (f + g) J I
+  have wf : I.ι ≫ φf = (CochainComplex.single₀ C).map f ≫ J.ι :=
+    InjectiveResolution.desc_commutes f J I
+  have wg : I.ι ≫ φg = (CochainComplex.single₀ C).map g ≫ J.ι :=
+    InjectiveResolution.desc_commutes g J I
+  have wsum : I.ι ≫ φsum = (CochainComplex.single₀ C).map (f + g) ≫ J.ι :=
+    InjectiveResolution.desc_commutes (f + g) J I
+  have hφ : Homotopy φsum (φf + φg) := by
+    apply InjectiveResolution.descHomotopy (f + g)
+    · exact wsum
+    · simp only [Preadditive.comp_add, wf, wg, Functor.map_add, Preadditive.add_comp]
+  have hh'' := (F.mapHomotopy hφ).homologyMap_eq n
+  rw [Functor.map_add] at hh''
+  rw [HomologicalComplex.homologyMap_add] at hh''
+  have hsum := I.rightDerived_map_eq_homologyMap J (f + g) φsum wsum F n
+  have hf := I.rightDerived_map_eq_homologyMap J f φf wf F n
+  have hg := I.rightDerived_map_eq_homologyMap J g φg wg F n
+  rw [hsum, hf, hg]
+  rw [hh'']
+  rw [← Category.assoc, Preadditive.comp_add, Preadditive.add_comp]
+  simp only [Category.assoc]
+end CategoryTheory.Functor
+
 namespace CategoryTheory.NatTrans
 variable {C : Type u₁} [Category.{v₁} C] [Abelian C] [EnoughInjectives C]
   {D : Type u₂} [Category.{v₂} D] [Abelian D]

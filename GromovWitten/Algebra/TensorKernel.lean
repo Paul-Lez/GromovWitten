@@ -56,6 +56,20 @@ lemma range_flat_of_flat_target_of_flat_cokernel
   rw [← LinearMap.comp_apply, hcomm, LinearMap.comp_apply, hxy]
   exact (LinearMap.congr_fun hcomm y).symm
 
+/-- The kernel of a map is flat when its source, target, and cokernel are flat. -/
+lemma kernel_flat_of_flat_source_of_flat_target_of_flat_cokernel
+    [Module.Flat R B]
+    [Module.Flat R C]
+    [Module.Flat R (C ⧸ LinearMap.range g)] :
+    Module.Flat R (LinearMap.ker g) := by
+  have : Module.Flat R g.range := g.range_flat_of_flat_target_of_flat_cokernel
+  have : Module.Flat R (B ⧸ g.ker) := Module.Flat.of_linearEquiv g.quotKerEquivRange
+  let i := g.ker.subtype
+  have hi : i.range = g.ker := Submodule.range_subtype _
+  have : Module.Flat R (B ⧸ i.range) := by rw [hi]; infer_instance
+  have h := i.range_flat_of_flat_target_of_flat_cokernel
+  rwa [hi] at h
+
 section Kernel
 
 variable {A : Type w} [CommRing A] [Algebra R A]

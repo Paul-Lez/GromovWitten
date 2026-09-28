@@ -482,6 +482,8 @@ import GromovWitten.AlgebraicGeometry.Curves.AffineAdjunctionCompatibility
 import GromovWitten.AlgebraicGeometry.SheafCohomology.MayerVietorisSequence
 import GromovWitten.AlgebraicGeometry.SheafCohomology.MayerVietorisNaturality
 import GromovWitten.AlgebraicGeometry.SheafCohomology.CechPairComparison
+import GromovWitten.AlgebraicGeometry.SheafCohomology.CechPairModule
+import GromovWitten.AlgebraicGeometry.SheafCohomology.CechPairModuleNaturality
 import GromovWitten.AlgebraicGeometry.RelativeDifferentials
 import GromovWitten.AlgebraicGeometry.Cones.IntrinsicPullbackSequenceLci
 import GromovWitten.AlgebraicGeometry.Curves.Clutching.BranchContraction
@@ -521,9 +523,14 @@ import GromovWitten.AlgebraicGeometry.Stacks.QuotientStackAtlas
 import GromovWitten.AlgebraicGeometry.Cones.EtaleChartConeStack
 
 import GromovWitten.Algebra.ModuleCatBaseChange
+import GromovWitten.Algebra.FiniteFlatTwoTerm
+import GromovWitten.Algebra.ReducedFibreFlatness
+import GromovWitten.Algebra.TwoTermGrauert
+import GromovWitten.Algebra.LaurentCechFiniteness
 import GromovWitten.AlgebraicGeometry.MatrixRankLocus
 import GromovWitten.AlgebraicGeometry.Curves.ModuleBaseChangeMate
 import GromovWitten.AlgebraicGeometry.Curves.AffinePullbackGamma
+import GromovWitten.AlgebraicGeometry.Curves.AffineFibreRank
 import GromovWitten.AlgebraicGeometry.Curves.ModuleOpenBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.HigherOpenBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.CurveCohomologyDimension
@@ -542,6 +549,7 @@ import GromovWitten.AlgebraicGeometry.Curves.AffineBaseChangeCompatibility
 import GromovWitten.AlgebraicGeometry.Curves.AffineBaseChangeIsomorphism
 import GromovWitten.AlgebraicGeometry.Curves.FiniteHigherDirectImage
 import GromovWitten.AlgebraicGeometry.FiniteProjectiveComplexHomology
+import GromovWitten.AlgebraicGeometry.TwoTermSemicontinuity
 import GromovWitten.AlgebraicGeometry.Curves.OpenImmersionBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.AffineFinitePresentation
 import GromovWitten.AlgebraicGeometry.Curves.FinitePresentationLocality

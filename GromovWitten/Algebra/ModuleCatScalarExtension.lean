@@ -51,6 +51,25 @@ lemma extendScalarsAlgebraIso_inv_tmul (N : ModuleCat.{u} A) (c : C) (n : N) :
   apply (ConcreteCategory.bijective_of_isIso (extendScalarsAlgebraIso N).hom).1
   simp only [Iso.inv_hom_id_apply]
   exact (extendScalarsAlgebraIso_hom_tmul (C := C) N c n).symm
+
+set_option backward.isDefEq.respectTransparency false in
+/-- Extension of scalars commutes with a map under the tensor comparison isomorphisms. -/
+lemma extendScalarsAlgebraIso_naturality {M N : ModuleCat.{u} A} (f : M ⟶ N) :
+    (extendScalars (algebraMap A C)).map f ≫ (extendScalarsAlgebraIso N).hom =
+      (extendScalarsAlgebraIso M).hom ≫
+        ModuleCat.ofHom (AlgebraTensorModule.lTensor C C f.hom) := by
+  apply ExtendScalars.hom_ext
+  intro n
+  change (extendScalarsAlgebraIso N).hom
+      ((extendScalars (algebraMap A C)).map f
+        ((1 : C) ⊗ₜ[A, algebraMap A C] n)) =
+    (AlgebraTensorModule.lTensor C C f.hom)
+      ((extendScalarsAlgebraIso M).hom ((1 : C) ⊗ₜ[A, algebraMap A C] n))
+  rw [ExtendScalars.map_tmul]
+  exact (extendScalarsAlgebraIso_hom_tmul (C := C) N 1 (f n)).trans
+    ((congrArg (AlgebraTensorModule.lTensor C C f.hom)
+      (extendScalarsAlgebraIso_hom_tmul (C := C) M 1 n)).trans
+        (AlgebraTensorModule.lTensor_tmul f.hom (1 : C) n)).symm
 set_option backward.isDefEq.respectTransparency false in
 /-- Restriction along an algebra map agrees with a compatible scalar action. -/
 def restrictScalarsAlgebraIso (M : ModuleCat.{u} C) [Module A M] [IsScalarTower A C M] :
