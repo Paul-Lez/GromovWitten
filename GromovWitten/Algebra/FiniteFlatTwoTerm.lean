@@ -109,7 +109,8 @@ private lemma flat_ker_of_surjective_of_flat
   rw [← LinearMap.comp_apply, hcomm, LinearMap.comp_apply, hxy]
   exact (LinearMap.congr_fun hcomm y).symm
 
-private lemma flat_prod_of_flat
+/-- A binary product of flat modules is flat. -/
+lemma flat_prod_of_flat
     {M N : Type*} [AddCommGroup M] [AddCommGroup N]
     [Module R M] [Module R N] [Module.Flat R M] [Module.Flat R N] :
     Module.Flat R (M × N) := by
