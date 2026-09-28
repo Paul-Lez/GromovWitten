@@ -4,7 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 import GromovWitten.Basic
+import GromovWitten.CategoryTheory.HomologyBaseChange
+import GromovWitten.CategoryTheory.ScalarHomologyBaseChange
 import GromovWitten.Algebra.CompleteIntersection
+import GromovWitten.Algebra.TwoTermCohomology
 import GromovWitten.Algebra.QuasiRegular
 import GromovWitten.Algebra.RegularLocalHypersurface
 import GromovWitten.Algebra.StandardSmoothKrullDimension
@@ -478,6 +481,7 @@ import GromovWitten.AlgebraicGeometry.Curves.FinitePresentationPullback
 import GromovWitten.AlgebraicGeometry.Curves.AffineAdjunctionCompatibility
 import GromovWitten.AlgebraicGeometry.SheafCohomology.MayerVietorisSequence
 import GromovWitten.AlgebraicGeometry.SheafCohomology.MayerVietorisNaturality
+import GromovWitten.AlgebraicGeometry.SheafCohomology.CechPairComparison
 import GromovWitten.AlgebraicGeometry.RelativeDifferentials
 import GromovWitten.AlgebraicGeometry.Cones.IntrinsicPullbackSequenceLci
 import GromovWitten.AlgebraicGeometry.Curves.Clutching.BranchContraction
