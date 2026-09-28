@@ -5,6 +5,7 @@ Authors: OpenAI Codex
 -/
 
 import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
+import Mathlib.LinearAlgebra.TensorProduct.Prod
 
 /-!
 # Scalar extension along an algebra map
@@ -159,5 +160,25 @@ lemma isIso_of_tensorProduct_iso (N : ModuleCat.{u} B)
     exact (hf n).trans (extendRestrictScalarsAlgebraIso_hom_tmul N e 1 1 n (he n)).symm
   rw [h]
   infer_instance
+end
+
+section
+variable {R T : Type u} [CommRing R] [CommRing T]
+
+/-- Extending scalars commutes with the binary product of modules, with the canonical
+identification induced by the tensor-product product map. -/
+def extendScalarsProdIso (φ : R →+* T) (M N : ModuleCat.{u} R) :
+    (extendScalars φ).obj (ModuleCat.of R (M × N)) ≅
+      ModuleCat.of T ((extendScalars φ).obj M × (extendScalars φ).obj N) := by
+  letI : Algebra R T := φ.toAlgebra
+  exact (TensorProduct.prodRight R T T M N).toModuleIso
+
+/-- The scalar-extension product isomorphism sends the canonical generator to the pair of
+canonical generators. -/
+lemma extendScalarsProdIso_one_tmul (φ : R →+* T) (M N : ModuleCat.{u} R)
+    (m : M) (n : N) :
+    (extendScalarsProdIso φ M N).hom ((1 : T) ⊗ₜ[R, φ] (m, n)) =
+      (((1 : T) ⊗ₜ[R, φ] m), ((1 : T) ⊗ₜ[R, φ] n)) := by
+  rfl
 end
 end ModuleCat

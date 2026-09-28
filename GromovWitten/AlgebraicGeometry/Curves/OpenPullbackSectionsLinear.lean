@@ -15,7 +15,7 @@ global section maps, so the resulting equivalence is an honest linear
 equivalence over the base ring.
 -/
 
-open CategoryTheory Limits AlgebraicGeometry
+open CategoryTheory Limits AlgebraicGeometry Opposite
 open scoped AlgebraicGeometry
 
 noncomputable section
@@ -151,6 +151,42 @@ def baseSectionRestrictionLinear (s : X ⟶ Spec R) (M : X.Modules)
 lemma baseSectionRestrictionLinear_apply (s : X ⟶ Spec R) (M : X.Modules)
     {U V : X.Opens} (i : V ⟶ U) (x : Γ(M, U)) :
     baseSectionRestrictionLinear s M i x = M.presheaf.map i.op x := by rfl
+
+/-- The restriction map on base-linear section modules. -/
+def baseSectionRestrictionMap (s : X ⟶ Spec R) (M : X.Modules)
+    {U V : X.Opens} (i : V ⟶ U) :
+    baseSectionModule s U M ⟶ baseSectionModule s V M := by
+  letI : Module R Γ(M, U) := baseSectionModuleStructure s U M
+  letI : Module R Γ(M, V) := baseSectionModuleStructure s V M
+  exact ModuleCat.ofHom (baseSectionRestrictionLinear s M i)
+
+@[simp]
+lemma baseSectionRestrictionMap_apply (s : X ⟶ Spec R) (M : X.Modules)
+    {U V : X.Opens} (i : V ⟶ U) (x : baseSectionModule s U M) :
+    baseSectionRestrictionMap s M i x = M.presheaf.map i.op x := by rfl
+
+@[simp]
+lemma baseSectionRestrictionMap_id (s : X ⟶ Spec R) (M : X.Modules)
+    (U : X.Opens) :
+    baseSectionRestrictionMap s M (𝟙 U) = 𝟙 (baseSectionModule s U M) := by
+  apply ModuleCat.hom_ext
+  ext x
+  change Γ(M, U) at x
+  change M.presheaf.map (𝟙 U).op x = x
+  simpa only [op_id, ConcreteCategory.id_apply] using
+    ConcreteCategory.congr_hom (M.presheaf.map_id (op U)) x
+
+@[simp]
+lemma baseSectionRestrictionMap_comp (s : X ⟶ Spec R) (M : X.Modules)
+    {U V W : X.Opens} (i : V ⟶ U) (j : W ⟶ V) :
+    baseSectionRestrictionMap s M i ≫ baseSectionRestrictionMap s M j =
+      baseSectionRestrictionMap s M (j ≫ i) := by
+  apply ModuleCat.hom_ext
+  ext x
+  change Γ(M, U) at x
+  change M.presheaf.map j.op (M.presheaf.map i.op x) =
+    M.presheaf.map (j ≫ i).op x
+  rw [← ConcreteCategory.comp_apply, ← Functor.map_comp, ← op_comp]
 
 /-- Transport base-linear sections across an equality of opens. -/
 def baseSectionCongr (s : X ⟶ Spec R) (M : X.Modules) {U V : X.Opens} (h : U = V) :
