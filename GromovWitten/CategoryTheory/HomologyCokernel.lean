@@ -5,6 +5,7 @@ Authors: OpenAI Codex
 -/
 
 import Mathlib.Algebra.Homology.HomologySequence
+import Mathlib.Algebra.Homology.HomologySequenceLemmas
 
 /-!
 # Homology cokernels of short exact complexes
@@ -42,5 +43,25 @@ lemma homologyCokernelIso_π (hS : S.ShortExact)
       (homologyCokernelIso i j hij hS h).hom = hS.δ i j hij := by
   dsimp only [homologyCokernelIso]
   exact Cofork.IsColimit.π_desc (cokernelIsCokernel _)
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The homology cokernel comparison is natural for a morphism of short exact complexes when the
+middle homology vanishes in the target degree. -/
+lemma homologyCokernelIso_naturality {T : ShortComplex (HomologicalComplex C c)}
+    (φ : S ⟶ T) (i j : ι) (hij : c.Rel i j) (hS : S.ShortExact) (hT : T.ShortExact)
+    (hS₂ : IsZero (S.X₂.homology j)) (hT₂ : IsZero (T.X₂.homology j)) :
+    cokernel.map (HomologicalComplex.homologyMap S.g i)
+        (HomologicalComplex.homologyMap T.g i)
+        (HomologicalComplex.homologyMap φ.τ₂ i)
+        (HomologicalComplex.homologyMap φ.τ₃ i)
+        (by rw [← HomologicalComplex.homologyMap_comp,
+          ← HomologicalComplex.homologyMap_comp, φ.comm₂₃]) ≫
+      (homologyCokernelIso i j hij hT hT₂).hom =
+    (homologyCokernelIso i j hij hS hS₂).hom ≫
+      HomologicalComplex.homologyMap φ.τ₁ j := by
+  apply (cancel_epi (cokernel.π (HomologicalComplex.homologyMap S.g i))).mp
+  rw [cokernel.π_desc_assoc, Category.assoc, homologyCokernelIso_π,
+    homologyCokernelIso_π_assoc]
+  exact (HomologicalComplex.HomologySequence.δ_naturality φ hS hT i j hij).symm
 
 end CategoryTheory.ShortComplex.ShortExact
