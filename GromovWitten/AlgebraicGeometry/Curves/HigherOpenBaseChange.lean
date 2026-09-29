@@ -6,6 +6,7 @@ Authors: OpenAI Codex
 
 import GromovWitten.AlgebraicGeometry.Curves.ModuleOpenBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.HigherBaseChange
+import GromovWitten.AlgebraicGeometry.Curves.ModuleFlasqueResolution
 
 /-!
 # Higher direct-image base change along open inclusions
@@ -24,16 +25,6 @@ noncomputable section
 namespace GromovWitten.AlgebraicGeometry.Curves
 universe u
 variable {X Y : Scheme.{u}}
-/-- Pushforward preserves quasi-isomorphisms between complexes of flasque module sheaves. -/
-lemma modulePushforward_quasiIso_of_flasque (f : X ⟶ Y)
-    {K L : CochainComplex X.Modules ℕ} (φ : K ⟶ L) [QuasiIso φ]
-    (hK : ∀ n, TopCat.Sheaf.IsFlasque ((moduleToSheafAb X).obj (K.X n)))
-    (hL : ∀ n, TopCat.Sheaf.IsFlasque ((moduleToSheafAb X).obj (L.X n))) :
-    QuasiIso (((Scheme.Modules.pushforward f).mapHomologicalComplex (.up ℕ)).map φ) := by
-  apply (quasiIso_map_iff_of_preservesHomology _ (moduleToSheafAb Y)).mp
-  exact TopCat.Sheaf.pushforward_quasiIso_of_flasque f.base
-    (((moduleToSheafAb X).mapHomologicalComplex (.up ℕ)).map φ) hK hL
-
 /-- Restriction to an open subscheme preserves flasqueness of the underlying abelian sheaf. -/
 lemma moduleRestrict_isFlasque (f : X ⟶ Y) [IsOpenImmersion f]
     (M : Y.Modules) [TopCat.Sheaf.IsFlasque ((moduleToSheafAb Y).obj M)] :
