@@ -7,6 +7,8 @@ import GromovWitten.Basic
 import GromovWitten.CategoryTheory.HomologyBaseChange
 import GromovWitten.CategoryTheory.ScalarHomologyBaseChange
 import GromovWitten.CategoryTheory.HomologyCokernel
+import GromovWitten.CategoryTheory.SnakeFunctor
+import GromovWitten.CategoryTheory.HomologySequenceFunctor
 import GromovWitten.Algebra.CompleteIntersection
 import GromovWitten.Algebra.TwoTermCohomology
 import GromovWitten.Algebra.QuasiRegular
@@ -603,6 +605,7 @@ import GromovWitten.AlgebraicGeometry.Curves.TwoAffineCohomologyZeroBaseChangePr
 import GromovWitten.AlgebraicGeometry.Curves.OpenPullbackSectionsNaturality
 import GromovWitten.AlgebraicGeometry.Curves.AffineFibreRank
 import GromovWitten.AlgebraicGeometry.Curves.ModuleOpenBaseChange
+import GromovWitten.AlgebraicGeometry.Curves.RelativeOpenPushforwardSquare
 import GromovWitten.AlgebraicGeometry.Curves.HigherOpenBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.CurveCohomologyDimension
 import GromovWitten.AlgebraicGeometry.SheafCohomology.FiniteSupport

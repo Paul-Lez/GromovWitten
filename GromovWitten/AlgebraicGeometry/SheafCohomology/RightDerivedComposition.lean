@@ -6,6 +6,7 @@ Authors: OpenAI Codex
 
 import Mathlib.CategoryTheory.Abelian.RightDerived
 import Mathlib.Algebra.Homology.ShortComplex.ExactFunctor
+import GromovWitten.AlgebraicGeometry.SheafCohomology.RightDerivedHomology
 
 /-! # Right derived functors and exact postcomposition -/
 
@@ -122,6 +123,32 @@ lemma rightDerivedCompExactNatIso_zero_comp (A : C) :
   rw [← G.map_comp]
   erw [InjectiveResolution.toRightDerivedZero'_comp_iCycles,
     InjectiveResolution.toRightDerivedZero'_comp_iCycles]
+  rfl
+
+set_option backward.isDefEq.respectTransparency false in
+/-- Compute exact postcomposition on the chosen injective resolution. -/
+lemma rightDerivedCompExactNatIso_app_eq (A : C) (n : ℕ) :
+    (rightDerivedCompExactNatIso G F n).hom.app A =
+      ((injectiveResolution A).isoRightDerivedObj (F ⋙ G) n).hom ≫
+        (ShortComplex.mapHomologyIso
+          (((F.mapHomologicalComplex (.up ℕ)).obj (injectiveResolution A).cocomplex).sc n)
+          G).hom ≫ G.map ((injectiveResolution A).isoRightDerivedObj F n).inv := by
+  apply (cancel_mono (G.map ((injectiveResolution A).isoRightDerivedObj F n).hom)).mp
+  simp only [Category.assoc, ← G.map_comp, Iso.inv_hom_id, G.map_id, Category.comp_id]
+  rw [InjectiveResolution.isoRightDerivedObj_hom_injectiveResolution,
+    InjectiveResolution.isoRightDerivedObj_hom_injectiveResolution]
+  dsimp [rightDerivedCompExactNatIso, mapHomotopyHomologyIso]
+  simp only [Functor.mapHomotopyCategoryCompIso, Quotient.natIsoLift,
+    Functor.mapHomologicalComplexCompIso, Quotient.natTransLift,
+    NatIso.mapHomologicalComplex, Iso.refl_inv, Iso.refl_hom,
+    NatTrans.mapHomologicalComplex_id]
+  dsimp
+  simp only [Functor.map_id, Category.id_comp]
+  dsimp [Functor.mapHomotopyCategoryFactors, Functor.rightDerivedToHomotopyCategory,
+    mapComplexHomologyIso]
+  simp only [Category.assoc, ← G.map_comp]
+  erw [Functor.map_id, Category.id_comp, Category.id_comp,
+    Iso.inv_hom_id_app, G.map_id, Category.comp_id]
   rfl
 
 end CategoryTheory.Functor

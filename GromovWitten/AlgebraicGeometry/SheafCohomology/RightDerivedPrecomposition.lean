@@ -5,6 +5,7 @@ Authors: OpenAI Codex
 -/
 
 import GromovWitten.AlgebraicGeometry.SheafCohomology.ComparisonUniqueness
+import GromovWitten.AlgebraicGeometry.SheafCohomology.RightDerivedHomology
 /-!
 # Derivation and exact precomposition
 
@@ -95,6 +96,37 @@ def rightDerivedPrecompComparison (n : ℕ) :
       (Functor.mapHomotopyCategoryCompIso (Iso.refl (L ⋙ F)) (.up ℕ))).inv ≫
         whiskerRight (resolutionPrecompComparison L) (F.mapHomotopyCategory (.up ℕ)))
     (HomotopyCategory.homologyFunctor E (.up ℕ) n)
+
+set_option backward.isDefEq.respectTransparency false in
+/-- Compute the precomposition comparison on chosen injective resolutions. -/
+lemma rightDerivedPrecompComparison_app_eq_homologyMap
+    (A : C) (n : ℕ)
+    (φ : (L.mapHomologicalComplex (.up ℕ)).obj (injectiveResolution A).cocomplex ⟶
+      (injectiveResolution (L.obj A)).cocomplex)
+    (hφ : (singleMapHomologicalComplex L (.up ℕ) 0).inv.app A ≫
+      (L.mapHomologicalComplex (.up ℕ)).map (injectiveResolution A).ι ≫ φ =
+        (injectiveResolution (L.obj A)).ι) :
+    (rightDerivedPrecompComparison L F n).app A =
+      ((injectiveResolution A).isoRightDerivedObj (L ⋙ F) n).hom ≫
+        (HomologicalComplex.homologyFunctor E (.up ℕ) n).map
+          ((F.mapHomologicalComplex (.up ℕ)).map φ) ≫
+        ((injectiveResolution (L.obj A)).isoRightDerivedObj F n).inv := by
+  apply (cancel_mono ((injectiveResolution (L.obj A)).isoRightDerivedObj F n).hom).mp
+  simp only [Category.assoc, Iso.inv_hom_id, Category.comp_id]
+  rw [InjectiveResolution.isoRightDerivedObj_hom_injectiveResolution (L ⋙ F) A n]
+  dsimp only [rightDerivedPrecompComparison, whiskerRight_app, NatTrans.comp_app]
+  rw [resolutionPrecompComparison_app_eq L A φ hφ]
+  rw [Functor.map_comp, Functor.mapHomotopyCategory_map]
+  simp only [Functor.mapHomotopyCategoryCompIso, Quotient.natIsoLift,
+    Functor.mapHomologicalComplexCompIso]
+  simp only [Quotient.natTransLift, NatIso.mapHomologicalComplex,
+    Iso.refl_inv, Iso.refl_hom, NatTrans.mapHomologicalComplex_id]
+  dsimp
+  simp only [Functor.map_id]
+  erw [Functor.map_id, Category.id_comp]
+  rw [InjectiveResolution.isoRightDerivedObj_hom_injectiveResolution F (L.obj A) n]
+  exact (HomotopyCategory.homologyFunctorFactors E (.up ℕ) n).hom.naturality _
+
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 set_option backward.isDefEq.respectTransparency.types false in

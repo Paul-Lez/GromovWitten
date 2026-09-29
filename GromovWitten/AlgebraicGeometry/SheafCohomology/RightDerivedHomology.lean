@@ -29,6 +29,23 @@ def isoRightDerivedHomologyObj (F : C ⥤ D) [F.Additive] (n : ℕ) :
     (HomologicalComplex.homologyFunctor_obj D (.up ℕ) n _)
 
 set_option backward.isDefEq.respectTransparency false in
+/-- Compute the chosen-resolution right-derived comparison directly. -/
+lemma isoRightDerivedObj_hom_injectiveResolution (F : C ⥤ D) [F.Additive]
+    (A : C) (n : ℕ) :
+    ((injectiveResolution A).isoRightDerivedObj F n).hom =
+      (HomotopyCategory.homologyFunctorFactors D (.up ℕ) n).hom.app
+        ((F.mapHomologicalComplex (.up ℕ)).obj (injectiveResolution A).cocomplex) := by
+  have h : (injectiveResolution A).iso.hom = 𝟙 _ := by
+    change (injectiveResolutions C).map (𝟙 A) = 𝟙 _
+    exact (injectiveResolutions C).map_id A
+  dsimp only [InjectiveResolution.isoRightDerivedObj, Iso.trans_hom, Functor.mapIso_hom,
+    InjectiveResolution.isoRightDerivedToHomotopyCategoryObj]
+  rw [h]
+  simp only [Functor.mapHomotopyCategoryFactors, Functor.map_id, Functor.map_comp]
+  erw [Functor.map_id, Category.id_comp, Category.id_comp]
+  rfl
+
+set_option backward.isDefEq.respectTransparency false in
 /-- Compute a derived natural transformation using the homology map of a resolution. -/
 lemma rightDerived_app_eq_homologyMap {F G : C ⥤ D} [F.Additive] [G.Additive]
     (α : F ⟶ G) (n : ℕ) :

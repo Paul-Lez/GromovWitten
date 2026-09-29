@@ -6,6 +6,7 @@ Authors: OpenAI Codex
 
 import Mathlib.Algebra.Homology.HomologySequence
 import Mathlib.Algebra.Homology.HomologySequenceLemmas
+import GromovWitten.CategoryTheory.HomologySequenceFunctor
 
 /-!
 # Homology cokernels of short exact complexes
@@ -63,5 +64,34 @@ lemma homologyCokernelIso_naturality {T : ShortComplex (HomologicalComplex C c)}
   rw [cokernel.π_desc_assoc, Category.assoc, homologyCokernelIso_π,
     homologyCokernelIso_π_assoc]
   exact (HomologicalComplex.HomologySequence.δ_naturality φ hS hT i j hij).symm
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The homology cokernel comparison is compatible with an exact functor. -/
+lemma homologyCokernelIso_map {D : Type*} [Category* D] [Abelian D]
+    (F : C ⥤ D) [F.Additive] [F.PreservesHomology]
+    (hS : S.ShortExact)
+    (hSF : (S.map (F.mapHomologicalComplex c)).ShortExact)
+    (i j : ι) (hij : c.Rel i j)
+    (hS₂ : IsZero (S.X₂.homology j))
+    (hSF₂ : IsZero (((F.mapHomologicalComplex c).obj S.X₂).homology j)) :
+    cokernel.map
+        (HomologicalComplex.homologyMap (S.map (F.mapHomologicalComplex c)).g i)
+        (F.map (HomologicalComplex.homologyMap S.g i))
+        ((S.X₂.sc i).mapHomologyIso F).hom
+        ((S.X₃.sc i).mapHomologyIso F).hom
+        (ShortComplex.mapHomologyIso_hom_naturality
+          ((HomologicalComplex.shortComplexFunctor C c i).map S.g) F) ≫
+      cokernelComparison (HomologicalComplex.homologyMap S.g i) F ≫
+        F.map (homologyCokernelIso i j hij hS hS₂).hom =
+      (homologyCokernelIso i j hij hSF hSF₂).hom ≫
+        ((S.X₁.sc j).mapHomologyIso F).hom := by
+  apply (cancel_epi (cokernel.π
+    (HomologicalComplex.homologyMap (S.map (F.mapHomologicalComplex c)).g i))).mp
+  rw [cokernel.π_desc_assoc, Category.assoc, π_comp_cokernelComparison_assoc,
+    ← F.map_comp, homologyCokernelIso_π]
+  exact (HomologicalComplex.HomologySequence.map_δ F hS hSF i j hij).symm.trans
+    (by simpa only [Category.assoc] using
+      (congrArg (fun t => t ≫ ((S.X₁.sc j).mapHomologyIso F).hom)
+        (homologyCokernelIso_π i j hij hSF hSF₂)).symm)
 
 end CategoryTheory.ShortComplex.ShortExact
