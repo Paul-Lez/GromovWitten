@@ -5,6 +5,7 @@ Authors: OpenAI Codex
 -/
 
 import GromovWitten.AlgebraicGeometry.SheafCohomology.RelativeCechSheaves
+import GromovWitten.AlgebraicGeometry.SheafCohomology.AffineSectionsFunctor
 import GromovWitten.AlgebraicGeometry.Curves.AffineSectionsBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.RelativeOpenSections
 import GromovWitten.AlgebraicGeometry.SheafCohomology.CechPairBaseModule
@@ -24,10 +25,6 @@ noncomputable section
 universe u
 namespace GromovWitten.AlgebraicGeometry.Curves
 variable {R : CommRingCat.{u}} {X : Scheme.{u}}
-
-/- The global-sections functor is additive by definition on module morphisms. -/
-instance moduleSpecΓFunctor_additive : (moduleSpecΓFunctor (R := R)).Additive :=
-  ⟨by intros; rfl⟩
 
 set_option backward.isDefEq.respectTransparency false in
 private def relativeOpenGammaIso (s : X ⟶ Spec R) (M : X.Modules) (U : X.Opens) :
