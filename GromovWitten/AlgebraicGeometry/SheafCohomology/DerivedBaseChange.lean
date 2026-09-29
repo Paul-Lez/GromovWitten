@@ -85,6 +85,33 @@ lemma rightDerivedBaseChange_zero_comp (α : Q ⋙ M ⟶ L ⋙ P) (A : C) :
   rw [← Category.assoc, NatTrans.toRightDerivedZero_comp, Category.assoc,
     Functor.rightDerivedPrecompComparison_zero_comp]
 
+set_option backward.isDefEq.respectTransparency false in
+/-- Compute the degree-zero comparison after postcomposing with the chosen
+resolution isomorphism on the target. -/
+lemma rightDerivedBaseChange_zero_resolution_comp (α : Q ⋙ M ⟶ L ⋙ P) (A : C)
+    (φ : (L.mapHomologicalComplex (.up ℕ)).obj (injectiveResolution A).cocomplex ⟶
+      (injectiveResolution (L.obj A)).cocomplex)
+    (hφ : (singleMapHomologicalComplex L (.up ℕ) 0).inv.app A ≫
+      (L.mapHomologicalComplex (.up ℕ)).map (injectiveResolution A).ι ≫ φ =
+        (injectiveResolution (L.obj A)).ι) :
+    M.map (Q.toRightDerivedZero.app A ≫
+        ((injectiveResolution A).isoRightDerivedObj Q 0).hom) ≫
+        (ShortComplex.mapHomologyIso
+          (((Q.mapHomologicalComplex (.up ℕ)).obj
+            (injectiveResolution A).cocomplex).sc 0) M).inv ≫
+      HomologicalComplex.homologyMap
+        ((NatTrans.mapHomologicalComplex α (.up ℕ)).app
+          (injectiveResolution A).cocomplex) 0 ≫
+      HomologicalComplex.homologyMap
+        ((P.mapHomologicalComplex (.up ℕ)).map φ) 0 =
+    α.app A ≫ P.toRightDerivedZero.app (L.obj A) ≫
+      ((injectiveResolution (L.obj A)).isoRightDerivedObj P 0).hom := by
+  have h := congrArg
+    (fun t => t ≫ ((injectiveResolution (L.obj A)).isoRightDerivedObj P 0).hom)
+    (rightDerivedBaseChange_zero_comp α A)
+  rw [rightDerivedBaseChange_app_eq_homologyMap α A 0 φ hφ] at h
+  simpa only [Functor.map_comp, Category.assoc, Iso.inv_hom_id, Category.comp_id] using h
+
 /-- Under the standard degree-zero identifications, the higher comparison is the ordinary map. -/
 lemma rightDerivedBaseChange_zero [PreservesFiniteLimits Q] [PreservesFiniteLimits P]
     (α : Q ⋙ M ⟶ L ⋙ P) (A : C) :

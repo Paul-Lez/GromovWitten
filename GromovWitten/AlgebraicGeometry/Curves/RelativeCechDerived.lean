@@ -176,11 +176,11 @@ The source is locally Noetherian and the module is quasicoherent; only the two o
 composites are required to be affine for this comparison.  No affine-intersection
 hypothesis is needed for the isomorphism.
 -/
-def relativeCechCokernelIsoHigherDirectImageOne (s : X ⟶ S) (M : X.Modules)
+def relativeCechCokernelIsoHigherDirectImageOneOfResolution
+    (s : X ⟶ S) (M : X.Modules) (I : InjectiveResolution M)
     [IsLocallyNoetherian X] [M.IsQuasicoherent] (U V : X.Opens)
     (hcover : U ⊔ V = ⊤) [IsAffineHom (U.ι ≫ s)] [IsAffineHom (V.ι ≫ s)] :
     cokernel (relativeCechFromPair s M U V) ≅ higherDirectImageModule s M 1 := by
-  let I := InjectiveResolution.of M
   have hseq : (relativeCechComplexMV I.cocomplex s U V).ShortExact :=
     relativeCechComplexMV_shortExact I.cocomplex s U V hcover
       (fun n => module_isFlasque_of_injective (I.cocomplex.X n))
@@ -195,6 +195,14 @@ def relativeCechCokernelIsoHigherDirectImageOne (s : X ⟶ S) (M : X.Modules)
     (I.isoRightDerivedObj (pushforward s) 1).symm
   exact e₀ ≪≫ e₁ ≪≫ e₂
 
+/-- The selected-resolution instance of the relative Čech comparison. -/
+def relativeCechCokernelIsoHigherDirectImageOne (s : X ⟶ S) (M : X.Modules)
+    [IsLocallyNoetherian X] [M.IsQuasicoherent] (U V : X.Opens)
+    (hcover : U ⊔ V = ⊤) [IsAffineHom (U.ι ≫ s)] [IsAffineHom (V.ι ≫ s)] :
+    cokernel (relativeCechFromPair s M U V) ≅ higherDirectImageModule s M 1 :=
+  relativeCechCokernelIsoHigherDirectImageOneOfResolution
+    s M (InjectiveResolution.of M) U V hcover
+
 /-- The morphism of relative Čech Mayer--Vietoris complexes induced by a cochain map. -/
 def relativeCechComplexMVMap
     {K L : CochainComplex X.Modules ℕ} (φ : K ⟶ L)
@@ -208,8 +216,11 @@ def relativeCechComplexMVMap
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The Čech comparison is natural in the module for fixed opens and base morphism. -/
-lemma relativeCechCokernelIsoHigherDirectImageOne_naturality
+lemma relativeCechCokernelIsoHigherDirectImageOneOfResolution_naturality
     (s : X ⟶ S) {M N : X.Modules} (f : M ⟶ N)
+    (I : InjectiveResolution M) (J : InjectiveResolution N)
+    (φ : I.cocomplex ⟶ J.cocomplex)
+    (hφ : I.ι.f 0 ≫ φ.f 0 = f ≫ J.ι.f 0)
     [IsLocallyNoetherian X] [M.IsQuasicoherent] [N.IsQuasicoherent]
     (U V : X.Opens) (hcover : U ⊔ V = ⊤)
     [IsAffineHom (U.ι ≫ s)] [IsAffineHom (V.ι ≫ s)] :
@@ -217,14 +228,9 @@ lemma relativeCechCokernelIsoHigherDirectImageOne_naturality
         ((relativeCechPairFunctor s U V).map f)
         ((relativeOpenPushforward s (U ⊓ V)).map f)
         ((relativeCechFromPairNat s U V).naturality f).symm ≫
-      (relativeCechCokernelIsoHigherDirectImageOne s N U V hcover).hom =
-    (relativeCechCokernelIsoHigherDirectImageOne s M U V hcover).hom ≫
+      (relativeCechCokernelIsoHigherDirectImageOneOfResolution s N J U V hcover).hom =
+    (relativeCechCokernelIsoHigherDirectImageOneOfResolution s M I U V hcover).hom ≫
       ((pushforward s).rightDerived 1).map f := by
-  let I := InjectiveResolution.of M
-  let J := InjectiveResolution.of N
-  let φ := InjectiveResolution.desc f J I
-  have hw₀ : I.ι.f 0 ≫ φ.f 0 = f ≫ J.ι.f 0 :=
-    InjectiveResolution.desc_commutes_zero f J I
   let hI := relativeCechComplexMV_shortExact I.cocomplex s U V hcover
     (fun n => module_isFlasque_of_injective (I.cocomplex.X n))
   let hJ := relativeCechComplexMV_shortExact J.cocomplex s U V hcover
@@ -254,13 +260,13 @@ lemma relativeCechCokernelIsoHigherDirectImageOne_naturality
     ((relativeOpenPushforward s (U ⊓ V)).map f)
     ((relativeCechFromPairNat s U V).naturality f).symm
   have h₀ : κ₀ ≫ eJ₀.hom = eI₀.hom ≫ κ :=
-    cokernelZeroHomologyIso_map I J f φ hw₀ (relativeCechFromPairNat s U V)
+    cokernelZeroHomologyIso_map I J f φ hφ (relativeCechFromPairNat s U V)
   have h₁ : κ ≫ eJ₁.hom = eI₁.hom ≫ HomologicalComplex.homologyMap Φ.τ₁ 1 :=
     CategoryTheory.ShortComplex.ShortExact.homologyCokernelIso_naturality Φ 0 1 rfl
       hI hJ hpI hpJ
   have h₂ : qI.inv ≫ ((pushforward s).rightDerived 1).map f =
       HomologicalComplex.homologyMap Φ.τ₁ 1 ≫ qJ.inv :=
-    InjectiveResolution.isoRightDerivedObj_inv_naturality f I J φ hw₀ (pushforward s) 1
+    InjectiveResolution.isoRightDerivedObj_inv_naturality f I J φ hφ (pushforward s) 1
   change κ₀ ≫ eJ₀.hom ≫ eJ₁.hom ≫ qJ.inv =
     (eI₀.hom ≫ eI₁.hom ≫ qI.inv) ≫ ((pushforward s).rightDerived 1).map f
   calc
@@ -270,6 +276,123 @@ lemma relativeCechCokernelIsoHigherDirectImageOne_naturality
       simpa only [Category.assoc] using congrArg (fun t => eI₀.hom ≫ t ≫ qJ.inv) h₁
     _ = _ := by
       simpa only [Category.assoc] using congrArg (fun t => eI₀.hom ≫ eI₁.hom ≫ t) h₂.symm
+
+set_option backward.isDefEq.respectTransparency false in
+/-- Naturality of the selected-resolution relative Čech comparison. -/
+lemma relativeCechCokernelIsoHigherDirectImageOne_naturality
+    (s : X ⟶ S) {M N : X.Modules} (f : M ⟶ N)
+    [IsLocallyNoetherian X] [M.IsQuasicoherent] [N.IsQuasicoherent]
+    (U V : X.Opens) (hcover : U ⊔ V = ⊤)
+    [IsAffineHom (U.ι ≫ s)] [IsAffineHom (V.ι ≫ s)] :
+    cokernel.map (relativeCechFromPair s M U V) (relativeCechFromPair s N U V)
+        ((relativeCechPairFunctor s U V).map f)
+        ((relativeOpenPushforward s (U ⊓ V)).map f)
+        ((relativeCechFromPairNat s U V).naturality f).symm ≫
+      (relativeCechCokernelIsoHigherDirectImageOne s N U V hcover).hom =
+    (relativeCechCokernelIsoHigherDirectImageOne s M U V hcover).hom ≫
+      ((pushforward s).rightDerived 1).map f := by
+  let I := InjectiveResolution.of M
+  let J := InjectiveResolution.of N
+  let φ := InjectiveResolution.desc f J I
+  have hφ : I.ι.f 0 ≫ φ.f 0 = f ≫ J.ι.f 0 :=
+    InjectiveResolution.desc_commutes_zero f J I
+  change cokernel.map (relativeCechFromPair s M U V) (relativeCechFromPair s N U V)
+        ((relativeCechPairFunctor s U V).map f)
+        ((relativeOpenPushforward s (U ⊓ V)).map f)
+        ((relativeCechFromPairNat s U V).naturality f).symm ≫
+      (relativeCechCokernelIsoHigherDirectImageOneOfResolution s N J U V hcover).hom =
+    (relativeCechCokernelIsoHigherDirectImageOneOfResolution s M I U V hcover).hom ≫
+      ((pushforward s).rightDerived 1).map f
+  exact relativeCechCokernelIsoHigherDirectImageOneOfResolution_naturality
+    s f I J φ hφ U V hcover
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The Cech comparison is independent of the chosen injective resolution. -/
+lemma relativeCechCokernelIsoHigherDirectImageOneOfResolution_eq
+    (s : X ⟶ S) (M : X.Modules) (I J : InjectiveResolution M)
+    [IsLocallyNoetherian X] [M.IsQuasicoherent]
+    (U V : X.Opens) (hcover : U ⊔ V = ⊤)
+    [IsAffineHom (U.ι ≫ s)] [IsAffineHom (V.ι ≫ s)] :
+    relativeCechCokernelIsoHigherDirectImageOneOfResolution s M I U V hcover =
+      relativeCechCokernelIsoHigherDirectImageOneOfResolution s M J U V hcover := by
+  apply Iso.ext
+  let φ := InjectiveResolution.desc (𝟙 M) I J
+  have hφ : J.ι.f 0 ≫ φ.f 0 = 𝟙 M ≫ I.ι.f 0 :=
+    InjectiveResolution.desc_commutes_zero (𝟙 M) I J
+  have hnat := relativeCechCokernelIsoHigherDirectImageOneOfResolution_naturality
+    s (𝟙 M) J I φ hφ U V hcover
+  change
+    (relativeCechCokernelIsoHigherDirectImageOneOfResolution
+      s M I U V hcover).hom =
+      (relativeCechCokernelIsoHigherDirectImageOneOfResolution
+        s M J U V hcover).hom ≫
+        𝟙 ((pushforward s).rightDerived 1).obj M
+  simpa using hnat
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The selected-resolution relative Čech comparison carries the cokernel
+projection to the connecting map and the chosen first derived comparison. -/
+lemma relativeCechCokernelIsoHigherDirectImageOneOfResolution_π
+    (s : X ⟶ S) (M : X.Modules) (I : InjectiveResolution M)
+    [IsLocallyNoetherian X] [M.IsQuasicoherent] (U V : X.Opens)
+    (hcover : U ⊔ V = ⊤) [IsAffineHom (U.ι ≫ s)] [IsAffineHom (V.ι ≫ s)]
+    (hseq : (relativeCechComplexMV I.cocomplex s U V).ShortExact) :
+    cokernel.π (relativeCechFromPair s M U V) ≫
+        (relativeCechCokernelIsoHigherDirectImageOneOfResolution
+          s M I U V hcover).hom =
+      (relativeOpenPushforward s (U ⊓ V)).toRightDerivedZero.app M ≫
+        (I.isoRightDerivedObj (relativeOpenPushforward s (U ⊓ V)) 0).hom ≫
+        hseq.δ 0 1 rfl ≫
+        (I.isoRightDerivedObj (pushforward s) 1).inv := by
+  let C := relativeCechComplexMV I.cocomplex s U V
+  let hp : IsZero (C.X₂.homology 1) := isZero_relativeCechPair_homology_one I s U V
+  let e₀ : cokernel (relativeCechFromPair s M U V) ≅
+      cokernel (HomologicalComplex.homologyMap C.g 0) :=
+    cokernelZeroHomologyIso I (relativeCechFromPairNat s U V)
+  let e₁ := CategoryTheory.ShortComplex.ShortExact.homologyCokernelIso
+    0 1 rfl hseq hp
+  let q := I.isoRightDerivedObj (pushforward s) 1
+  have h₀ : cokernel.π (relativeCechFromPair s M U V) ≫ e₀.hom =
+      (zeroHomologyIso I (relativeOpenPushforward s (U ⊓ V))).hom ≫
+        cokernel.π (HomologicalComplex.homologyMap C.g 0) :=
+    cokernelZeroHomologyIso_π I (relativeCechFromPairNat s U V)
+  have h₁ : cokernel.π (HomologicalComplex.homologyMap C.g 0) ≫ e₁.hom =
+      hseq.δ 0 1 rfl :=
+    CategoryTheory.ShortComplex.ShortExact.homologyCokernelIso_π 0 1 rfl hseq hp
+  change cokernel.π (relativeCechFromPair s M U V) ≫
+      e₀.hom ≫ e₁.hom ≫ q.inv = _
+  calc
+    _ = (zeroHomologyIso I (relativeOpenPushforward s (U ⊓ V))).hom ≫
+        cokernel.π (HomologicalComplex.homologyMap C.g 0) ≫ e₁.hom ≫ q.inv := by
+      simpa only [Category.assoc] using congrArg (fun t => t ≫ e₁.hom ≫ q.inv) h₀
+    _ = (zeroHomologyIso I (relativeOpenPushforward s (U ⊓ V))).hom ≫
+        hseq.δ 0 1 rfl ≫ q.inv := by
+      simpa only [Category.assoc] using congrArg
+        (fun t => (zeroHomologyIso I (relativeOpenPushforward s (U ⊓ V))).hom ≫
+          t ≫ q.inv) h₁
+    _ = _ := by simp only [q, zeroHomologyIso, Iso.trans_hom, asIso_hom, Category.assoc]
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The selected-resolution relative Čech comparison has the same projection
+formula after transport to any selected injective resolution. -/
+lemma relativeCechCokernelIsoHigherDirectImageOne_π
+    (s : X ⟶ S) (M : X.Modules) (I : InjectiveResolution M)
+    [IsLocallyNoetherian X] [M.IsQuasicoherent] (U V : X.Opens)
+    (hcover : U ⊔ V = ⊤) [IsAffineHom (U.ι ≫ s)] [IsAffineHom (V.ι ≫ s)]
+    (hseq : (relativeCechComplexMV I.cocomplex s U V).ShortExact) :
+    cokernel.π (relativeCechFromPair s M U V) ≫
+        (relativeCechCokernelIsoHigherDirectImageOne s M U V hcover).hom =
+      (relativeOpenPushforward s (U ⊓ V)).toRightDerivedZero.app M ≫
+        (I.isoRightDerivedObj (relativeOpenPushforward s (U ⊓ V)) 0).hom ≫
+        hseq.δ 0 1 rfl ≫
+        (I.isoRightDerivedObj (pushforward s) 1).inv := by
+  rw [show relativeCechCokernelIsoHigherDirectImageOne s M U V hcover =
+      relativeCechCokernelIsoHigherDirectImageOneOfResolution
+        s M (InjectiveResolution.of M) U V hcover by rfl]
+  rw [relativeCechCokernelIsoHigherDirectImageOneOfResolution_eq
+    s M (InjectiveResolution.of M) I U V hcover]
+  exact relativeCechCokernelIsoHigherDirectImageOneOfResolution_π
+    s M I U V hcover hseq
 
 set_option backward.isDefEq.respectTransparency false in
 /-- The first higher direct image is quasicoherent on a two-affine cover.

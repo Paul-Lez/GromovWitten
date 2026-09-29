@@ -154,4 +154,19 @@ lemma map_δ :
   rw [← ShortComplex.SnakeInput.mapExact_δ] at h
   exact h
 
+set_option backward.isDefEq.respectTransparency false in
+/-- The inverse form of `map_δ`: after identifying the source and target
+homology objects, the original connecting morphism followed by the inverse
+target comparison equals the inverse source comparison followed by the
+connecting morphism after applying the functor. -/
+lemma map_δ_inv (F : C ⥤ D) [F.Additive] [F.PreservesHomology]
+    (hS : S.ShortExact) (hSF : (S.map (F.mapHomologicalComplex c)).ShortExact)
+    (i j : ι) (hij : c.Rel i j) :
+    F.map (hS.δ i j hij) ≫ ((S.X₁.sc j).mapHomologyIso F).inv =
+      ((S.X₃.sc i).mapHomologyIso F).inv ≫ hSF.δ i j hij := by
+  apply (cancel_epi ((S.X₃.sc i).mapHomologyIso F).hom).mp
+  simp only [Iso.hom_inv_id_assoc]
+  rw [← Category.assoc, ← map_δ F hS hSF i j hij]
+  simp only [Category.assoc, Iso.hom_inv_id, Category.comp_id]
+
 end HomologicalComplex.HomologySequence
