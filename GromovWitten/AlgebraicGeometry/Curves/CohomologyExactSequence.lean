@@ -6,6 +6,7 @@ Authors: Paul Lezeau
 
 import GromovWitten.AlgebraicGeometry.Curves.ArithmeticGenus
 import GromovWitten.AlgebraicGeometry.Curves.ArithmeticGenusNormalization
+import GromovWitten.AlgebraicGeometry.Curves.ModuleExact
 import Mathlib.Algebra.Category.ModuleCat.Presheaf.Colimits
 import Mathlib.Algebra.Category.ModuleCat.Presheaf.Sheafification
 import Mathlib.Algebra.Category.ModuleCat.Sheaf.Limits
@@ -73,17 +74,6 @@ universe w v' u' u
 noncomputable section
 
 variable {X : Scheme.{u}}
-
-/-! ## The forgetful functor to abelian sheaves preserves finite limits -/
-
-/-- `moduleToSheafAb X` preserves finite limits: up to the definitional identification of
-`TopCat.Sheaf Ab X` with `CategoryTheory.Sheaf (Opens.grothendieckTopology X) AddCommGrpCat`, it
-is Mathlib's forgetful functor `SheafOfModules.toSheaf X.ringCatSheaf`, and Mathlib already proves
-that this functor preserves finite limits. -/
-instance moduleToSheafAb_preservesFiniteLimits (X : Scheme.{u}) :
-    PreservesFiniteLimits (moduleToSheafAb X) :=
-  inferInstanceAs
-    (PreservesFiniteLimits (SheafOfModules.toSheaf X.ringCatSheaf))
 
 /-! ## Mono and middle-exactness -/
 
