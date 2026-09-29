@@ -5,6 +5,7 @@ Authors: OpenAI Codex
 -/
 
 import GromovWitten.AlgebraicGeometry.Curves.FinitePresentationPullback
+import GromovWitten.AlgebraicGeometry.Curves.AffineFinitePresentation
 
 /-!
 # Zariski-local finite presentations
@@ -121,6 +122,22 @@ lemma module_isFinitePresentation_of_presentation_openCover
   constructor
   intro i
   exact modulePresentationOver_isFinite' (U i) (P i) (hP' i)
+
+/-- Finite presentation is local on affine pullbacks of a locally Noetherian scheme. -/
+lemma module_isFinitePresentation_of_affine_pullbacks
+    {X : Scheme.{u}} [IsLocallyNoetherian X] (M : X.Modules)
+    (hM : ∀ U : X.affineOpens, ((Scheme.Modules.pullback U.1.ι).obj M).IsFinitePresentation) :
+    M.IsFinitePresentation := by
+  apply module_isFinitePresentation_of_presentation_openCover M (fun U : X.affineOpens ↦ U.1)
+  · rw [IsOpenCover]
+    exact iSup_affineOpens_eq_top X
+  · intro U
+    let : IsAffine U.1.toScheme := U.2
+    have hP : ((Scheme.Modules.pullback U.1.ι).obj M).IsFinitePresentation := hM U
+    have : (M.restrict U.1.ι).IsFinitePresentation :=
+      (SheafOfModules.isFinitePresentation U.1.toScheme.ringCatSheaf).prop_of_iso
+        ((Scheme.Modules.restrictFunctorIsoPullback U.1.ι).app M).symm hP
+    exact presentation_of_affine_isFinitePresentation (M.restrict U.1.ι)
 
 /-- Glue finite presentations from a finite-presentation neighbourhood at every point. -/
 lemma module_isFinitePresentation_of_locally_over

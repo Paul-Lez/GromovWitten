@@ -29,61 +29,6 @@ noncomputable section
 universe u
 namespace GromovWitten.AlgebraicGeometry.Curves
 
-private lemma presentation_of_spec_isFinitePresentation {R : CommRingCat.{u}}
-    (M : (Spec R).Modules) [M.IsFinitePresentation] [IsNoetherianRing R] :
-    ∃ P : M.Presentation, P.IsFinite := by
-  let A : ModuleCat R := moduleSpecΓFunctor.obj M
-  let : M.IsQuasicoherent := SheafOfModules.instIsQuasicoherentOfIsFinitePresentation M
-  let : IsIso M.fromTildeΓ := Scheme.Modules.isIso_fromTildeΓ_of_isQuasicoherent M
-  let : Module.FinitePresentation R (A : Type u) := by
-    exact moduleSpecΓ_isFinitePresentation M (R := R)
-  obtain ⟨s, hs, hker⟩ := (inferInstance : Module.FinitePresentation R (A : Type u)).out
-  obtain ⟨t, ht⟩ := hker
-  let P0 := presentationTilde A (s : Set A) hs (t : Set _) ht
-  have hP0 : P0.IsFinite := by
-    refine { isFiniteType_generators := ?_, isFiniteType_relations := ?_ }
-    · constructor
-      change Finite s
-      infer_instance
-    · constructor
-      change Finite t
-      infer_instance
-  let e : tilde A ≅ M := by
-    change tilde (moduleSpecΓFunctor.obj M) ≅ M
-    exact @asIso _ _ _ _ M.fromTildeΓ
-      (Scheme.Modules.isIso_fromTildeΓ_of_isQuasicoherent M)
-  let : P0.IsFinite := hP0
-  let P := modulePresentationOfIso e.symm P0
-  exact ⟨P, modulePresentationOfIso_isFinite e.symm P0⟩
-
-private lemma presentation_of_affine_isFinitePresentation {Z : Scheme.{u}} [IsAffine Z]
-    [IsLocallyNoetherian Z] (M : Z.Modules) [M.IsFinitePresentation] :
-    ∃ P : M.Presentation, P.IsFinite := by
-  let : IsNoetherianRing Γ(Z, ⊤) :=
-    IsLocallyNoetherian.component_noetherian ⟨⊤, isAffineOpen_top Z⟩
-  let N := (Scheme.Modules.pushforward Z.isoSpec.hom).obj M
-  have hN : N.IsFinitePresentation := by
-    let e := Scheme.Modules.restrictFunctorIsoPullback Z.isoSpec.inv
-    have hPB : ((Scheme.Modules.pullback Z.isoSpec.inv).obj M).IsFinitePresentation := inferInstance
-    have hR : ((Scheme.Modules.restrictFunctor Z.isoSpec.inv).obj M).IsFinitePresentation :=
-      (SheafOfModules.isFinitePresentation (Spec Γ(Z, ⊤)).ringCatSheaf).prop_of_iso
-        (e.symm.app M) hPB
-    exact (SheafOfModules.isFinitePresentation (Spec Γ(Z, ⊤)).ringCatSheaf).prop_of_iso
-      ((modulePushforwardIsoRestrict Z.isoSpec).app M).symm hR
-  let : N.IsFinitePresentation := hN
-  obtain ⟨PN, hPN⟩ := presentation_of_spec_isFinitePresentation N
-  let : PN.IsFinite := hPN
-  let PB := modulePresentationPullback Z.isoSpec.hom PN
-  have hPB : PB.IsFinite := modulePresentationPullback_isFinite Z.isoSpec.hom PN
-  let eR := (Scheme.Modules.restrictFunctorIsoPullback Z.isoSpec.hom).app N
-  let eC := (Scheme.Modules.restrictFunctorAdjCounitIso Z.isoSpec.hom).app M
-  let e : (Scheme.Modules.pullback Z.isoSpec.hom).obj N ≅ M := eR.symm ≪≫ eC
-  let P := modulePresentationOfIso e.symm PB
-  have hP : P.IsFinite := by
-    let : PB.IsFinite := hPB
-    exact modulePresentationOfIso_isFinite e.symm PB
-  exact ⟨P, hP⟩
-
 private lemma finite_pushforward_isFinitePresentation_of_affines
     {X Y : Scheme.{u}} (f : X ⟶ Y) [IsAffine X] [IsAffine Y] [IsFinite f]
     [IsLocallyNoetherian Y] (M : X.Modules) [M.IsFinitePresentation]
