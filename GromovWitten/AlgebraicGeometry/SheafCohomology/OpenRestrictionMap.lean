@@ -116,5 +116,18 @@ lemma openRestrictionMap_unit (M : X.Modules) {U V : X.Opens} (h : V ≤ U) :
   rw [← Functor.map_comp]
   congr 1
 
+set_option backward.isDefEq.respectTransparency false in
+/-- Restriction maps between three nested opens compose canonically. -/
+lemma openRestrictionMap_trans (M : X.Modules)
+    {U V W : X.Opens} (hUV : V ≤ U) (hVW : W ≤ V) :
+    openRestrictionMap M hUV ≫ openRestrictionMap M hVW =
+      openRestrictionMap M (hVW.trans hUV) := by
+  apply Scheme.Modules.hom_ext
+  intro Z
+  simp only [Hom.comp_app, openRestrictionMap_app_eq]
+  rw [← Functor.map_comp]
+  congr 1
+
 end
+
 end GromovWitten.AlgebraicGeometry.SheafCohomology

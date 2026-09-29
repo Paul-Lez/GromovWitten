@@ -23,7 +23,9 @@ universe u
 namespace GromovWitten.AlgebraicGeometry.SheafCohomology
 variable {X S : Scheme.{u}}
 set_option backward.isDefEq.respectTransparency false in
-private def relativeOpenSectionsIso (s : X ⟶ S) (M : X.Modules) (U : X.Opens) (W : S.Opens) :
+/-- Sections over a base open of the pushforward from `U` identify with sections on the
+intersection of `U` and its inverse image. -/
+def relativeOpenSectionsIso (s : X ⟶ S) (M : X.Modules) (U : X.Opens) (W : S.Opens) :
     (sections W).obj ((moduleToSheafAb S).obj
       ((pushforward s).obj ((pushforward U.ι).obj (M.restrict U.ι)))) ≅
     (sections (U ⊓ s ⁻¹ᵁ W)).obj ((moduleToSheafAb X).obj M) := by
@@ -32,7 +34,9 @@ private def relativeOpenSectionsIso (s : X ⟶ S) (M : X.Modules) (U : X.Opens) 
   exact M.presheaf.mapIso (eqToIso (by
     rw [Scheme.Hom.image_preimage_eq_opensRange_inf, Scheme.Opens.opensRange_ι])).op
 set_option backward.isDefEq.respectTransparency false in
-private lemma relativeOpenSectionsIso_restriction (s : X ⟶ S) (M : X.Modules)
+/-- The open-section comparison is compatible with restriction from a larger open to a smaller
+one. -/
+lemma relativeOpenSectionsIso_restriction (s : X ⟶ S) (M : X.Modules)
     {U V : X.Opens} (h : V ≤ U) (W : S.Opens) :
     (moduleToSheafAb S ⋙ sections W).map ((pushforward s).map (openRestrictionMap M h)) ≫
         (relativeOpenSectionsIso s M V W).hom =
@@ -87,7 +91,9 @@ private lemma relativeProdSectionsIso_hom_snd (W : S.Opens) (A B : S.Modules) :
   erw [IsLimit.conePointUniqueUpToIso_hom_comp]
   rfl
 set_option backward.isDefEq.respectTransparency false in
-private def relativePairSectionsIso (s : X ⟶ S) (M : X.Modules) (U V : X.Opens)
+/-- Sections of the relative Čech pair identify with the pair of sections on the two inverse-image
+opens. -/
+def relativePairSectionsIso (s : X ⟶ S) (M : X.Modules) (U V : X.Opens)
     (W : S.Opens) :
     (moduleToSheafAb S ⋙ sections W).obj ((relativeCechPairFunctor s U V).obj M) ≅
       sectionsPair ((moduleToSheafAb X).obj M) (U ⊓ s ⁻¹ᵁ W) (V ⊓ s ⁻¹ᵁ W) :=
@@ -96,7 +102,8 @@ private def relativePairSectionsIso (s : X ⟶ S) (M : X.Modules) (U V : X.Opens
       (relativeOpenSectionsIso s M V W).addCommGroupIsoToAddEquiv).toAddCommGrpIso
 
 set_option backward.isDefEq.respectTransparency false in
-private lemma relativePairSectionsIso_hom_fst (s : X ⟶ S) (M : X.Modules) (U V : X.Opens)
+/-- The pair-section comparison commutes with projection to the first open. -/
+lemma relativePairSectionsIso_hom_fst (s : X ⟶ S) (M : X.Modules) (U V : X.Opens)
     (W : S.Opens) :
     (relativePairSectionsIso s M U V W).hom ≫
         AddCommGrpCat.ofHom (AddMonoidHom.fst _ _) =
@@ -113,7 +120,8 @@ private lemma relativePairSectionsIso_hom_fst (s : X ⟶ S) (M : X.Modules) (U V
   erw [hh, ← Category.assoc, relativeProdSectionsIso_hom_fst]
   rfl
 set_option backward.isDefEq.respectTransparency false in
-private lemma relativePairSectionsIso_hom_snd (s : X ⟶ S) (M : X.Modules) (U V : X.Opens)
+/-- The pair-section comparison commutes with projection to the second open. -/
+lemma relativePairSectionsIso_hom_snd (s : X ⟶ S) (M : X.Modules) (U V : X.Opens)
     (W : S.Opens) :
     (relativePairSectionsIso s M U V W).hom ≫
         AddCommGrpCat.ofHom (AddMonoidHom.snd _ _) =
@@ -154,7 +162,9 @@ private lemma relativeToPairSections_snd (s : X ⟶ S) (M : X.Modules) (U V : X.
   exact relativeOpenSectionsIso_unit s M V W
 
 set_option backward.isDefEq.respectTransparency false in
-private def relativeIntersectionSectionsIso (s : X ⟶ S) (M : X.Modules)
+/-- Sections of the relative pushforward from the overlap identify with sections on the intersection
+of the two inverse-image opens. -/
+def relativeIntersectionSectionsIso (s : X ⟶ S) (M : X.Modules)
     (U V : X.Opens) (W : S.Opens) :
     (moduleToSheafAb S ⋙ sections W).obj
       ((relativeOpenPushforward s (U ⊓ V)).obj M) ≅
@@ -193,7 +203,9 @@ private lemma relativeIntersectionSectionsIso_right (s : X ⟶ S) (M : X.Modules
   congr 2
 
 set_option backward.isDefEq.respectTransparency false in
-private lemma relativeFromPairSections_comm (s : X ⟶ S) (M : X.Modules) (U V : X.Opens)
+/-- The section map of the relative Čech differential commutes with the pair and overlap
+comparisons. -/
+lemma relativeFromPairSections_comm (s : X ⟶ S) (M : X.Modules) (U V : X.Opens)
     (W : S.Opens) :
     (moduleToSheafAb S ⋙ sections W).map (relativeCechFromPair s M U V) ≫
       (relativeIntersectionSectionsIso s M U V W).hom =

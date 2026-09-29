@@ -83,6 +83,21 @@ lemma affineUnion_inf {X : Scheme.{u}} (U : X.Opens) (Us : List X.Opens) :
   | cons V Vs ih =>
     simp only [affineUnion, List.map_cons, inf_sup_left, ih]
 
+/-- The affine union of the entries of a finite function is their indexed supremum. -/
+lemma affineUnion_ofFn {X : Scheme.{u}} {m : ℕ} (U : Fin m → X.Opens) :
+    affineUnion (List.ofFn U) = ⨆ i : Fin m, U i := by
+  induction m with
+  | zero => simp [List.ofFn_zero, affineUnion, iSup_of_empty]
+  | succ m ih =>
+    rw [List.ofFn_succ, affineUnion, ih]
+    apply le_antisymm
+    · exact sup_le (le_iSup U 0) (iSup_le fun i => le_iSup U i.succ)
+    · apply iSup_le
+      intro i
+      refine Fin.cases ?_ (fun j => ?_) i
+      · exact le_sup_left
+      · exact (le_iSup (fun j : Fin m => U j.succ) j).trans le_sup_right
+
 theorem isZero_rightDerived_sections_finiteAffine {X : Scheme.{u}}
     [IsLocallyNoetherian X] [X.IsSeparated] (Us : List X.Opens)
     (hUs : ∀ U ∈ Us, IsAffineOpen U) (hne : Us ≠ []) (M : X.Modules)
