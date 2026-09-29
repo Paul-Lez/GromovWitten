@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: OpenAI Codex
 -/
 
+import GromovWitten.AlgebraicGeometry.SheafCohomology.OpenRestrictionMap
 import GromovWitten.AlgebraicGeometry.Curves.HigherOpenBaseChange
 import GromovWitten.AlgebraicGeometry.Curves.AffineHigherDirectImage
 
@@ -22,10 +23,6 @@ universe u
 namespace GromovWitten.AlgebraicGeometry.Curves
 
 variable {X Y : Scheme.{u}}
-
-instance moduleRestrictFunctor_additive (j : X ⟶ Y) [IsOpenImmersion j] :
-    (Scheme.Modules.restrictFunctor j).Additive :=
-  Functor.additive_of_iso (Scheme.Modules.restrictFunctorIsoPullback j).symm
 
 set_option backward.isDefEq.respectTransparency false in
 /-- Restriction followed by pushforward has the expected right-derived comparison. -/

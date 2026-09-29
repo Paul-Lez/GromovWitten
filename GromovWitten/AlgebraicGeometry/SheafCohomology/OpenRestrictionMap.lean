@@ -23,6 +23,10 @@ noncomputable section
 
 variable {X : Scheme.{u}}
 
+instance moduleRestrictFunctor_additive {Y : Scheme.{u}} (j : X ⟶ Y) [IsOpenImmersion j] :
+    (restrictFunctor j).Additive :=
+  Functor.additive_of_iso (restrictFunctorIsoPullback j).symm
+
 /- The image of the smaller open after intersecting with W lies in the corresponding
    image for the larger open. -/
 lemma openRestrictionMap_image_le {U V : X.Opens} (h : V ≤ U) (W : X.Opens) :

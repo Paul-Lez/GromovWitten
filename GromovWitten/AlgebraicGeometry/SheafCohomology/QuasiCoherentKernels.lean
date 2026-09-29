@@ -56,12 +56,13 @@ lemma isQuasicoherent_kernel_of_isQuasicoherent
   exact (SheafOfModules.isQuasicoherent (Spec R).ringCatSheaf).prop_of_iso eK hQ
 
 set_option backward.isDefEq.respectTransparency false in
-/-- On an affine spectrum, the cokernel of a morphism between quasi-coherent modules is
-quasi-coherent. -/
-lemma isQuasicoherent_cokernel_of_isQuasicoherent
+/-- The canonical comparison from the tilde of an affine global-sections cokernel to the
+cokernel of the original morphism. -/
+def tildeCokernelIso
     {M N : (Spec R).Modules} (f : M ⟶ N)
     [M.IsQuasicoherent] [N.IsQuasicoherent] :
-    (cokernel f).IsQuasicoherent := by
+    (tilde.functor R).obj (cokernel ((moduleSpecΓFunctor (R := R)).map f)) ≅
+      cokernel f := by
   let _ : IsIso M.fromTildeΓ := Scheme.Modules.isIso_fromTildeΓ_of_isQuasicoherent M
   let _ : IsIso N.fromTildeΓ := Scheme.Modules.isIso_fromTildeΓ_of_isQuasicoherent N
   let eM : (tilde.functor R).obj (moduleSpecΓFunctor.obj M) ≅ M :=
@@ -73,10 +74,17 @@ lemma isQuasicoherent_cokernel_of_isQuasicoherent
     change (tilde.functor R).map ((moduleSpecΓFunctor (R := R)).map f) ≫ N.fromTildeΓ =
       M.fromTildeΓ ≫ f
     exact (tilde.adjunction (R := R)).counit.naturality f
-  let eQ : (tilde.functor R).obj (cokernel ((moduleSpecΓFunctor (R := R)).map f)) ≅
-      cokernel f :=
-    PreservesCokernel.iso (tilde.functor R) ((moduleSpecΓFunctor (R := R)).map f) ≪≫
+  exact PreservesCokernel.iso (tilde.functor R) ((moduleSpecΓFunctor (R := R)).map f) ≪≫
       cokernel.mapIso ((tilde.functor R).map ((moduleSpecΓFunctor (R := R)).map f)) f eM eN hsq
+
+set_option backward.isDefEq.respectTransparency false in
+/-- On an affine spectrum, the cokernel of a morphism between quasi-coherent modules is
+quasi-coherent. -/
+lemma isQuasicoherent_cokernel_of_isQuasicoherent
+    {M N : (Spec R).Modules} (f : M ⟶ N)
+    [M.IsQuasicoherent] [N.IsQuasicoherent] :
+    (cokernel f).IsQuasicoherent := by
+  let eQ := tildeCokernelIso f
   have hQ : ((tilde.functor R).obj
       (cokernel ((moduleSpecΓFunctor (R := R)).map f))).IsQuasicoherent := by
     infer_instance
