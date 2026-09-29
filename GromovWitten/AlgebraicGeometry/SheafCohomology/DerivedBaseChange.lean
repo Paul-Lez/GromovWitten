@@ -94,4 +94,45 @@ lemma rightDerivedBaseChange_zero [PreservesFiniteLimits Q] [PreservesFiniteLimi
   rw [← Category.assoc, rightDerivedBaseChange_zero_comp, Category.assoc,
     Functor.rightDerivedZeroIsoSelf_inv_hom_id_app]
   exact Category.comp_id _
+
+/-- Degree-zero base change is invertible when the underlying square is invertible. -/
+lemma rightDerivedBaseChange_zero_isIso [PreservesFiniteLimits Q] [PreservesFiniteLimits P]
+    (α : Q ⋙ M ⟶ L ⋙ P) (A : C)
+    [IsIso (α.app A)] : IsIso ((rightDerivedBaseChange α 0).app A) := by
+  have hz : IsIso (M.map (Q.rightDerivedZeroIsoSelf.inv.app A) ≫
+      (rightDerivedBaseChange α 0).app A ≫ P.rightDerivedZeroIsoSelf.hom.app (L.obj A)) := by
+    rw [rightDerivedBaseChange_zero]
+    infer_instance
+  simpa only [isIso_comp_left_iff, isIso_comp_right_iff] using hz
+
+set_option backward.isDefEq.respectTransparency false in
+/-- Compare higher base change with the induced map on a chosen resolution. -/
+lemma rightDerivedBaseChange_isIso_iff (α : Q ⋙ M ⟶ L ⋙ P) (A : C) (n : ℕ)
+    (φ : (L.mapHomologicalComplex (.up ℕ)).obj (injectiveResolution A).cocomplex ⟶
+      (injectiveResolution (L.obj A)).cocomplex)
+    (hφ : (singleMapHomologicalComplex L (.up ℕ) 0).inv.app A ≫
+      (L.mapHomologicalComplex (.up ℕ)).map (injectiveResolution A).ι ≫ φ =
+        (injectiveResolution (L.obj A)).ι) :
+    IsIso ((rightDerivedBaseChange α n).app A) ↔
+      IsIso (homologyMap
+        ((NatTrans.mapHomologicalComplex α (.up ℕ)).app (injectiveResolution A).cocomplex ≫
+          (P.mapHomologicalComplex (.up ℕ)).map φ) n) := by
+  rw [rightDerivedBaseChange_app_eq_homologyMap α A n φ hφ]
+  simp only [← Category.assoc, isIso_comp_right_iff]
+  simp only [homologyMap_comp, Category.assoc, isIso_comp_left_iff]
+
+/-- The resolution homology map in degree zero is invertible under ordinary base change. -/
+lemma baseChange_homologyMap_zero_isIso [PreservesFiniteLimits Q] [PreservesFiniteLimits P]
+    (α : Q ⋙ M ⟶ L ⋙ P) (A : C)
+    [IsIso (α.app A)]
+    (φ : (L.mapHomologicalComplex (.up ℕ)).obj (injectiveResolution A).cocomplex ⟶
+      (injectiveResolution (L.obj A)).cocomplex)
+    (hφ : (singleMapHomologicalComplex L (.up ℕ) 0).inv.app A ≫
+      (L.mapHomologicalComplex (.up ℕ)).map (injectiveResolution A).ι ≫ φ =
+        (injectiveResolution (L.obj A)).ι) :
+    IsIso (homologyMap
+      ((NatTrans.mapHomologicalComplex α (.up ℕ)).app (injectiveResolution A).cocomplex ≫
+        (P.mapHomologicalComplex (.up ℕ)).map φ) 0) := by
+  exact (rightDerivedBaseChange_isIso_iff α A 0 φ hφ).mp
+    (rightDerivedBaseChange_zero_isIso α A)
 end CategoryTheory.NatTrans

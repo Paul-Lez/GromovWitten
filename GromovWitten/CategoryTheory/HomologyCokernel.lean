@@ -94,4 +94,27 @@ lemma homologyCokernelIso_map {D : Type*} [Category* D] [Abelian D]
       (congrArg (fun t => t ≫ ((S.X₁.sc j).mapHomologyIso F).hom)
         (homologyCokernelIso_π i j hij hSF hSF₂)).symm)
 
+set_option backward.isDefEq.respectTransparency false in
+/-- Isomorphisms on the degree-i maps of `X₂` and `X₃` force the induced map on `H_j(X₁)`
+to be an isomorphism when the middle `H_j` terms vanish. -/
+lemma homologyMap_isIso_of_isZero_middle (φ : S ⟶ T) (i j : ι) (hij : c.Rel i j)
+    (hS : S.ShortExact) (hT : T.ShortExact)
+    (hS₂ : IsZero (S.X₂.homology j)) (hT₂ : IsZero (T.X₂.homology j))
+    [IsIso (HomologicalComplex.homologyMap φ.τ₂ i)]
+    [IsIso (HomologicalComplex.homologyMap φ.τ₃ i)] :
+    IsIso (HomologicalComplex.homologyMap φ.τ₁ j) := by
+  let e := cokernel.mapIso (HomologicalComplex.homologyMap S.g i)
+    (HomologicalComplex.homologyMap T.g i)
+    (asIso (HomologicalComplex.homologyMap φ.τ₂ i))
+    (asIso (HomologicalComplex.homologyMap φ.τ₃ i))
+    (by
+      simp only [asIso_hom]
+      rw [← HomologicalComplex.homologyMap_comp, ← HomologicalComplex.homologyMap_comp,
+        φ.comm₂₃])
+  have hn := homologyCokernelIso_naturality φ i j hij hS hT hS₂ hT₂
+  change e.hom ≫ (homologyCokernelIso i j hij hT hT₂).hom =
+    (homologyCokernelIso i j hij hS hS₂).hom ≫
+      HomologicalComplex.homologyMap φ.τ₁ j at hn
+  exact IsIso.of_isIso_fac_left hn.symm
+
 end CategoryTheory.ShortComplex.ShortExact

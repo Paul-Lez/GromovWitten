@@ -146,7 +146,12 @@ section Comparison
 variable {X S : Scheme.{u}}
 open GromovWitten.AlgebraicGeometry.SheafCohomology
 
-private lemma isZero_relativeCechPair_homology_one
+/-- The relative Čech pair has no degree-one homology when both open pieces are affine.
+
+This is the acyclicity input used to identify the degree-one homology of the full
+relative Čech complex with the cokernel of its pair differential.
+-/
+lemma isZero_relativeCechPair_homology_one
     {M : X.Modules} (I : InjectiveResolution M) (s : X ⟶ S) (U V : X.Opens)
     [IsLocallyNoetherian X] [M.IsQuasicoherent]
     [IsAffineHom (U.ι ≫ s)] [IsAffineHom (V.ι ≫ s)] :
@@ -190,7 +195,8 @@ def relativeCechCokernelIsoHigherDirectImageOne (s : X ⟶ S) (M : X.Modules)
     (I.isoRightDerivedObj (pushforward s) 1).symm
   exact e₀ ≪≫ e₁ ≪≫ e₂
 
-private def relativeCechComplexMVMap
+/-- The morphism of relative Čech Mayer--Vietoris complexes induced by a cochain map. -/
+def relativeCechComplexMVMap
     {K L : CochainComplex X.Modules ℕ} (φ : K ⟶ L)
     (s : X ⟶ S) (U V : X.Opens) :
     relativeCechComplexMV K s U V ⟶ relativeCechComplexMV L s U V where
