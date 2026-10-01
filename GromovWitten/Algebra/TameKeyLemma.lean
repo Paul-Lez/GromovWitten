@@ -1488,7 +1488,7 @@ section Fiberwise
 
 /-- Summing over the fibres of a map: `∑_y ∑_{φ x = y} G x = ∑_x G x` for `G` of finite
 support. -/
-theorem finsum_fiberwise_keyLemma {X Y : Type*} (φ : X → Y) (G : X → ℤ)
+private theorem finsum_fiberwise_keyLemma {X Y : Type*} (φ : X → Y) (G : X → ℤ)
     (hG : (Function.support G).Finite) :
     ∑ᶠ y, ∑ᶠ x : {x // φ x = y}, G x = ∑ᶠ x, G x := by
   classical

@@ -885,7 +885,7 @@ theorem le_localizationAt_iInf {R : Subalgebra D K} [Ring.KrullDimLE 1 R]
       ((localizationAt R P'.asIdeal).mul_mem (le_localizationAt _ _ (Subtype.prop _))
         ((localizationAt R P'.asIdeal).algebraMap_mem α)))
 
-/-- **Gluing, B2 (d).** If `S` is admissible for `f` over a Noetherian subalgebra `E'` of
+/-- **Gluing, B2 (d).** If `S` is admissible for `f` over a subalgebra `E'` of
 dimension `≤ 1`, and `S ≤ T` with `T` local, then `f` factors in `T`: `T` contains the
 localization of `S` at the contraction of the maximal ideal of `T`, which is either a maximal
 ideal of `S` or zero (in which case `T = K`). -/

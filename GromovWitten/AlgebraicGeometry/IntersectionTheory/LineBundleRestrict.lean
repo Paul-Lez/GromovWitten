@@ -111,7 +111,7 @@ noncomputable def restrict (L : LineBundleData X) (i : Z ⟶ X) [IsClosedImmersi
   J := L.J
   U j := ⟨i ⁻¹ᵁ (L.U j : X.Opens), preimage_mem_affineOpens i (L.U j)⟩
   covers z := L.covers (i.base z)
-  g j j' := pullUnit i (inf_preimage_le_preimage_inf i _ _) (L.g j j')
+  g j j' := pullUnit i (Scheme.Hom.preimage_inf i).ge (L.g j j')
   g_self j := by
     rw [L.g_self, pullUnit_one]
   g_cocycle j j' j'' := by
@@ -119,8 +119,8 @@ noncomputable def restrict (L : LineBundleData X) (i : Z ⟶ X) [IsClosedImmersi
     have h := congrArg (pullUnit i (U := ((i ⁻¹ᵁ (L.U j : X.Opens)) ⊓
       (i ⁻¹ᵁ (L.U j' : X.Opens))) ⊓ (i ⁻¹ᵁ (L.U j'' : X.Opens)))
       (V := ((L.U j : X.Opens) ⊓ (L.U j' : X.Opens)) ⊓ (L.U j'' : X.Opens))
-      ((inf_le_inf_right _ (inf_preimage_le_preimage_inf i _ _)).trans
-        (inf_preimage_le_preimage_inf i _ _)))
+      ((inf_le_inf_right _ (Scheme.Hom.preimage_inf i).ge).trans
+        (Scheme.Hom.preimage_inf i).ge))
       (L.g_cocycle j j' j'')
     rw [pullUnit_mul] at h
     rw [pullUnit_resUnit, pullUnit_resUnit, pullUnit_resUnit] at h
@@ -369,7 +369,7 @@ theorem divisor_restrict_pointFrame_apply_of_specializes (dimX : DimensionFuncti
   have hZ := (L.restrict i).divisor_pointFrame_apply dimZ h hv
   have hX := L.divisor_pointFrame_apply dimX (specializes_hom_base (i := i) h) hv'
   have hs := closedResidueFieldEquiv_sectionResidueUnit i
-    (LineBundleData.inf_preimage_le_preimage_inf i _ _) hv
+    (Scheme.Hom.preimage_inf i).ge hv
     (L.g (L.keyChart (i.base z)) (L.keyChart (i.base q)))
   have ho := pointOrd_closedResidueFieldEquiv i h
     (sectionResidueUnit hv' (L.g (L.keyChart (i.base z)) (L.keyChart (i.base q))))

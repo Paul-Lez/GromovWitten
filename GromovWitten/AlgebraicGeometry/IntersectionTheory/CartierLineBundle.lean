@@ -236,7 +236,7 @@ noncomputable def equationRatioUnit (x y : X) {V : X.Opens}
 /-- **The Čech data of the line bundle `O(D)`.**  The index type is `X`, the chart of `x` is the
 local-equation open `U_x = D.localEquationOpen x`, and the transition unit `g x y` on `U_x ⊓ U_y`
 is the ratio `r_x / r_y` of the local equations, characterised by `r_x = g x y * r_y`
-(`lineBundleData_g_mul`).  In the convention of `LineBundleData` (`e_x = g x y • e_y`) the
+(`lineBundleData_g_val`).  In the convention of `LineBundleData` (`e_x = g x y • e_y`) the
 canonical section has coordinate `r_x` in the chart `x`. -/
 noncomputable def lineBundleData : LineBundleData X where
   J := X

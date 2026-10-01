@@ -895,27 +895,27 @@ theorem tameOf_eq_finprod_semiLoc {B C : Subalgebra D K} (h : IsOverring B C)
   classical
   have := hC.finite_maximalSpectrum
   have : Fintype (MaximalSpectrum C) := Fintype.ofFinite _
-  · have := hB.finite_maximalSpectrum
-    have : Fintype (MaximalSpectrum B) := Fintype.ofFinite _
-    rw [tameOf, finprod_eq_prod_of_fintype, finprod_eq_prod_of_fintype,
-      ← Finset.prod_fiberwise Finset.univ h.contract]
-    refine Finset.prod_congr rfl fun P _ ↦ ?_
-    have := (isOverring_semiLoc P.asIdeal h).finite_maximalSpectrum
-    have : Fintype (MaximalSpectrum (semiLoc h.le P.asIdeal)) := Fintype.ofFinite _
-    rw [finprod_eq_prod_of_fintype]
-    symm
-    refine Finset.prod_bij (fun Q' _ ↦ (⟨semiLocContract h P.asIdeal Q'.asIdeal,
-      isMaximal_semiLocContract h P.asIdeal Q'.asIdeal⟩ : MaximalSpectrum C))
-      (fun Q' _ ↦ ?_) (fun Q₁ _ Q₂ _ he ↦ ?_) (fun Q hQ ↦ ?_) (fun Q' _ ↦ ?_)
-    · simp only [Finset.mem_filter, Finset.mem_univ, true_and]
-      exact MaximalSpectrum.ext (comap_semiLocContract h P.asIdeal Q'.asIdeal)
-    · exact MaximalSpectrum.ext (semiLocContract_injective h P.asIdeal _ _
-        (congrArg MaximalSpectrum.asIdeal he))
-    · simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hQ
-      obtain ⟨Q', hQ', hQ'e⟩ := exists_semiLocContract_eq h P.asIdeal Q.asIdeal
-        (congrArg MaximalSpectrum.asIdeal hQ)
-      exact ⟨⟨Q', hQ'⟩, Finset.mem_univ _, MaximalSpectrum.ext hQ'e⟩
-    · exact normSym_congr (localizationAt_semiLoc_eq h P.asIdeal Q'.asIdeal) f g
+  have := hB.finite_maximalSpectrum
+  have : Fintype (MaximalSpectrum B) := Fintype.ofFinite _
+  rw [tameOf, finprod_eq_prod_of_fintype, finprod_eq_prod_of_fintype,
+    ← Finset.prod_fiberwise Finset.univ h.contract]
+  refine Finset.prod_congr rfl fun P _ ↦ ?_
+  have := (isOverring_semiLoc P.asIdeal h).finite_maximalSpectrum
+  have : Fintype (MaximalSpectrum (semiLoc h.le P.asIdeal)) := Fintype.ofFinite _
+  rw [finprod_eq_prod_of_fintype]
+  symm
+  refine Finset.prod_bij (fun Q' _ ↦ (⟨semiLocContract h P.asIdeal Q'.asIdeal,
+    isMaximal_semiLocContract h P.asIdeal Q'.asIdeal⟩ : MaximalSpectrum C))
+    (fun Q' _ ↦ ?_) (fun Q₁ _ Q₂ _ he ↦ ?_) (fun Q hQ ↦ ?_) (fun Q' _ ↦ ?_)
+  · simp only [Finset.mem_filter, Finset.mem_univ, true_and]
+    exact MaximalSpectrum.ext (comap_semiLocContract h P.asIdeal Q'.asIdeal)
+  · exact MaximalSpectrum.ext (semiLocContract_injective h P.asIdeal _ _
+      (congrArg MaximalSpectrum.asIdeal he))
+  · simp only [Finset.mem_filter, Finset.mem_univ, true_and] at hQ
+    obtain ⟨Q', hQ', hQ'e⟩ := exists_semiLocContract_eq h P.asIdeal Q.asIdeal
+      (congrArg MaximalSpectrum.asIdeal hQ)
+    exact ⟨⟨Q', hQ'⟩, Finset.mem_univ _, MaximalSpectrum.ext hQ'e⟩
+  · exact normSym_congr (localizationAt_semiLoc_eq h P.asIdeal Q'.asIdeal) f g
 
 /-- **T1 (refinement).** If `B` is an admissible overring of `D` for `(f, g)` and `C ⊇ B` is an
 overring of `D`, then `tameOf C = tameOf B`. -/
@@ -1067,7 +1067,7 @@ theorem resDeg_bot_eq (L : Subalgebra D K) [IsLocalRing L] [IsLocalHom (algebraM
 
 omit [IsLocalRing D] [IsNoetherianRing D] [Ring.KrullDimLE 1 D] in
 /-- `Ring.ord` on `⊥` agrees with `Ring.ord` on `D`, for elements of `D`. -/
-theorem ordZ_mk0_bot (x : D) :
+theorem ord_botRingEquiv_toNat (x : D) :
     ((Ring.ord (⊥ : Subalgebra D K) (botRingEquiv D K x)).toNat : ℤ) =
       ((Ring.ord D x).toNat : ℤ) := by
   rw [GromovWitten.AlgebraicGeometry.IntersectionTheory.LocalOrdSymmetry.ord_ringEquiv]
@@ -1091,7 +1091,7 @@ theorem sum_resDeg_mul_ordZ [IsDomain D] {C : Subalgebra D K} (hC : IsOverring �
       rw [← coe_botRingEquiv, h]; rfl)
     have hs := sum_resDeg_mul_ord hC (botRingEquiv D K x) hx0
     rw [finsum_eq_sum_of_fintype] at hs
-    rw [ordZ_mk0 (K := K), ← ordZ_mk0_bot (K := K) x, ← hs, Nat.cast_sum]
+    rw [ordZ_mk0 (K := K), ← ord_botRingEquiv_toNat (K := K) x, ← hs, Nat.cast_sum]
     refine Finset.sum_congr rfl fun P _ ↦ ?_
     have e : Subalgebra.inclusion (hC.le.trans (le_localizationAt C P.asIdeal))
         (botRingEquiv D K x) = algebraMap D (localizationAt C P.asIdeal) x :=
