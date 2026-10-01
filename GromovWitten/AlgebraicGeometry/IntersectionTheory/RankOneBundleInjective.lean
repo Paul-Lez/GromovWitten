@@ -15,10 +15,13 @@ scheme `X` with Noetherian underlying space, with total space `E := 𝓔.totalSp
 `p := 𝓔.proj` and zero section `o := 𝓔.zeroSection`.  By `ZeroSectionCartier.lean` the zero
 section is an effective Cartier divisor `D := zeroSectionDivisor 𝓔` on `E` whose ideal sheaf is
 the kernel of `o`, so `CartierGysin.lean` provides the Gysin map
-`o^* = gysin D o rfl hUE hcovE dimX k : A_{k+1}(E) →ₗ[ℚ] A_k(X)` (under the `firstChernClass`
-hypotheses `hUE`, `hcovE` on `E`).  This file proves `o^* ∘ p^* = id` on Chow groups and deduces
-that the flat pullback `p^* : A_k(X) →ₗ[ℚ] A_{k+1}(E)` (`chowPullbackBundleGlobal`) is injective
-for **every** rank-one bundle, with no global trivialisation.
+`o^* = gysin D o (zeroSectionDivisor_idealSheaf 𝓔).symm hUE hcovE dimX k :
+A_{k+1}(E) →ₗ[ℚ] A_k(X)` (the `hker` argument is `(zeroSectionDivisor_idealSheaf 𝓔).symm`;
+`hUE`, `hcovE` are the `firstChernClass` hypotheses on `E`).  Every result from the Gysin map
+on also assumes that `E` has Noetherian underlying space (`[NoetherianSpace 𝓔.totalSpace]`).
+This file proves `o^* ∘ p^* = id` on Chow groups and deduces that the flat pullback
+`p^* : A_k(X) →ₗ[ℚ] A_{k+1}(E)` (`chowPullbackBundleGlobal`) is injective for **every**
+rank-one bundle, with no global trivialisation.
 
 The computation is on point classes: for `x : X` with `dimX x = k` the pullback of `[x]` is the
 class of the generic point `ξ := bundlePoint 𝓔 x` of `p⁻¹(closure x)`; it lies off `D`, and the
@@ -35,7 +38,8 @@ divisor of the canonical section of `O(D)` along `closure ξ` is `[o x]`
 * `gysinCycle_pullbackBundle`, `gysin_pullbackBundle`: `o^* (p^* a) = [a]` on cycles and on
   Chow groups.
 * `gysin_chowPullbackBundleGlobal`: `o^* ∘ p^* = id` with `p^* = chowPullbackBundleGlobal`
-  (through the index cast `chowCastDim` identifying `k + Nat.card ι` with `k + 1`).
+  (through the index cast `VectorBundle.PullbackBaseChange.chowDegreeCongr` identifying
+  `k + Nat.card ι` with `k + 1`).
 * `mem_totalRationalRelations_of_pullbackBundle`: a graded cycle whose pullback is rationally
   equivalent to zero is itself rationally equivalent to zero.
 * `chowPullbackBundleGlobal_injective_rankOne`: injectivity of `chowPullbackBundleGlobal` for
@@ -57,28 +61,6 @@ namespace RankOneBundleInjective
 open LineBundleInjective BundlePullbackGlobal BundleOverSubscheme
 open GromovWitten.AlgebraicGeometry.VectorBundleTotalSpace
 open _root_.GromovWitten.AlgebraicGeometry.IntersectionTheory.VectorBundle (UnitDifferences)
-
-/-! ## Transport of Chow groups along an equality of dimension indices -/
-
-section Cast
-
-variable {X : Scheme.{u}} {dim : DimensionFunction X}
-
-/-- Transport of the dimension-graded Chow group along an equality `m = n` of dimension
-indices (the identity after substitution). -/
-noncomputable def chowCastDim {m n : ℤ} (h : m = n) :
-    (chowSystem dim m).ChowGroup ≃ₗ[ℚ] (chowSystem dim n).ChowGroup := by
-  subst h
-  exact LinearEquiv.refl ℚ _
-
-/-- `chowCastDim` on the class of a cycle is the class of the same cycle. -/
-theorem chowCastDim_quotientMap {m n : ℤ} (h : m = n) (a : cyclesOfDimension X dim m) :
-    chowCastDim (dim := dim) h ((chowSystem dim m).quotientMap a) =
-      (chowSystem dim n).quotientMap ⟨a, by rw [← h]; exact a.2⟩ := by
-  subst h
-  rfl
-
-end Cast
 
 /-! ## The dimension shift and the pullback of graded cycles for a rank-one bundle -/
 
@@ -117,12 +99,6 @@ theorem pullbackBundle_mem_cyclesOfDimension (k : ℤ) (a : cyclesOfDimension X 
     by_contra hcon
     exact hval (a.2 x hcon)
   exact hq (by rw [dimE_bundlePoint_eq_add_one 𝓔 hshift x, hdx])
-
-/-- The kernel of the zero section is the ideal sheaf of the zero-section divisor (the
-hypothesis `hker` of the Gysin map, here definitional). -/
-theorem zeroSection_ker_eq_idealSheaf :
-    𝓔.zeroSection.ker = (zeroSectionDivisor 𝓔).idealSheaf :=
-  (zeroSectionDivisor_idealSheaf 𝓔).symm
 
 end Shift
 
@@ -181,7 +157,7 @@ restriction along `o` of the divisor `[o x]` of the canonical section, that is, 
 `pointProj dimX k x`. -/
 theorem gysinSummand_bundlePoint (k : ℤ) (x : X) :
     gysinSummand (zeroSectionDivisor 𝓔) 𝓔.zeroSection
-        (zeroSection_ker_eq_idealSheaf 𝓔) dimE dimX k (bundlePoint 𝓔 x) =
+        (zeroSectionDivisor_idealSheaf 𝓔).symm dimE dimX k (bundlePoint 𝓔 x) =
       (chowSystem dimX k).quotientMap (cyclesOfDimension.pointProj dimX k x) := by
   classical
   rw [gysinSummand_of_not_mem_support _ _ _ _ _ _
@@ -196,20 +172,20 @@ include hshift in
 pullback of a graded cycle `a` to the class of `a`. -/
 theorem gysinCycle_pullbackBundle (k : ℤ) (a : cyclesOfDimension X dimX k) :
     gysinCycle (zeroSectionDivisor 𝓔) 𝓔.zeroSection
-        (zeroSection_ker_eq_idealSheaf 𝓔) dimE dimX k
+        (zeroSectionDivisor_idealSheaf 𝓔).symm dimE dimX k
         ⟨pullbackBundle 𝓔 a, pullbackBundle_mem_cyclesOfDimension 𝓔 hshift k a⟩ =
       (chowSystem dimX k).quotientMap a := by
   rw [gysinCycle_apply]
   change ∑ᶠ q, pullbackBundle 𝓔 a q •
     gysinSummand (zeroSectionDivisor 𝓔) 𝓔.zeroSection
-        (zeroSection_ker_eq_idealSheaf 𝓔) dimE dimX k q = _
+        (zeroSectionDivisor_idealSheaf 𝓔).symm dimE dimX k q = _
   have hsupp : Function.support (fun q : 𝓔.totalSpace => pullbackBundle 𝓔 a q •
       gysinSummand (zeroSectionDivisor 𝓔) 𝓔.zeroSection
-        (zeroSection_ker_eq_idealSheaf 𝓔) dimE dimX k q) ⊆
+        (zeroSectionDivisor_idealSheaf 𝓔).symm dimE dimX k q) ⊆
       Set.range (bundlePoint 𝓔) :=
     (Function.support_smul_subset_left (fun q : 𝓔.totalSpace => pullbackBundle 𝓔 a q)
       (gysinSummand (zeroSectionDivisor 𝓔) 𝓔.zeroSection
-        (zeroSection_ker_eq_idealSheaf 𝓔) dimE dimX k)).trans
+        (zeroSectionDivisor_idealSheaf 𝓔).symm dimE dimX k)).trans
       (support_pullbackBundleFun_subset 𝓔 a)
   rw [finsum_comp_of_injective_of_support_subset_range (bundlePoint_injective 𝓔) _ hsupp]
   simp_rw [pullbackBundle_apply_bundlePoint, gysinSummand_bundlePoint 𝓔 hshift k,
@@ -236,7 +212,7 @@ include hshift in
 /-- **`o^* p^* = id` on Chow groups**, for the class of a pulled-back graded cycle. -/
 theorem gysin_pullbackBundle (k : ℤ) (a : cyclesOfDimension X dimX k) :
     gysin (zeroSectionDivisor 𝓔) 𝓔.zeroSection
-        (zeroSection_ker_eq_idealSheaf 𝓔) hUE hcovE dimX k
+        (zeroSectionDivisor_idealSheaf 𝓔).symm hUE hcovE dimX k
         ((chowSystem dimE (k + 1)).quotientMap
           ⟨pullbackBundle 𝓔 a, pullbackBundle_mem_cyclesOfDimension 𝓔 hshift k a⟩) =
       (chowSystem dimX k).quotientMap a := by
@@ -249,21 +225,24 @@ theorem add_natCard_eq_add_one (k : ℤ) : k + (Nat.card ι : ℤ) = k + 1 := by
 /-- **`o^* ∘ p^* = id` on Chow groups** (Fulton, *Intersection Theory*, Thm. 3.3(a) in rank
 one): for every rank-one bundle, the Gysin map of the zero section composed with the flat
 pullback `chowPullbackBundleGlobal` is the identity of `A_k(X)`, after identifying the index
-`k + Nat.card ι` with `k + 1` by `chowCastDim`. -/
+`k + Nat.card ι` with `k + 1` by `VectorBundle.PullbackBaseChange.chowDegreeCongr`. -/
 theorem gysin_chowPullbackBundleGlobal (k : ℤ) (α : (chowSystem dimX k).ChowGroup) :
     gysin (zeroSectionDivisor 𝓔) 𝓔.zeroSection
-        (zeroSection_ker_eq_idealSheaf 𝓔) hUE hcovE dimX k
-        (chowCastDim (dim := dimE) (add_natCard_eq_add_one (ι := ι) k)
+        (zeroSectionDivisor_idealSheaf 𝓔).symm hUE hcovE dimX k
+        (VectorBundle.PullbackBaseChange.chowDegreeCongr (add_natCard_eq_add_one (ι := ι) k)
+          (chowSystem dimE (k + (Nat.card ι : ℤ))) (chowSystem dimE (k + 1))
           (chowPullbackBundleGlobal 𝓔 dimX dimE hshift k (chowSystem dimX k)
             (chowSystem dimE (k + (Nat.card ι : ℤ))) α)) = α := by
   obtain ⟨a, rfl⟩ := Submodule.Quotient.mk_surjective _ α
   change gysin (zeroSectionDivisor 𝓔) 𝓔.zeroSection
-        (zeroSection_ker_eq_idealSheaf 𝓔) hUE hcovE dimX k
-      (chowCastDim (dim := dimE) (add_natCard_eq_add_one (ι := ι) k)
+        (zeroSectionDivisor_idealSheaf 𝓔).symm hUE hcovE dimX k
+      (VectorBundle.PullbackBaseChange.chowDegreeCongr (add_natCard_eq_add_one (ι := ι) k)
+        (chowSystem dimE (k + (Nat.card ι : ℤ))) (chowSystem dimE (k + 1))
         (chowPullbackBundleGlobal 𝓔 dimX dimE hshift k (chowSystem dimX k)
           (chowSystem dimE (k + (Nat.card ι : ℤ))) ((chowSystem dimX k).quotientMap a))) =
     (chowSystem dimX k).quotientMap a
-  rw [chowPullbackBundleGlobal_quotientMap, chowCastDim_quotientMap]
+  rw [chowPullbackBundleGlobal_quotientMap,
+    VectorBundle.PullbackBaseChange.chowDegreeCongr_quotientMap]
   exact gysin_pullbackBundle 𝓔 hshift hUE hcovE k a
 
 include hshift hUE hcovE in
@@ -278,7 +257,7 @@ theorem mem_totalRationalRelations_of_pullbackBundle (k : ℤ) (a : cyclesOfDime
   have hrel : (⟨pullbackBundle 𝓔 a, pullbackBundle_mem_cyclesOfDimension 𝓔 hshift k a⟩ :
       cyclesOfDimension 𝓔.totalSpace dimE (k + 1)) ∈ (chowSystem dimE (k + 1)).relations := h
   have h0 := gysinCycle_relations_le_ker (zeroSectionDivisor 𝓔) 𝓔.zeroSection
-        (zeroSection_ker_eq_idealSheaf 𝓔) dimE dimX k
+        (zeroSectionDivisor_idealSheaf 𝓔).symm dimE dimX k
     hUE hcovE hrel
   rw [LinearMap.mem_ker, gysinCycle_pullbackBundle 𝓔 hshift k a] at h0
   have h1 : a ∈ (chowSystem dimX k).relations := (Submodule.Quotient.mk_eq_zero _).1 h0
@@ -320,7 +299,12 @@ open GromovWitten.AlgebraicGeometry.NormalSheafPicard.AffineIntrinsicNormalSheaf
 
 variable {F : Type u} [Field F] [Infinite F] {X : Scheme.{u}}
   (f : X ⟶ Spec (CommRingCat.of F)) [LocallyOfFiniteType f] [CompactSpace X] {ι : Type u}
-  [Unique ι] (𝓔 : BundleData X ι) (i : ℤ)
+  [Unique ι] (𝓔 : BundleData X ι)
+  {k : Type u} [CommRing k] {R : 𝓔.J → Type u} [∀ j, CommRing (R j)]
+  [∀ j, Algebra k (R j)] {I : ∀ j, Ideal (R j)} {E : ∀ j, LinearTwoTermComplex (R j ⧸ I j)}
+  {φ : ∀ j, LinearTwoTermComplex.Hom (E j) (conormalComplex k (R j) (I j))}
+  (𝒞 : VirtualClass.GlobalCone.GlobalConeData 𝓔 φ) [IsLocallyNoetherian 𝒞.coneScheme]
+  (i : ℤ)
   (RX : RationalEquivalenceSystem X (dimensionFunction f) i)
   (RE : RationalEquivalenceSystem 𝓔.totalSpace (dimensionFunction (𝓔.proj ≫ f))
     (i + (Nat.card ι : ℤ)))
@@ -339,10 +323,7 @@ theorem chowPullbackBundleGlobal_injective_finiteType :
     (unitDifferences_stalk_of_infinite (𝓔.proj ≫ f))
     (covByDimension_finiteTypeDimension (𝓔.proj ≫ f)) i RX RE
 
-variable {k : Type u} [CommRing k] {𝓔} {R : 𝓔.J → Type u} [∀ j, CommRing (R j)]
-  [∀ j, Algebra k (R j)] {I : ∀ j, Ideal (R j)} {E : ∀ j, LinearTwoTermComplex (R j ⧸ I j)}
-  {φ : ∀ j, LinearTwoTermComplex.Hom (E j) (conormalComplex k (R j) (I j))}
-  (𝒞 : VirtualClass.GlobalCone.GlobalConeData 𝓔 φ) [IsLocallyNoetherian 𝒞.coneScheme]
+variable {𝓔}
 
 /-- **The injectivity hypothesis `hinj` of `virtualClassFT'_unique` holds for every rank-one
 obstruction bundle** over a compact scheme locally of finite type over an infinite field. -/
@@ -366,7 +347,7 @@ theorem eq_virtualClassFT'_of_pullback_eq_rankOne (α : RX.ChowGroup)
     (hα : bundlePullbackFT f i RX RE α =
       𝒞.coneClassAt (dimensionFunction (𝓔.proj ≫ f)) (i + (Nat.card ι : ℤ)) RE) :
     virtualClassFT' f 𝒞 i RX RE = α :=
-  (virtualClassFT'_unique_rankOne f i RX RE 𝒞 α hα).symm
+  (virtualClassFT'_unique_rankOne f 𝒞 i RX RE α hα).symm
 
 /-- **Existence and uniqueness of the virtual fundamental class for a rank-one obstruction
 bundle** over a compact scheme locally of finite type over an infinite field: there is exactly
