@@ -475,3 +475,5 @@ import GromovWitten.Algebra.TameGluing
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.PointStalk
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.PointOrder
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.KeyFormula
+import GromovWitten.Algebra.TameSymbol
+import GromovWitten.Algebra.TameKeyLemma
