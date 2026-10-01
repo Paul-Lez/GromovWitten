@@ -481,3 +481,4 @@ import GromovWitten.AlgebraicGeometry.IntersectionTheory.FirstChernClassGeneral
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.CartierLineBundle
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.LineBundleRestrict
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.ZeroSectionCartier
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.CartierGysin
