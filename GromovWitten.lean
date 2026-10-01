@@ -479,3 +479,4 @@ import GromovWitten.Algebra.TameSymbol
 import GromovWitten.Algebra.TameKeyLemma
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.FirstChernClassGeneral
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.CartierLineBundle
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.LineBundleRestrict
