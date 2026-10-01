@@ -40,7 +40,8 @@ The proof follows Stacks 42.6.2:
 * `GromovWitten.Algebra.Tame.finite_support_tameOrd`, `support_tameOrd_subset`: the sum is
   finite, supported on the height-one primes where `f` or `g` is not a unit of `A_q`
   (`IsUnitAtPrime`, `isUnitAtPrime_iff`).
-* `GromovWitten.Algebra.Tame.tameOrd_mul_left`, `tameOrd_mul_right`: additivity.
+* `GromovWitten.Algebra.Tame.tameOrd_mul_left`, `tameOrd_mul_right`, `tameOrd_inv_left`,
+  `tameOrd_inv_right`: additivity in each argument.
 * `GromovWitten.Algebra.Tame.finsum_tameOrd_eq_zero_of_ne_zero`: the case `f, g ∈ A`
   (Stacks 42.6.2).
 * `GromovWitten.Algebra.Tame.herbrand_satComplex`: the Herbrand computation
@@ -142,7 +143,7 @@ theorem krullDimLE_one_localization_of_height_eq_one {q : Ideal A} [q.IsPrime] (
 
 omit [IsDomain A] [IsNoetherianRing A] in
 /-- A height-one prime of a two-dimensional local ring is not maximal. -/
-theorem not_isMaximal_of_height_eq_one (hdim : ringKrullDim A = 2) {q : Ideal A} [q.IsPrime]
+private theorem not_isMaximal_of_height_eq_one (hdim : ringKrullDim A = 2) {q : Ideal A} [q.IsPrime]
     (hq : q.height = 1) : ¬ q.IsMaximal := by
   intro h
   have := IsLocalRing.maximalIdeal_height_eq_ringKrullDim (R := A)
@@ -246,7 +247,7 @@ def scalComplex (M : Type*) [AddCommGroup M] [Module A M] (a b : A)
     rw [smul_smul, mul_comm, h]
 
 /-- An element of an ideal `J` kills the module `A ⧸ J`. -/
-theorem smul_quotient_eq_zero_of_mem {J : Ideal A} {c : A} (hc : c ∈ J) (x : A ⧸ J) :
+private theorem smul_quotient_eq_zero_of_mem {J : Ideal A} {c : A} (hc : c ∈ J) (x : A ⧸ J) :
     c • x = 0 := by
   induction x using Submodule.Quotient.induction_on with
   | H r =>
@@ -342,7 +343,8 @@ theorem herbrand_smulComplex_range {t x y s₀ w₀ c : A} (hs₀ : s₀ ∉ q)
 
 omit [IsDomain A] [IsNoetherianRing A] [IsLocalRing A] hdim hq1 in
 /-- Orders in `A_q` of elements of `A` related by `s * x = u * y` with `s, u ∉ q`. -/
-theorem ord_localization_eq_of_mul {x y s u : A} (hs : s ∉ q) (hu : u ∉ q) (h : s * x = u * y) :
+private theorem ord_localization_eq_of_mul {x y s u : A} (hs : s ∉ q) (hu : u ∉ q)
+    (h : s * x = u * y) :
     Ring.ord (Localization.AtPrime q) (algebraMap A (Localization.AtPrime q) x) =
       Ring.ord (Localization.AtPrime q) (algebraMap A (Localization.AtPrime q) y) := by
   have hs' : IsUnit (algebraMap A (Localization.AtPrime q) s) :=
@@ -354,7 +356,7 @@ theorem ord_localization_eq_of_mul {x y s u : A} (hs : s ∉ q) (hu : u ∉ q) (
 
 omit [IsNoetherianRing A] [IsLocalRing A] hdim hq1 in
 /-- The order in `A_q` of a power. -/
-theorem ord_localization_pow {x : A} (hx : x ≠ 0) (n : ℕ) :
+private theorem ord_localization_pow {x : A} (hx : x ≠ 0) (n : ℕ) :
     (Ring.ord (Localization.AtPrime q) (algebraMap A (Localization.AtPrime q) (x ^ n))).toNat =
       n * (Ring.ord (Localization.AtPrime q) (algebraMap A (Localization.AtPrime q) x)).toNat := by
   have hx' : algebraMap A (Localization.AtPrime q) x ∈ nonZeroDivisors (Localization.AtPrime q) :=
@@ -617,7 +619,7 @@ variable {D K : Type*} [CommRing D] [Field K] [Algebra D K] {B : Subalgebra D K}
   {Q : Ideal B} [hQ : Q.IsPrime]
 
 /-- An element of `B` lying in `Q` is not a unit of the localization `B_Q ⊆ K`. -/
-theorem not_isUnit_localizationAt_of_mem {x : B} (hx : x ∈ Q) :
+private theorem not_isUnit_localizationAt_of_mem {x : B} (hx : x ∈ Q) :
     ¬ IsUnit (⟨(x : K), le_localizationAt B Q x.2⟩ : localizationAt B Q) := by
   rintro ⟨w, hw⟩
   obtain ⟨d, hd, hdw⟩ := (mem_localizationAt B Q).1 (w⁻¹ : (localizationAt B Q)ˣ).1.2
@@ -631,7 +633,7 @@ theorem not_isUnit_localizationAt_of_mem {x : B} (hx : x ∈ Q) :
   exact hd (hprod ▸ Q.mul_mem_right _ hx)
 
 /-- A numerator `c w ∈ B` (`c ∉ Q`) of a unit `w` of `B_Q ⊆ K` lies outside `Q`. -/
-theorem mul_unit_notMem {w : (localizationAt B Q)ˣ} {c : B} (hc : c ∉ Q)
+private theorem mul_unit_notMem {w : (localizationAt B Q)ˣ} {c : B} (hc : c ∉ Q)
     (hcw : (c : K) * ((w : localizationAt B Q) : K) ∈ B) : (⟨_, hcw⟩ : B) ∉ Q := by
   intro hmem
   obtain ⟨d, hd, hdw⟩ := (mem_localizationAt B Q).1 (w⁻¹ : (localizationAt B Q)ˣ).1.2
@@ -648,7 +650,7 @@ theorem mul_unit_notMem {w : (localizationAt B Q)ˣ} {c : B} (hc : c ∉ Q)
 
 omit hQ in
 /-- Coercion to `K` of an integer power of a unit of a subalgebra. -/
-theorem coe_units_zpow_subalgebra {S : Subalgebra D K} (w : Sˣ) (n : ℤ) :
+private theorem coe_units_zpow_subalgebra {S : Subalgebra D K} (w : Sˣ) (n : ℤ) :
     (((w ^ n : Sˣ) : S) : K) = ((w : S) : K) ^ n := by
   have h := congrArg Units.val (map_zpow (Units.map (S.val : S →* K)) w n)
   rwa [Units.val_zpow_eq_zpow_val] at h
@@ -807,7 +809,7 @@ variable {R : Type*} [CommRing R] [IsDomain R] [IsLocalRing R] [IsNoetherianRing
 
 omit [IsDomain R] [IsNoetherianRing R] in
 /-- A quotient of a local ring by a prime ideal is local. -/
-theorem isLocalRing_quotient_prime (P : Ideal R) [hP : P.IsPrime] : IsLocalRing (R ⧸ P) :=
+private theorem isLocalRing_quotient_prime (P : Ideal R) [hP : P.IsPrime] : IsLocalRing (R ⧸ P) :=
   have := Ideal.Quotient.nontrivial_iff.2 hP.ne_top
   .of_surjective' (Ideal.Quotient.mk P) Ideal.Quotient.mk_surjective
 
@@ -851,7 +853,8 @@ variable {A B : Type*} [CommRing A] [IsDomain A] [IsNoetherianRing A] [IsLocalRi
   [CommRing B] [IsDomain B] [IsNoetherianRing B] [IsLocalRing B] [Algebra A B] [Module.Finite A B]
 
 /-- A finite field extension with surjective structure map has degree one. -/
-theorem finrank_eq_one_of_surjective_algebraMap {F E : Type*} [Field F] [Field E] [Algebra F E]
+private theorem finrank_eq_one_of_surjective_algebraMap {F E : Type*} [Field F] [Field E]
+    [Algebra F E]
     (h : Function.Surjective (algebraMap F E)) : Module.finrank F E = 1 := by
   have e := LinearEquiv.ofBijective (Algebra.linearMap F E) ⟨(algebraMap F E).injective, h⟩
   rw [← e.finrank_eq, Module.finrank_self]
@@ -1069,7 +1072,7 @@ variable {R : Type*} [CommRing R] [IsDomain R] [IsNoetherianRing R] [IsLocalRing
   {K : Type*} [Field K] [Algebra R K] [IsFractionRing R K]
 
 /-- `ordZ (-1) = 0`. -/
-theorem ordZ_neg_one {S L : Type*} [CommRing S] [IsDomain S] [IsNoetherianRing S]
+private theorem ordZ_neg_one {S L : Type*} [CommRing S] [IsDomain S] [IsNoetherianRing S]
     [Ring.KrullDimLE 1 S] [Field L] [Algebra S L] [IsFractionRing S L] :
     ordZ S (-1 : Lˣ) = 0 := by
   have h := ordZ_mul (R := S) (-1 : Lˣ) (-1)
@@ -1360,7 +1363,7 @@ end NormStep
 section OrdZProd
 
 /-- `ordZ` turns finite products into sums. -/
-theorem ordZ_finprod {R L ι : Type*} [CommRing R] [IsDomain R] [IsNoetherianRing R]
+private theorem ordZ_finprod {R L ι : Type*} [CommRing R] [IsDomain R] [IsNoetherianRing R]
     [Ring.KrullDimLE 1 R] [Field L] [Algebra R L] [IsFractionRing R L] [Finite ι] (u : ι → Lˣ) :
     ordZ R (∏ᶠ i, u i) = ∑ᶠ i, ordZ R (u i) := by
   classical

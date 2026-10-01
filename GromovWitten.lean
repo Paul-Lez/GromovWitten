@@ -477,3 +477,5 @@ import GromovWitten.AlgebraicGeometry.IntersectionTheory.PointOrder
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.KeyFormula
 import GromovWitten.Algebra.TameSymbol
 import GromovWitten.Algebra.TameKeyLemma
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.FirstChernClassGeneral
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.CartierLineBundle
