@@ -17,6 +17,8 @@ public entry points are recorded in
 
 Implemented APIs include:
 
+- the first Chern class `c₁(L) ∩ -` of every Čech line bundle on rational Chow groups, commuting for two line bundles, via the Stacks tame symbol and key lemma (periodic complexes, admissible overrings inside the fraction field, two-dimensional gluing, orders of norms) and a chart-free description of the local rings of point closures (`Algebra/Herbrand.lean`, `Algebra/Tame*.lean`, `Algebra/NormOrder.lean`, `IntersectionTheory/PointStalk.lean`, `PointOrder.lean`, `KeyFormula.lean`, `FirstChernClassGeneral.lean`); hypothesis-free over an infinite field, otherwise under `UnitDifferences` of the stalks;
+- the Gysin map of an effective Cartier divisor on rational Chow groups with both composition laws, the Čech line bundle `O(D)` with its canonical section, restriction of Čech line bundles along closed immersions with the projection formula, and injectivity of the flat pullback along every rank-one bundle (`o^* p^* = id`), so the virtual class of a rank-one obstruction bundle is unique (`IntersectionTheory/CartierLineBundle.lean`, `LineBundleRestrict.lean`, `CartierGysin.lean`, `ZeroSectionCartier.lean`, `RankOneBundleInjective.lean`); higher rank needs projective bundles;
 - affine perfect objects represented by bounded finite-projective complexes, with shifts,
   biproducts, mapping cones, and all three distinguished-triangle closure theorems;
   a scalar-extension functor on projective-perfect derived objects and representative-independent
