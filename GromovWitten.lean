@@ -482,3 +482,4 @@ import GromovWitten.AlgebraicGeometry.IntersectionTheory.CartierLineBundle
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.LineBundleRestrict
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.ZeroSectionCartier
 import GromovWitten.AlgebraicGeometry.IntersectionTheory.CartierGysin
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.RankOneBundleInjective
