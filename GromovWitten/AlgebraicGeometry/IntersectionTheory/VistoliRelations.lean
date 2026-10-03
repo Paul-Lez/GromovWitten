@@ -124,7 +124,7 @@ end UnitPull
 /-! ## Finite fibres of étale morphisms from quasi-compact schemes -/
 
 /-- Preimages of finite sets under an étale morphism with quasi-compact source are finite. -/
-private theorem finite_preimage_of_etale_of_compactSpace {X Y : Scheme.{u}} [CompactSpace X]
+theorem finite_preimage_of_etale_of_compactSpace {X Y : Scheme.{u}} [CompactSpace X]
     (f : X ⟶ Y) [_root_.AlgebraicGeometry.Etale f] {A : Set Y} (hA : A.Finite) :
     (f.base ⁻¹' A).Finite := by
   classical

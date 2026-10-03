@@ -56,7 +56,7 @@ variable {X : FppfStack.{u}}
 /-! ## Unit and associativity coherences for pullback isomorphisms -/
 
 /-- The equality-transport isomorphism `stackPullbackObjIsoOfEq` is an `eqToHom`. -/
-private theorem stackPullbackObjIsoOfEq_hom_eq_eqToHom {R T : Scheme.{u}} {f g : R ⟶ T}
+theorem stackPullbackObjIsoOfEq_hom_eq_eqToHom {R T : Scheme.{u}} {f g : R ⟶ T}
     (h : f = g) (x : StackFiber X T) :
     (stackPullbackObjIsoOfEq X h x).hom = eqToHom (by rw [h]) := by
   subst h
@@ -65,7 +65,7 @@ private theorem stackPullbackObjIsoOfEq_hom_eq_eqToHom {R T : Scheme.{u}} {f g :
 set_option backward.isDefEq.respectTransparency false in
 /-- Unit coherence: the compositor along `𝟙 ≫ map`, corrected by the transport along
 `𝟙 ≫ map = map`, is the unit isomorphism of the stack pseudofunctor. -/
-private theorem stackPullbackCompIso_id_hom {U T : Scheme.{u}} (map : U ⟶ T)
+theorem stackPullbackCompIso_id_hom {U T : Scheme.{u}} (map : U ⟶ T)
     (z : StackFiber X T) :
     (stackPullbackCompIso X (𝟙 U) map z).hom ≫
         (stackPullbackObjIsoOfEq X (Category.id_comp map) z).hom =
