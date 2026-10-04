@@ -30,9 +30,10 @@ associated divisor cycle on `V` (and, pushed forward, on `X`).
 
 ## Convention
 
-The transition unit `g j j'` is the factor relating the local generators `e_j = g j j' • e_{j'}`
-of the two charts.  A rational section `s` with coordinate `f` in the chart `j₀` (i.e.
-`s = f • e_{j₀}`) has coordinate `unitAt j j₀ * f` in the chart `j`.
+The transition unit `g j j'` is the factor relating the local generators `e_{j'} = g j j' • e_j`
+of the two charts, so that coordinates transform by `f_j = g j j' * f_{j'}`.  A rational section
+`s` with coordinate `f` in the chart `j₀` (i.e. `s = f • e_{j₀}`) has coordinate
+`unitAt j j₀ * f` in the chart `j`.
 -/
 
 open CategoryTheory AlgebraicGeometry TopologicalSpace
