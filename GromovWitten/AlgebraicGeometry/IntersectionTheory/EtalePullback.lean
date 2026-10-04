@@ -646,9 +646,15 @@ noncomputable def etalePresentation
   src_dim := hsrc
   tgt_dim := htgt
 
-/-- **The Vistoli rational Chow group of a Deligne--Mumford stack** in dimension `i`: the
-dimension-`i` rational cycles on the chosen etale atlas whose two pullbacks to the self-overlap
-agree, modulo rational equivalence on the atlas. -/
+/-- The dimension-`i` rational cycles on the chosen etale atlas whose two pullbacks to the
+self-overlap agree, modulo rational equivalence on the atlas (`EtalePresentationGroupoid.chow`).
+
+**This quotient is coarser than Vistoli's and depends on the atlas** (see
+`PresentationGroupoidData.chow`).  The genuine, atlas-independent Vistoli Chow group of the
+stack is `(X.chosenEtaleAtlas.etaleGroupoid _ _).vistoliChow i` from `ChartGroupoid.lean`
+(quotient by `vistoliRelations`); `DeligneMumfordStack.vistoliChowEquivOfChart` in
+`AtlasIndependence.lean` identifies it with the group computed from any other etale atlas, and
+`DeligneMumfordStack.chosenEtaleAtlas_etaleGroupoid_eq` identifies the underlying groupoids. -/
 noncomputable abbrev vistoliChow
     (baseDim : IntersectionTheory.DimensionFunction X.chosenEtaleAtlas.scheme)
     (arrowsDim : IntersectionTheory.DimensionFunction X.chosenEtaleAtlasSelfOverlap.space)

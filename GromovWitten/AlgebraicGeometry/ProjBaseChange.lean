@@ -11,6 +11,7 @@ import Mathlib.AlgebraicGeometry.Pullbacks
 import Mathlib.AlgebraicGeometry.Morphisms.Basic
 import Mathlib.AlgebraicGeometry.Morphisms.IsIso
 import Mathlib.RingTheory.TensorProduct.Basic
+import GromovWitten.AlgebraicGeometry.ProjClosedImmersion
 
 /-!
 # Base change of `Proj`
@@ -500,9 +501,8 @@ theorem awayι_map_projection :
 
 theorem chartι_isPullback_map :
     IsPullback (Spec.map (CommRingCat.ofHom (Away.map ψ.toGradedRingHom s)))
-      (chartι ψ hs hd) (Proj.awayι 𝒜 s hs hd) (Proj.map ψ.toGradedRingHom h.irrelevant_le) := by
-  refine IsOpenImmersion.isPullback _ _ _ _ (chartι_comp_map ψ h hs hd) ?_
-  rw [Proj.opensRange_awayι, Proj.opensRange_awayι, Proj.map_preimage_basicOpen]
+      (chartι ψ hs hd) (Proj.awayι 𝒜 s hs hd) (Proj.map ψ.toGradedRingHom h.irrelevant_le) :=
+  isPullback_awayι_map ψ.toGradedRingHom h.irrelevant_le hd hs
 
 include h in
 theorem chart_isPullback_projection :
