@@ -426,6 +426,41 @@ noncomputable def finiteCechFunctor (U : List (Opens X)) :
   map_id F := finiteCechMap_id F U
   map_comp f g := finiteCechMap_comp f g U
 
+/-- The finite Čech construction preserves any lower bound on the degrees of its input. -/
+lemma finiteCechData_boundedBelow (F : PresheafComplex X R) (d : ℤ)
+    (hF : ∀ i : ℤ, i < d → IsZero (F.X i)) (U : List (Opens X)) :
+    ∀ i : ℤ, i < d → IsZero ((finiteCechData F U).complex.X i) := by
+  induction U with
+  | nil =>
+      intro i hi
+      simpa [finiteCechData, HomologicalComplex.zero] using
+        (isZero_zero (Presheaves X R))
+  | cons U tail ih =>
+      let tailData := finiteCechData F tail
+      let restrict := restrictionComplexFunctor (X := X) (R := R) U
+      let A := restrict.obj F ⊞ tailData.complex
+      let φ : A ⟶ restrict.obj tailData.complex := biprod.desc
+        (restrict.map tailData.augmentation)
+        (-((restrictionComplexNatTrans (X := X) (R := R) U).app tailData.complex))
+      intro i hi
+      change IsZero ((CochainComplex.mappingCocone φ).X i)
+      have hFres : IsZero ((restrict.obj F).X i) :=
+        Functor.map_isZero (restrictionFunctor (X := X) (R := R) U) (hF i hi)
+      have hA : IsZero (A.X i) := by
+        refine IsZero.of_iso ?_ (HomologicalComplex.biprodXIso
+          (restrict.obj F) tailData.complex i)
+        rw [biprod_isZero_iff]
+        exact ⟨hFres, ih i hi⟩
+      have hD : IsZero ((restrict.obj tailData.complex).X (i - 1)) :=
+        Functor.map_isZero (restrictionFunctor (X := X) (R := R) U)
+          (ih (i - 1) (by omega))
+      have hCone : IsZero ((CochainComplex.mappingCone φ).X (i - 1)) := by
+        rw [CochainComplex.mappingCone.isZero_X_iff]
+        simpa using And.intro hA hD
+      exact IsZero.of_iso hCone
+        (CochainComplex.shiftFunctorObjXIso (CochainComplex.mappingCone φ)
+          (-1) i (i - 1) (by omega))
+
 /-- The recursively defined complex has no terms below zero or above the cover length,
 provided the input is concentrated in degree zero. -/
 lemma finiteCechData_bounded_support (F : PresheafComplex X R)

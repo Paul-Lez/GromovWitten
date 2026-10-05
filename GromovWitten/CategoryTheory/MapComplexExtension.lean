@@ -111,6 +111,21 @@ lemma mapExtendIso_hom_naturality {L : HomologicalComplex A c} (f : K ⟶ L) :
     simp only [reassoc_of% hi]
   · exact (H.map_isZero (K.isZero_extend_X e j (by simpa using hj))).eq_of_src _ _
 
+/-- Quasi-isomorphism at an embedded degree is preserved when extension by zero is
+followed by an additive functor. -/
+lemma quasiIsoAt_map_extendMap [CategoryWithHomology B]
+    {L : HomologicalComplex A c} (f : K ⟶ L) (i : ι)
+    [QuasiIsoAt ((H.mapHomologicalComplex c).map f) i] :
+    QuasiIsoAt ((H.mapHomologicalComplex c').map (extendMap f e)) (e.f i) := by
+  have : QuasiIsoAt (extendMap ((H.mapHomologicalComplex c).map f) e) (e.f i) :=
+    (quasiIsoAt_extendMap_iff _ e rfl).mpr inferInstance
+  have hcomp : QuasiIsoAt
+      ((H.mapHomologicalComplex c').map (extendMap f e) ≫ (mapExtendIso H e L).hom)
+      (e.f i) := by
+    rw [mapExtendIso_hom_naturality]
+    infer_instance
+  exact (quasiIsoAt_iff_comp_right _ (mapExtendIso H e L).hom (e.f i)).mp hcomp
+
 /-- A map that becomes a quasi-isomorphism after applying a functor retains this property
 after extension by zero. -/
 lemma quasiIso_map_extendMap [CategoryWithHomology B]

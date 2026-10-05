@@ -5,6 +5,7 @@ Authors: OpenAI Codex
 -/
 
 import GromovWitten.AlgebraicGeometry.Curves.BaseSectionsPresheaf
+import GromovWitten.AlgebraicGeometry.Curves.ResolutionSectionsAugmentation
 import GromovWitten.AlgebraicGeometry.Curves.ModuleExact
 import GromovWitten.AlgebraicGeometry.SheafCohomology.OpenRestriction
 import GromovWitten.AlgebraicGeometry.SheafCohomology.AffineCoverVanishing
@@ -17,6 +18,8 @@ import GromovWitten.CategoryTheory.LeftExactComplexZero
 For a quasi-coherent module on a locally Noetherian scheme, affine-open sections
 send a termwise flasque resolution augmentation to a quasi-isomorphism. Degree
 zero follows from left exactness; positive degrees follow from affine vanishing.
+The degree-zero comparison is also proved separately for sections on any open,
+without affine, Noetherian, quasi-coherence, or flasque hypotheses.
 -/
 
 open CategoryTheory Limits Opposite AlgebraicGeometry HomologicalComplex TopologicalSpace
@@ -122,7 +125,8 @@ private lemma preservesFiniteLimits_sections {Y : TopCat.{u}} (W : Opens Y) :
       ((evaluation (Opens Y)ᵒᵖ AddCommGrpCat.{u}).obj (op W)) := by infer_instance
   infer_instance
 
-private lemma baseSections_preservesFiniteLimits
+/-- Sections on any open, with their affine-base module structure, preserve finite limits. -/
+lemma baseSections_preservesFiniteLimits
     (s : X ⟶ Spec R) (U : X.Opens) :
     PreservesFiniteLimits (baseSectionsFunctor s U) := by
   let F := baseSectionsFunctor s U
@@ -186,5 +190,35 @@ theorem affineOpen_sections_augmentation_quasiIso
       rw [quasiIsoAt_iff_isIso_homologyMap]
       exact hSource.isIso hTarget _
 
+
+set_option backward.isDefEq.respectTransparency false in
+/-- On every open, the section-presheaf augmentation of a nonnegative resolution
+is a quasi-isomorphism in degree zero, without affine or Noetherian assumptions. -/
+lemma resolutionSectionsAugmentation_quasiIsoAt_zero (s : X ⟶ Spec R)
+    {M : X.Modules} {K : CochainComplex X.Modules ℕ}
+    (a : (CochainComplex.single₀ _).obj M ⟶ K) (W : X.Opens) [QuasiIsoAt a 0] :
+    QuasiIsoAt
+      ((((evaluation X.Opensᵒᵖ (ModuleCat R)).obj (op W)).mapHomologicalComplex (.up ℤ)).map
+        (resolutionSectionsAugmentation s a)) (0 : ℤ) := by
+  let F := baseSectionsPresheafFunctor s
+  let H := (evaluation X.Opensᵒᵖ (ModuleCat R)).obj (op W)
+  let E := H.mapHomologicalComplex (.up ℤ)
+  let B := F.mapHomologicalComplex (.up ℤ)
+  let e := HomologicalComplex.extendSingleIso ComplexShape.embeddingUpNat M 0 0 rfl
+  have : PreservesFiniteLimits (baseSectionsFunctor s W) :=
+    baseSections_preservesFiniteLimits s W
+  have : QuasiIsoAt (((baseSectionsFunctor s W).mapHomologicalComplex (.up ℕ)).map a) 0 :=
+    Functor.quasiIsoAt_zero_map_of_preservesFiniteLimits (baseSectionsFunctor s W) a
+  have hq : QuasiIsoAt (E.map (B.map (HomologicalComplex.extendMap a
+      ComplexShape.embeddingUpNat))) (0 : ℤ) := by
+    change QuasiIsoAt (((baseSectionsFunctor s W).mapHomologicalComplex (.up ℤ)).map
+      (HomologicalComplex.extendMap a ComplexShape.embeddingUpNat)) (0 : ℤ)
+    exact Functor.quasiIsoAt_map_extendMap (baseSectionsFunctor s W)
+      ComplexShape.embeddingUpNat _ a 0
+  change QuasiIsoAt (E.map
+    ((HomologicalComplex.singleMapHomologicalComplex F (.up ℤ) 0).inv.app M ≫
+      B.map (e.inv ≫ HomologicalComplex.extendMap a ComplexShape.embeddingUpNat))) (0 : ℤ)
+  rw [E.map_comp, B.map_comp, E.map_comp]
+  infer_instance
 
 end GromovWitten.AlgebraicGeometry.Curves

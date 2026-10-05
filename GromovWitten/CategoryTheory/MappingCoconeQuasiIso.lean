@@ -143,4 +143,22 @@ lemma biprod_map_quasiIso_after_additive
     (IsIso (DerivedCategory.Q.map ((H.mapHomologicalComplex (.up ℤ)).map b)))
   exact (DerivedCategory.isIso_Q_map_iff_quasiIso B _).mp (isIso_map_biprodMap F a b)
 
+/-- An additive functor sends a biproduct map to a quasi-isomorphism at a degree
+when it sends both summand maps to quasi-isomorphisms at that degree. -/
+lemma biprod_map_quasiIsoAt_after_additive
+    {A B : Type*} [Category* A] [Preadditive A] [HasBinaryBiproducts A]
+    [Category* B] [Abelian B] (H : A ⥤ B) [H.Additive]
+    {K₁ L₁ K₂ L₂ : CochainComplex A ℤ} (a : K₁ ⟶ K₂) (b : L₁ ⟶ L₂) (n : ℤ)
+    [QuasiIsoAt ((H.mapHomologicalComplex (.up ℤ)).map a) n]
+    [QuasiIsoAt ((H.mapHomologicalComplex (.up ℤ)).map b) n] :
+    QuasiIsoAt ((H.mapHomologicalComplex (.up ℤ)).map (biprod.map a b)) n := by
+  let : HasBinaryBiproducts (CochainComplex A ℤ) := ⟨fun _ _ => inferInstance⟩
+  let F := H.mapHomologicalComplex (.up ℤ) ⋙ homologyFunctor B (.up ℤ) n
+  have : IsIso (F.map a) := inferInstanceAs
+    (IsIso (homologyMap ((H.mapHomologicalComplex (.up ℤ)).map a) n))
+  have : IsIso (F.map b) := inferInstanceAs
+    (IsIso (homologyMap ((H.mapHomologicalComplex (.up ℤ)).map b) n))
+  rw [quasiIsoAt_iff_isIso_homologyMap]
+  exact isIso_map_biprodMap F a b
+
 end CochainComplex
