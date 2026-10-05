@@ -45,7 +45,24 @@ lemma beckChevalley_unit_formula (σ : Lb ⋙ Lg ⟶ Lf ⋙ Lp) (M : B) :
   rw [← hnat]
   simp only [Functor.map_comp, ← Category.assoc, af.right_triangle_components]
   simp only [Functor.id_obj, Category.id_comp]
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The unit for the first adjunction, followed by a Beck--Chevalley mate,
+is adjoint to the vertical natural transformation on the other side. -/
+lemma beckChevalley_vertical_unit_formula (σ : Lb ⋙ Lg ⟶ Lf ⋙ Lp) (M : A) :
+    Lb.map (af.unit.app M) ≫ ag.homEquiv _ _
+      (σ.app (Rf.obj (Lf.obj M)) ≫ Lp.map (af.counit.app (Lf.obj M))) =
+      ag.homEquiv _ _ (σ.app M) := by
+  rw [← ag.homEquiv_naturality_left]
+  congr 1
+  have hnat : Lg.map (Lb.map (af.unit.app M)) ≫ σ.app (Rf.obj (Lf.obj M)) =
+      σ.app M ≫ Lp.map (Lf.map (af.unit.app M)) := by
+    exact σ.naturality (af.unit.app M)
+  rw [← Category.assoc, hnat, Category.assoc, ← Lp.map_comp,
+    af.left_triangle_components, Lp.map_id]
+  exact Category.comp_id _
 end CategoryTheory
+
 
 namespace CategoryTheory.Adjunction
 variable {A : Type u₁} {B : Type u₂} {C : Type u₃}

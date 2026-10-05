@@ -5,6 +5,7 @@ Authors: OpenAI Codex
 -/
 
 import GromovWitten.AlgebraicGeometry.Curves.ModuleBaseChangeMate
+import GromovWitten.AlgebraicGeometry.Curves.ModuleBaseChangeIsomorphism
 import GromovWitten.AlgebraicGeometry.Curves.QuasiCoherentPushforward
 /-!
 # Base change along an open inclusion
@@ -83,5 +84,54 @@ instance moduleBaseChange_open_isIso (M : X.Modules) :
       (isPullback_morphismRestrict f U).flip).app M) := by
   rw [moduleOpenBaseChange_eq_iso]
   infer_instance
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The restriction of the canonical adjunction unit `N ⟶ f_* f^* N` to an
+open set is an isomorphism whenever `f` is an isomorphism over that open set. -/
+theorem pullbackPushforwardUnit_isIso_of_isIso_restrict
+    {X Y : Scheme.{u}} (f : X ⟶ Y) (U : Y.Opens) [IsIso (f ∣_ U)] (N : Y.Modules) :
+    IsIso ((Scheme.Modules.pullback U.ι).map
+      ((Scheme.Modules.pullbackPushforwardAdjunction f).unit.app N)) := by
+  let b := U.ι
+  let p := (f ⁻¹ᵁ U).ι
+  let g := f ∣_ U
+  let h := (isPullback_morphismRestrict f U).flip
+  let af := Scheme.Modules.pullbackPushforwardAdjunction f
+  let ag := Scheme.Modules.pullbackPushforwardAdjunction g
+  let σ : Scheme.Modules.pullback b ⋙ Scheme.Modules.pullback g ⟶
+      Scheme.Modules.pullback f ⋙ Scheme.Modules.pullback p :=
+    (Scheme.Modules.pullbackComp g b).hom ≫
+      (Scheme.Modules.pullbackCongr h.w.symm).hom ≫
+      (Scheme.Modules.pullbackComp p f).inv
+  let β := (modulePushforwardBaseChangeNatTrans f b p g h).app
+    ((Scheme.Modules.pullback f).obj N)
+  let rhs := ag.homEquiv _ _ (σ.app N)
+  have hbcMap : moduleBaseChangePullbackMap f b p g h ((Scheme.Modules.pullback f).obj N) =
+      σ.app ((Scheme.Modules.pushforward f).obj ((Scheme.Modules.pullback f).obj N)) ≫
+        (Scheme.Modules.pullback p).map (af.counit.app ((Scheme.Modules.pullback f).obj N)) := by
+    dsimp [moduleBaseChangePullbackMap, σ, af, b, p, g, h]
+    simp only [Category.assoc]
+  have hformula :
+      (Scheme.Modules.pullback b).map (af.unit.app N) ≫ β = rhs := by
+    change (Scheme.Modules.pullback b).map (af.unit.app N) ≫
+      ag.homEquiv _ _ (moduleBaseChangePullbackMap f b p g h
+        ((Scheme.Modules.pullback f).obj N)) = rhs
+    rw [hbcMap]
+    exact CategoryTheory.beckChevalley_vertical_unit_formula af ag σ N
+  have hβ : IsIso β := by
+    change IsIso ((modulePushforwardBaseChangeNatTrans f U.ι (f ⁻¹ᵁ U).ι (f ∣_ U)
+      (isPullback_morphismRestrict f U).flip).app ((Scheme.Modules.pullback f).obj N))
+    infer_instance
+  have hσ : IsIso (σ.app N) := by
+    dsimp [σ]
+    infer_instance
+  have hrhs : IsIso rhs := by
+    dsimp [rhs]
+    rw [Adjunction.homEquiv_unit]
+    infer_instance
+  have hcomp : IsIso ((Scheme.Modules.pullback b).map (af.unit.app N) ≫ β) := by
+    rw [hformula]
+    exact hrhs
+  exact IsIso.of_isIso_comp_right _ β
 end
 end GromovWitten.AlgebraicGeometry.Curves

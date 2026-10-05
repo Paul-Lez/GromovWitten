@@ -139,4 +139,42 @@ lemma mono_of_moduleStalk_mono {M N : X.Modules} (φ : M ⟶ N)
     (F := (moduleToSheafAb X).obj M) φ.mapPresheaf U.unop
   intro y _
   exact (ModuleCat.mono_iff_injective ((moduleStalk X y).map φ)).mp (hφ y)
+
+set_option backward.isDefEq.respectTransparency false in
+/-- An isomorphism after pullback to an open set induces an isomorphism on
+the underlying abelian stalk at every point of that open set. -/
+lemma stalk_isIso_of_open_pullback {M N : X.Modules} (φ : M ⟶ N)
+    (U : X.Opens) (x : X) (hx : x ∈ U)
+    [IsIso ((Scheme.Modules.pullback U.ι).map φ)] :
+    IsIso ((Scheme.Modules.toPresheaf X ⋙
+      TopCat.Presheaf.stalkFunctor AddCommGrpCat.{u} x).map φ) := by
+  have _ : IsIso ((Scheme.Modules.restrictFunctor U.ι).map φ) :=
+    (NatIso.isIso_map_iff (Scheme.Modules.restrictFunctorIsoPullback U.ι) φ).mpr inferInstance
+  let y : U.toScheme := ⟨x, hx⟩
+  have hi : IsIso (((Scheme.Modules.restrictFunctor U.ι ⋙
+      Scheme.Modules.toPresheaf U.toScheme ⋙
+      TopCat.Presheaf.stalkFunctor AddCommGrpCat.{u} y).map φ)) := by
+    dsimp only [Functor.comp_map]
+    infer_instance
+  exact (NatIso.isIso_map_iff (Scheme.Modules.restrictStalkNatIso U.ι y) φ).mp hi
+
+set_option backward.isDefEq.respectTransparency false in
+/-- If a morphism induces an isomorphism on an abelian stalk, the stalks of
+its kernel and cokernel are trivial. -/
+lemma kernel_cokernel_stalk_subsingleton_of_stalk_isIso
+    {M N : X.Modules} (φ : M ⟶ N) (x : X)
+    [IsIso ((Scheme.Modules.toPresheaf X ⋙
+      TopCat.Presheaf.stalkFunctor AddCommGrpCat.{u} x).map φ)] :
+    Subsingleton ((kernel φ).presheaf.stalk x) ∧
+      Subsingleton ((cokernel φ).presheaf.stalk x) := by
+  let F : X.Modules ⥤ AddCommGrpCat.{u} :=
+    moduleStalk X x ⋙ forget₂ (ModuleCat (X.presheaf.stalk x)) AddCommGrpCat.{u}
+  have _ : IsIso (F.map φ) := inferInstanceAs
+    (IsIso ((Scheme.Modules.toPresheaf X ⋙
+      TopCat.Presheaf.stalkFunctor AddCommGrpCat.{u} x).map φ))
+  constructor
+  · exact AddCommGrpCat.subsingleton_of_isZero
+      ((isZero_kernel_of_mono (F.map φ)).of_iso (PreservesKernel.iso F φ))
+  · exact AddCommGrpCat.subsingleton_of_isZero
+      ((isZero_cokernel_of_epi (F.map φ)).of_iso (PreservesCokernel.iso F φ))
 end GromovWitten.AlgebraicGeometry.Curves

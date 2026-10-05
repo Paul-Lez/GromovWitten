@@ -682,3 +682,4 @@ import GromovWitten.AlgebraicGeometry.Curves.CoherentHigherDirectImage
 import GromovWitten.AlgebraicGeometry.Curves.RegularProperCurveCohomology
 import GromovWitten.Algebra.FiniteModuleSupport
 import GromovWitten.AlgebraicGeometry.Curves.ClosedSupportCohomology
+import GromovWitten.AlgebraicGeometry.Curves.ProperIntegralCurveCohomology

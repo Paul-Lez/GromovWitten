@@ -12,8 +12,11 @@ import GromovWitten.AlgebraicGeometry.Curves.ModuleDerived
 All higher direct-image modules in this interface are the constructed right-derived module
 pushforwards, with their proved identification with abelian higher direct images. Callers no
 longer supply module structures. Geometric base-change isomorphisms and the curve-specific
-vanishing remain hypotheses of the legacy theorem package until their geometric proofs are
-available. `HigherBaseChange.lean` constructs the comparison for exact horizontal pullbacks.
+vanishing remain hypotheses of the legacy theorem package. Properness and finite presentation
+alone do not imply arbitrary degree-zero base change, even for a relatively flat module. A
+geometric construction of this package needs additional hypotheses, such as relative flatness
+and flat degree-one cohomology. `HigherBaseChange.lean` constructs the comparison for exact
+horizontal pullbacks; flat-base-change results do not assert arbitrary-base-change invertibility.
 -/
 
 open CategoryTheory Limits
