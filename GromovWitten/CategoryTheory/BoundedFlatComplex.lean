@@ -22,21 +22,21 @@ noncomputable section
 universe u v
 
 namespace CochainComplex
-/-- Positive cycles of a bounded-above exact tail of flat modules are flat. -/
-lemma bounded_exact_flat_cycles_at
+/-- Cycles in degrees at least `b` are flat if the bounded flat complex is exact above `b`. -/
+lemma bounded_exact_flat_cycles_from
     {R : Type u} [CommRing R]
     (C : CochainComplex (ModuleCat.{v} R) ℕ)
     (hflat : ∀ n, Module.Flat R (C.X n))
     (N : ℕ) (htail : ∀ n, N ≤ n → IsZero (C.X n))
-    (hexact : ∀ n, 2 ≤ n → C.ExactAt n)
-    (j : ℕ) (hj : 1 ≤ j) :
+    (b : ℕ) (hexact : ∀ n, b + 1 ≤ n → C.ExactAt n)
+    (j : ℕ) (hbj : b ≤ j) :
     Module.Flat R (LinearMap.ker (C.d j (j + 1)).hom) := by
-  have hdesc : ∀ k n, N - n = k → 1 ≤ n →
+  have hdesc : ∀ k n, N - n = k → b ≤ n →
       Module.Flat R (LinearMap.ker (C.d n (n + 1)).hom) := by
     intro k
     induction k using Nat.strong_induction_on with
     | h k ih =>
-      intro n hkn hn
+      intro n hkn hbn
       by_cases hnN : N ≤ n
       · have : Subsingleton (C.X n) :=
           (ModuleCat.isZero_iff_subsingleton).mp (htail n hnN)
@@ -52,10 +52,8 @@ lemma bounded_exact_flat_cycles_at
             let _ : Module.Free R (LinearMap.ker (C.d (n + 2) (n + 3)).hom) :=
               Module.Free.of_subsingleton R _
             exact Module.Flat.of_free
-          · have hn_lt : n < N := Nat.lt_of_not_ge hnN
-            have hmeasure : N - (n + 2) < k := by omega
-            have hn2 : 1 ≤ n + 2 := by omega
-            exact ih (N - (n + 2)) hmeasure (n + 2) rfl hn2
+          · have hmeasure : N - (n + 2) < k := by omega
+            exact ih (N - (n + 2)) hmeasure (n + 2) rfl (by omega)
         have : Module.Flat R (LinearMap.ker (C.d (n + 2) (n + 3)).hom) := hnext
         have : Module.Flat R (C.X n) := hflat n
         have : Module.Flat R (C.X (n + 1)) := hflat (n + 1)
@@ -85,16 +83,28 @@ lemma bounded_exact_flat_cycles_at
             (C.X (n + 1) ⧸ LinearMap.range (C.d n (n + 1)).hom) :=
           Module.Flat.of_linearEquiv e
         exact (C.d n (n + 1)).hom.kernel_flat_of_flat_source_of_flat_target_of_flat_cokernel
-  exact hdesc (N - j) j rfl hj
+  exact hdesc (N - j) j rfl hbj
 
-/-- Positive cycles of an integer-indexed bounded-above exact flat complex are flat. -/
-lemma bounded_int_exact_flat_cycles_at
+/-- Positive cycles of a bounded-above exact tail of flat modules are flat. -/
+lemma bounded_exact_flat_cycles_at
+    {R : Type u} [CommRing R]
+    (C : CochainComplex (ModuleCat.{v} R) ℕ)
+    (hflat : ∀ n, Module.Flat R (C.X n))
+    (N : ℕ) (htail : ∀ n, N ≤ n → IsZero (C.X n))
+    (hexact : ∀ n, 2 ≤ n → C.ExactAt n)
+    (j : ℕ) (hj : 1 ≤ j) :
+    Module.Flat R (LinearMap.ker (C.d j (j + 1)).hom) := by
+  exact bounded_exact_flat_cycles_from C hflat N htail 1
+    (fun n hn => hexact n (by omega)) j hj
+
+/-- Integer-indexed version of cycle flatness above an arbitrary cutoff. -/
+lemma bounded_int_exact_flat_cycles_from
     {R : Type u} [CommRing R]
     (K : CochainComplex (ModuleCat.{v} R) ℤ)
     (hflat : ∀ n : ℕ, Module.Flat R (K.X n))
     (N : ℕ) (htail : ∀ n : ℕ, N ≤ n → IsZero (K.X n))
-    (hexact : ∀ n : ℕ, 2 ≤ n → K.ExactAt n)
-    (j : ℕ) (hj : 1 ≤ j) :
+    (b : ℕ) (hexact : ∀ n : ℕ, b + 1 ≤ n → K.ExactAt n)
+    (j : ℕ) (hbj : b ≤ j) :
     Module.Flat R (LinearMap.ker (K.d (j : ℤ) ((j + 1 : ℕ) : ℤ)).hom) := by
   let C : CochainComplex (ModuleCat.{v} R) ℕ := K.restriction ComplexShape.embeddingUpNat
   have hflatC : ∀ n : ℕ, Module.Flat R (C.X n) := by
@@ -103,7 +113,7 @@ lemma bounded_int_exact_flat_cycles_at
   have htailC : ∀ n : ℕ, N ≤ n → IsZero (C.X n) := by
     intro n hn
     exact htail n hn
-  have hexactC : ∀ n : ℕ, 2 ≤ n → C.ExactAt n := by
+  have hexactC : ∀ n : ℕ, b + 1 ≤ n → C.ExactAt n := by
     intro n hn
     have hk : (K.sc' ((n - 1 : ℕ) : ℤ) (n : ℤ) ((n + 1 : ℕ) : ℤ)).Exact := by
       exact (K.exactAt_iff' ((n - 1 : ℕ) : ℤ) (n : ℤ) ((n + 1 : ℕ) : ℤ)
@@ -133,24 +143,39 @@ lemma bounded_int_exact_flat_cycles_at
         apply (ComplexShape.up ℕ).next_eq'
         exact ComplexShape.up_mk _ _ (by omega))).2
     exact (ShortComplex.exact_iff_of_iso he).2 hk
-  have hcyc := bounded_exact_flat_cycles_at C hflatC N htailC hexactC j hj
+  have hcyc := bounded_exact_flat_cycles_from C hflatC N htailC b hexactC j hbj
   dsimp [C, HomologicalComplex.restriction, ComplexShape.embeddingUpNat] at hcyc
   change Module.Flat R
       (LinearMap.ker (K.d (j : ℤ) ((j + 1 : ℕ) : ℤ)).hom) at hcyc
   exact hcyc
 
-/-- Positive-degree cokernels in a bounded-above exact flat complex are flat. -/
-lemma bounded_int_exact_dn_cokernel_flat
+/-- Positive cycles of an integer-indexed bounded-above exact flat complex are flat. -/
+lemma bounded_int_exact_flat_cycles_at
     {R : Type u} [CommRing R]
     (K : CochainComplex (ModuleCat.{v} R) ℤ)
     (hflat : ∀ n : ℕ, Module.Flat R (K.X n))
     (N : ℕ) (htail : ∀ n : ℕ, N ≤ n → IsZero (K.X n))
     (hexact : ∀ n : ℕ, 2 ≤ n → K.ExactAt n)
-    (n : ℕ) (hn : 1 ≤ n) :
+    (j : ℕ) (hj : 1 ≤ j) :
+    Module.Flat R (LinearMap.ker (K.d (j : ℤ) ((j + 1 : ℕ) : ℤ)).hom) := by
+  exact bounded_int_exact_flat_cycles_from K hflat N htail 1
+    (fun n hn => hexact n (by omega)) j hj
+
+/-- The outgoing cokernel in degree at least `b` is flat if the complex is exact above `b`. -/
+lemma bounded_int_exact_dn_cokernel_flat_from
+    {R : Type u} [CommRing R]
+    (K : CochainComplex (ModuleCat.{v} R) ℤ)
+    (hflat : ∀ n : ℕ, Module.Flat R (K.X n))
+    (N : ℕ) (htail : ∀ n : ℕ, N ≤ n → IsZero (K.X n))
+    (b : ℕ) (hexact : ∀ n : ℕ, b + 1 ≤ n → K.ExactAt n)
+    (n : ℕ) (hbn : b ≤ n) :
     Module.Flat R ((cokernel (K.d (n : ℤ) ((n + 1 : ℕ) : ℤ)) : ModuleCat R) : Type v) := by
+  have hexactFromN : ∀ m : ℕ, n + 1 ≤ m → K.ExactAt (m : ℤ) := by
+    intro m hm
+    exact hexact m (by omega)
   have hflatCycle : Module.Flat R
       (LinearMap.ker (K.d ((n + 2 : ℕ) : ℤ) ((n + 3 : ℕ) : ℤ)).hom) :=
-    bounded_int_exact_flat_cycles_at K hflat N htail hexact (n + 2) (by omega)
+    bounded_int_exact_flat_cycles_from K hflat N htail n hexactFromN (n + 2) (by omega)
   have hEx₁ : (K.sc' (n : ℤ) ((n + 1 : ℕ) : ℤ) ((n + 2 : ℕ) : ℤ)).Exact := by
     exact (K.exactAt_iff' (n : ℤ) ((n + 1 : ℕ) : ℤ) ((n + 2 : ℕ) : ℤ)
       (by
@@ -196,6 +221,18 @@ lemma bounded_int_exact_dn_cokernel_flat
     (ModuleCat.cokernelIsoRangeQuotient
       (K.d (n : ℤ) ((n + 1 : ℕ) : ℤ))).toLinearEquiv
 
+/-- Positive-degree cokernels in a bounded-above exact flat complex are flat. -/
+lemma bounded_int_exact_dn_cokernel_flat
+    {R : Type u} [CommRing R]
+    (K : CochainComplex (ModuleCat.{v} R) ℤ)
+    (hflat : ∀ n : ℕ, Module.Flat R (K.X n))
+    (N : ℕ) (htail : ∀ n : ℕ, N ≤ n → IsZero (K.X n))
+    (hexact : ∀ n : ℕ, 2 ≤ n → K.ExactAt n)
+    (n : ℕ) (hn : 1 ≤ n) :
+    Module.Flat R ((cokernel (K.d (n : ℤ) ((n + 1 : ℕ) : ℤ)) : ModuleCat R) : Type v) := by
+  exact bounded_int_exact_dn_cokernel_flat_from K hflat N htail 1
+    (fun m hm => hexact m (by omega)) n hn
+
 /-- Scalar extension preserves the degree-one differential's kernel under
 bounded flatness and exactness.
 
@@ -231,6 +268,32 @@ theorem bounded_int_d1_kernelComparisonIso_hom
     (bounded_int_d1_kernelComparisonIso σ K hflat N htail hexact).hom =
       kernelComparison (K.d 1 2) (ModuleCat.extendScalars σ) := rfl
 
+/-- Homology commutes with arbitrary scalar extension in degrees at least `b` when the
+bounded flat complex is exact above `b`. -/
+lemma bounded_int_tail_homologyComparison_isIso
+    {R T : Type u} [CommRing R] [CommRing T] (σ : R →+* T)
+    (K : CochainComplex (ModuleCat.{u} R) ℤ)
+    (hflat : ∀ n : ℕ, Module.Flat R (K.X n))
+    (N : ℕ) (htail : ∀ n : ℕ, N ≤ n → IsZero (K.X n))
+    (b : ℕ) (hexact : ∀ n : ℕ, b + 1 ≤ n → K.ExactAt (n : ℤ))
+    (n : ℕ) (hbn : b ≤ n) :
+    IsIso (K.homologyComparison (ModuleCat.extendScalars σ) (n : ℤ)) := by
+  have hnext : (ComplexShape.up ℤ).next (n : ℤ) = ((n + 1 : ℕ) : ℤ) := by
+    apply (ComplexShape.up ℤ).next_eq'
+    exact ComplexShape.up_mk _ _ (by omega)
+  have hflatTarget : Module.Flat R (K.X ((ComplexShape.up ℤ).next (n : ℤ))) := by
+    rw [hnext]
+    exact hflat (n + 1)
+  have hflatCoker :=
+    bounded_int_exact_dn_cokernel_flat_from K hflat N htail b hexact n hbn
+  have hflatCoker' : Module.Flat R
+      ((cokernel (K.d (n : ℤ) ((ComplexShape.up ℤ).next (n : ℤ))) : ModuleCat R) : Type u) := by
+    rw [hnext]
+    exact hflatCoker
+  exact @HomologicalComplex.isIso_homologyComparison_extendScalars_of_flat_cokernel
+    R T inferInstance inferInstance ℤ (ComplexShape.up ℤ) K (n : ℤ) σ
+    hflatTarget hflatCoker'
+
 /-- Positive-degree homology commutes with arbitrary scalar extension for a bounded flat complex
 that is exact in degrees at least two. -/
 lemma bounded_int_positive_homologyComparison_isIso
@@ -241,20 +304,8 @@ lemma bounded_int_positive_homologyComparison_isIso
     (hexact : ∀ n : ℕ, 2 ≤ n → K.ExactAt n)
     (n : ℕ) (hn : 1 ≤ n) :
     IsIso (K.homologyComparison (ModuleCat.extendScalars σ) (n : ℤ)) := by
-  have hnext : (ComplexShape.up ℤ).next (n : ℤ) = ((n + 1 : ℕ) : ℤ) := by
-    apply (ComplexShape.up ℤ).next_eq'
-    exact ComplexShape.up_mk _ _ (by omega)
-  have hflatTarget : Module.Flat R (K.X ((ComplexShape.up ℤ).next (n : ℤ))) := by
-    rw [hnext]
-    exact hflat (n + 1)
-  have hflatCoker := bounded_int_exact_dn_cokernel_flat K hflat N htail hexact n hn
-  have hflatCoker' : Module.Flat R
-      ((cokernel (K.d (n : ℤ) ((ComplexShape.up ℤ).next (n : ℤ))) : ModuleCat R) : Type u) := by
-    rw [hnext]
-    exact hflatCoker
-  exact @HomologicalComplex.isIso_homologyComparison_extendScalars_of_flat_cokernel
-    R T inferInstance inferInstance ℤ (ComplexShape.up ℤ) K (n : ℤ) σ
-    hflatTarget hflatCoker'
+  exact bounded_int_tail_homologyComparison_isIso σ K hflat N htail 1
+    (fun m hm => hexact m (by omega)) n hn
 
 /-- Exactness in degrees at least two is preserved by arbitrary scalar extension. -/
 lemma bounded_int_exact_after_extendScalars
