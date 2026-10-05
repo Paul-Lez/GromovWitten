@@ -6,6 +6,8 @@ Authors: OpenAI Codex
 import GromovWitten.Basic
 import GromovWitten.CategoryTheory.HomologyBaseChange
 import GromovWitten.CategoryTheory.ScalarHomologyBaseChange
+import GromovWitten.CategoryTheory.BoundedFlatComplex
+import GromovWitten.CategoryTheory.FiniteProjectiveCohomologyModel
 import GromovWitten.CategoryTheory.HomologyCokernel
 import GromovWitten.CategoryTheory.MateRotation
 import GromovWitten.CategoryTheory.SnakeFunctor
