@@ -675,3 +675,5 @@ import GromovWitten.AlgebraicGeometry.Curves.AcyclicCohomologyExact
 import GromovWitten.CategoryTheory.CochainBoundarySequences
 import GromovWitten.CategoryTheory.LeftExactImageCriterion
 import GromovWitten.AlgebraicGeometry.SheafCohomology.AcyclicComplexSections
+import GromovWitten.AlgebraicGeometry.Curves.ModuleFlasqueSections
+import GromovWitten.AlgebraicGeometry.Curves.AffineHigherDirectImageSections

@@ -24,6 +24,77 @@ def rightDerivedCompExactIso (A : C) (n : ℕ) :
   exact I.isoRightDerivedObj (F ⋙ G) n ≪≫
     ShortComplex.mapHomologyIso (((F.mapHomologicalComplex (.up ℕ)).obj I.cocomplex).sc n) G ≪≫
     G.mapIso (I.isoRightDerivedObj F n).symm
+
+set_option backward.isDefEq.respectTransparency false in
+/-- Exact postcomposition respects the chosen object-level derived comparison naturally. -/
+lemma rightDerivedCompExactIso_hom_naturality {A B : C} (f : A ⟶ B) (n : ℕ) :
+    ((F ⋙ G).rightDerived n).map f ≫
+        (rightDerivedCompExactIso F G B n).hom =
+      (rightDerivedCompExactIso F G A n).hom ≫
+        G.map ((F.rightDerived n).map f) := by
+  let I := InjectiveResolution.of A
+  let J := InjectiveResolution.of B
+  let d := InjectiveResolution.desc f J I
+  let eA : ((F ⋙ G).rightDerived n).obj A ≅ G.obj ((F.rightDerived n).obj A) := by
+    exact I.isoRightDerivedObj (F ⋙ G) n ≪≫
+      ShortComplex.mapHomologyIso (((F.mapHomologicalComplex (.up ℕ)).obj I.cocomplex).sc n) G ≪≫
+      G.mapIso (I.isoRightDerivedObj F n).symm
+  let eB : ((F ⋙ G).rightDerived n).obj B ≅ G.obj ((F.rightDerived n).obj B) := by
+    exact J.isoRightDerivedObj (F ⋙ G) n ≪≫
+      ShortComplex.mapHomologyIso (((F.mapHomologicalComplex (.up ℕ)).obj J.cocomplex).sc n) G ≪≫
+      G.mapIso (J.isoRightDerivedObj F n).symm
+  have heA : eA.hom =
+      (I.isoRightDerivedObj (F ⋙ G) n).hom ≫
+        ((((F.mapHomologicalComplex (.up ℕ)).obj I.cocomplex).sc n).mapHomologyIso G).hom ≫
+        G.map (I.isoRightDerivedObj F n).inv := by
+    rfl
+  have heB : eB.hom =
+      (J.isoRightDerivedObj (F ⋙ G) n).hom ≫
+        ((((F.mapHomologicalComplex (.up ℕ)).obj J.cocomplex).sc n).mapHomologyIso G).hom ≫
+        G.map (J.isoRightDerivedObj F n).inv := by
+    rfl
+  have hd : I.ι.f 0 ≫ d.f 0 = f ≫ J.ι.f 0 := by
+    exact InjectiveResolution.desc_commutes_zero f J I
+  change ((F ⋙ G).rightDerived n).map f ≫ eB.hom = eA.hom ≫
+      G.map ((F.rightDerived n).map f)
+  rw [heB, heA]
+  rw [InjectiveResolution.isoRightDerivedObj_hom_naturality_assoc f I J d hd (F ⋙ G) n]
+  let φ := (HomologicalComplex.shortComplexFunctor D (.up ℕ) n).map
+    ((F.mapHomologicalComplex (.up ℕ)).map d)
+  have hm := ShortComplex.mapHomologyIso_hom_naturality φ G
+  have hcomp :
+      (HomologicalComplex.homologyFunctor E (.up ℕ) n).map
+          (((F ⋙ G).mapHomologicalComplex (.up ℕ)).map d) ≫
+        ((((F.mapHomologicalComplex (.up ℕ)).obj J.cocomplex).sc n).mapHomologyIso G).hom =
+      ((((F.mapHomologicalComplex (.up ℕ)).obj I.cocomplex).sc n).mapHomologyIso G).hom ≫
+        G.map (HomologicalComplex.homologyMap ((F.mapHomologicalComplex (.up ℕ)).map d) n) := by
+    rw [HomologicalComplex.homologyFunctor_map]
+    exact hm
+  calc
+    _ = (I.isoRightDerivedObj (F ⋙ G) n).hom ≫
+        ((HomologicalComplex.homologyFunctor E (.up ℕ) n).map
+          (((F ⋙ G).mapHomologicalComplex (.up ℕ)).map d) ≫
+          ((((F.mapHomologicalComplex (.up ℕ)).obj J.cocomplex).sc n).mapHomologyIso G).hom) ≫
+        G.map (J.isoRightDerivedObj F n).inv := by simp only [Category.assoc]
+    _ = (I.isoRightDerivedObj (F ⋙ G) n).hom ≫
+        ((((F.mapHomologicalComplex (.up ℕ)).obj I.cocomplex).sc n).mapHomologyIso G).hom ≫
+          G.map (HomologicalComplex.homologyMap ((F.mapHomologicalComplex (.up ℕ)).map d) n) ≫
+        G.map (J.isoRightDerivedObj F n).inv := by
+      rw [hcomp]
+      simp only [Category.assoc]
+    _ = (I.isoRightDerivedObj (F ⋙ G) n).hom ≫
+        ((((F.mapHomologicalComplex (.up ℕ)).obj I.cocomplex).sc n).mapHomologyIso G).hom ≫
+          G.map ((HomologicalComplex.homologyMap ((F.mapHomologicalComplex (.up ℕ)).map d) n) ≫
+            (J.isoRightDerivedObj F n).inv) := by rw [← G.map_comp]
+    _ = (I.isoRightDerivedObj (F ⋙ G) n).hom ≫
+        ((((F.mapHomologicalComplex (.up ℕ)).obj I.cocomplex).sc n).mapHomologyIso G).hom ≫
+          G.map ((I.isoRightDerivedObj F n).inv ≫ ((F.rightDerived n).map f)) := by
+      rw [InjectiveResolution.isoRightDerivedObj_inv_naturality f I J d hd F n]
+      simp only [Functor.comp_map]
+      rw [HomologicalComplex.homologyFunctor_map]
+    _ = _ := by
+      rw [G.map_comp]
+      simp only [Category.assoc]
 end CategoryTheory.Functor
 
 

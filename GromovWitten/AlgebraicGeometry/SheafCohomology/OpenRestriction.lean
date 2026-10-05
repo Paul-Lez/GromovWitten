@@ -62,6 +62,38 @@ def derivedSectionsTopIso (F : TopCat.Sheaf AddCommGrpCat.{u} X) (n : ℕ) :
   exact ((CategoryTheory.NatIso.rightDerivedIso (sectionsTopIso X) n).app F).symm ≪≫
     Functor.rightDerivedCompExactIso _ _ F n
 
+/-- The comparison between derived sections and derived global sections is natural in the sheaf. -/
+lemma derivedSectionsTopIso_hom_naturality
+    (F F' : TopCat.Sheaf AddCommGrpCat.{u} X) (f : F ⟶ F') (n : ℕ) :
+    ((sections (⊤ : Opens X)).rightDerived n).map f ≫
+        (derivedSectionsTopIso X F' n).hom =
+      (derivedSectionsTopIso X F n).hom ≫
+        PointSheaves.globalSections.map
+          (((TopCat.Sheaf.pushforward AddCommGrpCat.{u} (toPoint X)).rightDerived n).map f) := by
+  let P := TopCat.Sheaf.pushforward AddCommGrpCat.{u} (toPoint X)
+  let Q := PointSheaves.globalSections.{u}
+  let e := CategoryTheory.NatIso.rightDerivedIso (sectionsTopIso X) n
+  have he := e.inv.naturality f
+  dsimp [derivedSectionsTopIso]
+  calc
+    _ = (((sections (⊤ : Opens X)).rightDerived n).map f ≫ e.inv.app F') ≫
+        (CategoryTheory.Functor.rightDerivedCompExactIso P Q F' n).hom := by
+      simp only [e, P, Q, Category.assoc]
+    _ = (e.inv.app F ≫
+        ((P ⋙ Q).rightDerived n).map f) ≫
+        (CategoryTheory.Functor.rightDerivedCompExactIso P Q F' n).hom := by
+      rw [he]
+    _ = e.inv.app F ≫
+        (((P ⋙ Q).rightDerived n).map f ≫
+          (CategoryTheory.Functor.rightDerivedCompExactIso P Q F' n).hom) := by
+      simp only [Category.assoc]
+    _ = e.inv.app F ≫
+        ((CategoryTheory.Functor.rightDerivedCompExactIso P Q F n).hom ≫
+          Q.map ((P.rightDerived n).map f)) := by
+      rw [CategoryTheory.Functor.rightDerivedCompExactIso_hom_naturality P Q f n]
+    _ = _ := by
+      simp only [e, P, Q, Category.assoc]
+
 
 def flasqueResolutionSectionsTopIso {F : TopCat.Sheaf AddCommGrpCat.{u} X}
     {K : CochainComplex (TopCat.Sheaf AddCommGrpCat.{u} X) ℕ}
@@ -75,6 +107,106 @@ def flasqueResolutionSectionsTopIso {F : TopCat.Sheaf AddCommGrpCat.{u} X}
       (TopCat.Sheaf.flasqueResolutionRightDerivedIso (toPoint X) a hK n) ≪≫
     (ShortComplex.mapHomologyIso ((P.mapHomologicalComplex (.up ℕ) |>.obj K).sc n)
       PointSheaves.globalSections).symm
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The sections-to-homology comparison is natural for compatible flasque resolutions. -/
+lemma flasqueResolutionSectionsTopIso_hom_naturality
+    {F F' : TopCat.Sheaf AddCommGrpCat.{u} X}
+    {K L : CochainComplex (TopCat.Sheaf AddCommGrpCat.{u} X) ℕ}
+    (a : (CochainComplex.single₀ _).obj F ⟶ K) [QuasiIso a]
+    (b : (CochainComplex.single₀ _).obj F' ⟶ L) [QuasiIso b]
+    (f : F ⟶ F') (φ : K ⟶ L)
+    (hφ : a ≫ φ = (CochainComplex.single₀ _).map f ≫ b)
+    (hK : ∀ n, TopCat.Sheaf.IsFlasque (K.X n))
+    (hL : ∀ n, TopCat.Sheaf.IsFlasque (L.X n)) (n : ℕ) :
+    ((sections (⊤ : Opens X)).rightDerived n).map f ≫
+        (flasqueResolutionSectionsTopIso X b hL n).hom =
+      (flasqueResolutionSectionsTopIso X a hK n).hom ≫
+        HomologicalComplex.homologyMap
+          (((sections (⊤ : Opens X)).mapHomologicalComplex (.up ℕ)).map φ) n := by
+  let P := TopCat.Sheaf.pushforward AddCommGrpCat.{u} (toPoint X)
+  let Q := PointSheaves.globalSections.{u}
+  let eF := derivedSectionsTopIso X F n
+  let eF' := derivedSectionsTopIso X F' n
+  let rF := TopCat.Sheaf.flasqueResolutionRightDerivedIso (toPoint X) a hK n
+  let rF' := TopCat.Sheaf.flasqueResolutionRightDerivedIso (toPoint X) b hL n
+  let hF :
+      (((Q.mapHomologicalComplex (.up ℕ)).obj
+        ((P.mapHomologicalComplex (.up ℕ)).obj K)).homology n) ≅
+        Q.obj (((P.mapHomologicalComplex (.up ℕ)).obj K).homology n) :=
+    ShortComplex.mapHomologyIso ((P.mapHomologicalComplex (.up ℕ) |>.obj K).sc n) Q
+  let hF' :
+      (((Q.mapHomologicalComplex (.up ℕ)).obj
+        ((P.mapHomologicalComplex (.up ℕ)).obj L)).homology n) ≅
+        Q.obj (((P.mapHomologicalComplex (.up ℕ)).obj L).homology n) :=
+    ShortComplex.mapHomologyIso ((P.mapHomologicalComplex (.up ℕ) |>.obj L).sc n) Q
+  have he := derivedSectionsTopIso_hom_naturality X F F' f n
+  have he' : ((sections (⊤ : Opens X)).rightDerived n).map f ≫ eF'.hom =
+      eF.hom ≫ Q.map ((P.rightDerived n).map f) := by
+    simpa only [eF, eF'] using he
+  have hr := TopCat.Sheaf.flasqueResolutionRightDerivedIso_hom_naturality
+    (toPoint X) a b f φ hφ hK hL n
+  let ψ := (P.mapHomologicalComplex (.up ℕ)).map φ
+  have hq := ShortComplex.mapHomologyIso_inv_naturality
+    ((HomologicalComplex.shortComplexFunctor _ (.up ℕ) n).map ψ) Q
+  have hsection :
+      HomologicalComplex.homologyMap
+          ((Q.mapHomologicalComplex (.up ℕ)).map ψ) n =
+        HomologicalComplex.homologyMap
+          (((sections (⊤ : Opens X)).mapHomologicalComplex (.up ℕ)).map φ) n := by
+    rfl
+  have hq' : Q.map (HomologicalComplex.homologyMap ψ n) ≫ hF'.inv =
+      hF.inv ≫ HomologicalComplex.homologyMap
+        ((Q.mapHomologicalComplex (.up ℕ)).map ψ) n := by
+    convert hq using 1 <;> rfl
+  have hbase : Q.map ((P.rightDerived n).map f) ≫ Q.map rF'.hom ≫ hF'.inv =
+      Q.map rF.hom ≫ hF.inv ≫ HomologicalComplex.homologyMap
+        ((Q.mapHomologicalComplex (.up ℕ)).map ψ) n := by
+    calc
+      _ = Q.map ((P.rightDerived n).map f ≫ rF'.hom) ≫ hF'.inv := by
+        simp only [Functor.map_comp, Category.assoc]
+      _ = Q.map (rF.hom ≫ HomologicalComplex.homologyMap ψ n) ≫ hF'.inv := by
+        rw [hr]
+      _ = (Q.map rF.hom ≫ Q.map (HomologicalComplex.homologyMap ψ n)) ≫ hF'.inv := by
+        rw [Functor.map_comp]
+      _ = Q.map rF.hom ≫ (Q.map (HomologicalComplex.homologyMap ψ n) ≫ hF'.inv) := by
+        simp only [Category.assoc]
+      _ = _ := by
+        rw [hq']
+  change ((sections (⊤ : Opens X)).rightDerived n).map f ≫
+      (eF' ≪≫ Q.mapIso rF' ≪≫ hF'.symm).hom =
+    (eF ≪≫ Q.mapIso rF ≪≫ hF.symm).hom ≫
+      HomologicalComplex.homologyMap
+        (((sections (⊤ : Opens X)).mapHomologicalComplex (.up ℕ)).map φ) n
+  simp only [Iso.trans_hom, Iso.symm_hom, Functor.mapIso_hom]
+  have heComp := congrArg (fun z => z ≫ Q.map rF'.hom ≫ hF'.inv) he'
+  have hbaseComp : eF.hom ≫ Q.map ((P.rightDerived n).map f) ≫
+      Q.map rF'.hom ≫ hF'.inv =
+      eF.hom ≫ Q.map rF.hom ≫ hF.inv ≫
+        HomologicalComplex.homologyMap
+          ((Q.mapHomologicalComplex (.up ℕ)).map ψ) n := by
+    simpa only [Category.assoc] using congrArg (fun t => eF.hom ≫ t) hbase
+  have hsectionComp : eF.hom ≫ Q.map rF.hom ≫ hF.inv ≫
+      HomologicalComplex.homologyMap
+        ((Q.mapHomologicalComplex (.up ℕ)).map ψ) n =
+      eF.hom ≫ Q.map rF.hom ≫ hF.inv ≫
+        HomologicalComplex.homologyMap
+          (((sections (⊤ : Opens X)).mapHomologicalComplex (.up ℕ)).map φ) n :=
+    congrArg (fun t => eF.hom ≫ Q.map rF.hom ≫ hF.inv ≫ t) hsection
+  calc
+    _ = (eF.hom ≫ Q.map ((P.rightDerived n).map f)) ≫
+        Q.map rF'.hom ≫ hF'.inv := by
+      simpa only [Category.assoc] using heComp
+    _ = eF.hom ≫ Q.map rF.hom ≫ hF.inv ≫
+        HomologicalComplex.homologyMap
+          ((Q.mapHomologicalComplex (.up ℕ)).map ψ) n := by
+      exact hbaseComp
+    _ = eF.hom ≫ Q.map rF.hom ≫ hF.inv ≫
+        HomologicalComplex.homologyMap
+          (((sections (⊤ : Opens X)).mapHomologicalComplex (.up ℕ)).map φ) n := by
+      exact hsectionComp
+    _ = _ := by
+      rfl
 
 variable {X} {Y : TopCat.{u}} {f : X ⟶ Y}
 /-- Cohomology on an open subspace is the derived section functor on its image. -/
