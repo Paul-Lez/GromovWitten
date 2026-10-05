@@ -5,6 +5,7 @@ Authors: OpenAI Codex
 -/
 
 import Mathlib.RingTheory.IntegralClosure.IntegrallyClosed
+import Mathlib.RingTheory.Localization.Away.Basic
 import Mathlib.RingTheory.Ideal.Quotient.Operations
 import Mathlib.AlgebraicGeometry.Modules.Tilde
 import Mathlib.CategoryTheory.Functor.EpiMono
@@ -82,6 +83,26 @@ def sourceConductor (f : A →+* B) : Ideal A :=
 @[simp] theorem mem_sourceConductor_iff (f : A →+* B) (a : A) :
     a ∈ sourceConductor f ↔ f a ∈ conductor f :=
   Iff.rfl
+
+/-- Localizing an injective ring map at an element of its source conductor gives an isomorphism.
+Every target fraction with denominator a power of `f a` is represented by a source fraction with
+one additional factor of `a` in its denominator. -/
+theorem awayMap_bijective {A : Type u} {B : Type v}
+    [CommRing A] [CommRing B] (f : A →+* B) (hf : Function.Injective f) (a : A)
+    (ha : a ∈ sourceConductor f) :
+    Function.Bijective (Localization.awayMap f a) := by
+  constructor
+  · rw [Localization.awayMap_injective_iff]
+    intro x hx
+    have hx0 : f x = f 0 := by simpa using hx
+    have hx' : x = 0 := hf hx0
+    subst x
+    exact ⟨0, by simp⟩
+  · rw [Localization.awayMap_surjective_iff]
+    intro b
+    have hcon : f a ∈ conductor f := (mem_sourceConductor_iff f a).mp ha
+    obtain ⟨c, hc⟩ := (mem_conductor_iff f (f a)).mp hcon b
+    exact ⟨c, 1, by simpa using hc⟩
 
 /-- The map between the source and target conductor quotients. -/
 def quotientMap (f : A →+* B) :

@@ -83,40 +83,6 @@ universe u
 
 noncomputable section
 
-/-! ### Bijectivity of the inclusion into an integral closure -/
-
-namespace Normalization
-
-/-- A ring is integrally closed exactly when it exhausts its integral closure in its fraction
-field; this is the surjectivity half, packaged with the (always valid) injectivity. -/
-theorem bijective_algebraMap_integralClosure (A F : Type u) [CommRing A] [IsDomain A] [Field F]
-    [Algebra A F] [IsFractionRing A F] [hic : IsIntegrallyClosed A] :
-    Function.Bijective (algebraMap A (integralClosure A F)) := by
-  refine ⟨algebraMap_integralClosure_injective A F, fun x ↦ ?_⟩
-  have hx : (x : F) ∈ (⊥ : Subalgebra A F) := by
-    rw [← IsIntegrallyClosed.integralClosure_eq_bot A F]
-    exact x.2
-  obtain ⟨y, hy⟩ := Algebra.mem_bot.mp hx
-  exact ⟨y, Subtype.ext hy⟩
-
-/-- The previous statement transported along an isomorphism of the ambient algebra: this is how it
-will be applied, the ambient algebra being the sections of the function-field point rather than
-the function field itself. -/
-theorem bijective_algebraMap_integralClosure_of_algEquiv (A F L : Type u) [CommRing A]
-    [IsDomain A] [Field F] [Algebra A F] [IsFractionRing A F] [hic : IsIntegrallyClosed A]
-    [CommRing L] [Algebra A L] (e : F ≃ₐ[A] L) :
-    Function.Bijective (algebraMap A (integralClosure A L)) := by
-  have h := bijective_algebraMap_integralClosure A F
-  have he : (algebraMap A (integralClosure A L)) =
-      (integralClosureAlgEquiv e).toRingEquiv.toRingHom.comp
-        (algebraMap A (integralClosure A F)) := by
-    refine RingHom.ext fun a ↦ ?_
-    exact ((integralClosureAlgEquiv e).commutes a).symm
-  rw [he]
-  exact (integralClosureAlgEquiv e).bijective.comp h
-
-end Normalization
-
 /-! ### Normal schemes -/
 
 /-- A scheme is *normal* if its sections over every nonempty affine open form an integrally closed
@@ -182,33 +148,6 @@ theorem isNormalScheme_of_le_opensRange {Y Z : Scheme.{u}} (j : Y ⟶ Z) [IsOpen
 namespace Normalization
 
 variable (X : Scheme.{u}) [IsIntegral X]
-
-/-- **The normalization is an isomorphism on sections over an integrally closed affine open.**
-By `Scheme.Hom.fromNormalization_app` the map on sections is, up to the isomorphism
-`Scheme.Hom.normalizationObjIso`, the inclusion of `Γ(X, U)` into its integral closure inside the
-sections of the function-field point, and that inclusion is bijective by
-`bijective_algebraMap_integralClosure_of_algEquiv`. -/
-theorem isIso_app_toCurve (U : X.Opens) (hU : IsAffineOpen U) [Nonempty U]
-    [hic : IsIntegrallyClosed Γ(X, U)] : IsIso ((toCurve X).app U) := by
-  let _ := ((genericPointMap X).app U).hom.toAlgebra
-  have _ : IsFractionRing Γ(X, U) X.functionField :=
-    functionField_isFractionRing_of_isAffineOpen X U hU
-  have hbij : Function.Bijective (algebraMap Γ(X, U)
-      (integralClosure Γ(X, U) Γ(Spec X.functionField, genericPointMap X ⁻¹ᵁ U))) :=
-    bijective_algebraMap_integralClosure_of_algEquiv Γ(X, U) X.functionField _
-      (functionFieldAlgEquiv X U)
-  have hiso : IsIso (CommRingCat.ofHom (algebraMap Γ(X, U)
-      (integralClosure Γ(X, U) Γ(Spec X.functionField, genericPointMap X ⁻¹ᵁ U)))) :=
-    (ConcreteCategory.isIso_iff_bijective _).mpr hbij
-  change IsIso ((genericPointMap X).fromNormalization.app U)
-  rw [Scheme.Hom.fromNormalization_app _ hU]
-  infer_instance
-
-/-- The normalization morphism restricted to a nonempty affine open with integrally closed
-sections is an isomorphism. -/
-theorem isIso_morphismRestrict_toCurve (U : X.Opens) (hU : IsAffineOpen U) [Nonempty U]
-    [hic : IsIntegrallyClosed Γ(X, U)] : IsIso (toCurve X ∣_ U) :=
-  (isIso_morphismRestrict_iff_isIso_app _ hU).mpr (isIso_app_toCurve X U hU)
 
 /-- **The normalization is an isomorphism over a normal open.**  If every nonempty affine open of
 `X` contained in `V` has integrally closed sections, the normalization morphism restricted to `V`

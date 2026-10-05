@@ -45,6 +45,8 @@ and the finiteness of integral closures in finite separable extensions.
   field is a finite module.
 * `isFinite_toCurve`: **finiteness of normalization**.  For an integral scheme `X` locally of
   finite type over a field of characteristic zero, `Normalization.toCurve X` is a finite morphism.
+* `exists_nonempty_isIso_morphismRestrict_toCurve`: the normalization is an isomorphism over a
+  nonempty affine basic open, constructed from a nonzero element of the conductor.
 * `isIntegrallyClosed_sections`: the sections of the normalization over the preimage of a nonempty
   affine open are integrally closed, i.e. the normalization is normal.
 * `conductor_ne_bot`, `sourceIdeal_ne_bot`: the conductor of a ring in its normalization is a
@@ -208,6 +210,36 @@ theorem algebraMap_integralClosure_injective (A K : Type u) [CommRing A] [IsDoma
       algebraMap A K y := rfl
   rw [← hx, ← hy, hxy]
 
+/-! ### Bijectivity of the inclusion into an integral closure -/
+
+/-- A ring is integrally closed exactly when it exhausts its integral closure in its fraction
+field; this is the surjectivity half, packaged with the (always valid) injectivity. -/
+theorem bijective_algebraMap_integralClosure (A F : Type u) [CommRing A] [IsDomain A] [Field F]
+    [Algebra A F] [IsFractionRing A F] [hic : IsIntegrallyClosed A] :
+    Function.Bijective (algebraMap A (integralClosure A F)) := by
+  refine ⟨algebraMap_integralClosure_injective A F, fun x ↦ ?_⟩
+  have hx : (x : F) ∈ (⊥ : Subalgebra A F) := by
+    rw [← IsIntegrallyClosed.integralClosure_eq_bot A F]
+    exact x.2
+  obtain ⟨y, hy⟩ := Algebra.mem_bot.mp hx
+  exact ⟨y, Subtype.ext hy⟩
+
+/-- The previous statement transported along an isomorphism of the ambient algebra: this is how it
+will be applied, the ambient algebra being the sections of the function-field point rather than
+the function field itself. -/
+theorem bijective_algebraMap_integralClosure_of_algEquiv (A F L : Type u) [CommRing A]
+    [IsDomain A] [Field F] [Algebra A F] [IsFractionRing A F] [hic : IsIntegrallyClosed A]
+    [CommRing L] [Algebra A L] (e : F ≃ₐ[A] L) :
+    Function.Bijective (algebraMap A (integralClosure A L)) := by
+  have h := bijective_algebraMap_integralClosure A F
+  have he : (algebraMap A (integralClosure A L)) =
+      (integralClosureAlgEquiv e).toRingEquiv.toRingHom.comp
+        (algebraMap A (integralClosure A F)) := by
+    refine RingHom.ext fun a ↦ ?_
+    exact ((integralClosureAlgEquiv e).commutes a).symm
+  rw [he]
+  exact (integralClosureAlgEquiv e).bijective.comp h
+
 /-- **The conductor sequence of a normalization in characteristic zero.**  For a domain `A` of
 finite type over a field of characteristic zero with fraction field `K`, the conductor square
 sequence `0 → A → B × A/I → B/J → 0` of `A` inside its normalization `B = integralClosure A K`
@@ -299,6 +331,33 @@ def functionFieldAlgEquiv (U : X.Opens) [Nonempty U] :
       simp
       rfl }
 
+/-- **The normalization is an isomorphism on sections over an integrally closed affine open.**
+By `Scheme.Hom.fromNormalization_app` the map on sections is, up to the isomorphism
+`Scheme.Hom.normalizationObjIso`, the inclusion of `Γ(X, U)` into its integral closure inside the
+sections of the function-field point, and that inclusion is bijective by
+`bijective_algebraMap_integralClosure_of_algEquiv`. -/
+theorem isIso_app_toCurve (U : X.Opens) (hU : IsAffineOpen U) [Nonempty U]
+    [hic : IsIntegrallyClosed Γ(X, U)] : IsIso ((toCurve X).app U) := by
+  let _ := ((genericPointMap X).app U).hom.toAlgebra
+  have _ : IsFractionRing Γ(X, U) X.functionField :=
+    functionField_isFractionRing_of_isAffineOpen X U hU
+  have hbij : Function.Bijective (algebraMap Γ(X, U)
+      (integralClosure Γ(X, U) Γ(Spec X.functionField, genericPointMap X ⁻¹ᵁ U))) :=
+    bijective_algebraMap_integralClosure_of_algEquiv Γ(X, U) X.functionField _
+      (functionFieldAlgEquiv X U)
+  have hiso : IsIso (CommRingCat.ofHom (algebraMap Γ(X, U)
+      (integralClosure Γ(X, U) Γ(Spec X.functionField, genericPointMap X ⁻¹ᵁ U)))) :=
+    (ConcreteCategory.isIso_iff_bijective _).mpr hbij
+  change IsIso ((genericPointMap X).fromNormalization.app U)
+  rw [Scheme.Hom.fromNormalization_app _ hU]
+  infer_instance
+
+/-- The normalization morphism restricted to a nonempty affine open with integrally closed
+sections is an isomorphism. -/
+theorem isIso_morphismRestrict_toCurve (U : X.Opens) (hU : IsAffineOpen U) [Nonempty U]
+    [hic : IsIntegrallyClosed Γ(X, U)] : IsIso (toCurve X ∣_ U) :=
+  (isIso_morphismRestrict_iff_isIso_app _ hU).mpr (isIso_app_toCurve X U hU)
+
 /-- **Normality of the normalization.**  The sections of the normalization over the preimage of a
 nonempty affine open are an integrally closed domain, namely the integral closure of the sections
 of `X` in the function field. -/
@@ -362,6 +421,62 @@ theorem module_finite_functionField (f : X ⟶ Spec (CommRingCat.of k)) [Locally
   have : IsFractionRing Γ(X, U.1) X.functionField :=
     functionField_isFractionRing_of_isAffineOpen X U.1 U.2
   exact module_finite_integralClosure_of_charZero' k Γ(X, U.1) X.functionField
+
+/-- A finite normalization is an isomorphism over some nonempty affine basic open.  A nonzero
+element of the conductor exists by finiteness of the integral closure; after inverting it, the
+source and its normalization agree. -/
+theorem exists_nonempty_isIso_morphismRestrict_toCurve
+    (f : X ⟶ Spec (CommRingCat.of k)) [LocallyOfFiniteType f] :
+    ∃ U : X.Opens, IsAffineOpen U ∧ Nonempty U ∧ IsIso (toCurve X ∣_ U) := by
+  obtain ⟨_, ⟨V, hV, rfl⟩, hηV, _⟩ :=
+    X.isBasis_affineOpens.exists_subset_of_mem_open
+      (show genericPoint X ∈ (⊤ : X.Opens) from Set.mem_univ _)
+      isOpen_univ
+  have hVne : Nonempty V := ⟨⟨genericPoint X, hηV⟩⟩
+  let B := integralClosure Γ(X, V) X.functionField
+  let φ : Γ(X, V) →+* B := algebraMap Γ(X, V) B
+  have : IsFractionRing Γ(X, V) X.functionField :=
+    functionField_isFractionRing_of_isAffineOpen X V hV
+  have hfin : Module.Finite Γ(X, V) B := module_finite_functionField X k f ⟨V, hV⟩
+  let _ : Module.Finite Γ(X, V) B := hfin
+  obtain ⟨a, ha0, haC⟩ := exists_ne_zero_mem_sourceIdeal Γ(X, V) X.functionField
+  let U : X.Opens := X.basicOpen a
+  have hUaff : IsAffineOpen U := hV.basicOpen a
+  have hφinj : Function.Injective φ := algebraMap_integralClosure_injective Γ(X, V) X.functionField
+  have hφa : φ a ≠ 0 := fun h ↦ ha0 (hφinj (by simpa using h))
+  have haC' : a ∈ RingHomConductor.sourceConductor φ := by
+    change a ∈ NormalizationConductor.sourceIdeal Γ(X, V) X.functionField at haC
+    simpa [NormalizationConductor.sourceIdeal, φ] using haC
+  have haway : Function.Bijective (Localization.awayMap φ a) :=
+    RingHomConductor.awayMap_bijective φ hφinj a haC'
+  let eAway : Localization.Away a ≃+* Localization.Away (φ a) :=
+    RingEquiv.ofBijective (Localization.awayMap φ a) haway
+  have : IsIntegrallyClosed B := isIntegrallyClosed_integralClosure Γ(X, V) X.functionField
+  have hmon : Submonoid.powers (φ a) ≤ nonZeroDivisors B :=
+    powers_le_nonZeroDivisors_of_noZeroDivisors hφa
+  have hAwayIC : IsIntegrallyClosed (Localization.Away (φ a)) :=
+    isIntegrallyClosed_of_isLocalization (Localization.Away (φ a))
+      (Submonoid.powers (φ a)) hmon
+  have hAawayIC : IsIntegrallyClosed (Localization.Away a) :=
+    IsIntegrallyClosed.of_equiv eAway.symm
+  let _ : IsIntegrallyClosed (Localization.Away a) := hAawayIC
+  let _ : IsLocalization.Away a Γ(X, U) := hV.isLocalization_basicOpen a
+  let eSections : Localization.Away a ≃ₐ[Γ(X, V)] Γ(X, U) :=
+    IsLocalization.algEquiv (Submonoid.powers a) _ _
+  have hSectionsIC : IsIntegrallyClosed Γ(X, U) :=
+    IsIntegrallyClosed.of_equiv eSections.toRingEquiv
+  have hUne : Nonempty U := by
+    let p : PrimeSpectrum Γ(X, V) := ⟨⊥, Ideal.isPrime_bot⟩
+    have hp : p ∈ PrimeSpectrum.basicOpen a := by
+      change a ∉ (⊥ : Ideal Γ(X, V))
+      simpa using ha0
+    refine ⟨⟨(hV.fromSpec).base p, ?_⟩⟩
+    have hp' := hp
+    rw [← hV.fromSpec_preimage_basicOpen a] at hp'
+    exact hp'
+  let _ : Nonempty U := hUne
+  let _ : IsIntegrallyClosed Γ(X, U) := hSectionsIC
+  exact ⟨U, hUaff, hUne, isIso_morphismRestrict_toCurve X U hUaff⟩
 
 /-- **Finiteness of normalization.**  The normalization morphism of an integral scheme that is
 locally of finite type over a field of characteristic zero is a finite morphism. -/

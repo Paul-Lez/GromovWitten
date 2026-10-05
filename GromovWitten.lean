@@ -680,3 +680,5 @@ import GromovWitten.AlgebraicGeometry.Curves.ModuleFlasqueSections
 import GromovWitten.AlgebraicGeometry.Curves.AffineHigherDirectImageSections
 import GromovWitten.AlgebraicGeometry.Curves.CoherentHigherDirectImage
 import GromovWitten.AlgebraicGeometry.Curves.RegularProperCurveCohomology
+import GromovWitten.Algebra.FiniteModuleSupport
+import GromovWitten.AlgebraicGeometry.Curves.ClosedSupportCohomology
