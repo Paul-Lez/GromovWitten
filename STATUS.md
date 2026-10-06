@@ -317,29 +317,6 @@ Implemented APIs include:
 - binary products of stacks and of stack morphisms with a one-dimensional universal property,
   the 2-commuting diagonal square of a chart, and the reduction of one direction of the
   Deligne--Mumford diagonal criterion to two named representability hypotheses;
-- the relative Spec of a quasi-coherent algebra as a morphism of stacks, with the pullback of algebra
-  data along morphisms of schemes and its coherence, affineness as a representable property, the
-  universal property as an equivalence between lifts of a chart and algebra-data morphisms out of the
-  pulled-back algebra, and the comparison with the algebra of an affine morphism
-  (`Stacks/RelativeSpecStack.lean`); algebras given by descent data on an atlas and relative Proj on
-  stacks remain open;
-- chart-level refinement records with the induced map of self-overlaps, its source/target 2-cells and
-  unit compatibility, packaged as morphisms of presentation groupoid objects (`Stacks/ChartRefinement.lean`);
-- the dimension formula for flat morphisms between locally Noetherian schemes through going-down, and
-  atlas independence of the stack dimension for every algebraic stack with non-empty locally Noetherian
-  atlases, with a counterexample to the pure-dimension form over such bases
-  (`Curves/SmoothPureDimensionNoetherian.lean`, `Curves/FibreStalk.lean`);
-- the converse Deligne--Mumford criterion reduced to a single scheme-theoretic slicing statement: an
-  unramified diagonal gives an unramified self-overlap pair for every smooth chart, representable
-  properties of a sliced chart are tested on the slice morphism, étale slices glue to an étale atlas, and
-  the affine slicing step is proved (`Stacks/EtaleAtlasDiagonal.lean`, `Stacks/DeligneMumfordCriterionAssembly.lean`,
-  `Stacks/EtaleSliceLocal.lean`, `Stacks/DeligneMumfordCriterionFinal.lean`);
-- the atlas map `U → [U/G]` as a stack morphism whose fibre over a torsor is the torsor, with a generic
-  componentwise constructor of strong transformations on locally discrete bicategories
-  (`Stacks/QuotientStackAtlas.lean`, `Stacks/StrongTransOfDiscrete.lean`);
-- `[C/E]` as a cone stack over `Spec R`: descent of the base point, projection, vertex, and five of the six
-  contraction laws, with all six contraction laws, so `coneQuotientStack` is an unconditional cone stack
-  (`Cones/ConeQuotientStack.lean`);
 - the scalar contraction of the cone quotient stack `[C/E]` on all torsors, without the triviality
   hypothesis, through the functoriality of the relative torsor pushout, with its unit, multiplicativity
   and base-change laws as natural isomorphisms and the vanishing and vertex laws on objects
@@ -348,9 +325,6 @@ Implemented APIs include:
   continuous, fully faithful morphism of ringed sites, with the concrete description of the covering
   sieves of both stack sites and the restriction functor on module sheaves
   (`Sites/StackSiteContinuity.lean`, `Sites/StackSiteMorphisms.lean`);
-- the quotient stacks `[U/G]` and `BG` are `FppfStack`s: the fibre universe of `FppfStack` was raised to
-  `Cat.{u+1, u+1}` with a `ULift`-based represented stack, so they inherit the stack-morphism, chart,
-  algebraicity and inertia API (`Stacks/Algebraic.lean`, `Stacks/QuotientStackAlgebraicAPI.lean`);
 - the presentation groupoid `U ×_X U ⇉ U` of an atlas as a groupoid object with its unit, inverse and
   associativity laws as 2-cells, tied to the fibrewise groupoids (`Stacks/PresentationGroupoidObject.lean`,
   `Stacks/PresentationGroupoidLaws.lean`), and common scheme atlases with fully faithful groupoid

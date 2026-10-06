@@ -20,19 +20,14 @@ particular, basic-open) chart refinements.
 * `EtaleChart f V`: the affine charts of `f` over `V` (`Global.AffineChart f V`), ordered by
   inclusion of the underlying affine open and thereby made into a category (a morphism
   `c ⟶ c'` exists iff `c.U ≤ c'.U`).
-* `hZeroPresheaf`, `hNegOnePresheaf : (EtaleChart f V)ᵒᵖ ⥤ ModuleCat Γ(Y,V)`: the presheaves
-  sending a chart `c` to `Ω[Γ(X,c.U)⁄Γ(Y,V)]`, resp. `Algebra.H1Cotangent Γ(Y,V) Γ(X,c.U)`,
-  restricted to `Γ(Y,V)`-modules, with restriction maps `KaehlerDifferential.map`, resp.
-  `Algebra.H1Cotangent.map`.
-* `hZeroMap_id`, `hZeroMap_comp`, `hNegOneMap_id`, `hNegOneMap_comp`: the presheaf identity and
-  composition laws, stated as standalone theorems (these are exactly the `map_id`/`map_comp`
-  fields of the two functors above).
-* `kaehlerMap_self_apply`, `h1CotangentMap_self_apply`: the ring-theoretic input to the identity
-  laws, namely that a self-algebra structure whose structure map is the identity induces the
-  identity on `Ω[A⁄R]`, resp. on `Algebra.H1Cotangent R A`.
-* `sectionsPresheaf`, `derivationNatTrans`: the presheaf of sections of `X` on the same charts,
-  and the universal derivation as a morphism of presheaves `sectionsPresheaf ⟶ hZeroPresheaf`
-  (naturality of `d` in the chart).
+* `hZeroObj`/`hNegOneObj`, `hZeroMap`/`hNegOneMap` : the data of two presheaves on
+  `(EtaleChart f V)ᵒᵖ` valued in `ModuleCat Γ(Y,V)`, sending a chart `c` to `Ω[Γ(X,c.U)⁄Γ(Y,V)]`,
+  resp. `Algebra.H1Cotangent Γ(Y,V) Γ(X,c.U)`, restricted to `Γ(Y,V)`-modules, with restriction
+  maps `KaehlerDifferential.map`, resp. `Algebra.H1Cotangent.map`.
+* `hZeroMap_comp`, `hNegOneMap_comp`: the presheaf composition laws, stated as standalone
+  theorems (these are exactly the `map_comp` field of the corresponding functor, were it
+  bundled — see the `Not done` section for why the identity law, and hence the bundling into
+  an actual `CategoryTheory.Functor`, is not proved here).
 * `isQuasiCoherent_hZeroPresheaf`, `isQuasiCoherent_hNegOnePresheaf`: along a basic-open
   refinement of charts (a Zariski, hence formally étale, chart transition) the restriction map
   becomes an isomorphism after base change: this is the "quasi-coherent module presheaf on the
@@ -156,12 +151,19 @@ theorem resAlgebra_self_algebraMap (c : EtaleChart f V) :
 /-! ### The objects of the two presheaves -/
 
 /-- `H⁰` of the affine-local cotangent complex on a chart, viewed as a `Γ(Y,V)`-module: the
-module of relative differentials `Ω[Γ(X,c.U)⁄Γ(Y,V)]`. -/
-noncomputable def hZeroObj (c : EtaleChart f V) : ModuleCat.{u} Γ(Y, V) :=
+module of relative differentials `Ω[Γ(X,c.U)⁄Γ(Y,V)]`. Stated as `abbrev` (rather than `def`) so
+that it unfolds automatically wherever it is used as an implicit `ModuleCat` object: this matches
+this repository's own "concrete covers/functors must be `abbrev`s" convention, and is needed for
+`ModuleCat.hom_ext`/`simp`/instance-search to see through it as `ModuleCat.of Ω[Γ(X,c.U)⁄Γ(Y,V)]`
+rather than an opaque wrapper. This *helps* towards the presheaf identity law below (it resolves
+one genuine reducibility obstacle), but is not on its own sufficient: see the `Not done`
+discussion in the module docstring for the remaining obstacle. -/
+noncomputable abbrev hZeroObj (c : EtaleChart f V) : ModuleCat.{u} Γ(Y, V) :=
   ModuleCat.of Γ(Y, V) Ω[Γ(X, c.U)⁄Γ(Y, V)]
 
-/-- `H⁻¹` of the affine-local cotangent complex on a chart, viewed as a `Γ(Y,V)`-module. -/
-noncomputable def hNegOneObj (c : EtaleChart f V) : ModuleCat.{u} Γ(Y, V) :=
+/-- `H⁻¹` of the affine-local cotangent complex on a chart, viewed as a `Γ(Y,V)`-module.
+`abbrev` for the same reason as `hZeroObj`. -/
+noncomputable abbrev hNegOneObj (c : EtaleChart f V) : ModuleCat.{u} Γ(Y, V) :=
   ModuleCat.of Γ(Y, V) (Algebra.H1Cotangent Γ(Y, V) Γ(X, c.U))
 
 /-! ### The restriction maps -/
@@ -401,6 +403,37 @@ theorem isQuasiCoherent_hNegOnePresheaf (c : EtaleChart f V) (g : Γ(X, c.U)) :
     Algebra.Etale.of_isLocalizationAway g
   bijective_liftBaseChange_of_etale Γ(Y, V) Γ(X, c.U)
     Γ(X, (Global.AffineChart.basicOpenChart c g).U)
+
+/-! ### The presheaf identity law
+
+The identity law `hZeroMap (le_refl c.U) = 𝟙 (hZeroObj c)` (and its `H⁻¹` analogue) is
+mathematically immediate from `resAlgebra_self_algebraMap`: along the identity refinement, the
+restriction ring homomorphism is the identity, so the induced module map is the identity. It is
+*not* included here as a theorem: instantiating `KaehlerDifferential.map`/`Algebra.H1Cotangent.map`
+at `A = A` forces Lean's elaborator to choose between the canonical self-algebra instance
+`Algebra.id A` and the `resAlgebra (le_refl c.U)` instance actually carried by `hZeroMap`'s
+body, and every reformulation of the goal that does not literally unfold `hZeroMap`'s existing
+term re-triggers this instance search and lands on `Algebra.id`, producing goals with
+definitionally-mismatched (though propositionally equal, via `Algebra.algebra_ext` and
+`resAlgebra_self_algebraMap`) module/`SMulCommClass` instances on `Ω[Γ(X,c.U)⁄Γ(Y,V)]`
+(`instModuleKaehlerDifferentialOfSMulCommClass`). Working entirely from `hZeroMap`'s/`hNegOneMap`'s
+own already-elaborated terms (via `simp only [hZeroMap]`/`simp only [hNegOneMap]`, never
+restating `KaehlerDifferential.map`/`Algebra.H1Cotangent.map` afresh) does dodge this specific
+diamond, but a *second*, independent obstacle then appears: `ModuleCat.hom_ext`'s implicit
+carrier objects are inferred from `hZeroMap`'s/`hNegOneMap`'s own (non-`abbrev`, though here
+already promoted to `abbrev`) declared types, and subsequent `simp`/instance-search steps
+(`ModuleCat.hom_ofHom`, `ModuleCat.hom_id`, `Submodule.span`'s `Module` instance, `map_smul`)
+either fail to fire or resynthesize the *same* `Algebra.id`-vs-`resAlgebra` diamond one level
+down, inside `Ω[Γ(X,c.U)⁄Γ(Y,V)]`'s own `Γ(X,c.U)`-module structure. For the `H⁻¹` side the
+diamond is provably absent (canonicity via `Algebra.Extension.H1Cotangent.map_eq`/`map_id` does
+not depend on any `Algebra A A` instance at all), yet the elaborator's unification of these two
+lemmas against the ambient `Extension`/`Generators` machinery still exceeds even a 5×-enlarged
+(1,000,000) heartbeat budget. Bridging these would need an explicit transport of
+`Algebra.algebra_ext`-based instance equality through the relevant module structures; see the
+`Not done` discussion in the module docstring. Consequently the identity law is not proved, and
+`hZeroObj`/`hZeroMap`/`hZeroMap_comp` and `hNegOneObj`/`hNegOneMap`/`hNegOneMap_comp` above are
+presented as the restriction data plus the composition law, not bundled into a
+`CategoryTheory.Functor` (which would additionally require `map_id`). -/
 
 end Schemes
 

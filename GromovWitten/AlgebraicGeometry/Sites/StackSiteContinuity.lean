@@ -514,24 +514,20 @@ theorem restrict_objPullbackIso {W T S : Scheme.{u}} (g : W ⟶ A.scheme) (f : T
     (m : S ⟶ T) :
     (restrict A g).objPullbackIso m f = A.objPullbackIso m (f ≫ g) := by
   apply Iso.ext
-  have hc := comp_naturality_app (FppfStack.mapOfSchemeHom g) A.map m
-    (Discrete.mk (ULift.up f))
-  change ((restrict A g).map.naturality ⟨m.op⟩).hom.toNatTrans.app
-    (Discrete.mk (ULift.up f)) = _ at hc
-  change ((restrict A g).map.naturality ⟨m.op⟩).hom.toNatTrans.app (Discrete.mk (ULift.up f)) =
-    (A.map.naturality ⟨m.op⟩).hom.toNatTrans.app (Discrete.mk (ULift.up (f ≫ g)))
+  have hc := comp_naturality_app (FppfStack.mapOfSchemeHom g) A.map m (Discrete.mk f)
+  change ((restrict A g).map.naturality ⟨m.op⟩).hom.toNatTrans.app (Discrete.mk f) = _ at hc
+  change ((restrict A g).map.naturality ⟨m.op⟩).hom.toNatTrans.app (Discrete.mk f) =
+    (A.map.naturality ⟨m.op⟩).hom.toNatTrans.app (Discrete.mk (f ≫ g))
   rw [hc]
   have hone : (((FppfStack.mapOfSchemeHom g).naturality
       (⟨m.op⟩ : LocallyDiscrete.mk (Opposite.op T) ⟶
-        LocallyDiscrete.mk (Opposite.op S))).hom.toNatTrans.app
-          (Discrete.mk (ULift.up f))) = 𝟙 _ := by
+        LocallyDiscrete.mk (Opposite.op S))).hom.toNatTrans.app (Discrete.mk f)) = 𝟙 _ := by
     change @Eq (ULift (PLift (_ = _))) _ _
     apply Subsingleton.elim
   have hid : (A.map.appFunctor S).map
       (((FppfStack.mapOfSchemeHom g).naturality
         (⟨m.op⟩ : LocallyDiscrete.mk (Opposite.op T) ⟶
-          LocallyDiscrete.mk (Opposite.op S))).hom.toNatTrans.app
-            (Discrete.mk (ULift.up f))) = 𝟙 _ := by
+          LocallyDiscrete.mk (Opposite.op S))).hom.toNatTrans.app (Discrete.mk f)) = 𝟙 _ := by
     rw [hone]
     exact (A.map.appFunctor S).map_id _
   rw [hid, Category.id_comp]
@@ -549,11 +545,10 @@ theorem restrict_inducedComparison {W U T S : Scheme.{u}} (g : W ⟶ A.scheme) (
   simp only [StackChart.inducedComparison, Iso.trans_hom]
   rw [show ((Cat.Hom.toNatIso ((restrict A g).map.naturality
         (⟨m.op⟩ : LocallyDiscrete.mk (Opposite.op U) ⟶
-          LocallyDiscrete.mk (Opposite.op S)))).app (Discrete.mk (ULift.up snd))).hom =
+          LocallyDiscrete.mk (Opposite.op S)))).app (Discrete.mk snd)).hom =
       ((Cat.Hom.toNatIso (A.map.naturality
         (⟨m.op⟩ : LocallyDiscrete.mk (Opposite.op U) ⟶
-          LocallyDiscrete.mk (Opposite.op S)))).app
-            (Discrete.mk (ULift.up (snd ≫ g)))).hom from
+          LocallyDiscrete.mk (Opposite.op S)))).app (Discrete.mk (snd ≫ g))).hom from
     congrArg Iso.hom (restrict_objPullbackIso A g snd m)]
 
 set_option backward.isDefEq.respectTransparency false in
@@ -570,13 +565,11 @@ theorem inducedComparison_id {T U : Scheme.{u}} (fst : U ⟶ T) (snd : U ⟶ A.s
           LocallyDiscrete.mk (Opposite.op U))
         (𝟙 (LocallyDiscrete.mk (Opposite.op U)))).inv.toNatTrans.app x := rfl
   have h1 : ((representedStack A.scheme).toPseudofunctor.mapId
-      (LocallyDiscrete.mk (Opposite.op U))).hom.toNatTrans.app
-        (Discrete.mk (ULift.up snd)) = 𝟙 _ := by
+      (LocallyDiscrete.mk (Opposite.op U))).hom.toNatTrans.app (Discrete.mk snd) = 𝟙 _ := by
     change @Eq (ULift (PLift (_ = _))) _ _
     apply Subsingleton.elim
   have h2 : (X.toPseudofunctor.mapId (LocallyDiscrete.mk (Opposite.op U))).inv.toNatTrans.app
-        ((A.map.appFunctor U).obj (Discrete.mk (ULift.up snd))) ≫
-        (stackPullback X (𝟙 U)).map universal.hom =
+        ((A.map.appFunctor U).obj (Discrete.mk snd)) ≫ (stackPullback X (𝟙 U)).map universal.hom =
       universal.hom ≫ (X.toPseudofunctor.mapId
         (LocallyDiscrete.mk (Opposite.op U))).inv.toNatTrans.app
           ((stackPullback X fst).obj x) :=
@@ -623,26 +616,21 @@ theorem inducedComparison_comp {V U T S : Scheme.{u}} (fst : U ⟶ T) (snd : U �
   rw [stackPullbackCompIso_assoc X m k fst x]
   rw [reassoc_of% hp]
   have hn : (A.map.naturality (⟨m.op⟩ : LocallyDiscrete.mk (Opposite.op V) ⟶
-          LocallyDiscrete.mk (Opposite.op S))).hom.toNatTrans.app
-            (Discrete.mk (ULift.up (k ≫ snd))) ≫
+          LocallyDiscrete.mk (Opposite.op S))).hom.toNatTrans.app (Discrete.mk (k ≫ snd)) ≫
         (stackPullback X m).map ((A.map.naturality (⟨k.op⟩ :
             LocallyDiscrete.mk (Opposite.op U) ⟶
-            LocallyDiscrete.mk (Opposite.op V))).hom.toNatTrans.app
-              (Discrete.mk (ULift.up snd))) ≫
+            LocallyDiscrete.mk (Opposite.op V))).hom.toNatTrans.app (Discrete.mk snd)) ≫
           (stackPullbackCompIso X m k (A.obj U snd)).hom =
       (A.map.appFunctor S).map
-          (stackPullbackCompIso (representedStack A.scheme) m k
-            (Discrete.mk (ULift.up snd))).hom ≫
+          (stackPullbackCompIso (representedStack A.scheme) m k (Discrete.mk snd)).hom ≫
         (A.map.naturality (⟨(m ≫ k).op⟩ : LocallyDiscrete.mk (Opposite.op U) ⟶
-          LocallyDiscrete.mk (Opposite.op S))).hom.toNatTrans.app
-            (Discrete.mk (ULift.up snd)) :=
-    (stackHomNaturalityCompPullback A.map m k (Discrete.mk (ULift.up snd))).symm
+          LocallyDiscrete.mk (Opposite.op S))).hom.toNatTrans.app (Discrete.mk snd) :=
+    (stackHomNaturalityCompPullback A.map m k (Discrete.mk snd)).symm
   rw [reassoc_of% hn]
   have hobj : (A.map.appFunctor S).map
-      (stackPullbackCompIso (representedStack A.scheme) m k
-        (Discrete.mk (ULift.up snd))).hom = 𝟙 _ := by
+      (stackPullbackCompIso (representedStack A.scheme) m k (Discrete.mk snd)).hom = 𝟙 _ := by
     have hone : (stackPullbackCompIso (representedStack A.scheme) m k
-        (Discrete.mk (ULift.up snd))).hom = 𝟙 _ := by
+        (Discrete.mk snd)).hom = 𝟙 _ := by
       change @Eq (ULift (PLift (_ = _))) _ _
       apply Subsingleton.elim
     rw [hone]
@@ -1119,7 +1107,7 @@ site, as a morphism of ringed sites.**  The structure-sheaf comparison is the id
 structure sheaves are the regular functions of the underlying scheme, and the inclusion does not
 change the underlying scheme. -/
 def smallEtaleToLisseRingedSiteMorphism (X : DeligneMumfordStack.{u}) :
-    RingedSiteMorphism.{u + 1, u + 1, u + 1} (canonicalSmallEtaleRingedSite X)
+    RingedSiteMorphism.{u + 1, u, u + 1} (canonicalSmallEtaleRingedSite X)
       (canonicalLisseEtaleRingedSite X.toStack) where
   siteFunctor := smallEtaleToLisse X
   continuous := smallEtaleToLisse_isContinuous X
