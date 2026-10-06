@@ -61,7 +61,8 @@ produced from the unramifiedness of the stack diagonal by cutting an affine char
 functions whose differentials generate the relative cotangent module of `t`
 (`Stacks/EtaleSlice.lean` has the commutative-algebra core,
 `EtaleSlice.etale_of_span_eq_top_of_isStandardSmooth`).  That step is not formalised, so the
-headline theorem `AlgebraicStack.exists_etaleChart_of_unramified_diagonal` is not available here;
+headline theorem `AlgebraicStack.exists_etaleChart_of_unramified_diagonal_of_saturated` is not
+available here;
 the exact missing statement is the hypothesis `hEt` of
 `AlgebraicStack.exists_etaleChart_of_sliceFamily`.
 -/

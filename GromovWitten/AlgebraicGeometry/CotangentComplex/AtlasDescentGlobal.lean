@@ -20,14 +20,19 @@ particular, basic-open) chart refinements.
 * `EtaleChart f V`: the affine charts of `f` over `V` (`Global.AffineChart f V`), ordered by
   inclusion of the underlying affine open and thereby made into a category (a morphism
   `c ⟶ c'` exists iff `c.U ≤ c'.U`).
-* `hZeroObj`/`hNegOneObj`, `hZeroMap`/`hNegOneMap` : the data of two presheaves on
-  `(EtaleChart f V)ᵒᵖ` valued in `ModuleCat Γ(Y,V)`, sending a chart `c` to `Ω[Γ(X,c.U)⁄Γ(Y,V)]`,
-  resp. `Algebra.H1Cotangent Γ(Y,V) Γ(X,c.U)`, restricted to `Γ(Y,V)`-modules, with restriction
-  maps `KaehlerDifferential.map`, resp. `Algebra.H1Cotangent.map`.
-* `hZeroMap_comp`, `hNegOneMap_comp`: the presheaf composition laws, stated as standalone
-  theorems (these are exactly the `map_comp` field of the corresponding functor, were it
-  bundled — see the `Not done` section for why the identity law, and hence the bundling into
-  an actual `CategoryTheory.Functor`, is not proved here).
+* `hZeroPresheaf`, `hNegOnePresheaf : (EtaleChart f V)ᵒᵖ ⥤ ModuleCat Γ(Y,V)`: the presheaves
+  sending a chart `c` to `Ω[Γ(X,c.U)⁄Γ(Y,V)]`, resp. `Algebra.H1Cotangent Γ(Y,V) Γ(X,c.U)`,
+  restricted to `Γ(Y,V)`-modules, with restriction maps `KaehlerDifferential.map`, resp.
+  `Algebra.H1Cotangent.map`.
+* `hZeroMap_id`, `hZeroMap_comp`, `hNegOneMap_id`, `hNegOneMap_comp`: the presheaf identity and
+  composition laws, stated as standalone theorems (these are exactly the `map_id`/`map_comp`
+  fields of the two functors above).
+* `kaehlerMap_self_apply`, `h1CotangentMap_self_apply`: the ring-theoretic input to the identity
+  laws, namely that a self-algebra structure whose structure map is the identity induces the
+  identity on `Ω[A⁄R]`, resp. on `Algebra.H1Cotangent R A`.
+* `sectionsPresheaf`, `derivationNatTrans`: the presheaf of sections of `X` on the same charts,
+  and the universal derivation as a morphism of presheaves `sectionsPresheaf ⟶ hZeroPresheaf`
+  (naturality of `d` in the chart).
 * `isQuasiCoherent_hZeroPresheaf`, `isQuasiCoherent_hNegOnePresheaf`: along a basic-open
   refinement of charts (a Zariski, hence formally étale, chart transition) the restriction map
   becomes an isomorphism after base change: this is the "quasi-coherent module presheaf on the

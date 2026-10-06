@@ -85,13 +85,8 @@ noncomputable def relations : Submodule ℚ (D.cycles i) :=
     (RationalEquivalenceSystem.canonical
       (X := D.base) (dimension := D.baseDim) (i := i)).relations
 
-/-- Descent cycles on the atlas modulo rational equivalence on the atlas.
-
-This quotient is coarser than Vistoli's Chow group and depends on the atlas: for `ℙ¹` presented
-by two affine lines every invariant zero-cycle is rationally equivalent to zero on the atlas, so
-this group vanishes while `A_0(ℙ¹) = ℚ`. The genuine Vistoli group, whose relations are the
-divisors of invariant systems of rational functions, is `EtalePresentationGroupoid.vistoliChow`
-in `VistoliRelations.lean`; it surjects onto this one (`vistoliChow_toChow`). -/
+/-- **The Vistoli rational Chow group** in dimension `i`: descent cycles on the atlas modulo
+rational equivalence on the atlas. -/
 noncomputable abbrev chow := D.cycles i ⧸ D.relations i
 
 /-- The class of a Vistoli cycle in the Vistoli Chow group. -/

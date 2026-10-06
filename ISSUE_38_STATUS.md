@@ -31,17 +31,21 @@ surjectivity of the base-changed cotangent map (`surjective_mapBaseChange_of_for
 `SiteChart.restrict` (`Sites/StackSiteContinuity.lean`) realises a slice `W → U → X` of a chart as
 a chart and computes its comparison data.
 
-`Stacks/DeligneMumfordCriterionAssembly.lean`, `Stacks/EtaleSliceLocal.lean` and
-`Stacks/DeligneMumfordCriterionFinal.lean` reduce the converse "unramified diagonal ⇒ étale
-atlas" to one scheme-theoretic statement: representable properties of a sliced chart are tested
-on the slice morphism, étale slices covering the atlas glue to an étale surjective chart, the
-affine slicing step is proved, and `AlgebraicStack.exists_etaleChart_of_unramified_diagonal`
-follows from the hypothesis `LocalSlicing`.
+`Stacks/DeligneMumfordCriterionAssembly.lean`, `Stacks/EtaleSliceLocal.lean`,
+`Stacks/DeligneMumfordCriterionFinal.lean` and `Stacks/EtaleSliceLocalSlicing.lean` reduce the
+converse "unramified diagonal ⇒ étale atlas" to one scheme-theoretic statement: representable
+properties of a sliced chart are tested on the slice morphism, étale slices whose slice
+morphisms cover the atlas glue to an étale surjective chart (`SaturatedEtaleSliceExists` is
+necessary and sufficient), the affine slicing step is proved, and
+`AlgebraicStack.exists_etaleChart_of_unramified_diagonal_of_saturated` follows from the
+hypothesis `SaturatedLocalSlicing`. The first formulation `LocalSlicing`, which demanded a slice
+through every point, is false and nothing is deduced from it.
 
 ## Precise remaining scope
 
-`LocalSlicing` (Stacks 06N3, local step) is not proved: near every point of a smooth atlas with
-unramified self-overlap pair, a slice whose slice morphism is étale has to be found, and the
-differentials of the chosen functions must generate the relative cotangent module at every
-point of the slice's preimage, which needs the groupoid composition law of `U ×_X U`. The
-comparison of inertia for quotient stacks (stabilisers) is not started.
+`SaturatedLocalSlicing` (Stacks 06N3, local step) is not proved: near every point of a smooth
+atlas with unramified self-overlap pair, a slice whose slice morphism is étale has to be found,
+and the differentials of the chosen functions must generate the relative cotangent module at
+every point of the slice's preimage, which needs the groupoid structure of `U ×_X U` (now
+available as scheme morphisms `StackChart.selfOverlapUnit/Inv/Comp`). The comparison of inertia
+for quotient stacks (stabilisers) is not started.
