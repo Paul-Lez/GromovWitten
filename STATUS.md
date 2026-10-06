@@ -182,6 +182,22 @@ Implemented APIs include:
   model of the same curve, flat by torsion-freeness of the Rees charts and with the generic fibre
   untouched, and the projection is a proper modification of models; finite chains of such
   blowups compose to proper modifications and preserve properness;
+- the normalisation of a model of a curve over a DVR is again a model: flatness of the normalisation over
+  the DVR is proved unconditionally (flat ⟺ injective into a domain over a Bézout domain, chart by chart on
+  Mathlib's normalisation cover), and with finiteness of the normalisation and the generic-fibre isomorphism
+  as explicit hypotheses `Model.normalize`/`Model.normalizeModification` are constructed
+  (`Curves/StableReduction/ModelNormalization.lean`); the fibre product of two modifications of a model with
+  its proper projections and proper structure map (`Curves/StableReduction/CommonModification.lean`);
+- the closure model of a scheme over a DVR, the scheme-theoretic image of its generic fibre, is flat over
+  the DVR with the same generic fibre and inherits quasi-compactness, finite presentation and properness;
+  applied to the fibre product of two modifications it gives an actual model dominating both, the common
+  modification, with no extra hypothesis (`Curves/StableReduction/ClosureModel.lean`: `closureModel`,
+  `flat_closureModel`, `ModelModification.commonModel`);
+- the normalisation of a model is an isomorphism over the generic fibre exactly when the curve is normal
+  (`IsNormalScheme`, the normalisation morphism is an isomorphism over every normal open, and normalisation
+  commutes with the generic fibre by smooth base change), so `Model.normalize'` needs only finiteness of the
+  normalisation, and `Model.normalize_charZero` needs nothing when the base is of finite type over a field of
+  characteristic zero (`Curves/StableReduction/ModelNormalizationGeneric.lean`);
 - the first geometric inputs to the special-fibre numerical type of an arithmetic surface: the vanishing
   ideal sheaf of a component of the special fibre with its support, the intersection number of two components
   as the sum of the stalk intersection multiplicities (symmetric, zero for disjoint components, finite under
@@ -205,22 +221,6 @@ Implemented APIs include:
   the special fibre are `𝒪_{M,x} ⧸ (π)` (`specialFiberStalkIso`) and drop the dimension by exactly one at
   closed points, with the one-dimensionality of the special fibre in three equivalent forms
   (`Curves/StableReduction/SpecialFibreStalkIso.lean`);
-- the normalisation of a model of a curve over a DVR is again a model: flatness of the normalisation over
-  the DVR is proved unconditionally (flat ⟺ injective into a domain over a Bézout domain, chart by chart on
-  Mathlib's normalisation cover), and with finiteness of the normalisation and the generic-fibre isomorphism
-  as explicit hypotheses `Model.normalize`/`Model.normalizeModification` are constructed
-  (`Curves/StableReduction/ModelNormalization.lean`); the fibre product of two modifications of a model with
-  its proper projections and proper structure map (`Curves/StableReduction/CommonModification.lean`);
-- the closure model of a scheme over a DVR, the scheme-theoretic image of its generic fibre, is flat over
-  the DVR with the same generic fibre and inherits quasi-compactness, finite presentation and properness;
-  applied to the fibre product of two modifications it gives an actual model dominating both, the common
-  modification, with no extra hypothesis (`Curves/StableReduction/ClosureModel.lean`: `closureModel`,
-  `flat_closureModel`, `ModelModification.commonModel`);
-- the normalisation of a model is an isomorphism over the generic fibre exactly when the curve is normal
-  (`IsNormalScheme`, the normalisation morphism is an isomorphism over every normal open, and normalisation
-  commutes with the generic fibre by smooth base change), so `Model.normalize'` needs only finiteness of the
-  normalisation, and `Model.normalize_charZero` needs nothing when the base is of finite type over a field of
-  characteristic zero (`Curves/StableReduction/ModelNormalizationGeneric.lean`);
 - `Proj` commutes with arbitrary base change: a graded map which is a base change in every
   degree induces a cartesian square of `Proj`s over the spectra of the base rings, with the
   affine chart comparisons proved bijective by clearing denominators;
@@ -258,18 +258,18 @@ Implemented APIs include:
   (`H⁰` bijective, `H⁻¹` surjective) if and only if the induced map of `h¹/h⁰` groupoids of dual
   points is fully faithful over every test algebra (the converse using trivial square-zero
   extensions), with the obstruction cone as the image of a cone inside the normal sheaf;
-- external direct sums of obstruction theories over a product of affine schemes (Layer 6): the
-  external sum of two-term complexes over `S ⊗[k] S'` with rank additivity and preservation of the
-  obstruction-theory condition, the split-triangle case (`ObstructionTheory/ExternalSum.lean`), and the
-  identification of the conormal complex of a product embedding of polynomial rings over a field with the
-  external sum of the two conormal complexes (`ObstructionTheory/ExternalSumConormal.lean`:
-  `conormalProdEquiv`, `isObstructionTheory_externalSum_conormal`);
 - the connecting map `h⁰(K'') → h¹(K')` of a short exact sequence of two-term complexes agrees with
   Mathlib's connecting homomorphism of the associated short exact sequence of cochain complexes
   (`Cones/DeltaComparison.lean`: `delta_eq_δ`, `injective_delta_iff`);
 - the full six-term correspondence: naturality of the homology identifications and the equivalence of each
   exactness statement of the two-term sequence with Mathlib's long exact homology sequence
   (`Cones/DeltaComparisonSequence.lean`: `homology_exact_sequence`);
+- external direct sums of obstruction theories over a product of affine schemes (Layer 6): the
+  external sum of two-term complexes over `S ⊗[k] S'` with rank additivity and preservation of the
+  obstruction-theory condition, the split-triangle case (`ObstructionTheory/ExternalSum.lean`), and the
+  identification of the conormal complex of a product embedding of polynomial rings over a field with the
+  external sum of the two conormal complexes (`ObstructionTheory/ExternalSumConormal.lean`:
+  `conormalProdEquiv`, `isObstructionTheory_externalSum_conormal`);
 - flat local extensions with `m_R·S = m_S` preserve the order of vanishing without any
   unramifiedness, giving the equality of orders at bundle points and the principal-divisor
   comparison `π^* div(f) = div(π^* f)` for the flat pullback along an affine vector bundle over
@@ -412,11 +412,6 @@ Implemented APIs include:
   finite-sum distributivity statement;
 - the intrinsic pullback sequence of Picard groupoids for a tower `R → S → T`, unconditional
   when `S` is formally smooth over `R` and `T` is flat and formally smooth over `S`;
-- the affine compatible obstruction-theory square (Layer 9): the Jacobi–Zariski triangle of
-  `k → k[x_τ] → R⧸I` and the sequence `0 → E_Y ⊗ 𝒪_X → absComplex φ → E → 0` as degreewise short exact
-  sequences with commuting squares, the two-out-of-three property of obstruction theories and the intrinsic
-  pullback sequences of Picard groupoids of both rows (`VirtualFundamentalClass/RelativeAbsoluteTriangle.lean`:
-  `CompatibleSquare`, `isObstructionTheory_absHom_iff_and_id`);
 - the transitivity long exact sequence of the truncated cotangent complex for a tower `R → S → T`
   (Layer 3): the flat base-change arrow on `H⁻¹` and its exactness complete the Jacobi–Zariski sequence,
   bundled as `TransitivitySequence` with all exactness proved; étale base change of `H⁰` is an isomorphism
@@ -431,6 +426,11 @@ Implemented APIs include:
 - the cohomology of the affine-local cotangent complex as restriction data on the affine charts of a
   morphism with the composition law and quasi-coherence along basic-open refinements
   (`CotangentComplex/AtlasDescentGlobal.lean`);
+- the affine compatible obstruction-theory square (Layer 9): the Jacobi–Zariski triangle of
+  `k → k[x_τ] → R⧸I` and the sequence `0 → E_Y ⊗ 𝒪_X → absComplex φ → E → 0` as degreewise short exact
+  sequences with commuting squares, the two-out-of-three property of obstruction theories and the intrinsic
+  pullback sequences of Picard groupoids of both rows (`VirtualFundamentalClass/RelativeAbsoluteTriangle.lean`:
+  `CompatibleSquare`, `isObstructionTheory_absHom_iff_and_id`);
 - obstruction cones of the affine intrinsic normal cone inside `h¹/h⁰(Eᵛ)` (fibrewise closed
   immersions), the identification of the two-term obstruction-theory criterion with the derived
   one, virtual rank, external sums and base change of obstruction theories, invariance under
@@ -701,13 +701,13 @@ Implemented APIs include:
   finite type over a field with no hypothesis, and it is the unique class with `π^*[X]^vir = [C(E)]`
   when the obstruction bundle has a global trivialisation
   (`GlobalVirtualClassSurjective.lean`, `GlobalVirtualClassUnconditional.lean`);
-- resolution independence of the global virtual class for a fixed bundle (Layer 7): chart-wise isomorphic
-  global cone data give the same glued cone class in every grading and, for a globally trivialised bundle over
-  an infinite field, the same unconditional virtual class
-  (`VirtualFundamentalClass/ConeGluingIndependence.lean`: `ChartIso`, `coneClassAt_eq`, `virtualClassFT'_eq`);
-- the quasi-isomorphism variant of that independence for chart-wise quasi-isomorphisms bijective in degree
-  one, which are automatically isomorphisms (`VirtualFundamentalClass/ConeGluingQuasiIso.lean`:
-  `ChartQuasiIso`, `virtualClassFT'_eq_of_quasiIso`);
+- the lci formula for the virtual class (Layer 7): for the identity obstruction theory on the
+  conormal complex of a quasi-regular ideal, the resolved cone is the whole obstruction bundle and
+  `[X]^vir = [X]` (`VirtualFundamentalClass/LciFormula.lean`: `VirtualClass.lci_formula`,
+  `OverField.lci_formula`); for a regular sequence in a polynomial ring over an infinite field the
+  formula holds with no hypothesis at all (`VirtualFundamentalClass/LciFormulaPure.lean`:
+  `OverField.lci_formula_polynomial`, with the purity of `Spec (R⧸I)` from
+  `height_eq_length_of_isWeaklyRegular` and the basis of `I/I²` from `QuasiregularGenerators.cotangentBasis`);
 - towards the virtual degree (Layer 7): the degree map on rational zero-cycles of a quasi-compact scheme
   locally of finite type over a field with residue degrees positive at closed points
   (`IntersectionTheory/ZeroCycleDegree.lean`), Fulton's affine length formula
@@ -752,18 +752,13 @@ Implemented APIs include:
   (`IntersectionTheory/ProperCurveDegreeUnconditional.lean`:
   `RegularProperCurve.degreeCycle_principalCycle_eq_zero'`), the well-definedness of the degree on `A_0`
   reducing to the dichotomy curve-or-point for integral closed subschemes;
-- the lci formula for the virtual class (Layer 7): for the identity obstruction theory on the
-  conormal complex of a quasi-regular ideal, the resolved cone is the whole obstruction bundle and
-  `[X]^vir = [X]` (`VirtualFundamentalClass/LciFormula.lean`: `VirtualClass.lci_formula`,
-  `OverField.lci_formula`); for a regular sequence in a polynomial ring over an infinite field the
-  formula holds with no hypothesis at all (`VirtualFundamentalClass/LciFormulaPure.lean`:
-  `OverField.lci_formula_polynomial`, with the purity of `Spec (R⧸I)` from
-  `height_eq_length_of_isWeaklyRegular` and the basis of `I/I²` from `QuasiregularGenerators.cotangentBasis`);
-- the zero-section formula for the virtual class (Layer 7): when the resolved cone is the zero section of
-  the obstruction bundle, the virtual class is the self-intersection of the zero section applied to the
-  fundamental class, packaged as the top Chern class of the obstruction bundle
-  (`VirtualFundamentalClass/ObstructionBundleFormula.lean`); the comparison of that top Chern class with the
-  first Chern class in rank one remains open;
+- resolution independence of the global virtual class for a fixed bundle (Layer 7): chart-wise isomorphic
+  global cone data give the same glued cone class in every grading and, for a globally trivialised bundle over
+  an infinite field, the same unconditional virtual class
+  (`VirtualFundamentalClass/ConeGluingIndependence.lean`: `ChartIso`, `coneClassAt_eq`, `virtualClassFT'_eq`);
+- the quasi-isomorphism variant of that independence for chart-wise quasi-isomorphisms bijective in degree
+  one, which are automatically isomorphisms (`VirtualFundamentalClass/ConeGluingQuasiIso.lean`:
+  `ChartQuasiIso`, `virtualClassFT'_eq_of_quasiIso`);
 - executable worked examples for the combinatorial acceptance cases.
 
 Some classical existence results beyond the pinned Mathlib snapshot currently appear only as
