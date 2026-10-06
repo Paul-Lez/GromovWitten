@@ -334,17 +334,6 @@ theorem nodeChart_toNode_point {x : X} (_hx : x ∈ nodeSet f) (c : NodeChartAt 
     c.toNode c.point = standardNodeOrigin K :=
   c.toNode_point_eq_standardNodeOrigin
 
-/-- Every point of a node chart mapping to the distinguished node has the distinguished
-standard-node coordinate.  This is the fibrewise form of `nodeChart_toNode_point`; it is the
-local input needed before transporting the two standard axes through normalization pullback. -/
-theorem nodeChart_toNode_eq_of_map_eq {x : X} (hx : x ∈ nodeSet f)
-    (c : NodeChartAt f x) {q : c.source} (hq : c.toCurve q = x) :
-    c.toNode q = standardNodeOrigin K := by
-  by_contra hne
-  have h := smoothChart_of_nodeChart f c q hne
-  rw [hq] at h
-  exact hx h
-
 /-- The global first differential Fitting locus on a node chart is exactly the inverse image of
 the standard node origin. -/
 theorem NodeChartAt.mem_support_globalIdealSheaf_one_iff
