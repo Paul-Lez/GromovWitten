@@ -1,0 +1,549 @@
+/-
+Copyright (c) 2026 GromovWitten Contributors. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: GromovWitten Contributors
+-/
+import GromovWitten.AlgebraicGeometry.ProjectiveCompletionHyperplane
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.BundleHomotopyClosed
+import GromovWitten.AlgebraicGeometry.IntersectionTheory.FirstChernClass
+
+/-!
+# Fulton 1.9 on a coordinate subspace of an affine chart, with supports
+
+Let `R` be a Noetherian ring with the universal dimension formula, `ι` a finite type and
+`T ⊆ ι`.  The coordinate subspace `{x_u = 0 : u ∈ T}` of `A := Spec R[x_u : u ∈ ι]` is the closed
+subscheme `Spec R[x_u : u ∉ T]`, embedded by the surjection `coordKill T` killing the variables
+indexed by `T`.  It is itself the total space of the trivial bundle of rank `#ι - #T` over
+`Spec R`.  Transporting round 18's affine homotopy surjectivity with supports
+(`VectorBundle.exists_pullback_supported`) along this closed immersion gives the affine input of
+the surjectivity half of the projective bundle formula: a cycle on `A` concentrated in dimension
+`i` and supported in `V(I · R[x] + (x_u : u ∈ T))` is, modulo principal divisors supported in the
+same closed subset, a finite combination of the coordinate points
+`coordIdealPoint 𝔭 T = [𝔭 · R[x] + (x_u : u ∈ T)]`, with coefficients forming a cycle on `Spec R`
+concentrated in dimension `i - (#ι - #T)` and supported in `V(I)`.
+
+## Main results
+
+* `coordSubspace T`: the closed immersion `Spec R[x_u : u ∉ T] ⟶ Spec R[x_u : u ∈ ι]` given by
+  `coordKill T` (`ChartPointOrder.lean`, with `coordKill_surjective`), with
+  `coordSubspace_base_apply`, `ker_coordKill_eq_span`, `range_coordSubspace` (the zero locus of
+  `(x_u : u ∈ T)`), `comap_coordKill_map` (`coordKill⁻¹ (𝔭 · R[x_u : u ∉ T]) = coordIdeal 𝔭 T`
+  for every ideal `𝔭`), `coordSubspace_base_bundlePoint` and `coordIdealPoint_injective`;
+* `dimension_coordIdealPoint`: `dimA (coordIdealPoint 𝔭 T) = dimR 𝔭 + #{u // u ∉ T}` for any
+  two dimension functions (`R` Noetherian, `ι` finite);
+* `properPushforward_supportedRelations_le`, `properPushforward_supportedIn`,
+  `exists_properPushforward_eq_of_supportedIn_range`: pushforward along a closed immersion maps
+  relations supported in `S` to relations supported in `f '' S` and cycles supported in `S` to
+  cycles supported in `f '' S`, and a graded cycle supported in the range of a closed immersion is
+  the pushforward of a graded cycle supported in the preimage of every support of the original
+  one; `map_closedImmersion_dimension_eq_zeroWeights` (the weights do not matter along a closed
+  immersion).  The pushforward of a point along a closed immersion is
+  `properPushforward_point_of_isClosedImmersion` (`LineBundleRestrict.lean`);
+* `coordPullback T w`: the pullback of a cycle `w` on `Spec R` to the coordinate subspace, viewed
+  on `A`, with the pointwise description `coordPullback_apply_coordIdealPoint`,
+  `coordPullback_apply_of_forall_ne` and the sum description `coordPullback_eq_sum_pointProj`;
+* `exists_coordPullback_supported`: the main theorem (blueprint A1.3), for `R` Noetherian with
+  the universal dimension formula and arbitrary dimension functions;
+  `exists_coordPullback_supported_sum` states its conclusion as an explicit finite sum of
+  coordinate points (`dimension_coordIdealPoint_of_ne_zero` gives their dimension);
+  `exists_coordPullback_supported_of_finiteType` and `exists_coordPullback_supported_sections`
+  discharge the hypotheses on `R` for a finitely generated algebra over a field and for the ring
+  of sections `Γ(Y, U)` of an affine open of a scheme locally of finite type over a field.
+-/
+
+open CategoryTheory AlgebraicGeometry MvPolynomial
+
+universe u
+
+namespace GromovWitten.AlgebraicGeometry.IntersectionTheory
+
+/-! ## The coordinate subspace of the affine space over `R` -/
+
+section CoordSubspace
+
+variable {R : Type u} [CommRing R] {ι : Type u}
+
+/-- The coordinate subspace `{x_u = 0 : u ∈ T}` of `Spec R[x_u : u ∈ ι]`, as the closed immersion
+`Spec R[x_u : u ∉ T] ⟶ Spec R[x_u : u ∈ ι]` induced by the surjection `coordKill T`. -/
+noncomputable abbrev coordSubspace (T : Set ι) :
+    Spec (CommRingCat.of (MvPolynomial {u // u ∉ T} R)) ⟶
+      Spec (CommRingCat.of (MvPolynomial ι R)) :=
+  Spec.map (CommRingCat.ofHom (coordKill (B := R) T).toRingHom)
+
+/-- The coordinate subspace is a closed immersion. -/
+instance isClosedImmersion_coordSubspace (T : Set ι) :
+    _root_.AlgebraicGeometry.IsClosedImmersion (coordSubspace (R := R) T) :=
+  _root_.AlgebraicGeometry.IsClosedImmersion.spec_of_surjective _ (coordKill_surjective T)
+
+/-- The coordinate subspace acts on points by contraction of primes along `coordKill T`. -/
+theorem coordSubspace_base_apply (T : Set ι)
+    (x : ↥(Spec (CommRingCat.of (MvPolynomial {u // u ∉ T} R)))) :
+    (coordSubspace (R := R) T).base x = PrimeSpectrum.comap (coordKill (B := R) T).toRingHom x :=
+  rfl
+
+/-- The kernel of `coordKill T` is the ideal generated by the variables indexed by `T`. -/
+theorem ker_coordKill_eq_span (T : Set ι) :
+    RingHom.ker (coordKill (B := R) T) = Ideal.span (X '' T) :=
+  ker_coordKill T
+
+/-- The image of the coordinate subspace is the zero locus of the variables indexed by `T`. -/
+theorem range_coordSubspace (T : Set ι) :
+    Set.range (coordSubspace (R := R) T).base =
+      PrimeSpectrum.zeroLocus
+        ((Ideal.span (X '' T) : Ideal (MvPolynomial ι R)) : Set (MvPolynomial ι R)) := by
+  change Set.range (PrimeSpectrum.comap (coordKill (B := R) T).toRingHom) = _
+  rw [_root_.range_comap_of_surjective _ _ (coordKill_surjective T)]
+  rw [← ker_coordKill_eq_span T]
+  rfl
+
+/-- `coordKill T` followed by the reduction of the coefficients modulo `𝔭` is `coordIdealQuot`. -/
+theorem map_comp_coordKill (𝔭 : Ideal R) (T : Set ι) :
+    (MvPolynomial.map (Ideal.Quotient.mk 𝔭)).comp (coordKill (B := R) T).toRingHom =
+      coordIdealQuot 𝔭 T := by
+  classical
+  refine MvPolynomial.ringHom_ext (fun a ↦ ?_) (fun k ↦ ?_)
+  · simp [coordIdealQuot, coordKill]
+  · by_cases hk : k ∈ T
+    · rw [coordIdealQuot_X_of_mem 𝔭 T hk, RingHom.comp_apply, AlgHom.toRingHom_eq_coe,
+        RingHom.coe_coe, coordKill_X_of_mem hk, map_zero]
+    · rw [coordIdealQuot_X_of_notMem 𝔭 T hk, RingHom.comp_apply, AlgHom.toRingHom_eq_coe,
+        RingHom.coe_coe, coordKill_X_of_notMem hk, map_X]
+
+/-- The contraction along `coordKill T` of the extension `𝔭 · R[x_u : u ∉ T]` is the coordinate
+ideal `𝔭 · R[x] + (x_u : u ∈ T)`, for every ideal `𝔭` of `R`. -/
+theorem comap_coordKill_map (𝔭 : Ideal R) (T : Set ι) :
+    Ideal.comap (coordKill (B := R) T)
+        (Ideal.map (C : R →+* MvPolynomial {u // u ∉ T} R) 𝔭) = coordIdeal 𝔭 T := by
+  have h1 : Ideal.map (C : R →+* MvPolynomial {u // u ∉ T} R) 𝔭 =
+      RingHom.ker (MvPolynomial.map (σ := {u // u ∉ T}) (Ideal.Quotient.mk 𝔭)) := by
+    rw [MvPolynomial.ker_map, Ideal.mk_ker]
+  rw [h1, coordIdeal_eq_ker, ← map_comp_coordKill]
+  rfl
+
+/-- The coordinate subspace sends the generic point of the fibre over `𝔭` of the trivial bundle
+`Spec R[x_u : u ∉ T] → Spec R` to the coordinate point `coordIdealPoint 𝔭 T`. -/
+theorem coordSubspace_base_bundlePoint (T : Set ι) (𝔭 : ↥(Spec (CommRingCat.of R))) :
+    (coordSubspace (R := R) T).base
+        (VectorBundle.bundlePoint
+          (AlgEquiv.refl : MvPolynomial {u // u ∉ T} R ≃ₐ[R] MvPolynomial {u // u ∉ T} R) 𝔭) =
+      coordIdealPoint 𝔭.asIdeal T := by
+  apply PrimeSpectrum.ext
+  change Ideal.comap (coordKill (B := R) T)
+    (Ideal.map (algebraMap R (MvPolynomial {u // u ∉ T} R)) 𝔭.asIdeal) = coordIdeal 𝔭.asIdeal T
+  rw [MvPolynomial.algebraMap_eq]
+  exact comap_coordKill_map 𝔭.asIdeal T
+
+/-- The coordinate point determines the prime of `R` it lies over. -/
+theorem coordIdealPoint_injective (T : Set ι) :
+    Function.Injective (fun 𝔭 : ↥(Spec (CommRingCat.of R)) ↦ coordIdealPoint 𝔭.asIdeal T) := by
+  intro 𝔭 𝔮 h
+  apply PrimeSpectrum.ext
+  have h' := congrArg (fun x : ↥(Spec (CommRingCat.of (MvPolynomial ι R))) ↦
+    Ideal.comap (algebraMap R (MvPolynomial ι R)) x.asIdeal) h
+  simpa only [coordIdealPoint_asIdeal, comap_algebraMap_coordIdeal] using h'
+
+/-- **Dimension of a coordinate point.**  For any dimension functions on `Spec R` and on
+`Spec R[x_u : u ∈ ι]`, the coordinate point `coordIdealPoint 𝔭 T` has dimension
+`dimR 𝔭 + #{u // u ∉ T}`: it is the image under the closed immersion `coordSubspace T` of the
+generic point of the fibre over `𝔭` of the trivial bundle of rank `#{u // u ∉ T}`. -/
+theorem dimension_coordIdealPoint [IsNoetherianRing R] [Finite ι]
+    (dimR : DimensionFunction (Spec (CommRingCat.of R)))
+    (dimA : DimensionFunction (Spec (CommRingCat.of (MvPolynomial ι R))))
+    (𝔭 : ↥(Spec (CommRingCat.of R))) (T : Set ι) :
+    dimA (coordIdealPoint 𝔭.asIdeal T) = dimR 𝔭 + (Nat.card {u // u ∉ T} : ℤ) := by
+  rw [← coordSubspace_base_bundlePoint T 𝔭,
+    ← DimensionFunction.apply_eq_of_isClosedImmersion
+      (DimensionFunction.comapClosedImmersion (coordSubspace (R := R) T) dimA) dimA]
+  exact VectorBundle.dimension_bundlePoint _ dimR _ 𝔭
+
+/-- The number of coordinates outside a finite set of coordinates. -/
+theorem natCard_coordCompl [Finite ι] (S' : Finset ι) :
+    (Nat.card {u // u ∉ (S' : Set ι)} : ℤ) = (Nat.card ι : ℤ) - S'.card := by
+  classical
+  have _ := Fintype.ofFinite ι
+  rw [Nat.card_eq_fintype_card, Nat.card_eq_fintype_card]
+  have h : Fintype.card {u // u ∉ (S' : Set ι)} = Fintype.card ι - S'.card := by
+    simp only [Finset.mem_coe]
+    rw [Fintype.card_subtype_compl, Fintype.card_coe]
+  have hle : S'.card ≤ Fintype.card ι := Finset.card_le_univ S'
+  rw [h]
+  omega
+
+end CoordSubspace
+
+/-! ## Pushforward along a closed immersion and supports -/
+
+section Pushforward
+
+variable {W Y : Scheme.{u}} (f : W ⟶ Y) [_root_.AlgebraicGeometry.IsClosedImmersion f]
+
+/-- The pushforward along a closed immersion of a cycle supported in `S` is supported in the
+image `f '' S`. -/
+theorem properPushforward_supportedIn (dimW : DimensionFunction W) (dimY : DimensionFunction Y)
+    {S : Set W} {z : AlgebraicCycle W ℚ} (hz : z.SupportedIn S) :
+    AlgebraicCycle.SupportedIn (_root_.AlgebraicGeometry.AlgebraicCycle.map f dimW dimY z)
+      (f.base '' S) := by
+  have hw : (dimW : W → ℤ) = fun w ↦ (dimY : Y → ℤ) (f.base w) := by
+    funext w
+    exact DimensionFunction.apply_eq_of_isClosedImmersion dimW dimY f w
+  intro y hy
+  rw [hw] at hy
+  by_cases hmem : y ∈ Set.range f.base
+  · obtain ⟨x, rfl⟩ := hmem
+    rw [AlgebraicCycle.map_closedImmersion_apply_image f dimY z x] at hy
+    exact ⟨x, hz x hy, rfl⟩
+  · exact absurd (AlgebraicCycle.map_closedImmersion_apply_of_not_mem_range f dimY z y hmem) hy
+
+/-- The pushforward along a closed immersion maps the relations supported in `S` into the
+relations supported in the image `f '' S`: the pushforward of the principal divisor of a
+generator is the principal divisor of the same function on the image of its integral closed
+subscheme. -/
+theorem properPushforward_supportedRelations_le (dimW : DimensionFunction W)
+    (dimY : DimensionFunction Y) (S : Set W) :
+    Submodule.map (AlgebraicCycle.mapLinear f dimW dimY) (supportedRelations W dimW S) ≤
+      supportedRelations Y dimY (f.base '' S) := by
+  rw [supportedRelations, Submodule.map_span]
+  refine Submodule.span_le.2 ?_
+  rintro d ⟨c, ⟨g, hg, rfl⟩, rfl⟩
+  have hsup : (g.closedImage f).SupportedIn (f.base '' S) := by
+    rintro _ ⟨y, rfl⟩
+    exact ⟨g.subspace.inclusion.base y, hg ⟨y, rfl⟩, rfl⟩
+  have hd := divisor_mem_supportedRelations dimY hsup
+  rw [← g.map_divisor_closedImmersion f dimW dimY] at hd
+  exact hd
+
+/-- **A graded cycle supported in the range of a closed immersion is a pushforward**, of a graded
+cycle whose support is the preimage of the support of the original cycle. -/
+theorem exists_properPushforward_eq_of_supportedIn_range {dimW : DimensionFunction W}
+    {dimY : DimensionFunction Y} {i : ℤ} (z : cyclesOfDimension Y dimY i)
+    (hz : (z : AlgebraicCycle Y ℚ).SupportedIn (Set.range f.base)) :
+    ∃ z' : cyclesOfDimension W dimW i,
+      cyclesOfDimension.properPushforward (dimension := dimW) (dimensionY := dimY) f z' = z ∧
+      ∀ T : Set Y, (z : AlgebraicCycle Y ℚ).SupportedIn T →
+        (z' : AlgebraicCycle W ℚ).SupportedIn (f.base ⁻¹' T) := by
+  refine ⟨cyclesOfDimension.pullbackClosed f z,
+    cyclesOfDimension.properPushforward_pullbackClosed f z fun x hx ↦ ?_, fun T hT w hw ↦ hT _ hw⟩
+  by_contra h
+  exact hx (hz x h)
+
+/-- Along a closed immersion, the pushforward of cycles does not depend on the weights, as long
+as these are certified dimension functions: every multiplicity is one. -/
+theorem map_closedImmersion_dimension_eq_zeroWeights (dimW : DimensionFunction W)
+    (dimY : DimensionFunction Y) (z : AlgebraicCycle W ℚ) :
+    _root_.AlgebraicGeometry.AlgebraicCycle.map f dimW dimY z =
+      _root_.AlgebraicGeometry.AlgebraicCycle.map f (fun _ ↦ 0) (fun _ ↦ 0) z := by
+  have hw : (dimW : W → ℤ) = fun w ↦ (dimY : Y → ℤ) (f.base w) := by
+    funext w
+    exact DimensionFunction.apply_eq_of_isClosedImmersion dimW dimY f w
+  apply Function.locallyFinsuppWithin.coe_injective
+  funext y
+  rw [hw]
+  by_cases hmem : y ∈ Set.range f.base
+  · obtain ⟨x, rfl⟩ := hmem
+    exact (AlgebraicCycle.map_closedImmersion_apply_image f dimY z x).trans
+      (AlgebraicCycle.map_closedImmersion_apply_image f (fun _ ↦ (0 : ℤ)) z x).symm
+  · exact (AlgebraicCycle.map_closedImmersion_apply_of_not_mem_range f dimY z y hmem).trans
+      (AlgebraicCycle.map_closedImmersion_apply_of_not_mem_range f (fun _ ↦ (0 : ℤ)) z y hmem).symm
+
+end Pushforward
+
+/-! ## Pulling a cycle of the base back to a coordinate subspace -/
+
+section CoordPullback
+
+variable {R : Type u} [CommRing R] {ι : Type u}
+
+/-- The pullback of a cycle `w` on `Spec R` to the coordinate subspace `{x_u = 0 : u ∈ T}` of
+`Spec R[x_u : u ∈ ι]`: the flat pullback of `w` along the trivial bundle
+`Spec R[x_u : u ∉ T] → Spec R`, pushed forward along the closed immersion `coordSubspace T`.  Its
+coefficient at the coordinate point `coordIdealPoint 𝔭 T` is `w 𝔭`
+(`coordPullback_apply_coordIdealPoint`) and it vanishes at every other point
+(`coordPullback_apply_of_forall_ne`). -/
+noncomputable def coordPullback (T : Set ι) (w : AlgebraicCycle (Spec (CommRingCat.of R)) ℚ) :
+    AlgebraicCycle (Spec (CommRingCat.of (MvPolynomial ι R))) ℚ :=
+  _root_.AlgebraicGeometry.AlgebraicCycle.map (coordSubspace (R := R) T) (fun _ ↦ 0) (fun _ ↦ 0)
+    (AlgebraicCycle.pullbackBundle
+      (AlgEquiv.refl : MvPolynomial {u // u ∉ T} R ≃ₐ[R] MvPolynomial {u // u ∉ T} R) w)
+
+/-- The coefficient of `coordPullback T w` at the coordinate point over `𝔭` is `w 𝔭`. -/
+theorem coordPullback_apply_coordIdealPoint (T : Set ι)
+    (w : AlgebraicCycle (Spec (CommRingCat.of R)) ℚ) (𝔭 : ↥(Spec (CommRingCat.of R))) :
+    coordPullback T w (coordIdealPoint 𝔭.asIdeal T) = w 𝔭 := by
+  rw [← coordSubspace_base_bundlePoint T 𝔭]
+  exact (AlgebraicCycle.map_closedImmersion_apply_image (coordSubspace (R := R) T)
+    (fun _ ↦ (0 : ℤ)) _ _).trans (AlgebraicCycle.pullbackBundle_apply_bundlePoint _ w 𝔭)
+
+/-- `coordPullback T w` vanishes away from the coordinate points. -/
+theorem coordPullback_apply_of_forall_ne (T : Set ι)
+    (w : AlgebraicCycle (Spec (CommRingCat.of R)) ℚ)
+    {𝔮 : ↥(Spec (CommRingCat.of (MvPolynomial ι R)))}
+    (h : ∀ 𝔭 : ↥(Spec (CommRingCat.of R)), 𝔮 ≠ coordIdealPoint 𝔭.asIdeal T) :
+    coordPullback T w 𝔮 = 0 := by
+  by_cases hmem : 𝔮 ∈ Set.range (coordSubspace (R := R) T).base
+  · obtain ⟨b, rfl⟩ := hmem
+    refine (AlgebraicCycle.map_closedImmersion_apply_image (coordSubspace (R := R) T)
+      (fun _ ↦ (0 : ℤ)) _ b).trans ?_
+    refine AlgebraicCycle.pullbackBundle_eq_zero_of_notMem _ w ?_
+    rintro ⟨𝔭, rfl⟩
+    exact h 𝔭 (coordSubspace_base_bundlePoint T 𝔭)
+  · exact AlgebraicCycle.map_closedImmersion_apply_of_not_mem_range _ (fun _ ↦ (0 : ℤ)) _ _ hmem
+
+/-- **The coordinate pullback as a finite sum of coordinate points.**  If `w` is concentrated in
+dimension `i - (#ι - #S')`, then `coordPullback S' w` is the finite sum, over the support of `w`,
+of `w 𝔭` times the coordinate point `coordIdealPoint 𝔭 S'` (which has dimension `i`), written
+with `pointProj` (equal to `cyclesOfDimension.point` at points of dimension `i`). -/
+theorem coordPullback_eq_sum_pointProj [IsNoetherianRing R] [Finite ι]
+    (dimR : DimensionFunction (Spec (CommRingCat.of R)))
+    (dimA : DimensionFunction (Spec (CommRingCat.of (MvPolynomial ι R))))
+    (S' : Finset ι) (i : ℤ) (w : AlgebraicCycle (Spec (CommRingCat.of R)) ℚ)
+    (hw : ∀ 𝔭, dimR 𝔭 ≠ i - ((Nat.card ι : ℤ) - S'.card) → (w : _ → ℚ) 𝔭 = 0) :
+    coordPullback (S' : Set ι) w =
+      ((∑ 𝔭 ∈ (finite_support_univ w).toFinset,
+        (w : _ → ℚ) 𝔭 • cyclesOfDimension.pointProj dimA i (coordIdealPoint 𝔭.asIdeal S') :
+          cyclesOfDimension (Spec (CommRingCat.of (MvPolynomial ι R))) dimA i) :
+        AlgebraicCycle (Spec (CommRingCat.of (MvPolynomial ι R))) ℚ) := by
+  classical
+  apply Function.locallyFinsuppWithin.coe_injective
+  funext y
+  have hterm : ∀ 𝔭 : ↥(Spec (CommRingCat.of R)),
+      (((w : _ → ℚ) 𝔭 • cyclesOfDimension.pointProj dimA i
+          (coordIdealPoint 𝔭.asIdeal (S' : Set ι)) :
+        cyclesOfDimension (Spec (CommRingCat.of (MvPolynomial ι R))) dimA i) :
+          AlgebraicCycle (Spec (CommRingCat.of (MvPolynomial ι R))) ℚ) y =
+        (w : _ → ℚ) 𝔭 *
+          (if coordIdealPoint 𝔭.asIdeal (S' : Set ι) = y ∧ dimA y = i then 1 else 0) := by
+    intro 𝔭
+    rw [Submodule.coe_smul, Function.locallyFinsuppWithin.coe_rational_smul, Pi.smul_apply,
+      cyclesOfDimension.pointProj_apply, smul_eq_mul]
+  rw [Submodule.coe_sum]
+  simp only [Function.locallyFinsuppWithin.coe_sum, Finset.sum_apply]
+  simp_rw [hterm]
+  by_cases hy : ∃ 𝔮 : ↥(Spec (CommRingCat.of R)), y = coordIdealPoint 𝔮.asIdeal (S' : Set ι)
+  · obtain ⟨𝔮, rfl⟩ := hy
+    rw [coordPullback_apply_coordIdealPoint, Finset.sum_eq_single 𝔮]
+    · by_cases hw0 : (w : _ → ℚ) 𝔮 = 0
+      · rw [hw0, zero_mul]
+      · have hd : dimA (coordIdealPoint 𝔮.asIdeal (S' : Set ι)) = i := by
+          rw [dimension_coordIdealPoint dimR dimA, natCard_coordCompl]
+          by_contra hne
+          exact hw0 (hw 𝔮 (fun h ↦ hne (by rw [h]; ring)))
+        rw [if_pos ⟨rfl, hd⟩, mul_one]
+    · intro 𝔭 _ hne
+      rw [if_neg (fun h ↦ hne (coordIdealPoint_injective (S' : Set ι) h.1)), mul_zero]
+    · intro hnot
+      rw [Set.Finite.mem_toFinset, Function.mem_support, not_not] at hnot
+      rw [hnot, zero_mul]
+  · rw [coordPullback_apply_of_forall_ne _ _ (fun 𝔭 h ↦ hy ⟨𝔭, h⟩)]
+    symm
+    refine Finset.sum_eq_zero fun 𝔭 _ ↦ ?_
+    rw [if_neg (fun h ↦ hy ⟨𝔭, h.1.symm⟩), mul_zero]
+
+end CoordPullback
+
+/-! ## The main theorem -/
+
+section Main
+
+variable {R : Type u} [CommRing R] {ι : Type u}
+
+/-- **Fulton, *Intersection Theory*, Proposition 1.9, on a coordinate subspace, with supports**
+(blueprint A1.3).  Let `R` be a Noetherian ring with the universal dimension formula, `ι` finite,
+`I` an ideal of `R` and `S' ⊆ ι` finite; fix arbitrary dimension functions on `Spec R` and on
+`A := Spec R[x_u : u ∈ ι]`.  Every cycle `z` on `A` concentrated in dimension `i` and supported in
+`V(I · R[x] + (x_u : u ∈ S'))` is congruent, modulo relations supported in that same closed subset,
+to the coordinate pullback `coordPullback S' w` of a cycle `w` on `Spec R` concentrated in
+dimension `i - (#ι - #S')` and supported in `V(I)`. -/
+theorem exists_coordPullback_supported [IsNoetherianRing R] [Finite ι]
+    (hdim : VectorBundle.HasUniversalDimensionFormula R)
+    (dimR : DimensionFunction (Spec (CommRingCat.of R)))
+    (dimA : DimensionFunction (Spec (CommRingCat.of (MvPolynomial ι R))))
+    (I : Ideal R) (S' : Finset ι) (i : ℤ)
+    (z : cyclesOfDimension (Spec (CommRingCat.of (MvPolynomial ι R))) dimA i)
+    (hz : (z : AlgebraicCycle (Spec (CommRingCat.of (MvPolynomial ι R))) ℚ).SupportedIn
+      (PrimeSpectrum.zeroLocus ((Ideal.map (C : R →+* MvPolynomial ι R) I ⊔
+        Ideal.span (X '' (S' : Set ι)) : Ideal (MvPolynomial ι R)) : Set (MvPolynomial ι R)))) :
+    ∃ w : AlgebraicCycle (Spec (CommRingCat.of R)) ℚ,
+      (∀ 𝔭, dimR 𝔭 ≠ i - ((Nat.card ι : ℤ) - S'.card) → (w : _ → ℚ) 𝔭 = 0) ∧
+      w.SupportedIn (PrimeSpectrum.zeroLocus (I : Set R)) ∧
+      (z : AlgebraicCycle (Spec (CommRingCat.of (MvPolynomial ι R))) ℚ) -
+          coordPullback (S' : Set ι) w ∈
+        supportedRelations (Spec (CommRingCat.of (MvPolynomial ι R))) dimA
+          (PrimeSpectrum.zeroLocus ((Ideal.map (C : R →+* MvPolynomial ι R) I ⊔
+            Ideal.span (X '' (S' : Set ι)) : Ideal (MvPolynomial ι R)) :
+              Set (MvPolynomial ι R))) := by
+  set T : Set ι := (S' : Set ι) with hT
+  set c := coordSubspace (R := R) T with hc
+  set dimB := DimensionFunction.comapClosedImmersion c dimA with hdimB
+  -- `coordKill T` fixes the constants
+  have hkillC : ∀ a : R, coordKill (B := R) T (C a) = C a := fun a ↦ (coordKill T).commutes a
+  -- the restriction of `z` to the coordinate subspace
+  set z' := AlgebraicCycle.pullbackClosed c
+    (z : AlgebraicCycle (Spec (CommRingCat.of (MvPolynomial ι R))) ℚ) with hz'
+  have hz'dim : ∀ q, dimB q ≠ i → (z' : _ → ℚ) q = 0 := by
+    intro q hq
+    refine z.2 (c.base q) ?_
+    rwa [← DimensionFunction.apply_eq_of_isClosedImmersion dimB dimA c q]
+  have hz'supp : z'.SupportedIn (PrimeSpectrum.zeroLocus
+      (I.map (C : R →+* MvPolynomial {u // u ∉ T} R) : Set _)) := by
+    intro q hq
+    have h : (Ideal.map (C : R →+* MvPolynomial ι R) I ⊔ Ideal.span (X '' T)) ≤
+        (c.base q).asIdeal := hz _ hq
+    change Ideal.map (C : R →+* MvPolynomial {u // u ∉ T} R) I ≤ q.asIdeal
+    rw [Ideal.map_le_iff_le_comap]
+    intro a ha
+    have h' : C a ∈ (c.base q).asIdeal :=
+      h (Ideal.mem_sup_left (Ideal.mem_map_of_mem C ha))
+    change coordKill (B := R) T (C a) ∈ q.asIdeal at h'
+    rw [hkillC] at h'
+    exact h'
+  obtain ⟨w, hwdim, hwsupp, hwrel⟩ :=
+    VectorBundle.exists_pullback_supported hdim dimR dimB I i z' hz'dim hz'supp
+  refine ⟨w, fun 𝔭 h𝔭 ↦ hwdim 𝔭 ?_, hwsupp, ?_⟩
+  · rwa [natCard_coordCompl]
+  -- push everything forward along the coordinate subspace
+  have hzero : ∀ x, x ∉ Set.range c.base →
+      (z : AlgebraicCycle (Spec (CommRingCat.of (MvPolynomial ι R))) ℚ) x = 0 := by
+    intro x hx
+    by_contra hne
+    refine hx ?_
+    rw [hc, range_coordSubspace]
+    exact PrimeSpectrum.zeroLocus_anti_mono (by
+      rw [SetLike.coe_subset_coe]; exact le_sup_right) (hz x hne)
+  have hw : (dimB : _ → ℤ) = fun b ↦ (dimA : _ → ℤ) (c.base b) := by
+    funext b
+    exact DimensionFunction.apply_eq_of_isClosedImmersion dimB dimA c b
+  have key : AlgebraicCycle.mapLinear c dimB dimA
+      (z' - AlgebraicCycle.pullbackBundle
+        (AlgEquiv.refl : MvPolynomial {u // u ∉ T} R ≃ₐ[R] MvPolynomial {u // u ∉ T} R) w) =
+      (z : AlgebraicCycle (Spec (CommRingCat.of (MvPolynomial ι R))) ℚ) -
+        coordPullback T w := by
+    rw [map_sub]
+    congr 1
+    · change _root_.AlgebraicGeometry.AlgebraicCycle.map c dimB dimA z' = _
+      rw [hw]
+      exact AlgebraicCycle.map_pullbackClosed c dimA _ hzero
+    · exact map_closedImmersion_dimension_eq_zeroWeights c dimB dimA _
+  have hmem := properPushforward_supportedRelations_le c dimB dimA _
+    (Submodule.mem_map_of_mem hwrel)
+  rw [key] at hmem
+  refine supportedRelations_mono dimA ?_ hmem
+  rintro _ ⟨q, hq, rfl⟩
+  replace hq : Ideal.map (C : R →+* MvPolynomial {u // u ∉ T} R) I ≤ q.asIdeal := hq
+  change (Ideal.map (C : R →+* MvPolynomial ι R) I ⊔ Ideal.span (X '' T)) ≤ (c.base q).asIdeal
+  refine sup_le ?_ ?_
+  · rw [Ideal.map_le_iff_le_comap]
+    intro a ha
+    change coordKill (B := R) T (C a) ∈ q.asIdeal
+    rw [hkillC]
+    exact hq (Ideal.mem_map_of_mem C ha)
+  · have hr : c.base q ∈ Set.range c.base := ⟨q, rfl⟩
+    rw [hc, range_coordSubspace] at hr
+    exact hr
+
+/-- `exists_coordPullback_supported` with its conclusion written as an explicit finite sum of
+coordinate points: `z ≡ ∑_{𝔭 ∈ supp w} w 𝔭 · [coordIdealPoint 𝔭 S']` modulo relations supported in
+`V(I · R[x] + (x_u : u ∈ S'))`.  Each `pointProj` occurring with a nonzero coefficient is the
+point `cyclesOfDimension.point (coordIdealPoint 𝔭 S') _` (`dimension_coordIdealPoint_of_ne_zero`
+and `cyclesOfDimension.pointProj_eq_point`). -/
+theorem exists_coordPullback_supported_sum [IsNoetherianRing R] [Finite ι]
+    (hdim : VectorBundle.HasUniversalDimensionFormula R)
+    (dimR : DimensionFunction (Spec (CommRingCat.of R)))
+    (dimA : DimensionFunction (Spec (CommRingCat.of (MvPolynomial ι R))))
+    (I : Ideal R) (S' : Finset ι) (i : ℤ)
+    (z : cyclesOfDimension (Spec (CommRingCat.of (MvPolynomial ι R))) dimA i)
+    (hz : (z : AlgebraicCycle (Spec (CommRingCat.of (MvPolynomial ι R))) ℚ).SupportedIn
+      (PrimeSpectrum.zeroLocus ((Ideal.map (C : R →+* MvPolynomial ι R) I ⊔
+        Ideal.span (X '' (S' : Set ι)) : Ideal (MvPolynomial ι R)) : Set (MvPolynomial ι R)))) :
+    ∃ w : AlgebraicCycle (Spec (CommRingCat.of R)) ℚ,
+      (∀ 𝔭, dimR 𝔭 ≠ i - ((Nat.card ι : ℤ) - S'.card) → (w : _ → ℚ) 𝔭 = 0) ∧
+      w.SupportedIn (PrimeSpectrum.zeroLocus (I : Set R)) ∧
+      (z : AlgebraicCycle (Spec (CommRingCat.of (MvPolynomial ι R))) ℚ) -
+          ((∑ 𝔭 ∈ (finite_support_univ w).toFinset,
+            (w : _ → ℚ) 𝔭 • cyclesOfDimension.pointProj dimA i (coordIdealPoint 𝔭.asIdeal S') :
+              cyclesOfDimension (Spec (CommRingCat.of (MvPolynomial ι R))) dimA i) :
+            AlgebraicCycle (Spec (CommRingCat.of (MvPolynomial ι R))) ℚ) ∈
+        supportedRelations (Spec (CommRingCat.of (MvPolynomial ι R))) dimA
+          (PrimeSpectrum.zeroLocus ((Ideal.map (C : R →+* MvPolynomial ι R) I ⊔
+            Ideal.span (X '' (S' : Set ι)) : Ideal (MvPolynomial ι R)) :
+              Set (MvPolynomial ι R))) := by
+  obtain ⟨w, hwdim, hwsupp, hwrel⟩ := exists_coordPullback_supported hdim dimR dimA I S' i z hz
+  refine ⟨w, hwdim, hwsupp, ?_⟩
+  rwa [← coordPullback_eq_sum_pointProj dimR dimA S' i w hwdim]
+
+/-- A coordinate point carrying a nonzero coefficient of a cycle `w` concentrated in dimension
+`i - (#ι - #S')` has dimension `i`. -/
+theorem dimension_coordIdealPoint_of_ne_zero [IsNoetherianRing R] [Finite ι]
+    (dimR : DimensionFunction (Spec (CommRingCat.of R)))
+    (dimA : DimensionFunction (Spec (CommRingCat.of (MvPolynomial ι R))))
+    (S' : Finset ι) (i : ℤ) (w : AlgebraicCycle (Spec (CommRingCat.of R)) ℚ)
+    (hw : ∀ 𝔭, dimR 𝔭 ≠ i - ((Nat.card ι : ℤ) - S'.card) → (w : _ → ℚ) 𝔭 = 0)
+    {𝔭 : ↥(Spec (CommRingCat.of R))} (h𝔭 : (w : _ → ℚ) 𝔭 ≠ 0) :
+    dimA (coordIdealPoint 𝔭.asIdeal (S' : Set ι)) = i := by
+  rw [dimension_coordIdealPoint dimR dimA, natCard_coordCompl]
+  by_contra hne
+  exact h𝔭 (hw 𝔭 (fun h ↦ hne (by rw [h]; ring)))
+
+/-- `exists_coordPullback_supported` for a finitely generated algebra `R` over a field `k`: the
+Noetherianity of `R` and its universal dimension formula are automatic. -/
+theorem exists_coordPullback_supported_of_finiteType (k : Type u) [Field k] [Algebra k R]
+    [Algebra.FiniteType k R] [Finite ι]
+    (dimR : DimensionFunction (Spec (CommRingCat.of R)))
+    (dimA : DimensionFunction (Spec (CommRingCat.of (MvPolynomial ι R))))
+    (I : Ideal R) (S' : Finset ι) (i : ℤ)
+    (z : cyclesOfDimension (Spec (CommRingCat.of (MvPolynomial ι R))) dimA i)
+    (hz : (z : AlgebraicCycle (Spec (CommRingCat.of (MvPolynomial ι R))) ℚ).SupportedIn
+      (PrimeSpectrum.zeroLocus ((Ideal.map (C : R →+* MvPolynomial ι R) I ⊔
+        Ideal.span (X '' (S' : Set ι)) : Ideal (MvPolynomial ι R)) : Set (MvPolynomial ι R)))) :
+    ∃ w : AlgebraicCycle (Spec (CommRingCat.of R)) ℚ,
+      (∀ 𝔭, dimR 𝔭 ≠ i - ((Nat.card ι : ℤ) - S'.card) → (w : _ → ℚ) 𝔭 = 0) ∧
+      w.SupportedIn (PrimeSpectrum.zeroLocus (I : Set R)) ∧
+      (z : AlgebraicCycle (Spec (CommRingCat.of (MvPolynomial ι R))) ℚ) -
+          coordPullback (S' : Set ι) w ∈
+        supportedRelations (Spec (CommRingCat.of (MvPolynomial ι R))) dimA
+          (PrimeSpectrum.zeroLocus ((Ideal.map (C : R →+* MvPolynomial ι R) I ⊔
+            Ideal.span (X '' (S' : Set ι)) : Ideal (MvPolynomial ι R)) :
+              Set (MvPolynomial ι R))) := by
+  have _ : IsNoetherianRing R := Algebra.FiniteType.isNoetherianRing k R
+  exact exists_coordPullback_supported
+    (GromovWitten.Algebra.FiniteTypeDimensionFormula.hasUniversalDimensionFormula_of_finiteType
+      k R) dimR dimA I S' i z hz
+
+end Main
+
+section Sections
+
+/-- `exists_coordPullback_supported` for the ring of sections `R = Γ(Y, U)` of an affine open `U`
+of a scheme `Y` locally of finite type over a field (the chart rings of the projective bundle
+formula): the Noetherianity of `Γ(Y, U)` (`FiniteTypeDimension.isNoetherianRing_sections`) and its
+universal dimension formula (`FiniteTypeDimension.hasUniversalDimensionFormula_sections`) are
+discharged.  The dimension functions are arbitrary, in particular the canonical ones
+`FiniteTypeDimension.dimensionFunction` of the structure maps to `Spec k`.  To rewrite
+`coordPullback` as a finite sum of coordinate points use `coordPullback_eq_sum_pointProj` with
+`FiniteTypeDimension.isNoetherianRing_sections`. -/
+theorem exists_coordPullback_supported_sections {k : Type u} [Field k] {Y : Scheme.{u}}
+    (f : Y ⟶ Spec (CommRingCat.of k)) [_root_.AlgebraicGeometry.LocallyOfFiniteType f]
+    (U : Y.Opens) (hU : IsAffineOpen U) {ι : Type u} [Finite ι]
+    (dimR : DimensionFunction (Spec (CommRingCat.of Γ(Y, U))))
+    (dimA : DimensionFunction (Spec (CommRingCat.of (MvPolynomial ι Γ(Y, U)))))
+    (I : Ideal Γ(Y, U)) (S' : Finset ι) (i : ℤ)
+    (z : cyclesOfDimension (Spec (CommRingCat.of (MvPolynomial ι Γ(Y, U)))) dimA i)
+    (hz : (z : AlgebraicCycle (Spec (CommRingCat.of (MvPolynomial ι Γ(Y, U)))) ℚ).SupportedIn
+      (PrimeSpectrum.zeroLocus ((Ideal.map (C : Γ(Y, U) →+* MvPolynomial ι Γ(Y, U)) I ⊔
+        Ideal.span (X '' (S' : Set ι)) : Ideal (MvPolynomial ι Γ(Y, U))) :
+          Set (MvPolynomial ι Γ(Y, U))))) :
+    ∃ w : AlgebraicCycle (Spec (CommRingCat.of Γ(Y, U))) ℚ,
+      (∀ 𝔭, dimR 𝔭 ≠ i - ((Nat.card ι : ℤ) - S'.card) → (w : _ → ℚ) 𝔭 = 0) ∧
+      w.SupportedIn (PrimeSpectrum.zeroLocus (I : Set Γ(Y, U))) ∧
+      (z : AlgebraicCycle (Spec (CommRingCat.of (MvPolynomial ι Γ(Y, U)))) ℚ) -
+          coordPullback (S' : Set ι) w ∈
+        supportedRelations (Spec (CommRingCat.of (MvPolynomial ι Γ(Y, U)))) dimA
+          (PrimeSpectrum.zeroLocus ((Ideal.map (C : Γ(Y, U) →+* MvPolynomial ι Γ(Y, U)) I ⊔
+            Ideal.span (X '' (S' : Set ι)) : Ideal (MvPolynomial ι Γ(Y, U))) :
+              Set (MvPolynomial ι Γ(Y, U)))) := by
+  have _ := FiniteTypeDimension.isNoetherianRing_sections f U hU
+  exact exists_coordPullback_supported
+    (FiniteTypeDimension.hasUniversalDimensionFormula_sections f U hU) dimR dimA I S' i z hz
+
+end Sections
+
+end GromovWitten.AlgebraicGeometry.IntersectionTheory
