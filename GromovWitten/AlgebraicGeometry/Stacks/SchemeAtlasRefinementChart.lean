@@ -35,13 +35,12 @@ lemma stackMorphismInducedComparison_chart_raw'
     (universal : A.obj U snd ≅ (stackPullback X fst).obj y)
     (m : S ⟶ U) (x : StackFiber (representedStack A.scheme) S)
     (objectIso : x ≅ (stackPullback (representedStack A.scheme) m).obj
-      (Discrete.mk (ULift.up snd))) :
-    stackMorphismInducedComparison A.map fst (Discrete.mk (ULift.up snd)) y universal
+      (Discrete.mk snd)) :
+    stackMorphismInducedComparison A.map fst (Discrete.mk snd) y universal
       m x objectIso =
-      (A.objIsoOfEq
-          (congrArg ULift.down (Discrete.eq_of_hom objectIso.hom)).symm).symm.trans
+      (A.objIsoOfEq (Discrete.eq_of_hom objectIso.hom).symm).symm.trans
         (A.inducedComparison fst snd universal m) := by
-  obtain ⟨⟨x⟩⟩ := x
+  cases x
   have hobj : objectIso = Discrete.eqToIso (Discrete.eq_of_hom objectIso.hom) := by
     apply Iso.ext
     change @Eq (ULift (PLift (_ = _))) _ _
@@ -51,14 +50,14 @@ lemma stackMorphismInducedComparison_chart_raw'
   simp only [stackMorphismInducedComparison, inducedComparison, Iso.trans_hom,
     Iso.symm_hom, Functor.mapIso_hom, Category.assoc]
   let h := Discrete.eq_of_hom objectIso.hom
-  have hdown : x = m ≫ snd := congrArg ULift.down h
   have hd : (Discrete.eqToIso h).hom = Discrete.eqToHom h := by rfl
   have hi : (A.map.appFunctor S).map (Discrete.eqToHom h) =
-      (A.objIsoOfEq hdown).hom := by
-    exact (A.objIsoOfEq_hom hdown).symm
-  have hflip : (A.objIsoOfEq hdown.symm).inv = (A.objIsoOfEq hdown).hom := by
-    cases hdown
+      (A.objIsoOfEq h).hom := by
+    exact (A.objIsoOfEq_hom h).symm
+  have hflip : (A.objIsoOfEq h.symm).inv = (A.objIsoOfEq h).hom := by
+    cases h
     simp only [objIsoOfEq, Iso.refl_inv, Iso.refl_hom]
+    rfl
   rw [hd, hi, hflip]
 
 set_option backward.isDefEq.respectTransparency false in
@@ -68,14 +67,13 @@ noncomputable def toStackMorphismPresentation {T : Scheme.{u}} {y : StackFiber X
     (p : A.PullbackPresentation T y) : StackMorphismPresentation A.map T y where
   space := p.space
   map := p.fst
-  object := Discrete.mk (ULift.up p.snd)
+  object := Discrete.mk p.snd
   comparison := p.comparison
-  lift toBase x c := p.lift toBase x.as.down c
-  lift_map toBase x c := p.lift_fst toBase x.as.down c
-  liftObjectIso toBase x c :=
-    Discrete.eqToIso (congrArg ULift.up (p.lift_snd toBase x.as.down c).symm)
+  lift toBase x c := p.lift toBase x.as c
+  lift_map toBase x c := p.lift_fst toBase x.as c
+  liftObjectIso toBase x c := Discrete.eqToIso (p.lift_snd toBase x.as c).symm
   lift_compatible toBase x c := by
-    obtain ⟨⟨x⟩⟩ := x
+    cases x
     obtain ⟨hf, hs, hc⟩ := p.lift_compatible toBase _ c
     refine ⟨hf, ?_⟩
     rw [stackMorphismInducedComparison_chart_raw]
@@ -85,9 +83,9 @@ noncomputable def toStackMorphismPresentation {T : Scheme.{u}} {y : StackFiber X
     change @Eq (ULift (PLift (_ = _))) _ _
     apply Subsingleton.elim
   lift_unique toBase x c g objectIso compatible := by
-    obtain ⟨⟨x⟩⟩ := x
+    cases x
     obtain ⟨hf, hc⟩ := compatible
-    have hs := (congrArg ULift.down (Discrete.eq_of_hom objectIso.hom)).symm
+    have hs := (Discrete.eq_of_hom objectIso.hom).symm
     apply p.lift_unique toBase _ c g
     refine ⟨hf, hs, ?_⟩
     rw [stackMorphismInducedComparison_chart_raw] at hc
